@@ -266,6 +266,8 @@ class SummaryResultReport extends Report
                             } else {
                                 $gastos['total_mes'][$mes] = $pvptotal;
                             }
+
+                            $gastos_total_meses = $pvptotal + $gastos_total_meses;
                         }
                     }
                 }
