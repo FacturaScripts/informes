@@ -50,14 +50,7 @@
                 </a>
             </h5>
             <div id="salesReport" class="collapse" aria-labelledby="sales-collapsed">
-                <div class="card-body">
-                    Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon
-                    officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3
-                    wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et.
-                    Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan
-                    excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt
-                    you probably haven't heard of them accusamus labore sustainable VHS.
-                </div>
+                <div class="card-body p-0"></div>
             </div>
         </div>
 
@@ -69,14 +62,7 @@
                 </a>
             </h5>
             <div id="purchasesReport" class="collapse" aria-labelledby="purchases-collapsed">
-                <div class="card-body">
-                    Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon
-                    officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3
-                    wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et.
-                    Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan
-                    excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt
-                    you probably haven't heard of them accusamus labore sustainable VHS.
-                </div>
+                <div class="card-body p-0"></div>
             </div>
         </div>
     </div>
@@ -98,6 +84,9 @@
         td {
             white-space: nowrap;
         }
+        .cursor-pointer {
+            cursor: pointer;
+        }
     </style>
 {% endblock %}
 
@@ -107,7 +96,6 @@
     <script>
         $(document).ready(function(){
             function initPage() {
-                $('#resumeData').html('');
                 let formData = new FormData();
                 formData.append('action', 'load-summary');
                 sendForm(formData);
@@ -135,6 +123,14 @@
                         $('#purchasesReport').collapse('hide');
                     }
 
+                    if (data.sales && data.sales !== '') {
+                        $('#salesReport .card-body').html(data.sales);
+                    }
+
+                    if (data.purchases && data.purchases !== '') {
+                        $('#purchasesReport .card-body').html(data.purchases);
+                    }
+
                     if (Array.isArray(data.messages)) {
                         data.messages.forEach(item => alert(item.message));
                     }
@@ -148,6 +144,18 @@
 
             $(document).on('change', '#selectYear', function(){
                 initPage();
+            });
+
+            $('#salesReport').on('show.bs.collapse', function () {
+                let formData = new FormData();
+                formData.append('action', 'load-sales');
+                sendForm(formData);
+            });
+
+            $('#purchasesReport').on('show.bs.collapse', function () {
+                let formData = new FormData();
+                formData.append('action', 'load-purchases');
+                sendForm(formData);
             });
 
             initPage();

@@ -15,22 +15,12 @@ use FacturaScripts\Dinamic\Model\Asiento;
  *
  * @author Daniel Fernández Giménez <hola@danielfg.es>
  */
-class SummaryResultReport
+class SummaryResultReport extends Report
 {
-    protected static $charts;
-    protected static $codejercicio;
-    protected static $codejercicio_ant;
-    protected static $lastyear;
-    protected static $year;
-    protected static $ventas;
-    protected static $gastos;
-    protected static $resultado;
-
     public static function render(array $formData)
     {
         self::apply($formData);
 
-        $number = '<span style="color:#ccc;">' . ToolBox::coins()::format(0) . '</span>';
 
         $html = ''
             . '<div class="table-responsive">'
@@ -61,9 +51,9 @@ class SummaryResultReport
 
         $money = self::$ventas[self::$year]['total_mes']['media'];
         $lastmoney = self::$ventas[self::$lastyear]['total_mes']['media'];
-        $html .= $money ? $money < 0 ? '<span class="text-danger">' . ToolBox::coins()::format($money) . '</span>' : ToolBox::coins()::format($money) : $number;
+        $html .= $money ? $money < 0 ? '<span class="text-danger">' . ToolBox::coins()::format($money) . '</span>' : ToolBox::coins()::format($money) : self::defaultMoney();
         $html .= '<div class="small">';
-        $html .= $lastmoney ? ToolBox::coins()::format($lastmoney) : $number;
+        $html .= $lastmoney ? ToolBox::coins()::format($lastmoney) : self::defaultMoney();
 
         $html .= ''
             . '</div>'
@@ -74,9 +64,9 @@ class SummaryResultReport
             $money = self::$ventas[self::$year]['total_mes'][$x];
             $lastmoney = self::$ventas[self::$lastyear]['total_mes'][$x];
             $html .= '<td class="' . $css . ' text-right">';
-            $html .= $money ? $money < 0 ? '<span class="text-danger">' . ToolBox::coins()::format($money) . '</span>' : ToolBox::coins()::format($money) : $number;
+            $html .= $money ? $money < 0 ? '<span class="text-danger">' . ToolBox::coins()::format($money) . '</span>' : ToolBox::coins()::format($money) : self::defaultMoney();
             $html .= '<div class="small">';
-            $html .= $lastmoney ? ToolBox::coins()::format($lastmoney) : $number;
+            $html .= $lastmoney ? ToolBox::coins()::format($lastmoney) : self::defaultMoney();
             $html .= ''
                 . '</div>'
                 . '</td>';
@@ -89,9 +79,9 @@ class SummaryResultReport
 
         $money = self::$gastos[self::$year]['total_mes']['media'];
         $lastmoney = self::$gastos[self::$lastyear]['total_mes']['media'];
-        $html .= $money ? $money < 0 ? '<span class="text-danger">' . ToolBox::coins()::format($money) . '</span>' : ToolBox::coins()::format($money) : $number;
+        $html .= $money ? $money < 0 ? '<span class="text-danger">' . ToolBox::coins()::format($money) . '</span>' : ToolBox::coins()::format($money) : self::defaultMoney();
         $html .= '<div class="small">';
-        $html .= $lastmoney ? ToolBox::coins()::format($lastmoney) : $number;
+        $html .= $lastmoney ? ToolBox::coins()::format($lastmoney) : self::defaultMoney();
 
         $html .= ''
             . '</div>'
@@ -102,9 +92,9 @@ class SummaryResultReport
             $money = self::$gastos[self::$year]['total_mes'][$x];
             $lastmoney = self::$gastos[self::$lastyear]['total_mes'][$x];
             $html .= '<td class="' . $css . ' text-right">';
-            $html .= $money ? $money < 0 ? '<span class="text-danger">' . ToolBox::coins()::format($money) . '</span>' : ToolBox::coins()::format($money) : $number;
+            $html .= $money ? $money < 0 ? '<span class="text-danger">' . ToolBox::coins()::format($money) . '</span>' : ToolBox::coins()::format($money) : self::defaultMoney();
             $html .= '<div class="small">';
-            $html .= $lastmoney ? ToolBox::coins()::format($lastmoney) : $number;
+            $html .= $lastmoney ? ToolBox::coins()::format($lastmoney) : self::defaultMoney();
             $html .= ''
                 . '</div>'
                 . '</td>';
@@ -118,9 +108,9 @@ class SummaryResultReport
 
         $money = self::$resultado[self::$year]['total_mes']['media'];
         $lastmoney = self::$resultado[self::$lastyear]['total_mes']['media'];
-        $html .= $money ? $money < 0 ? '<span class="text-danger">' . ToolBox::coins()::format($money) . '</span>' : ToolBox::coins()::format($money) : $number;
+        $html .= $money ? $money < 0 ? '<span class="text-danger">' . ToolBox::coins()::format($money) . '</span>' : ToolBox::coins()::format($money) : self::defaultMoney();
         $html .= '<div class="small">';
-        $html .= $lastmoney ? ToolBox::coins()::format($lastmoney) : $number;
+        $html .= $lastmoney ? ToolBox::coins()::format($lastmoney) : self::defaultMoney();
 
         $html .= ''
             . '</div>'
@@ -131,9 +121,9 @@ class SummaryResultReport
             $money = self::$resultado[self::$year]['total_mes'][$x];
             $lastmoney = self::$resultado[self::$lastyear]['total_mes'][$x];
             $html .= '<td class="' . $css . ' text-right">';
-            $html .= $money ? $money < 0 ? '<span class="text-danger">' . ToolBox::coins()::format($money) . '</span>' : ToolBox::coins()::format($money) : $number;
+            $html .= $money ? $money < 0 ? '<span class="text-danger">' . ToolBox::coins()::format($money) . '</span>' : ToolBox::coins()::format($money) : self::defaultMoney();
             $html .= '<div class="small">';
-            $html .= $lastmoney ? ToolBox::coins()::format($lastmoney) : $number;
+            $html .= $lastmoney ? ToolBox::coins()::format($lastmoney) : self::defaultMoney();
             $html .= ''
                 . '</div>'
                 . '</td>';
@@ -181,11 +171,7 @@ class SummaryResultReport
         self::build_year(self::$lastyear, self::$codejercicio_ant);
     }
 
-    protected static function days_in_month($month, $year)
-    {
-        // calculate number of days in a month CALC_GREGORIAN
-        return $month == 2 ? ($year % 4 ? 28 : ($year % 100 ? 29 : ($year % 400 ? 28 : 29))) : (($month - 1) % 7 % 2 ? 30 : 31);
-    }
+
 
     protected static function build_year($year, $codejercicio)
     {
@@ -195,26 +181,19 @@ class SummaryResultReport
             'desde' => '',
             'hasta' => '',
         );
+
         $ventas = array(
             'total_mes' => [],
         );
 
         $gastos = array(
-            'cuentas' => [],
-            'total_cuenta' => [],
-            'total_cuenta_mes' => [],
-            'total_subcuenta' => [],
             'total_mes' => [],
-            'porc_cuenta' => [],
-            'porc_subcuenta' => [],
         );
+
         $resultado = array(
             'total_mes' => [],
         );
-        self::$charts = array(
-            'totales' => [],
-            'distribucion' => [],
-        );
+
         $ventas_total_meses = 0;
         $gastos_total_meses = 0;
 
@@ -233,7 +212,7 @@ class SummaryResultReport
             $resultado['total_mes'][$mes] = 0;
 
             if ($year) {
-                $dia_mes = self::days_in_month($mes, $year);
+                $dia_mes = Report::days_in_month($mes, $year);
                 $date['desde'] = date('01-' . $mes . '-' . $year);
                 $date['hasta'] = date($dia_mes . '-' . $mes . '-' . $year);
 
@@ -245,6 +224,7 @@ class SummaryResultReport
                     . " LEFT JOIN facturascli as fc ON lfc.idfactura = fc.idfactura"
                     . " where fc.fecha >= " . $dataBase->var2str($date['desde'])
                     . " AND fc.fecha <= " . $dataBase->var2str($date['hasta'])
+                    . " AND fc.codejercicio = " . $codejercicio
                     . " group by lfc.referencia";
 
                 // VENTAS: Recorremos lineasfacturascli y montamos arrays
@@ -267,6 +247,7 @@ class SummaryResultReport
                         . " LEFT JOIN asientos as asi ON par.idasiento = asi.idasiento"
                         . " where asi.fecha >= " . $dataBase->var2str($date['desde'])
                         . " AND asi.fecha <= " . $dataBase->var2str($date['hasta'])
+                        . " AND asi.codejercicio = " . $codejercicio
                         . " AND codsubcuenta LIKE '6%'";
 
                     if ($asiento_regularizacion) {
@@ -278,41 +259,12 @@ class SummaryResultReport
                     $partidas = $dataBase->select($sql);
                     if ($partidas) {
                         foreach ($partidas as $p) {
-                            $codcuenta = substr($p['codsubcuenta'], 0, 3);
-                            $codsubcuenta = $p['codsubcuenta'];
                             $pvptotal = (float)$p['debe'] - (float)$p['haber'];
-
-                            // Array con los datos a mostrar
-                            if (isset($gastos['total_cuenta_mes'][$codcuenta][$mes])) {
-                                $gastos['total_cuenta_mes'][$codcuenta][$mes] += $pvptotal;
-                            } else {
-                                $gastos['total_cuenta_mes'][$codcuenta][$mes] = $pvptotal;
-                            }
-
-                            if (isset($gastos['total_cuenta'][$codcuenta])) {
-                                $gastos['total_cuenta'][$codcuenta] += $pvptotal;
-                            } else {
-                                $gastos['total_cuenta'][$codcuenta] = $pvptotal;
-                            }
-
-                            if (isset($gastos['total_subcuenta'][$codcuenta][$codsubcuenta])) {
-                                $gastos['total_subcuenta'][$codcuenta][$codsubcuenta] += $pvptotal;
-                            } else {
-                                $gastos['total_subcuenta'][$codcuenta][$codsubcuenta] = $pvptotal;
-                            }
 
                             if (isset($gastos['total_mes'][$mes])) {
                                 $gastos['total_mes'][$mes] += $pvptotal;
                             } else {
                                 $gastos['total_mes'][$mes] = $pvptotal;
-                            }
-
-                            $gastos_total_meses = $pvptotal + $gastos_total_meses;
-
-                            if (isset($gastos['cuentas'][$codcuenta][$codsubcuenta][$mes])) {
-                                $gastos['cuentas'][$codcuenta][$codsubcuenta][$mes]['pvptotal'] += $pvptotal;
-                            } else {
-                                $gastos['cuentas'][$codcuenta][$codsubcuenta][$mes]['pvptotal'] = $pvptotal;
                             }
                         }
                     }

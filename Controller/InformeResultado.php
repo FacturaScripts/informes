@@ -7,6 +7,8 @@ namespace FacturaScripts\Plugins\Informes\Controller;
 
 use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Plugins\Informes\Lib\Informes\SummaryResultReport;
+use FacturaScripts\Plugins\Informes\Lib\Informes\SalesResultReport;
+use FacturaScripts\Plugins\Informes\Lib\Informes\PurchasesResultReport;
 use FacturaScripts\Dinamic\Model\Ejercicio;
 use FacturaScripts\Dinamic\Model\Empresa;
 
@@ -53,7 +55,33 @@ class InformeResultado extends Controller
             case 'load-summary':
                 $this->loadSummary();
                 break;
+            case 'load-sales':
+                $this->loadSales();
+                break;
+            case 'load-purchases':
+                $this->loadPurchases();
+                break;
         }
+    }
+
+    protected function loadPurchases()
+    {
+        $this->setTemplate(false);
+        $content = [
+            'purchases' => PurchasesResultReport::render($this->request->request->all()),
+            'messages' => $this->toolBox()->log()->read('', $this->logLevels)
+        ];
+        $this->response->setContent(json_encode($content));
+    }
+
+    protected function loadSales()
+    {
+        $this->setTemplate(false);
+        $content = [
+            'sales' => SalesResultReport::render($this->request->request->all()),
+            'messages' => $this->toolBox()->log()->read('', $this->logLevels)
+        ];
+        $this->response->setContent(json_encode($content));
     }
 
     protected function loadSummary()
