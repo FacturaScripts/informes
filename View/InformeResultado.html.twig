@@ -1,0 +1,156 @@
+{% extends "Master/MenuBgTemplate.html.twig" %}
+
+{% set pageData = fsc.getPageData() %}
+
+{% block body %}
+    {{ parent() }}
+
+    <div class="container-fluid mb-1 d-print-none">
+        {{ parent() }}
+        <div class="row">
+            <div class="col-md-7">
+                <div class="btn-group">
+                    <a class="btn btn-sm btn-secondary" href="{{ fsc.url() }}" title="{{ i18n.trans('refresh') }}">
+                        <i class="fas fa-redo" aria-hidden="true"></i>
+                    </a>
+                    <a class="btn btn-sm btn-secondary" href="{{ fsc.url() }}?defaultPage=TRUE" title="{{ i18n.trans('ark-as-homepage') }}">
+                        <i class="far fa-bookmark" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-md-5 text-right">
+                <h1 class="h4 mb-0 d-none d-md-inline-block">
+                    {% set title = i18n.trans(fsc.getPageData()['title']) | capitalize %}
+                    {{ title }}<i class="{{ fsc.getPageData()['icon'] }} ml-3" aria-hidden="true"></i>
+                </h1>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid mt-3 pl-0 pr-0">
+        <div class="text-center">
+            <span class="text-success h5">{{ i18n.trans('select-year') }}</span>
+            <select class="form-control text-center mx-auto" id="selectYear">
+                {{ fsc.loadYears()|raw }}
+            </select>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-body p-0">
+                <div id="summaryData"></div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <h5 class="card-header">
+                <a class="collapsed d-block" data-toggle="collapse" href="#salesReport" aria-expanded="true" aria-controls="salesReport" id="sales-collapsed">
+                    <i class="fa fa-chevron-down float-right"></i>
+                    {{ i18n.trans('sales') }}
+                </a>
+            </h5>
+            <div id="salesReport" class="collapse" aria-labelledby="sales-collapsed">
+                <div class="card-body">
+                    Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon
+                    officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3
+                    wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et.
+                    Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan
+                    excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt
+                    you probably haven't heard of them accusamus labore sustainable VHS.
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <h5 class="card-header">
+                <a class="collapsed d-block" data-toggle="collapse" href="#purchasesReport" aria-expanded="true" aria-controls="purchasesReport" id="purchases-collapsed">
+                    <i class="fa fa-chevron-down float-right"></i>
+                    {{ i18n.trans('purchases') }}
+                </a>
+            </h5>
+            <div id="purchasesReport" class="collapse" aria-labelledby="purchases-collapsed">
+                <div class="card-body">
+                    Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon
+                    officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3
+                    wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et.
+                    Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan
+                    excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt
+                    you probably haven't heard of them accusamus labore sustainable VHS.
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block css %}
+    {{ parent() }}
+
+    <style>
+        .card-header .fa {
+            transition: .3s transform ease-in-out;
+        }
+        .card-header .collapsed .fa {
+            transform: rotate(90deg);
+        }
+        #selectYear {
+            max-width: 300px;
+        }
+        td {
+            white-space: nowrap;
+        }
+    </style>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script>
+        $(document).ready(function(){
+            function initPage() {
+                $('#resumeData').html('');
+                let formData = new FormData();
+                formData.append('action', 'load-summary');
+                sendForm(formData);
+            }
+
+            function sendForm(formData) {
+                formData.append('codejercicio', $('#selectYear option:selected').val());
+
+                console.log(Object.fromEntries(formData));
+
+                fetch('{{ fsc.url() }}', {
+                    method: 'POST',
+                    body: formData
+                }).then(function (response) {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    return Promise.reject(response);
+                }).then(function (data) {
+                    console.log(data);
+
+                    if (data.summary && data.summary !== '') {
+                        $('#summaryData').html(data.summary);
+                        $('#salesReport').collapse('hide');
+                        $('#purchasesReport').collapse('hide');
+                    }
+
+                    if (Array.isArray(data.messages)) {
+                        data.messages.forEach(item => alert(item.message));
+                    }
+                }).catch(function (error) {
+                    alert('error');
+                    console.warn(error);
+                });
+
+                return false;
+            }
+
+            $(document).on('change', '#selectYear', function(){
+                initPage();
+            });
+
+            initPage();
+        });
+    </script>
+{% endblock %}
