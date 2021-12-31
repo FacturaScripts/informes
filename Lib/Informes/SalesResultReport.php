@@ -11,18 +11,18 @@ use FacturaScripts\Core\Base\ToolBox;
  *
  * @author Daniel Fernández Giménez <hola@danielfg.es>
  */
-class PurchasesResultResultReport extends ResultReport
+class SalesResultReport extends ResultReport
 {
     public static function render(array $formData)
     {
         self::apply($formData);
-
+        
         $html = ''
             . '<div class="table-responsive">'
             . '<table class="table table-hover mb-0">'
             . '<thead>'
             . '<tr>'
-            . '<th></th>'
+            . '<th class="title"></th>'
             . '<th class="porc text-right">%</th>'
             . '<th class="total text-right">' . ToolBox::i18n()->trans('total') . '</th>'
             . '<th class="month text-right">' . ToolBox::i18n()->trans('january') . '</th>'
@@ -41,16 +41,16 @@ class PurchasesResultResultReport extends ResultReport
             . '</thead>'
             . '<tbody>';
 
-        if (self::$gastos[self::$year]) {
+        if (self::$ventas[self::$year]) {
             $html .= ''
                 . '<tr>'
-                . '<td></td>'
-                . '<td></td>';
+                . '<td class="title"></td>'
+                . '<td class="porc align-middle"></td>';
 
             for ($x = 0; $x <= 12; $x++) {
                 $css = $x == 0 ? 'total' : 'month';
-                $money = self::$gastos[self::$year]['total_mes'][$x];
-                $lastmoney = self::$gastos[self::$lastyear]['total_mes'][$x];
+                $money = self::$ventas[self::$year]['total_mes'][$x];
+                $lastmoney = self::$ventas[self::$lastyear]['total_mes'][$x];
                 $html .= '<td class="' . $css . ' text-right">';
                 $html .= $money ? ToolBox::coins()::format($money) : self::defaultMoney();
                 $html .= '<div class="small">';
@@ -64,33 +64,39 @@ class PurchasesResultResultReport extends ResultReport
                 . '</tr>';
         }
 
-        foreach (self::$gastos[self::$year]['cuentas'] as $key => $value) {
+        foreach (self::$ventas[self::$year]['familias'] as $key => $value) {
             $html .= ''
-                . '<tr data-toggle="collapse" data-target="#gastos-' . $key . '" class="accordion-toggle cursor-pointer gastos collapsed">'
-                . '<td class="title">' . self::$gastos[self::$year]['descripciones'][$key] . '</td>'
-                . '<td class="porc text-right">';
+                . '<tr codfamilia ="' . $key . '" data-target="#ventas-' . $key . '" class="ventas cursor-pointer">'
+                . '<td class="title">' . self::$ventas[self::$year]['descripciones'][$key] . '</td>'
+                . '<td class="porc text-right align-middle">';
 
-            $percentage = (float) self::$gastos[self::$year]['porc_cuenta'][$key];
+            $percentage = (float) self::$ventas[self::$year]['porc_fam'][$key];
             $html .= $percentage > 0 ? $percentage . ' %' : self::defaultPerc();
 
             $html .= ''
                 . '</td>'
-                . '<td class="total text-right">';
+                . '<td class="total text-right align-middle">';
 
-            $money = self::$gastos[self::$year]['total_cuenta'][$key];
+            $money = self::$ventas[self::$year]['total_fam'][$key];
             $html .= $money ? ToolBox::coins()::format($money) : self::defaultMoney();
 
             $html .= ''
                 . '</td>';
 
             for ($x = 1; $x <= 12; $x++) {
-                $html .= '<td class="month text-right">';
-                $html .= isset(self::$gastos[self::$year]['total_cuenta_mes'][$key][$x]) ? ToolBox::coins()::format(self::$gastos[self::$year]['total_cuenta_mes'][$key][$x]) : self::defaultMoney();
+                $html .= '<td class="month text-right align-middle">';
+                $html .= isset(self::$ventas[self::$year]['total_fam_mes'][$key][$x]) ? ToolBox::coins()::format(self::$ventas[self::$year]['total_fam_mes'][$key][$x]) : self::defaultMoney();
                 $html .= ''
                     . '</td>';
             }
 
             $html .= ''
+                . '</tr>'
+                . '<tr>'
+                . '<td colspan="15" class="hiddenRow">'
+                . '<div class="collapse" id="ventas-' . $key . '">'
+                . '</div>'
+                . '</td>'
                 . '</tr>';
         }
 

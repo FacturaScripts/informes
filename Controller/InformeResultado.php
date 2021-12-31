@@ -6,9 +6,11 @@
 namespace FacturaScripts\Plugins\Informes\Controller;
 
 use FacturaScripts\Core\Base\Controller;
-use FacturaScripts\Plugins\Informes\Lib\Informes\SummaryResultResultReport;
-use FacturaScripts\Plugins\Informes\Lib\Informes\SalesResultResultReport;
-use FacturaScripts\Plugins\Informes\Lib\Informes\PurchasesResultResultReport;
+use FacturaScripts\Plugins\Informes\Lib\Informes\SummaryResultReport;
+use FacturaScripts\Plugins\Informes\Lib\Informes\SalesResultReport;
+use FacturaScripts\Plugins\Informes\Lib\Informes\PurchasesResultReport;
+use FacturaScripts\Plugins\Informes\Lib\Informes\AccountResultReport;
+use FacturaScripts\Plugins\Informes\Lib\Informes\FamilyResultReport;
 use FacturaScripts\Dinamic\Model\Ejercicio;
 use FacturaScripts\Dinamic\Model\Empresa;
 
@@ -52,23 +54,51 @@ class InformeResultado extends Controller
     protected function execPreviousAction($action)
     {
         switch ($action) {
-            case 'load-summary':
-                $this->loadSummary();
+            case 'load-account':
+                $this->loadAccount();
                 break;
-            case 'load-sales':
-                $this->loadSales();
+            case 'load-family':
+                $this->loadFamily();
                 break;
             case 'load-purchases':
                 $this->loadPurchases();
                 break;
+            case 'load-sales':
+                $this->loadSales();
+                break;
+            case 'load-summary':
+                $this->loadSummary();
+                break;
         }
+    }
+
+    protected function loadAccount()
+    {
+        $this->setTemplate(false);
+        $content = [
+            'codcuenta' => $this->request->request->get('parent_codcuenta'),
+            'account' => AccountResultReport::render($this->request->request->all()),
+            'messages' => $this->toolBox()->log()->read('', $this->logLevels)
+        ];
+        $this->response->setContent(json_encode($content));
+    }
+
+    protected function loadFamily()
+    {
+        $this->setTemplate(false);
+        $content = [
+            'codfamilia' => $this->request->request->get('parent_codfamilia'),
+            'family' => FamilyResultReport::render($this->request->request->all()),
+            'messages' => $this->toolBox()->log()->read('', $this->logLevels)
+        ];
+        $this->response->setContent(json_encode($content));
     }
 
     protected function loadPurchases()
     {
         $this->setTemplate(false);
         $content = [
-            'purchases' => PurchasesResultResultReport::render($this->request->request->all()),
+            'purchases' => PurchasesResultReport::render($this->request->request->all()),
             'messages' => $this->toolBox()->log()->read('', $this->logLevels)
         ];
         $this->response->setContent(json_encode($content));
@@ -78,7 +108,7 @@ class InformeResultado extends Controller
     {
         $this->setTemplate(false);
         $content = [
-            'sales' => SalesResultResultReport::render($this->request->request->all()),
+            'sales' => SalesResultReport::render($this->request->request->all()),
             'messages' => $this->toolBox()->log()->read('', $this->logLevels)
         ];
         $this->response->setContent(json_encode($content));
@@ -88,7 +118,7 @@ class InformeResultado extends Controller
     {
         $this->setTemplate(false);
         $content = [
-            'summary' => SummaryResultResultReport::render($this->request->request->all()),
+            'summary' => SummaryResultReport::render($this->request->request->all()),
             'messages' => $this->toolBox()->log()->read('', $this->logLevels)
         ];
         $this->response->setContent(json_encode($content));

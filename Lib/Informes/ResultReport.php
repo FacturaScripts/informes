@@ -13,6 +13,7 @@ use FacturaScripts\Dinamic\Model\Cuenta;
 use FacturaScripts\Dinamic\Model\Ejercicio;
 use FacturaScripts\Dinamic\Model\Familia;
 use FacturaScripts\Dinamic\Model\Producto;
+use FacturaScripts\Dinamic\Model\Subcuenta;
 use FacturaScripts\Dinamic\Model\Variante;
 
 /**
@@ -23,9 +24,12 @@ class ResultReport
 {
     protected static $codejercicio;
     protected static $codejercicio_ant;
-    protected static $familias;
+    //protected static $familia;
+    //protected static $familias;
     protected static $gastos;
     protected static $lastyear;
+    protected static $parent_codcuenta;
+    protected static $parent_codfamilia;
     protected static $resultado;
     protected static $ventas;
     protected static $year;
@@ -58,20 +62,25 @@ class ResultReport
             }
         }
 
+        self::$parent_codcuenta = isset($formData['parent_codcuenta']) ? (string) $formData['parent_codcuenta'] : null;
+        self::$parent_codfamilia = isset($formData['parent_codfamilia']) ? (string) $formData['parent_codfamilia'] : null;
+
         /// Llamamos a la función que crea los arrays con los datos,
         /// pasandole el año seleccionado y el anterior.
         switch ($formData['action']) {
-            case 'load-summary':
-                self::summary_build_year(self::$year, self::$codejercicio);
-                self::summary_build_year(self::$lastyear, self::$codejercicio_ant);
+            case 'load-account':
+            case 'load-purchases':
+                self::purchases_build_year(self::$year, self::$codejercicio);
+                self::purchases_build_year(self::$lastyear, self::$codejercicio_ant);
                 break;
+            case 'load-family':
             case 'load-sales':
                 self::sales_build_year(self::$year, self::$codejercicio);
                 self::sales_build_year(self::$lastyear, self::$codejercicio_ant);
                 break;
-            case 'load-purchases':
-                self::purchases_build_year(self::$year, self::$codejercicio);
-                self::purchases_build_year(self::$lastyear, self::$codejercicio_ant);
+            case 'load-summary':
+                self::summary_build_year(self::$year, self::$codejercicio);
+                self::summary_build_year(self::$lastyear, self::$codejercicio_ant);
                 break;
         }
     }
@@ -140,8 +149,10 @@ class ResultReport
             'cuentas' => [],
             'total_cuenta' => [],
             'total_cuenta_mes' => [],
+            'total_subcuenta' => [],
             'total_mes' => [],
             'porc_cuenta' => [],
+            'porc_subcuenta' => [],
         );
 
         $gastos_total_meses = 0;
@@ -187,7 +198,6 @@ class ResultReport
                         foreach ($partidas as $p) {
                             $codcuenta = substr($p['codsubcuenta'], 0, 3);
                             $pvptotal = (float) $p['debe'] - (float) $p['haber'];
-                            $gastos['cuentas'][$codcuenta] = $codcuenta;
 
                             // Array con los datos a mostrar
                             if (isset($gastos['total_cuenta_mes'][$codcuenta][$mes])) {
@@ -209,6 +219,24 @@ class ResultReport
                             }
 
                             $gastos_total_meses = $pvptotal + $gastos_total_meses;
+
+                            if (self::$parent_codcuenta === $codcuenta) {
+                                $codsubcuenta = $p['codsubcuenta'];
+
+                                if (isset($gastos['total_subcuenta'][$codcuenta][$codsubcuenta])) {
+                                    $gastos['total_subcuenta'][$codcuenta][$codsubcuenta] += $pvptotal;
+                                } else {
+                                    $gastos['total_subcuenta'][$codcuenta][$codsubcuenta] = $pvptotal;
+                                }
+
+                                if (isset($gastos['cuentas'][$codcuenta][$codsubcuenta][$mes])) {
+                                    $gastos['cuentas'][$codcuenta][$codsubcuenta][$mes]['pvptotal'] += $pvptotal;
+                                } else {
+                                    $gastos['cuentas'][$codcuenta][$codsubcuenta][$mes]['pvptotal'] = $pvptotal;
+                                }
+                            } else {
+                                $gastos['cuentas'][$codcuenta] = $codcuenta;
+                            }
                         }
                     }
                 }
@@ -226,7 +254,21 @@ class ResultReport
                         ];
 
                         if ($cuenta->loadFromCode('', $where)) {
-                            $gastos['descripciones'][$codcuenta] = $cuenta->descripcion;
+                            $gastos['descripciones'][$codcuenta] = $codcuenta . ' - ' . $cuenta->descripcion;
+                        }
+
+                        if (self::$parent_codcuenta === (string) $codcuenta) {
+                            foreach ($arraycuenta as $codsubcuenta => $arraysubcuenta) {
+                                $gastos['descripciones'][$codsubcuenta] = '-';
+                                $subcuenta = new Subcuenta();
+                                $where = [
+                                    new DataBaseWhere('codsubcuenta', $codsubcuenta),
+                                    new DataBaseWhere('codejercicio', $codejercicio)
+                                ];
+                                if ($subcuenta->loadFromCode('', $where)) {
+                                    $gastos['descripciones'][$codsubcuenta] = $codsubcuenta . ' - ' . $subcuenta->descripcion;
+                                }
+                            }
                         }
                     }
                 }
@@ -249,6 +291,11 @@ class ResultReport
         foreach ($gastos['cuentas'] as $codcuenta => $cuenta) {
             if ($gastos_total_meses != 0) {
                 $gastos['porc_cuenta'][$codcuenta] = round($gastos['total_cuenta'][$codcuenta] * 100 / $gastos_total_meses, FS_NF0);
+                if (self::$parent_codcuenta === (string) $codcuenta) {
+                    foreach ($cuenta as $codsubcuenta => $subcuenta) {
+                        $gastos['porc_subcuenta'][$codcuenta][$codsubcuenta] = round($gastos['total_subcuenta'][$codcuenta][$codsubcuenta] * 100 / $gastos_total_meses, FS_NF0);
+                    }
+                }
             }
         }
 
@@ -296,11 +343,15 @@ class ResultReport
             'desde' => '',
             'hasta' => '',
         );
+
         $ventas = array(
             'familias' => [],
             'total_fam' => [],
             'total_fam_mes' => [],
+            'total_ref' => [],
+            'total_mes' => [],
             'porc_fam' => [],
+            'porc_ref' => [],
         );
 
         $ventas_total_meses = 0;
@@ -348,6 +399,20 @@ class ResultReport
                             $ventas['total_fam'][$codfamilia] = $pvptotal;
                         }
 
+                        if (self::$parent_codfamilia === (string) $codfamilia) {
+                            if (isset($ventas['total_ref'][$codfamilia][$referencia])) {
+                                $ventas['total_ref'][$codfamilia][$referencia] += $pvptotal;
+                            } else {
+                                $ventas['total_ref'][$codfamilia][$referencia] = $pvptotal;
+                            }
+
+                            if (isset($ventas['familias'][$codfamilia][$referencia][$mes])) {
+                                $ventas['familias'][$codfamilia][$referencia][$mes]['pvptotal'] += $pvptotal;
+                            } else {
+                                $ventas['familias'][$codfamilia][$referencia][$mes]['pvptotal'] = $pvptotal;
+                            }
+                        }
+
                         $ventas['total_mes'][$mes] = $pvptotal + $ventas['total_mes'][$mes];
                         $ventas_total_meses = $pvptotal + $ventas_total_meses;
 
@@ -366,6 +431,9 @@ class ResultReport
                             $data = self::build_data($dl);
 
                             $ventas['descripciones'][$codfamilia] = $data['familia'];
+                            if (self::$parent_codfamilia === (string) $codfamilia) {
+                                $ventas['descripciones'][$referencia] = $data['art_desc'];
+                            }
                         }
                     }
                 }
@@ -387,6 +455,11 @@ class ResultReport
         foreach ($ventas['familias'] as $codfamilia => $familias) {
             if ($ventas_total_meses != 0) {
                 $ventas['porc_fam'][$codfamilia] = round($ventas['total_fam'][$codfamilia] * 100 / $ventas_total_meses, FS_NF0);
+                if (self::$parent_codfamilia === (string) $codfamilia) {
+                    foreach ($familias as $referencia => $array) {
+                        $ventas['porc_ref'][$codfamilia][$referencia] = round($ventas['total_ref'][$codfamilia][$referencia] * 100 / $ventas_total_meses, FS_NF0);
+                    }
+                }
             }
         }
 

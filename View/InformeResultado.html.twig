@@ -43,25 +43,21 @@
         </div>
 
         <div class="card mt-4">
-            <h5 class="card-header">
-                <a class="collapsed d-block" data-toggle="collapse" href="#salesReport" aria-expanded="true" aria-controls="salesReport" id="sales-collapsed">
-                    <i class="fa fa-chevron-down float-right"></i>
-                    {{ i18n.trans('sales') }}
-                </a>
+            <h5 class="card-header cursor-pointer" id="showSales">
+                <i class="fa fa-plus float-right"></i>
+                {{ i18n.trans('sales') }}
             </h5>
-            <div id="salesReport" class="collapse" aria-labelledby="sales-collapsed">
+            <div id="salesReport" class="collapse">
                 <div class="card-body p-0"></div>
             </div>
         </div>
 
         <div class="card mt-4">
-            <h5 class="card-header">
-                <a class="collapsed d-block" data-toggle="collapse" href="#purchasesReport" aria-expanded="true" aria-controls="purchasesReport" id="purchases-collapsed">
-                    <i class="fa fa-chevron-down float-right"></i>
-                    {{ i18n.trans('purchases') }}
-                </a>
+            <h5 class="card-header cursor-pointer" id="showPurchases">
+                <i class="fa fa-plus float-right"></i>
+                {{ i18n.trans('purchases') }}
             </h5>
-            <div id="purchasesReport" class="collapse" aria-labelledby="purchases-collapsed">
+            <div id="purchasesReport" class="collapse">
                 <div class="card-body p-0"></div>
             </div>
         </div>
@@ -81,11 +77,17 @@
         #selectYear {
             max-width: 300px;
         }
-        td {
+        td.porc, td.total, td.month {
             white-space: nowrap;
+        }
+        td.title {
+            width: 15%;
         }
         .cursor-pointer {
             cursor: pointer;
+        }
+        table td.hiddenRow {
+            padding: 0 !important;
         }
     </style>
 {% endblock %}
@@ -131,6 +133,14 @@
                         $('#purchasesReport .card-body').html(data.purchases);
                     }
 
+                    if (data.family && data.family !== '') {
+                        $('#salesReport #ventas-' + data.codfamilia).html(data.family);
+                    }
+
+                    if (data.account && data.account !== '') {
+                        $('#purchasesReport #gastos-' + data.codcuenta).html(data.account);
+                    }
+
                     if (Array.isArray(data.messages)) {
                         data.messages.forEach(item => alert(item.message));
                     }
@@ -146,17 +156,92 @@
                 initPage();
             });
 
-            $('#salesReport').on('show.bs.collapse', function () {
-                let formData = new FormData();
-                formData.append('action', 'load-sales');
-                sendForm(formData);
+            let salesReport = false;
+            let purchasesReport = false;
+
+            $(document).on('click', '#showSales', function(){
+                if (salesReport === false) {
+                    $('#showSales i').removeClass('fa-plus').addClass('fa-minus');
+                    salesReport = true;
+                    let formData = new FormData();
+                    formData.append('action', 'load-sales');
+                    sendForm(formData);
+                } else {
+                    $('#showSales i').addClass('fa-plus').removeClass('fa-minus');
+                    salesReport = false;
+                }
+                $('#salesReport').collapse('toggle');
+            });
+
+            $(document).on('click', '#salesReport tr.ventas', function(){
+                if (salesReport) {
+                    let formData = new FormData();
+                    formData.append('action', 'load-family');
+                    formData.append('parent_codfamilia', $(this).attr('codfamilia'));
+                    sendForm(formData);
+                    $($(this).attr('data-target')).collapse('toggle');
+                }
+            });
+
+            $(document).on('click', '#showPurchases', function(){
+                if (purchasesReport === false) {
+                    $('#showPurchases i').removeClass('fa-plus').addClass('fa-minus');
+                    purchasesReport = true;
+                    let formData = new FormData();
+                    formData.append('action', 'load-purchases');
+                    sendForm(formData);
+                } else {
+                    $('#showPurchases i').addClass('fa-plus').removeClass('fa-minus');
+                    purchasesReport = false;
+                }
+                $('#purchasesReport').collapse('toggle');
+            });
+
+            $(document).on('click', '#purchasesReport tr.gastos', function(){
+                if (purchasesReport) {
+                    let formData = new FormData();
+                    formData.append('action', 'load-account');
+                    formData.append('parent_codcuenta', $(this).attr('codcuenta'));
+                    sendForm(formData);
+                    $($(this).attr('data-target')).collapse('toggle');
+                }
+            });
+
+            /*$('#salesReport').on('show.bs.collapse', function () {
+                if (salesReport === false) {
+                    salesReport = true;
+                    let formData = new FormData();
+                    formData.append('action', 'load-sales');
+                    sendForm(formData);
+                } else {
+                    console.log('ventas hijo');
+                }
+            });
+
+            $('#salesReport').on('hidden.bs.collapse', function () {
+                if (salesReport) {
+                    salesReport = false;
+                }
             });
 
             $('#purchasesReport').on('show.bs.collapse', function () {
-                let formData = new FormData();
-                formData.append('action', 'load-purchases');
-                sendForm(formData);
+                if (purchasesReport === false) {
+                    purchasesReport = true;
+                    let formData = new FormData();
+                    formData.append('action', 'load-purchases');
+                    sendForm(formData);
+                }
             });
+
+            $('#purchasesReport').on('hidden.bs.collapse', function () {
+                if (purchasesReport) {
+                    purchasesReport = false;
+                }
+            });
+
+            $('#purchasesReport div.gastos').on('show.bs.collapse', function () {
+                console.log('compras hijo');
+            });*/
 
             initPage();
         });

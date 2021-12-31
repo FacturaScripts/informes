@@ -11,7 +11,7 @@ use FacturaScripts\Core\Base\ToolBox;
  *
  * @author Daniel Fernández Giménez <hola@danielfg.es>
  */
-class SummaryResultResultReport extends ResultReport
+class SummaryResultReport extends ResultReport
 {
     public static function render(array $formData)
     {
@@ -22,7 +22,7 @@ class SummaryResultResultReport extends ResultReport
             . '<table class="table mb-0">'
             . '<thead>'
             . '<tr>'
-            . '<th class="card-title h4"><b>' . ToolBox::i18n()->trans('summary') . '</b></th>'
+            . '<th class="title h4"><b>' . ToolBox::i18n()->trans('summary') . '</b></th>'
             . '<th class="porc table-info text-right">' . ToolBox::i18n()->trans('monthly-average') . '</th>'
             . '<th class="total table-info text-right">' . ToolBox::i18n()->trans('total') . '</th>'
             . '<th class="month text-right">' . ToolBox::i18n()->trans('january') . '</th>'
