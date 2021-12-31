@@ -6,9 +6,9 @@
 namespace FacturaScripts\Plugins\Informes\Controller;
 
 use FacturaScripts\Core\Base\Controller;
-use FacturaScripts\Plugins\Informes\Lib\Informes\SummaryResultReport;
-use FacturaScripts\Plugins\Informes\Lib\Informes\SalesResultReport;
-use FacturaScripts\Plugins\Informes\Lib\Informes\PurchasesResultReport;
+use FacturaScripts\Plugins\Informes\Lib\Informes\SummaryResultResultReport;
+use FacturaScripts\Plugins\Informes\Lib\Informes\SalesResultResultReport;
+use FacturaScripts\Plugins\Informes\Lib\Informes\PurchasesResultResultReport;
 use FacturaScripts\Dinamic\Model\Ejercicio;
 use FacturaScripts\Dinamic\Model\Empresa;
 
@@ -68,7 +68,7 @@ class InformeResultado extends Controller
     {
         $this->setTemplate(false);
         $content = [
-            'purchases' => PurchasesResultReport::render($this->request->request->all()),
+            'purchases' => PurchasesResultResultReport::render($this->request->request->all()),
             'messages' => $this->toolBox()->log()->read('', $this->logLevels)
         ];
         $this->response->setContent(json_encode($content));
@@ -78,7 +78,7 @@ class InformeResultado extends Controller
     {
         $this->setTemplate(false);
         $content = [
-            'sales' => SalesResultReport::render($this->request->request->all()),
+            'sales' => SalesResultResultReport::render($this->request->request->all()),
             'messages' => $this->toolBox()->log()->read('', $this->logLevels)
         ];
         $this->response->setContent(json_encode($content));
@@ -88,7 +88,7 @@ class InformeResultado extends Controller
     {
         $this->setTemplate(false);
         $content = [
-            'summary' => SummaryResultReport::render($this->request->request->all()),
+            'summary' => SummaryResultResultReport::render($this->request->request->all()),
             'messages' => $this->toolBox()->log()->read('', $this->logLevels)
         ];
         $this->response->setContent(json_encode($content));
