@@ -23,20 +23,20 @@ class PurchasesResultReport extends ResultReport
             . '<thead>'
             . '<tr>'
             . '<th class="title"></th>'
-            . '<th class="porc text-right">%</th>'
-            . '<th class="total text-right">' . ToolBox::i18n()->trans('total') . '</th>'
-            . '<th class="month text-right">' . ToolBox::i18n()->trans('january') . '</th>'
-            . '<th class="month text-right">' . ToolBox::i18n()->trans('february') . '</th>'
-            . '<th class="month text-right">' . ToolBox::i18n()->trans('march') . '</th>'
-            . '<th class="month text-right">' . ToolBox::i18n()->trans('april') . '</th>'
-            . '<th class="month text-right">' . ToolBox::i18n()->trans('may') . '</th>'
-            . '<th class="month text-right">' . ToolBox::i18n()->trans('june') . '</th>'
-            . '<th class="month text-right">' . ToolBox::i18n()->trans('july') . '</th>'
-            . '<th class="month text-right">' . ToolBox::i18n()->trans('august') . '</th>'
-            . '<th class="month text-right">' . ToolBox::i18n()->trans('september') . '</th>'
-            . '<th class="month text-right">' . ToolBox::i18n()->trans('october') . '</th>'
-            . '<th class="month text-right">' . ToolBox::i18n()->trans('november') . '</th>'
-            . '<th class="month text-right">' . ToolBox::i18n()->trans('december') . '</th>'
+            . '<th class="porc">%</th>'
+            . '<th class="total">' . ToolBox::i18n()->trans('total') . '</th>'
+            . '<th class="month">' . ToolBox::i18n()->trans('january') . '</th>'
+            . '<th class="month">' . ToolBox::i18n()->trans('february') . '</th>'
+            . '<th class="month">' . ToolBox::i18n()->trans('march') . '</th>'
+            . '<th class="month">' . ToolBox::i18n()->trans('april') . '</th>'
+            . '<th class="month">' . ToolBox::i18n()->trans('may') . '</th>'
+            . '<th class="month">' . ToolBox::i18n()->trans('june') . '</th>'
+            . '<th class="month">' . ToolBox::i18n()->trans('july') . '</th>'
+            . '<th class="month">' . ToolBox::i18n()->trans('august') . '</th>'
+            . '<th class="month">' . ToolBox::i18n()->trans('september') . '</th>'
+            . '<th class="month">' . ToolBox::i18n()->trans('october') . '</th>'
+            . '<th class="month">' . ToolBox::i18n()->trans('november') . '</th>'
+            . '<th class="month">' . ToolBox::i18n()->trans('december') . '</th>'
             . '</tr>'
             . '</thead>'
             . '<tbody>';
@@ -51,7 +51,7 @@ class PurchasesResultReport extends ResultReport
                 $css = $x == 0 ? 'total' : 'month';
                 $money = self::$gastos[self::$year]['total_mes'][$x];
                 $lastmoney = self::$gastos[self::$lastyear]['total_mes'][$x];
-                $html .= '<td class="' . $css . ' text-right">';
+                $html .= '<td class="' . $css . '">';
                 $html .= $money ? ToolBox::coins()::format($money) : self::defaultMoney();
                 $html .= '<div class="small">';
                 $html .= $lastmoney ? ToolBox::coins()::format($lastmoney) : self::defaultMoney();
@@ -68,14 +68,14 @@ class PurchasesResultReport extends ResultReport
             $html .= ''
                 . '<tr codcuenta="' . $key . '" data-target="#gastos-' . $key . '" class="gastos cursor-pointer">'
                 . '<td class="title align-middle">' . self::$gastos[self::$year]['descripciones'][$key] . '</td>'
-                . '<td class="porc text-right align-middle">';
+                . '<td class="porc align-middle">';
 
             $percentage = (float) self::$gastos[self::$year]['porc_cuenta'][$key];
             $html .= $percentage > 0 ? $percentage . ' %' : self::defaultPerc();
 
             $html .= ''
                 . '</td>'
-                . '<td class="total text-right align-middle">';
+                . '<td class="total align-middle">';
 
             $money = self::$gastos[self::$year]['total_cuenta'][$key];
             $html .= $money ? ToolBox::coins()::format($money) : self::defaultMoney();
@@ -84,7 +84,7 @@ class PurchasesResultReport extends ResultReport
                 . '</td>';
 
             for ($x = 1; $x <= 12; $x++) {
-                $html .= '<td class="month text-right align-middle">';
+                $html .= '<td class="month align-middle">';
                 $html .= isset(self::$gastos[self::$year]['total_cuenta_mes'][$key][$x]) ? ToolBox::coins()::format(self::$gastos[self::$year]['total_cuenta_mes'][$key][$x]) : self::defaultMoney();
                 $html .= ''
                     . '</td>';

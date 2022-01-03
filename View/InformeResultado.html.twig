@@ -77,17 +77,27 @@
         #selectYear {
             max-width: 300px;
         }
-        td.porc, td.total, td.month {
+        table .porc, table .total, table .month {
             white-space: nowrap;
+            text-align: right;
         }
-        td.title {
+        table .title {
             width: 15%;
+        }
+        table .porc {
+            width: 6%;
         }
         .cursor-pointer {
             cursor: pointer;
         }
         table td.hiddenRow {
             padding: 0 !important;
+        }
+
+        table td.hiddenRow div {
+            background: #e6f0ff;
+            border-top: 1px solid #000;
+            border-bottom: 1px solid #000;
         }
     </style>
 {% endblock %}
@@ -157,7 +167,9 @@
             });
 
             let salesReport = false;
+            let familyReport = '';
             let purchasesReport = false;
+            let accountReport = '';
 
             $(document).on('click', '#showSales', function(){
                 if (salesReport === false) {
@@ -175,9 +187,21 @@
 
             $(document).on('click', '#salesReport tr.ventas', function(){
                 if (salesReport) {
+                    if (familyReport === $(this).attr('codfamilia')) {
+                        $($(this).attr('data-target')).collapse('hide');
+                        familyReport = '';
+                        return;
+                    }
+
+                    familyReport = $(this).attr('codfamilia');
+
+                    $('#salesReport tr.ventas').each(function(){
+                        $($(this).attr('data-target')).collapse('hide');
+                    });
+
                     let formData = new FormData();
                     formData.append('action', 'load-family');
-                    formData.append('parent_codfamilia', $(this).attr('codfamilia'));
+                    formData.append('parent_codfamilia', familyReport);
                     sendForm(formData);
                     $($(this).attr('data-target')).collapse('toggle');
                 }
@@ -199,49 +223,25 @@
 
             $(document).on('click', '#purchasesReport tr.gastos', function(){
                 if (purchasesReport) {
+                    if (accountReport === $(this).attr('codcuenta')) {
+                        $($(this).attr('data-target')).collapse('hide');
+                        accountReport = '';
+                        return;
+                    }
+
+                    accountReport = $(this).attr('codcuenta');
+
+                    $('#purchasesReport tr.gastos').each(function(){
+                        $($(this).attr('data-target')).collapse('hide');
+                    });
+
                     let formData = new FormData();
                     formData.append('action', 'load-account');
-                    formData.append('parent_codcuenta', $(this).attr('codcuenta'));
+                    formData.append('parent_codcuenta', accountReport);
                     sendForm(formData);
                     $($(this).attr('data-target')).collapse('toggle');
                 }
             });
-
-            /*$('#salesReport').on('show.bs.collapse', function () {
-                if (salesReport === false) {
-                    salesReport = true;
-                    let formData = new FormData();
-                    formData.append('action', 'load-sales');
-                    sendForm(formData);
-                } else {
-                    console.log('ventas hijo');
-                }
-            });
-
-            $('#salesReport').on('hidden.bs.collapse', function () {
-                if (salesReport) {
-                    salesReport = false;
-                }
-            });
-
-            $('#purchasesReport').on('show.bs.collapse', function () {
-                if (purchasesReport === false) {
-                    purchasesReport = true;
-                    let formData = new FormData();
-                    formData.append('action', 'load-purchases');
-                    sendForm(formData);
-                }
-            });
-
-            $('#purchasesReport').on('hidden.bs.collapse', function () {
-                if (purchasesReport) {
-                    purchasesReport = false;
-                }
-            });
-
-            $('#purchasesReport div.gastos').on('show.bs.collapse', function () {
-                console.log('compras hijo');
-            });*/
 
             initPage();
         });
