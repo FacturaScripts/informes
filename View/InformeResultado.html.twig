@@ -13,7 +13,8 @@
                     <a class="btn btn-sm btn-secondary" href="{{ fsc.url() }}" title="{{ i18n.trans('refresh') }}">
                         <i class="fas fa-redo" aria-hidden="true"></i>
                     </a>
-                    <a class="btn btn-sm btn-secondary" href="{{ fsc.url() }}?defaultPage=TRUE" title="{{ i18n.trans('ark-as-homepage') }}">
+                    <a class="btn btn-sm btn-secondary" href="{{ fsc.url() }}?defaultPage=TRUE"
+                       title="{{ i18n.trans('ark-as-homepage') }}">
                         <i class="far fa-bookmark" aria-hidden="true"></i>
                     </a>
                 </div>
@@ -62,6 +63,32 @@
             </div>
         </div>
     </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12 col-md-6">
+                <div class="card mt-4">
+                    <div class="card-header h5">
+                        {{ i18n.trans('annual-result') }}
+                    </div>
+                    <div class="card-body">
+                        <canvas id="chartsAnnual"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <div class="card mt-4">
+                    <div class="card-header h5">
+                        {{ i18n.trans('sales-distribution') }}
+                    </div>
+                    <div class="card-body">
+                        <canvas id="chartsFamilies"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block css %}
@@ -71,25 +98,32 @@
         .card-header .fa {
             transition: .3s transform ease-in-out;
         }
+
         .card-header .collapsed .fa {
             transform: rotate(90deg);
         }
+
         #selectYear {
             max-width: 300px;
         }
+
         table .porc, table .total, table .month {
             white-space: nowrap;
             text-align: right;
         }
+
         table .title {
             width: 15%;
         }
+
         table .porc {
             width: 6%;
         }
+
         .cursor-pointer {
             cursor: pointer;
         }
+
         table td.hiddenRow {
             padding: 0 !important;
         }
@@ -105,8 +139,12 @@
 {% block javascripts %}
     {{ parent() }}
 
+    <script src="{{ asset('node_modules/chart.js/dist/Chart.min.js') }}"></script>
     <script>
-        $(document).ready(function(){
+        let totalChart;
+        let familiesChart;
+
+        $(document).ready(function () {
             function initPage() {
                 let formData = new FormData();
                 formData.append('action', 'load-summary');
@@ -133,6 +171,7 @@
                         $('#summaryData').html(data.summary);
                         $('#salesReport').collapse('hide');
                         $('#purchasesReport').collapse('hide');
+                        setCharts(data.charts);
                     }
 
                     if (data.sales && data.sales !== '') {
@@ -162,7 +201,127 @@
                 return false;
             }
 
-            $(document).on('change', '#selectYear', function(){
+            function setCharts(charts) {
+                window.chartColors = {
+                    red: 'rgb(255, 99, 132)',
+                    orange: 'rgb(255, 159, 64)',
+                    yellow: 'rgb(255, 205, 86)',
+                    green: 'rgb(75, 192, 192)',
+                    blue: 'rgb(54, 162, 235)',
+                    purple: 'rgb(153, 102, 255)',
+                    grey: 'rgb(231,233,237)'
+                };
+                let lineChartData = {
+                    labels: [
+                        "{{ i18n.trans('january') }}",
+                        "{{ i18n.trans('february') }}",
+                        "{{ i18n.trans('march') }}",
+                        "{{ i18n.trans('april') }}",
+                        "{{ i18n.trans('may') }}",
+                        "{{ i18n.trans('june') }}",
+                        "{{ i18n.trans('july') }}",
+                        "{{ i18n.trans('august') }}",
+                        "{{ i18n.trans('september') }}",
+                        "{{ i18n.trans('october') }}",
+                        "{{ i18n.trans('november') }}",
+                        "{{ i18n.trans('december') }}"],
+                    datasets: [{
+                        type: 'line',
+                        label: '{{ i18n.trans('sales') }}',
+                        borderColor: window.chartColors.blue,
+                        borderWidth: 2,
+                        fill: false,
+                        data: charts['totales']['ventas']
+                    }, {
+                        type: 'line',
+                        label: '{{ i18n.trans('expenses') }}',
+                        borderColor: window.chartColors.red,
+                        borderWidth: 2,
+                        fill: false,
+                        data: charts['totales']['gastos']
+                    }, {
+                        type: 'line',
+                        label: '{{ i18n.trans('result') }}',
+                        borderColor: window.chartColors.green,
+                        borderWidth: 4,
+                        fill: false,
+                        data: charts['totales']['resultado']
+                    }]
+                };
+                let pieChartData = {
+                    labels: charts['families']['labels'],
+                    datasets: [{
+                        data: charts['families']['porc'],
+                        data2: charts['families']['totales'],
+                        backgroundColor: charts['families']['colors'],
+                        hoverBackgroundColor: charts['families']['colors']
+                    }]
+                };
+
+                if(totalChart != null){
+                    totalChart.destroy();
+                }
+
+                if(familiesChart != null){
+                    familiesChart.destroy();
+                }
+
+                let ctxResultado = document.getElementById("chartsAnnual").getContext("2d");
+                let ctxFamilies = document.getElementById("chartsFamilies").getContext("2d");
+
+                totalChart = Chart.Line(ctxResultado, {
+                    data: lineChartData,
+                    options: {
+                        showAllTooltips: false,
+                        responsive: true,
+                        hoverMode: 'index',
+                        stacked: false,
+                        title: {
+                            display: false,
+                            text: '{{ i18n.trans('charts-per-month') }}'
+                        },
+                        tooltips: {
+                            mode: 'index',
+                            intersect: true
+                        }
+                    }
+                });
+
+                familiesChart = new Chart(ctxFamilies, {
+                    type: 'pie',
+                    data: pieChartData,
+                    options: {
+                        showAllTooltips: false,
+                        cutoutPercentage: 40,
+                        responsive: true,
+                        animation: {
+                            animateRotate: true,
+                            animateScale: true
+                        },
+                        tooltips: {
+                            mode: 'index',
+                            intersect: true,
+                            callbacks: {
+                                label: function (tooltipItem, data) {
+                                    let allData = data.datasets[tooltipItem.datasetIndex].data;
+                                    let allData2 = data.datasets[tooltipItem.datasetIndex].data2;
+                                    let tooltipLabel = data.labels[tooltipItem.index];
+                                    let tooltipData = allData[tooltipItem.index];
+                                    let tooltipData2 = allData2[tooltipItem.index];
+                                    let total = 0;
+                                    for (let i in allData) {
+                                        total += allData[i];
+                                    }
+                                    let tooltipPercentage = Math.round((tooltipData / total) * 100);
+                                    return tooltipLabel + ': ' + tooltipData2 + ' (' + tooltipPercentage + '%)';
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            $(document).on('change', '#selectYear', function () {
                 initPage();
             });
 
@@ -171,7 +330,7 @@
             let purchasesReport = false;
             let accountReport = '';
 
-            $(document).on('click', '#showSales', function(){
+            $(document).on('click', '#showSales', function () {
                 if (salesReport === false) {
                     $('#showSales i').removeClass('fa-plus').addClass('fa-minus');
                     salesReport = true;
@@ -185,7 +344,7 @@
                 $('#salesReport').collapse('toggle');
             });
 
-            $(document).on('click', '#salesReport tr.ventas', function(){
+            $(document).on('click', '#salesReport tr.ventas', function () {
                 if (salesReport) {
                     if (familyReport === $(this).attr('codfamilia')) {
                         $($(this).attr('data-target')).collapse('hide');
@@ -195,7 +354,7 @@
 
                     familyReport = $(this).attr('codfamilia');
 
-                    $('#salesReport tr.ventas').each(function(){
+                    $('#salesReport tr.ventas').each(function () {
                         $($(this).attr('data-target')).collapse('hide');
                     });
 
@@ -207,7 +366,7 @@
                 }
             });
 
-            $(document).on('click', '#showPurchases', function(){
+            $(document).on('click', '#showPurchases', function () {
                 if (purchasesReport === false) {
                     $('#showPurchases i').removeClass('fa-plus').addClass('fa-minus');
                     purchasesReport = true;
@@ -221,7 +380,7 @@
                 $('#purchasesReport').collapse('toggle');
             });
 
-            $(document).on('click', '#purchasesReport tr.gastos', function(){
+            $(document).on('click', '#purchasesReport tr.gastos', function () {
                 if (purchasesReport) {
                     if (accountReport === $(this).attr('codcuenta')) {
                         $($(this).attr('data-target')).collapse('hide');
@@ -231,7 +390,7 @@
 
                     accountReport = $(this).attr('codcuenta');
 
-                    $('#purchasesReport tr.gastos').each(function(){
+                    $('#purchasesReport tr.gastos').each(function () {
                         $($(this).attr('data-target')).collapse('hide');
                     });
 

@@ -13,9 +13,42 @@ use FacturaScripts\Core\Base\ToolBox;
  */
 class SummaryResultReport extends ResultReport
 {
+    public static $charts = array(
+        'totales' => [],
+        'families' => [],
+    );
+
+    protected static function charts_build()
+    {
+        /**
+         * CHARTS
+         * *****************************************************************
+         */
+        for ($mes = 1; $mes <= 12; $mes++) {
+            self::$charts['totales']['ventas'][$mes-1] = self::$ventas[self::$year]['total_mes'][$mes];
+            self::$charts['totales']['gastos'][$mes-1] = self::$gastos[self::$year]['total_mes'][$mes];
+            self::$charts['totales']['resultado'][$mes-1] = self::$resultado[self::$year]['total_mes'][$mes];
+        }
+
+        foreach (self::$ventas[self::$year]['porc_fam'] as $codfamilia => $porc) {
+            $totalaux = round(self::$ventas[self::$year]['total_fam'][$codfamilia], FS_NF0);
+            $fam_desc = 'Sin Familia';
+            if ($codfamilia != 'SIN_FAMILIA' && isset(self::$ventas[self::$year]['descripciones'][$codfamilia])) {
+                $fam_desc = self::$ventas[self::$year]['descripciones'][$codfamilia];
+            }
+
+            self::$charts['families']['codfamilia'][] = $codfamilia;
+            self::$charts['families']['labels'][] = $fam_desc;
+            self::$charts['families']['porc'][] = $porc;
+            self::$charts['families']['colors'][] = '#' . self::randomColor();
+            self::$charts['families']['totales'][] = $totalaux;
+        }
+    }
+
     public static function render(array $formData)
     {
         self::apply($formData);
+        self::charts_build();
 
         $html = ''
             . '<div class="table-responsive">'

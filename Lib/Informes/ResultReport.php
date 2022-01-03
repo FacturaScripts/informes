@@ -24,8 +24,6 @@ class ResultReport
 {
     protected static $codejercicio;
     protected static $codejercicio_ant;
-    //protected static $familia;
-    //protected static $familias;
     protected static $gastos;
     protected static $lastyear;
     protected static $parent_codcuenta;
@@ -301,6 +299,11 @@ class ResultReport
 
         // Variables globales para usar en la vista
         self::$gastos[$year] = $gastos;
+    }
+
+    protected static function randomColor()
+    {
+        return substr(str_shuffle('ABCDEF0123456789'), 0, 6);
     }
 
     protected static function summary_build_year($year, $codejercicio)

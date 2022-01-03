@@ -119,6 +119,7 @@ class InformeResultado extends Controller
         $this->setTemplate(false);
         $content = [
             'summary' => SummaryResultReport::render($this->request->request->all()),
+            'charts' => SummaryResultReport::$charts,
             'messages' => $this->toolBox()->log()->read('', $this->logLevels)
         ];
         $this->response->setContent(json_encode($content));
