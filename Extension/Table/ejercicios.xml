@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * Copyright (C) 2019-2021 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Author Daniel Fernández Giménez <hola@danielfg.es>
+-->
+<table>
+    <column>
+        <name>impsociedades</name>
+        <type>float</type>
+    </column>
+</table>
