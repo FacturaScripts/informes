@@ -38,7 +38,7 @@ class InformeTesoreria extends Controller
         $data = parent::getPageData();
         $data["menu"] = "reports";
         $data["title"] = "treasury";
-        $data["icon"] = "fas fa-balance-scale";
+        $data["icon"] = "fas fa-balance-scale-left";
         return $data;
     }
 
@@ -253,7 +253,7 @@ class InformeTesoreria extends Controller
 
         $data = $this->dataBase->select($sql);
         foreach ($data as $sc) {
-            $this->cajas[] = (object) $sc;
+            $this->cajas[] = (object)$sc;
         }
     }
 
