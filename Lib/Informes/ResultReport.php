@@ -92,11 +92,13 @@ class ResultReport
 
         $articulo = false;
         if ($referencia) {
-            if ($variante->loadFromCode($referencia)) {
+            $where = [new DataBaseWhere('referencia', $referencia)];
+            if ($variante->loadFromCode('', $where)) {
                 $articulo = true;
                 $producto->loadFromCode($variante->idproducto);
-                $art_desc = $producto->descripcion;
+                $art_desc = $referencia;
                 $codfamilia = $producto->codfamilia;
+
                 if (empty($codfamilia)) {
                     $codfamilia = 'SIN_FAMILIA';
                     $familia = 'Sin Familia';
