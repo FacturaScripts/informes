@@ -25,9 +25,9 @@ class SummaryResultReport extends ResultReport
          * *****************************************************************
          */
         for ($mes = 1; $mes <= 12; $mes++) {
-            self::$charts['totales']['ventas'][$mes-1] = self::$ventas[self::$year]['total_mes'][$mes];
-            self::$charts['totales']['gastos'][$mes-1] = self::$gastos[self::$year]['total_mes'][$mes];
-            self::$charts['totales']['resultado'][$mes-1] = self::$resultado[self::$year]['total_mes'][$mes];
+            self::$charts['totales']['ventas'][$mes - 1] = self::$ventas[self::$year]['total_mes'][$mes];
+            self::$charts['totales']['gastos'][$mes - 1] = self::$gastos[self::$year]['total_mes'][$mes];
+            self::$charts['totales']['resultado'][$mes - 1] = self::$resultado[self::$year]['total_mes'][$mes];
         }
 
         foreach (self::$ventas[self::$year]['porc_fam'] as $codfamilia => $porc) {
@@ -45,19 +45,18 @@ class SummaryResultReport extends ResultReport
         }
     }
 
-    public static function render(array $formData)
+    public static function render(array $formData): string
     {
         self::apply($formData);
         self::charts_build();
 
-        $html = ''
-            . '<div class="table-responsive">'
-            . '<table class="table mb-0">'
+        $html = '<div class="table-responsive">'
+            . '<table class="table table-hover mb-0">'
             . '<thead>'
             . '<tr>'
-            . '<th class="title h4"><b>' . ToolBox::i18n()->trans('summary') . '</b></th>'
-            . '<th class="porc table-info">' . ToolBox::i18n()->trans('monthly-average') . '</th>'
-            . '<th class="total table-info">' . ToolBox::i18n()->trans('total') . '</th>'
+            . '<th class="title"><b>' . ToolBox::i18n()->trans('summary') . '</b></th>'
+            . '<th class="porc">' . ToolBox::i18n()->trans('monthly-average') . '</th>'
+            . '<th class="total">' . ToolBox::i18n()->trans('total') . '</th>'
             . '<th class="month">' . ToolBox::i18n()->trans('january') . '</th>'
             . '<th class="month">' . ToolBox::i18n()->trans('february') . '</th>'
             . '<th class="month">' . ToolBox::i18n()->trans('march') . '</th>'
@@ -72,10 +71,12 @@ class SummaryResultReport extends ResultReport
             . '<th class="month">' . ToolBox::i18n()->trans('december') . '</th>'
             . '</tr>'
             . '</thead>'
-            . '<tbody>'
-            . '<tr>'
+            . '<tbody>';
+
+        // ventas
+        $html .= '<tr class="table-success">'
             . '<td class="title align-middle"><b>' . ToolBox::i18n()->trans('sales') . '</b></td>'
-            . '<td class="porc table-info">';
+            . '<td class="porc">';
 
         $money = self::$ventas[self::$year]['total_mes']['media'];
         $lastmoney = self::$ventas[self::$lastyear]['total_mes']['media'];
@@ -88,7 +89,7 @@ class SummaryResultReport extends ResultReport
             . '</td>';
 
         for ($x = 0; $x <= 12; $x++) {
-            $css = $x == 0 ? 'total table-info' : 'month';
+            $css = $x == 0 ? 'total' : 'month';
             $money = self::$ventas[self::$year]['total_mes'][$x];
             $lastmoney = self::$ventas[self::$lastyear]['total_mes'][$x];
             $html .= '<td class="' . $css . '">';
@@ -99,11 +100,12 @@ class SummaryResultReport extends ResultReport
                 . '</div>'
                 . '</td>';
         }
+        $html .= '</tr>';
 
-        $html .= '</tr>'
-            . '<tr>'
+        // compras
+        $html .= '<tr class="table-danger">'
             . '<td class="title align-middle"><b>' . ToolBox::i18n()->trans('purchases') . '</b></td>'
-            . '<td class="porc table-info">';
+            . '<td class="porc">';
 
         $money = self::$gastos[self::$year]['total_mes']['media'];
         $lastmoney = self::$gastos[self::$lastyear]['total_mes']['media'];
@@ -116,7 +118,7 @@ class SummaryResultReport extends ResultReport
             . '</td>';
 
         for ($x = 0; $x <= 12; $x++) {
-            $css = $x == 0 ? 'total table-info' : 'month';
+            $css = $x == 0 ? 'total' : 'month';
             $money = self::$gastos[self::$year]['total_mes'][$x];
             $lastmoney = self::$gastos[self::$lastyear]['total_mes'][$x];
             $html .= '<td class="' . $css . '">';
@@ -127,12 +129,12 @@ class SummaryResultReport extends ResultReport
                 . '</div>'
                 . '</td>';
         }
+        $html .= '</tr>';
 
-        $html .= ''
-            . '</tr>'
-            . '<tr>'
+        // resultados
+        $html .= '<tr class="table-primary">'
             . '<td class="title align-middle"><b>' . ToolBox::i18n()->trans('result') . '</b></td>'
-            . '<td class="porc table-info">';
+            . '<td class="porc">';
 
         $money = self::$resultado[self::$year]['total_mes']['media'];
         $lastmoney = self::$resultado[self::$lastyear]['total_mes']['media'];
@@ -145,7 +147,7 @@ class SummaryResultReport extends ResultReport
             . '</td>';
 
         for ($x = 0; $x <= 12; $x++) {
-            $css = $x == 0 ? 'total table-info' : 'month';
+            $css = $x == 0 ? 'total' : 'month';
             $money = self::$resultado[self::$year]['total_mes'][$x];
             $lastmoney = self::$resultado[self::$lastyear]['total_mes'][$x];
             $html .= '<td class="' . $css . '">';

@@ -3,9 +3,7 @@
 {% set pageData = fsc.getPageData() %}
 
 {% block body %}
-    {{ parent() }}
-
-    <div class="container-fluid mb-1 d-print-none">
+    <div class="container-fluid d-print-none">
         {{ parent() }}
         <div class="row">
             <div class="col-md-7">
@@ -29,62 +27,55 @@
         </div>
     </div>
 
-    <div class="container-fluid mt-3 pl-0 pr-0">
-        <div class="text-center">
-            <span class="text-success h5">{{ i18n.trans('select-year') }}</span>
-            <select class="form-control text-center mx-auto" id="selectYear">
-                {{ fsc.loadYears()|raw }}
-            </select>
-        </div>
-
-        <div class="card mt-4">
-            <div class="card-body p-0">
-                <div id="summaryData"></div>
-            </div>
-        </div>
-
-        <div class="card mt-4">
-            <h5 class="card-header cursor-pointer" id="showSales">
-                <i class="fa fa-plus float-right"></i>
-                {{ i18n.trans('sales') }}
-            </h5>
-            <div id="salesReport" class="collapse">
-                <div class="card-body p-0"></div>
-            </div>
-        </div>
-
-        <div class="card mt-4">
-            <h5 class="card-header cursor-pointer" id="showPurchases">
-                <i class="fa fa-plus float-right"></i>
-                {{ i18n.trans('purchases') }}
-            </h5>
-            <div id="purchasesReport" class="collapse">
-                <div class="card-body p-0"></div>
-            </div>
-        </div>
-    </div>
-
     <div class="container-fluid">
         <div class="row">
+            <div class="col-sm-12">
+                <div class="card border-primary shadow mt-4">
+                    <div class="card-header bg-primary">
+                        <select class="form-control" id="selectYear">
+                            {{ fsc.loadYears()|raw }}
+                        </select>
+                    </div>
+                    <div id="summaryData"></div>
+                </div>
+
+                <div class="card border-success shadow mt-4">
+                    <h5 class="card-header bg-success text-white cursor-pointer" id="showSales">
+                        <i class="fa fa-plus float-right"></i>
+                        {{ i18n.trans('sales') }}
+                    </h5>
+                    <div id="salesReport" class="collapse">
+                        <div class="card-body p-0"></div>
+                    </div>
+                </div>
+
+                <div class="card border-danger shadow mt-4">
+                    <h5 class="card-header bg-danger text-white cursor-pointer" id="showPurchases">
+                        <i class="fa fa-plus float-right"></i>
+                        {{ i18n.trans('purchases') }}
+                    </h5>
+                    <div id="purchasesReport" class="collapse">
+                        <div class="card-body p-0"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-row">
             <div class="col-12 col-md-6">
-                <div class="card mt-4">
-                    <div class="card-header h5">
-                        {{ i18n.trans('annual-result') }}
+                <div class="card shadow mt-4">
+                    <div class="card-body h5">
+                        <i class="fas fa-chart-line"></i> {{ i18n.trans('annual-result') }}
                     </div>
-                    <div class="card-body">
-                        <canvas id="chartsAnnual"></canvas>
-                    </div>
+                    <canvas id="chartsAnnual"></canvas>
                 </div>
             </div>
 
             <div class="col-12 col-md-6">
-                <div class="card mt-4">
-                    <div class="card-header h5">
-                        {{ i18n.trans('sales-distribution') }}
+                <div class="card shadow mt-4">
+                    <div class="card-body h5">
+                        <i class="fas fa-chart-pie"></i> {{ i18n.trans('sales-distribution') }}
                     </div>
-                    <div class="card-body">
-                        <canvas id="chartsFamilies"></canvas>
-                    </div>
+                    <canvas id="chartsFamilies"></canvas>
                 </div>
             </div>
         </div>
@@ -258,11 +249,11 @@
                     }]
                 };
 
-                if(totalChart != null){
+                if (totalChart != null) {
                     totalChart.destroy();
                 }
 
-                if(familiesChart != null){
+                if (familiesChart != null) {
                     familiesChart.destroy();
                 }
 
