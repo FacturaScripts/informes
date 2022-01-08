@@ -1,10 +1,10 @@
-{% extends "Master/MenuBgTemplate.html.twig" %}
+{% extends "Master/MenuBghTemplate.html.twig" %}
 
 {% set pageData = fsc.getPageData() %}
 
-{% block body %}
+{% block bodyHeaderOptions %}
+    {{ parent() }}
     <div class="container-fluid mb-1 d-print-none">
-        {{ parent() }}
         <div class="row">
             <div class="col-md-7">
                 <div class="btn-group">
@@ -26,19 +26,22 @@
             </div>
         </div>
     </div>
+    <div class="pb-5">
+        <div class="h5 text-success text-center">{{ i18n.trans('select-year') }}</div>
+        <select class="form-control ml-auto mr-auto" id="selectYear">
+            {{ fsc.loadYears()|raw }}
+        </select>
+        <br/>
+    </div>
+{% endblock %}
 
-    <div class="container-fluid mt-3">
-        <div class="text-center mb-3">
-            <span class="text-success h5">{{ i18n.trans('select-year') }}</span>
-            <select class="form-control text-center mx-auto" id="selectYear">
-                {{ fsc.loadYears()|raw }}
-            </select>
-        </div>
-
+{% block body %}
+    {{ parent() }}
+    <div class="container-fluid" style="margin-top: -50px;">
         <div class="form-row">
             <div class="col-sm-6">
-                <div class="card shadow mb-3">
-                    <div class="card-header text-center">
+                <div class="card border-primary shadow mb-3">
+                    <div class="card-header bg-primary text-white text-center">
                         <strong>{{ i18n.trans('treasury')|upper }}</strong>
                     </div>
                     <div class="table-responsive">
@@ -91,8 +94,8 @@
                 </div>
             </div>
             <div class="col-sm-6">
-                <div class="card shadow mb-3">
-                    <div class="card-header text-center">
+                <div class="card border-danger shadow mb-3">
+                    <div class="card-header bg-danger text-white text-center">
                         <strong>{{ i18n.trans('pending-expenses-charges')|upper }}</strong>
                     </div>
                     <div class="table-responsive">
@@ -128,8 +131,8 @@
         </div>
         <div class="form-row">
             <div class="col-sm-6">
-                <div class="card shadow mb-3">
-                    <div class="card-header text-center">
+                <div class="card border-warning shadow mb-3">
+                    <div class="card-header bg-warning text-white text-center">
                         <strong>{{ i18n.trans('taxes')|upper }}</strong>
                     </div>
                     <div class="table-responsive">
@@ -227,8 +230,8 @@
                 </div>
             </div>
             <div class="col-sm-6">
-                <div class="card shadow mb-3">
-                    <div class="card-header text-center">
+                <div class="card border-success shadow mb-3">
+                    <div class="card-header bg-success text-white text-center">
                         <strong>{{ i18n.trans('short-situation-results')|upper }}</strong>
                     </div>
                     <div class="table-responsive">
@@ -243,8 +246,8 @@
                         </table>
                     </div>
                 </div>
-                <div class="card shadow mb-3">
-                    <div class="card-header text-center">
+                <div class="card border-info shadow mb-3">
+                    <div class="card-header bg-info text-white text-center">
                         <strong>{{ i18n.trans('reserves-results-exercises')|upper }}</strong>
                     </div>
                     <div class="table-responsive">
@@ -268,8 +271,8 @@
                         </table>
                     </div>
                 </div>
-                <div class="card shadow mb-3">
-                    <div class="card-header text-center">
+                <div class="card border-success shadow mb-3">
+                    <div class="card-header bg-success text-white text-center">
                         <strong>{{ i18n.trans('current-year-results')|upper }}</strong>
                     </div>
                     <div class="table-responsive">
