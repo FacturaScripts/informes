@@ -61,21 +61,98 @@
             </div>
         </div>
         <div class="form-row">
-            <div class="col-12 col-md-6">
+            <div class="col-12">
                 <div class="card shadow mt-4">
                     <div class="card-body h5">
                         <i class="fas fa-chart-line"></i> {{ i18n.trans('annual-result') }}
                     </div>
-                    <canvas id="chartsAnnual"></canvas>
+                    <div class="canva">
+                        <canvas id="chartsResume"></canvas>
+                    </div>
                 </div>
             </div>
-
-            <div class="col-12 col-md-6">
+            <div class="col-12 col-md-3">
                 <div class="card shadow mt-4">
                     <div class="card-body h5">
-                        <i class="fas fa-chart-pie"></i> {{ i18n.trans('sales-distribution') }}
+                        <i class="fas fa-chart-pie"></i> {{ i18n.trans('sales-families') }}
                     </div>
-                    <canvas id="chartsFamilies"></canvas>
+                    <div class="canva">
+                        <canvas id="chartsFamilies"></canvas>
+                    </div>
+                    <div class="table-responsive" id="chartsListFamilies">
+                        <table class="table mb-0 table-sm">
+                            <thead>
+                                <th></th>
+                                <th>{{ i18n.trans('family') }}</th>
+                                <th class="porc">%</th>
+                                <th class="total">{{ i18n.trans('total') }}</th>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="card shadow mt-4">
+                    <div class="card-body h5">
+                        <i class="fas fa-chart-pie"></i> {{ i18n.trans('sales-series') }}
+                    </div>
+                    <div class="canva">
+                        <canvas id="chartsSeries"></canvas>
+                    </div>
+                    <div class="table-responsive" id="chartsListSeries">
+                        <table class="table mb-0 table-sm">
+                            <thead>
+                                <th></th>
+                                <th>{{ i18n.trans('serie') }}</th>
+                                <th class="porc">%</th>
+                                <th class="total">{{ i18n.trans('total') }}</th>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="card shadow mt-4">
+                    <div class="card-body h5">
+                        <i class="fas fa-chart-pie"></i> {{ i18n.trans('sales-payments') }}
+                    </div>
+                    <div class="canva">
+                        <canvas id="chartsPagos"></canvas>
+                    </div>
+                    <div class="table-responsive" id="chartsListPagos">
+                        <table class="table mb-0 table-sm">
+                            <thead>
+                                <th></th>
+                                <th>{{ i18n.trans('method-payment') }}</th>
+                                <th class="porc">%</th>
+                                <th class="total">{{ i18n.trans('total') }}</th>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="card shadow mt-4">
+                    <div class="card-body h5">
+                        <i class="fas fa-chart-pie"></i> {{ i18n.trans('sales-agents') }}
+                    </div>
+                    <div class="canva">
+                        <canvas id="chartsAgentes"></canvas>
+                    </div>
+                    <div class="table-responsive" id="chartsListAgentes">
+                        <table class="table mb-0 table-sm">
+                            <thead>
+                                <th></th>
+                                <th>{{ i18n.trans('agent') }}</th>
+                                <th class="porc">%</th>
+                                <th class="total">{{ i18n.trans('total') }}</th>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -86,6 +163,10 @@
     {{ parent() }}
 
     <style>
+        .canva {
+            height: 300px;
+        }
+
         .card-header .fa {
             transition: .3s transform ease-in-out;
         }
@@ -132,8 +213,11 @@
 
     <script src="{{ asset('node_modules/chart.js/dist/Chart.min.js') }}"></script>
     <script>
-        let totalChart;
+        let resumeChart;
         let familiesChart;
+        let seriesChart;
+        let pagosChart;
+        let agentesChart;
 
         $(document).ready(function () {
             function initPage() {
@@ -193,6 +277,11 @@
             }
 
             function setCharts(charts) {
+                $('#chartsListFamilies table tbody').html(charts['families']['table']);
+                $('#chartsListSeries table tbody').html(charts['series']['table']);
+                $('#chartsListPagos table tbody').html(charts['pagos']['table']);
+                $('#chartsListAgentes table tbody').html(charts['agentes']['table']);
+
                 window.chartColors = {
                     red: 'rgb(255, 99, 132)',
                     orange: 'rgb(255, 159, 64)',
@@ -202,7 +291,7 @@
                     purple: 'rgb(153, 102, 255)',
                     grey: 'rgb(231,233,237)'
                 };
-                let lineChartData = {
+                let dataResume = {
                     labels: [
                         "{{ i18n.trans('january') }}",
                         "{{ i18n.trans('february') }}",
@@ -239,7 +328,7 @@
                         data: charts['totales']['resultado']
                     }]
                 };
-                let pieChartData = {
+                let dataFamilies = {
                     labels: charts['families']['labels'],
                     datasets: [{
                         data: charts['families']['porc'],
@@ -248,21 +337,64 @@
                         hoverBackgroundColor: charts['families']['colors']
                     }]
                 };
+                let dataSeries = {
+                    labels: charts['series']['labels'],
+                    datasets: [{
+                        data: charts['series']['porc'],
+                        data2: charts['series']['totales'],
+                        backgroundColor: charts['series']['colors'],
+                        hoverBackgroundColor: charts['series']['colors']
+                    }]
+                };
+                let dataPagos = {
+                    labels: charts['pagos']['labels'],
+                    datasets: [{
+                        data: charts['pagos']['porc'],
+                        data2: charts['pagos']['totales'],
+                        backgroundColor: charts['pagos']['colors'],
+                        hoverBackgroundColor: charts['pagos']['colors']
+                    }]
+                };
+                let dataAgentes = {
+                    labels: charts['agentes']['labels'],
+                    datasets: [{
+                        data: charts['agentes']['porc'],
+                        data2: charts['agentes']['totales'],
+                        backgroundColor: charts['agentes']['colors'],
+                        hoverBackgroundColor: charts['agentes']['colors']
+                    }]
+                };
 
-                if (totalChart != null) {
-                    totalChart.destroy();
+                if (resumeChart != null) {
+                    resumeChart.destroy();
                 }
 
                 if (familiesChart != null) {
                     familiesChart.destroy();
                 }
 
-                let ctxResultado = document.getElementById("chartsAnnual").getContext("2d");
-                let ctxFamilies = document.getElementById("chartsFamilies").getContext("2d");
+                if (seriesChart != null) {
+                    seriesChart.destroy();
+                }
 
-                totalChart = Chart.Line(ctxResultado, {
-                    data: lineChartData,
+                if (pagosChart != null) {
+                    pagosChart.destroy();
+                }
+
+                if (agentesChart != null) {
+                    agentesChart.destroy();
+                }
+
+                let canvaResume = document.getElementById("chartsResume");
+                let canvaFamilies = document.getElementById("chartsFamilies");
+                let canvaSeries = document.getElementById("chartsSeries");
+                let canvaPagos = document.getElementById("chartsPagos");
+                let canvaAgentes = document.getElementById("chartsAgentes");
+
+                resumeChart = Chart.Line(canvaResume.getContext("2d"), {
+                    data: dataResume,
                     options: {
+                        maintainAspectRatio: false,
                         showAllTooltips: false,
                         responsive: true,
                         hoverMode: 'index',
@@ -278,16 +410,131 @@
                     }
                 });
 
-                familiesChart = new Chart(ctxFamilies, {
+                familiesChart = new Chart(canvaFamilies.getContext("2d"), {
                     type: 'pie',
-                    data: pieChartData,
+                    data: dataFamilies,
                     options: {
+                        maintainAspectRatio: false,
                         showAllTooltips: false,
                         cutoutPercentage: 40,
                         responsive: true,
                         animation: {
                             animateRotate: true,
                             animateScale: true
+                        },
+                        legend: {
+                            display: false
+                        },
+                        tooltips: {
+                            mode: 'index',
+                            intersect: true,
+                            callbacks: {
+                                label: function (tooltipItem, data) {
+                                    let allData = data.datasets[tooltipItem.datasetIndex].data;
+                                    let allData2 = data.datasets[tooltipItem.datasetIndex].data2;
+                                    let tooltipLabel = data.labels[tooltipItem.index];
+                                    let tooltipData = allData[tooltipItem.index];
+                                    let tooltipData2 = allData2[tooltipItem.index];
+                                    let total = 0;
+                                    for (let i in allData) {
+                                        total += allData[i];
+                                    }
+                                    let tooltipPercentage = Math.round((tooltipData / total) * 100);
+                                    return tooltipLabel + ': ' + tooltipData2 + ' (' + tooltipPercentage + '%)';
+                                }
+                            }
+                        }
+                    }
+                });
+
+                seriesChart = new Chart(canvaSeries.getContext("2d"), {
+                    type: 'pie',
+                    data: dataSeries,
+                    options: {
+                        maintainAspectRatio: false,
+                        showAllTooltips: false,
+                        cutoutPercentage: 40,
+                        responsive: true,
+                        animation: {
+                            animateRotate: true,
+                            animateScale: true
+                        },
+                        legend: {
+                            display: false
+                        },
+                        tooltips: {
+                            mode: 'index',
+                            intersect: true,
+                            callbacks: {
+                                label: function (tooltipItem, data) {
+                                    let allData = data.datasets[tooltipItem.datasetIndex].data;
+                                    let allData2 = data.datasets[tooltipItem.datasetIndex].data2;
+                                    let tooltipLabel = data.labels[tooltipItem.index];
+                                    let tooltipData = allData[tooltipItem.index];
+                                    let tooltipData2 = allData2[tooltipItem.index];
+                                    let total = 0;
+                                    for (let i in allData) {
+                                        total += allData[i];
+                                    }
+                                    let tooltipPercentage = Math.round((tooltipData / total) * 100);
+                                    return tooltipLabel + ': ' + tooltipData2 + ' (' + tooltipPercentage + '%)';
+                                }
+                            }
+                        }
+                    }
+                });
+
+                pagosChart = new Chart(canvaPagos.getContext("2d"), {
+                    type: 'pie',
+                    data: dataPagos,
+                    options: {
+                        maintainAspectRatio: false,
+                        showAllTooltips: false,
+                        cutoutPercentage: 40,
+                        responsive: true,
+                        animation: {
+                            animateRotate: true,
+                            animateScale: true
+                        },
+                        legend: {
+                            display: false
+                        },
+                        tooltips: {
+                            mode: 'index',
+                            intersect: true,
+                            callbacks: {
+                                label: function (tooltipItem, data) {
+                                    let allData = data.datasets[tooltipItem.datasetIndex].data;
+                                    let allData2 = data.datasets[tooltipItem.datasetIndex].data2;
+                                    let tooltipLabel = data.labels[tooltipItem.index];
+                                    let tooltipData = allData[tooltipItem.index];
+                                    let tooltipData2 = allData2[tooltipItem.index];
+                                    let total = 0;
+                                    for (let i in allData) {
+                                        total += allData[i];
+                                    }
+                                    let tooltipPercentage = Math.round((tooltipData / total) * 100);
+                                    return tooltipLabel + ': ' + tooltipData2 + ' (' + tooltipPercentage + '%)';
+                                }
+                            }
+                        }
+                    }
+                });
+
+                agentesChart = new Chart(canvaAgentes.getContext("2d"), {
+                    type: 'pie',
+                    data: dataAgentes,
+                    options: {
+                        maintainAspectRatio: false,
+                        showAllTooltips: false,
+                        cutoutPercentage: 40,
+                        responsive: true,
+                        animation: {
+                            animateRotate: true,
+                            animateScale: true
+                        },
+                        legend: {
+                            display: false
                         },
                         tooltips: {
                             mode: 'index',

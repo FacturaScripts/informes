@@ -8,11 +8,15 @@ namespace FacturaScripts\Plugins\Informes\Lib\Informes;
 use FacturaScripts\Core\Base\DataBase;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Base\ToolBox;
+use FacturaScripts\Dinamic\Model\Agente;
 use FacturaScripts\Dinamic\Model\Asiento;
 use FacturaScripts\Dinamic\Model\Cuenta;
 use FacturaScripts\Dinamic\Model\Ejercicio;
+use FacturaScripts\Dinamic\Model\FacturaCliente;
 use FacturaScripts\Dinamic\Model\Familia;
+use FacturaScripts\Dinamic\Model\FormaPago;
 use FacturaScripts\Dinamic\Model\Producto;
+use FacturaScripts\Dinamic\Model\Serie;
 use FacturaScripts\Dinamic\Model\Subcuenta;
 use FacturaScripts\Dinamic\Model\Variante;
 
@@ -101,7 +105,7 @@ class ResultReport
 
                 if (empty($codfamilia)) {
                     $codfamilia = 'SIN_FAMILIA';
-                    $familia = 'Sin Familia';
+                    $familia = ToolBox::i18n()->trans('no-family');
                 } else {
                     $modelFamilia = new Familia();
                     $modelFamilia->loadFromCode($codfamilia);
@@ -112,7 +116,7 @@ class ResultReport
 
         if (!$articulo) {
             $referencia = 'SIN_REFERENCIA';
-            $art_desc = 'Artículo sin referencia';
+            $art_desc = ToolBox::i18n()->trans('no-product-desc');
             $codfamilia = 'SIN_FAMILIA';
             $familia = 'SIN_FAMILIA';
         }
@@ -351,15 +355,30 @@ class ResultReport
 
         $ventas = array(
             'familias' => [],
+            'series' => [],
+            'pagos' => [],
+            'agentes' => [],
             'total_fam' => [],
+            'total_ser' => [],
+            'total_pag' => [],
+            'total_age' => [],
             'total_fam_mes' => [],
+            'total_ser_mes' => [],
+            'total_pag_mes' => [],
+            'total_age_mes' => [],
             'total_ref' => [],
             'total_mes' => [],
             'porc_fam' => [],
+            'porc_ser' => [],
+            'porc_pag' => [],
+            'porc_age' => [],
             'porc_ref' => [],
         );
 
-        $ventas_total_meses = 0;
+        $ventas_total_fam_meses = 0;
+        $ventas_total_ser_meses = 0;
+        $ventas_total_pag_meses = 0;
+        $ventas_total_age_meses = 0;
 
         // Recorremos los meses y ejecutamos una consulta filtrando por el mes
         for ($mes = 1; $mes <= 12; $mes++) {
@@ -391,7 +410,7 @@ class ResultReport
                         $referencia = $data['ref'];
                         $codfamilia = $data['codfamilia'];
 
-                        // Arrays con los datos a mostrar
+                        // Familias
                         if (isset($ventas['total_fam_mes'][$codfamilia][$mes])) {
                             $ventas['total_fam_mes'][$codfamilia][$mes] += $pvptotal;
                         } else {
@@ -404,7 +423,9 @@ class ResultReport
                             $ventas['total_fam'][$codfamilia] = $pvptotal;
                         }
 
+                        // Solo al pinchar en una familia
                         if (self::$parent_codfamilia === (string) $codfamilia) {
+                            // Productos
                             if (isset($ventas['total_ref'][$codfamilia][$referencia])) {
                                 $ventas['total_ref'][$codfamilia][$referencia] += $pvptotal;
                             } else {
@@ -418,11 +439,74 @@ class ResultReport
                             }
                         }
 
+                        // Totales
                         $ventas['total_mes'][$mes] = $pvptotal + $ventas['total_mes'][$mes];
-                        $ventas_total_meses = $pvptotal + $ventas_total_meses;
+                        $ventas_total_fam_meses = $pvptotal + $ventas_total_fam_meses;
 
                         // Array temporal con los totales (falta añadir descripción familia)
                         $ventas['familias'][$codfamilia][$referencia][$mes] = array('pvptotal' => $pvptotal);
+                    }
+                }
+
+                // Recorremos las facturas pagadas
+                $modelFacturas = new FacturaCliente();
+
+                $where = [
+                    new DataBaseWhere('fecha', $date['desde'], '>='),
+                    new DataBaseWhere('fecha', $date['hasta'], '<='),
+                    new DataBaseWhere('codejercicio', $codejercicio),
+                    new DataBaseWhere('pagada', 1)
+                ];
+
+                foreach ($modelFacturas->all($where, [], 0, 0) as $factura) {
+                    // Series
+                    if (isset($ventas['total_ser_mes'][$factura->codserie][$mes])) {
+                        $ventas['total_ser_mes'][$factura->codserie][$mes] += $factura->neto;
+                    } else {
+                        $ventas['total_ser_mes'][$factura->codserie][$mes] = $factura->neto;
+                    }
+
+                    if (isset($ventas['total_ser'][$factura->codserie])) {
+                        $ventas['total_ser'][$factura->codserie] += $factura->neto;
+                    } else {
+                        $ventas['total_ser'][$factura->codserie] = $factura->neto;
+                    }
+
+                    $ventas['series'][$factura->codserie][$mes] = array('pvptotal' => $factura->neto);
+                    $ventas_total_ser_meses = $factura->neto + $ventas_total_ser_meses;
+
+                    // Pagos
+                    if (isset($ventas['total_pag_mes'][$factura->codpago][$mes])) {
+                        $ventas['total_pag_mes'][$factura->codpago][$mes] += $factura->neto;
+                    } else {
+                        $ventas['total_pag_mes'][$factura->codpago][$mes] = $factura->neto;
+                    }
+
+                    if (isset($ventas['total_pag'][$factura->codpago])) {
+                        $ventas['total_pag'][$factura->codpago] += $factura->neto;
+                    } else {
+                        $ventas['total_pag'][$factura->codpago] = $factura->neto;
+                    }
+
+                    $ventas['pagos'][$factura->codpago][$mes] = array('pvptotal' => $factura->neto);
+                    $ventas_total_pag_meses = $factura->neto + $ventas_total_pag_meses;
+
+                    // Agentes
+                    if (!is_null($factura->codagente)) {
+                        if (isset($ventas['total_age_mes'][$factura->codagente][$mes])) {
+                            $ventas['total_age_mes'][$factura->codagente][$mes] += $factura->totalcomision;
+                        } else {
+                            $ventas['total_age_mes'][$factura->codagente][$mes] = $factura->totalcomision;
+                        }
+
+                        if (isset($ventas['total_age'][$factura->codagente])) {
+                            $ventas['total_age'][$factura->codagente] += $factura->totalcomision;
+                        } else {
+                            $ventas['total_age'][$factura->codagente] = $factura->totalcomision;
+                        }
+
+                        $ventas['agentes'][$factura->codagente][$mes] = array('pvptotal' => $factura->totalcomision);
+                        $ventas_total_age_meses = $factura->totalcomision + $ventas_total_age_meses;
                     }
                 }
 
@@ -441,6 +525,24 @@ class ResultReport
                             }
                         }
                     }
+
+                    foreach ($ventas['series'] as $codserie => $series) {
+                        $serie = new Serie();
+                        $serie->loadFromCode($codserie);
+                        $ventas['descripciones'][$codserie] = $serie->descripcion;
+                    }
+
+                    foreach ($ventas['pagos'] as $codpago => $pagos) {
+                        $pago = new FormaPago();
+                        $pago->loadFromCode($codpago);
+                        $ventas['descripciones'][$codpago] = $pago->descripcion;
+                    }
+
+                    foreach ($ventas['agentes'] as $codagente => $agentes) {
+                        $agente = new Agente();
+                        $agente->loadFromCode($codagente);
+                        $ventas['descripciones'][$codagente] = $agente->nombre;
+                    }
                 }
             }
         }
@@ -449,8 +551,8 @@ class ResultReport
          *  TOTALES GLOBALES
          * *****************************************************************
          */
-        $ventas['total_mes'][0] = round($ventas_total_meses, FS_NF0);
-        $ventas['total_mes']['media'] = round($ventas_total_meses / 12, FS_NF0);
+        $ventas['total_mes'][0] = round($ventas_total_fam_meses, FS_NF0);
+        $ventas['total_mes']['media'] = round($ventas_total_fam_meses / 12, FS_NF0);
 
         /**
          *  PORCENTAJES
@@ -458,13 +560,31 @@ class ResultReport
          */
         // VENTAS: Calculamos los porcentajes con los totales globales
         foreach ($ventas['familias'] as $codfamilia => $familias) {
-            if ($ventas_total_meses != 0) {
-                $ventas['porc_fam'][$codfamilia] = round($ventas['total_fam'][$codfamilia] * 100 / $ventas_total_meses, FS_NF0);
+            if ($ventas_total_fam_meses != 0) {
+                $ventas['porc_fam'][$codfamilia] = round($ventas['total_fam'][$codfamilia] * 100 / $ventas_total_fam_meses, FS_NF0);
                 if (self::$parent_codfamilia === (string) $codfamilia) {
                     foreach ($familias as $referencia => $array) {
-                        $ventas['porc_ref'][$codfamilia][$referencia] = round($ventas['total_ref'][$codfamilia][$referencia] * 100 / $ventas_total_meses, FS_NF0);
+                        $ventas['porc_ref'][$codfamilia][$referencia] = round($ventas['total_ref'][$codfamilia][$referencia] * 100 / $ventas_total_fam_meses, FS_NF0);
                     }
                 }
+            }
+        }
+
+        foreach ($ventas['series'] as $codserie => $series) {
+            if ($ventas_total_ser_meses != 0) {
+                $ventas['porc_ser'][$codserie] = round($ventas['total_ser'][$codserie] * 100 / $ventas_total_ser_meses, FS_NF0);
+            }
+        }
+
+        foreach ($ventas['pagos'] as $codpago => $pagos) {
+            if ($ventas_total_pag_meses != 0) {
+                $ventas['porc_pag'][$codpago] = round($ventas['total_pag'][$codpago] * 100 / $ventas_total_pag_meses, FS_NF0);
+            }
+        }
+
+        foreach ($ventas['agentes'] as $codagente => $agentes) {
+            if ($ventas_total_age_meses != 0) {
+                $ventas['porc_age'][$codagente] = round($ventas['total_age'][$codagente] * 100 / $ventas_total_age_meses, FS_NF0);
             }
         }
 
