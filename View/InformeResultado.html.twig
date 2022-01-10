@@ -1,3 +1,8 @@
+{#
+* Copyright (C) 2019-2021 Carlos Garcia Gomez <carlos@facturascripts.com>
+* Author Daniel Fernández Giménez <hola@danielfg.es>
+#}
+
 {% extends "Master/MenuBgTemplate.html.twig" %}
 
 {% set pageData = fsc.getPageData() %}
@@ -230,7 +235,7 @@
 
         $(document).ready(function () {
             function initPage() {
-                console.log(salesReport);
+
                 if (salesReport) {
                     $('#showSales').click();
                 }

@@ -27,7 +27,7 @@ class FamilyResultReport extends ResultReport
                 . '<td class="title">' . self::$ventas[self::$year]['descripciones'][$key] . '</td>'
                 . '<td class="porc text-right align-middle">';
 
-            $percentage = (float) self::$ventas[self::$year]['porc_ref'][self::$parent_codfamilia][$key];
+            $percentage = (float)self::$ventas[self::$year]['porc_ref'][self::$parent_codfamilia][$key];
             $html .= $percentage > 0 ? $percentage . ' %' : self::defaultPerc();
 
             $html .= ''

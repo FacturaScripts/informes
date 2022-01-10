@@ -100,7 +100,9 @@ class ResultReport
             if ($variante->loadFromCode('', $where)) {
                 $articulo = true;
                 $producto->loadFromCode($variante->idproducto);
-                $art_desc = $referencia;
+                $descripcion = strlen($producto->descripcion) > 50 ? substr($producto->descripcion, 0, 50) . '...' : $producto->descripcion;
+                $descripcion = $descripcion != '' ? ' - ' . $descripcion : $descripcion;
+                $art_desc = $referencia . $descripcion;
                 $codfamilia = $producto->codfamilia;
 
                 if (empty($codfamilia)) {

@@ -70,7 +70,7 @@ class PurchasesResultReport extends ResultReport
                 . '<td class="title align-middle">' . self::$gastos[self::$year]['descripciones'][$key] . '</td>'
                 . '<td class="porc align-middle">';
 
-            $percentage = (float) self::$gastos[self::$year]['porc_cuenta'][$key];
+            $percentage = (float)self::$gastos[self::$year]['porc_cuenta'][$key];
             $html .= $percentage > 0 ? $percentage . ' %' : self::defaultPerc();
 
             $html .= ''

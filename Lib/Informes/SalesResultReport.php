@@ -16,7 +16,7 @@ class SalesResultReport extends ResultReport
     public static function render(array $formData)
     {
         self::apply($formData);
-        
+
         $html = ''
             . '<div class="table-responsive">'
             . '<table class="table table-hover mb-0">'
@@ -70,7 +70,7 @@ class SalesResultReport extends ResultReport
                 . '<td class="title">' . self::$ventas[self::$year]['descripciones'][$key] . '</td>'
                 . '<td class="porc align-middle">';
 
-            $percentage = (float) self::$ventas[self::$year]['porc_fam'][$key];
+            $percentage = (float)self::$ventas[self::$year]['porc_fam'][$key];
             $html .= $percentage > 0 ? $percentage . ' %' : self::defaultPerc();
 
             $html .= ''

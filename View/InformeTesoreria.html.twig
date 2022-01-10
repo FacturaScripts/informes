@@ -1,3 +1,8 @@
+{#
+* Copyright (C) 2019-2021 Carlos Garcia Gomez <carlos@facturascripts.com>
+* Author Daniel Fernández Giménez <hola@danielfg.es>
+#}
+
 {% extends "Master/MenuBgTemplate.html.twig" %}
 
 {% set pageData = fsc.getPageData() %}
@@ -45,7 +50,9 @@
                         <table class="table table-striped mb-0">
                             {% if fsc.cajas %}
                                 <tr>
-                                    <td class="text-center align-middle">{{ _self.trans(i18n, 'boxes', true) }} (570xxx)</td>
+                                    <td class="text-center align-middle">{{ _self.trans(i18n, 'boxes', true) }}
+                                        (570xxx)
+                                    </td>
                                     <td class="p-0">
                                         <table class="table m-0">
                                             {% for caja in fsc.cajas %}
@@ -65,7 +72,9 @@
 
                             {% if fsc.bancos %}
                                 <tr>
-                                    <td class="text-center align-middle">{{ _self.trans(i18n, 'banks', true) }} (572xxx)</td>
+                                    <td class="text-center align-middle">{{ _self.trans(i18n, 'banks', true) }}
+                                        (572xxx)
+                                    </td>
                                     <td class="p-0">
                                         <table class="table m-0">
                                             {% for banco in fsc.bancos %}
@@ -141,7 +150,8 @@
                                 <td class="money">{{ _self.showPrice(fsc, fsc.da_impuestos['irpf-mod111']) }}</td>
                             </tr>
                             <tr>
-                                <td>{{ _self.trans(i18n, 'irpf', true) }} (4751xxx) ({{ i18n.trans('rent-office') }})</td>
+                                <td>{{ _self.trans(i18n, 'irpf', true) }} (4751xxx) ({{ i18n.trans('rent-office') }})
+                                </td>
                                 <td class="money">{{ _self.showPrice(fsc, fsc.da_impuestos['irpf-mod115']) }}</td>
                             </tr>
                             <tr>
