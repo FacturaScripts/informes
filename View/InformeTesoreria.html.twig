@@ -39,24 +39,24 @@
             <div class="col-sm-6">
                 <div class="card shadow mb-3">
                     <div class="card-header text-center">
-                        <strong>{{ i18n.trans('treasury')|upper }}</strong>
+                        <strong>{{ _self.trans(i18n, 'treasury', true) }}</strong>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-striped mb-0">
                             {% if fsc.cajas %}
                                 <tr>
-                                    <td class="text-center align-middle">{{ i18n.trans('boxes')|upper }} (570xxx)</td>
+                                    <td class="text-center align-middle">{{ _self.trans(i18n, 'boxes', true) }} (570xxx)</td>
                                     <td class="p-0">
                                         <table class="table m-0">
                                             {% for caja in fsc.cajas %}
                                                 <tr>
                                                     <td>{{ caja.descripcion }}</td>
-                                                    <td class="money">{{ fsc.show_precio(caja.saldo)|raw }}</td>
+                                                    <td class="money">{{ _self.showPrice(fsc, caja.saldo) }}</td>
                                                 </tr>
                                             {% endfor %}
                                             <tr>
-                                                <td>{{ i18n.trans('total-boxes')|upper }}</td>
-                                                <td class="money">{{ fsc.show_precio(fsc.da_tesoreria['total_cajas'])|raw }}</td>
+                                                <td>{{ _self.trans(i18n, 'total-boxes', true) }}</td>
+                                                <td class="money">{{ _self.showPrice(fsc, fsc.da_tesoreria['total_cajas']) }}</td>
                                             </tr>
                                         </table>
                                     </td>
@@ -65,26 +65,26 @@
 
                             {% if fsc.bancos %}
                                 <tr>
-                                    <td class="text-center align-middle">{{ i18n.trans('banks')|upper }} (572xxx)</td>
+                                    <td class="text-center align-middle">{{ _self.trans(i18n, 'banks', true) }} (572xxx)</td>
                                     <td class="p-0">
                                         <table class="table m-0">
                                             {% for banco in fsc.bancos %}
                                                 <tr>
                                                     <td>{{ banco.descripcion }}</td>
-                                                    <td class="money">{{ fsc.show_precio(banco.saldo)|raw }}</td>
+                                                    <td class="money">{{ _self.showPrice(fsc, banco.saldo) }}</td>
                                                 </tr>
                                             {% endfor %}
                                             <tr>
-                                                <td>{{ i18n.trans('total-banks')|upper }}</td>
-                                                <td class="money">{{ fsc.show_precio(fsc.da_tesoreria['total_bancos'])|raw }}</td>
+                                                <td>{{ _self.trans(i18n, 'total-banks', true) }}</td>
+                                                <td class="money">{{ _self.showPrice(fsc, fsc.da_tesoreria['total_bancos']) }}</td>
                                             </tr>
                                         </table>
                                     </td>
                                 </tr>
                             {% endif %}
                             <tr>
-                                <td class="text-center">{{ i18n.trans('total-treasury')|upper }}</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_tesoreria['total_tesoreria'])|raw }}</td>
+                                <td class="text-center">{{ _self.trans(i18n, 'total-trasury', true) }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_tesoreria['total_tesoreria']) }}</td>
                             </tr>
                         </table>
                     </div>
@@ -93,33 +93,33 @@
             <div class="col-sm-6">
                 <div class="card shadow mb-3">
                     <div class="card-header text-center">
-                        <strong>{{ i18n.trans('pending-expenses-charges')|upper }}</strong>
+                        <strong>{{ _self.trans(i18n, 'pending-expenses-charges', true) }}</strong>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-striped mb-0">
                             <tr>
                                 <td>(a) {{ i18n.trans('expenses-pending-payment') }}</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_gastoscobros['gastospdtepago'])|raw }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_gastoscobros['gastospdtepago']) }}</td>
                             </tr>
                             <tr>
                                 <td>(b) {{ i18n.trans('customers-pending-collection') }}</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_gastoscobros['clientespdtecobro'])|raw }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_gastoscobros['clientespdtecobro']) }}</td>
                             </tr>
                             <tr>
                                 <td>(c) {{ i18n.trans('payroll-pending-payment') }} (465xxx)</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_gastoscobros['nominaspdtepago'])|raw }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_gastoscobros['nominaspdtepago']) }}</td>
                             </tr>
                             <tr>
                                 <td>(d) {{ i18n.trans('social-secutiry-pending-payment') }} (476xxx)</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_gastoscobros['segsocialpdtepago'])|raw }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_gastoscobros['segsocialpdtepago']) }}</td>
                             </tr>
                             <tr>
                                 <td>(e) {{ i18n.trans('social-security-pending-collection') }} (471xxx)</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_gastoscobros['segsocialpdtecobro'])|raw }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_gastoscobros['segsocialpdtecobro']) }}</td>
                             </tr>
                             <tr>
-                                <td>{{ i18n.trans('total-expenses-charges-pending')|upper }}</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_gastoscobros['total_gastoscobros'])|raw }}</td>
+                                <td>{{ _self.trans(i18n, 'total-expenses-charges-pending', true) }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_gastoscobros['total_gastoscobros']) }}</td>
                             </tr>
                         </table>
                     </div>
@@ -130,19 +130,19 @@
             <div class="col-sm-6">
                 <div class="card shadow mb-3">
                     <div class="card-header text-center">
-                        <strong>{{ i18n.trans('taxes')|upper }}</strong>
+                        <strong>{{ _self.trans(i18n, 'taxes', true) }}</strong>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-striped mb-0">
                             <tr>
-                                <td>{{ i18n.trans('irpf')|upper }} (4751xxx)
+                                <td>{{ _self.trans(i18n, 'irpf', true) }} (4751xxx)
                                     ({{ i18n.trans('payroll-professionals-111') }})
                                 </td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_impuestos['irpf-mod111'])|raw }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_impuestos['irpf-mod111']) }}</td>
                             </tr>
                             <tr>
-                                <td>{{ i18n.trans('irpf')|upper }} (4751xxx) ({{ i18n.trans('rent-office') }})</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_impuestos['irpf-mod115'])|raw }}</td>
+                                <td>{{ _self.trans(i18n, 'irpf', true) }} (4751xxx) ({{ i18n.trans('rent-office') }})</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_impuestos['irpf-mod115']) }}</td>
                             </tr>
                             <tr>
                                 <td></td>
@@ -150,77 +150,77 @@
                             </tr>
                             <tr>
                                 <td>(a) {{ i18n.trans('passed-tax') }} (477xxx)</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_impuestos['iva-repercutido'])|raw }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_impuestos['iva-repercutido']) }}</td>
                             </tr>
                             <tr>
                                 <td>(b) {{ i18n.trans('input-tax') }} (472xxx)</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_impuestos['iva-soportado'])|raw }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_impuestos['iva-soportado']) }}</td>
                             </tr>
                             <tr>
                                 <td>(c) {{ i18n.trans('tax-return-previous-quarters') }} (470xxx)</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_impuestos['iva-devolver'])|raw }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_impuestos['iva-devolver']) }}</td>
                             </tr>
                             <tr>
-                                <td>{{ i18n.trans('result-tax')|upper }} (MOD 303)</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_impuestos['resultado_iva-mod303'])|raw }}</td>
+                                <td>{{ _self.trans(i18n, 'result-tax', true) }} (MOD 303)</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_impuestos['resultado_iva-mod303']) }}</td>
                             </tr>
                             <tr>
                                 <td class="text-center" colspan="2">
-                                    <strong>{{ i18n.trans('current-exercise')|upper }}</strong>
+                                    <strong>{{ _self.trans(i18n, 'current-exercise', true) }}</strong>
                                 </td>
                             </tr>
                             <tr>
                                 <td>{{ i18n.trans('total-sales') }}</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_impuestos['ventas_totales'])|raw }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_impuestos['ventas_totales']) }}</td>
                             </tr>
                             <tr>
                                 <td>{{ i18n.trans('total-expenses') }}</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_impuestos['gastos_totales'])|raw }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_impuestos['gastos_totales']) }}</td>
                             </tr>
                             <tr>
                                 <td>{{ i18n.trans('result') }}</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_impuestos['resultado'])|raw }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_impuestos['resultado']) }}</td>
                             </tr>
                             <tr>
                                 <td>(a) {{ i18n.trans('corporate-tax') }}</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_impuestos['sociedades'])|raw }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_impuestos['sociedades']) }}</td>
                             </tr>
                             <tr>
                                 <td>(b) {{ i18n.trans('payment-previous-periods') }}</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_impuestos['pago-ant'])|raw }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_impuestos['pago-ant']) }}</td>
                             </tr>
                             <tr>
                                 <td>{{ i18n.trans('fractional-payment-corporation-tax') }} (MOD 202)</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_impuestos['pagofraccionado-mod202'])|raw }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_impuestos['pagofraccionado-mod202']) }}</td>
                             </tr>
                             <tr>
                                 <td class="text-center" colspan="2">
-                                    <strong>{{ i18n.trans('previous-exercise')|upper }}</strong>
+                                    <strong>{{ _self.trans(i18n, 'previous-exercise', true) }}</strong>
                                 </td>
                             </tr>
                             <tr>
                                 <td>{{ i18n.trans('result') }} (129xxx)</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_impuestos['resultado_ejanterior'])|raw }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_impuestos['resultado_ejanterior']) }}</td>
                             </tr>
                             <tr>
                                 <td>{{ i18n.trans('negative-results-other-excercises') }} (121xxx)</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_impuestos['resultado_negotros'])|raw }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_impuestos['resultado_negotros']) }}</td>
                             </tr>
                             <tr>
                                 <td>{{ i18n.trans('total-result') }}</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_impuestos['total'])|raw }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_impuestos['total']) }}</td>
                             </tr>
                             <tr>
                                 <td>(a) {{ i18n.trans('corporate-tax') }}</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_impuestos['sociedades_ant'])|raw }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_impuestos['sociedades_ant']) }}</td>
                             </tr>
                             <tr>
                                 <td>(b) {{ i18n.trans('corporate-tax-advances') }} (4709xxx)</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_impuestos['sociedades_adelantos'])|raw }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_impuestos['sociedades_adelantos']) }}</td>
                             </tr>
                             <tr>
                                 <td>{{ i18n.trans('total-pay-return-corporate-tax') }} (MOD 200)</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_impuestos['total-mod200'])|raw }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_impuestos['total-mod200']) }}</td>
                             </tr>
                         </table>
                     </div>
@@ -229,7 +229,7 @@
             <div class="col-sm-6">
                 <div class="card shadow mb-3">
                     <div class="card-header text-center">
-                        <strong>{{ i18n.trans('short-situation-results')|upper }}</strong>
+                        <strong>{{ _self.trans(i18n, 'short-situation-results', true) }}</strong>
                     </div>
                     <div class="table-responsive">
                         <table class="table mb-0">
@@ -238,53 +238,53 @@
                                     + {{ i18n.trans('expenses-charges') }} + MOD 111 + MOD 115 + MOD 303 + MOD 202 +
                                     MOD 200)
                                 </td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_resultadosituacion["total"])|raw }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_resultadosituacion["total"]) }}</td>
                             </tr>
                         </table>
                     </div>
                 </div>
                 <div class="card shadow mb-3">
                     <div class="card-header text-center">
-                        <strong>{{ i18n.trans('reserves-results-exercises')|upper }}</strong>
+                        <strong>{{ _self.trans(i18n, 'reserves-results-exercises', true) }}</strong>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-striped mb-0">
                             <tr>
                                 <td>(a) {{ i18n.trans('legal-reserve') }} (112xxx)</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_reservasresultados["reservalegal"])|raw }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_reservasresultados["reservalegal"]) }}</td>
                             </tr>
                             <tr>
                                 <td>(b) {{ i18n.trans('voluntary-reserves') }} (113xxx)</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_reservasresultados["reservasvoluntarias"])|raw }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_reservasresultados["reservasvoluntarias"]) }}</td>
                             </tr>
                             <tr>
                                 <td>(c) {{ i18n.trans('previous-year-result') }} (129xxx + 121xxx)</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_reservasresultados["resultadoejercicioanterior"])|raw }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_reservasresultados["resultadoejercicioanterior"]) }}</td>
                             </tr>
                             <tr>
-                                <td>{{ i18n.trans('total-reservations')|upper }}</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_reservasresultados["total_reservas"])|raw }}</td>
+                                <td>{{ _self.trans(i18n, 'total-reservations', true) }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_reservasresultados["total_reservas"]) }}</td>
                             </tr>
                         </table>
                     </div>
                 </div>
                 <div class="card shadow mb-3">
                     <div class="card-header text-center">
-                        <strong>{{ i18n.trans('current-year-results')|upper }}</strong>
+                        <strong>{{ _self.trans(i18n, 'current-year-results', true) }}</strong>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-striped mb-0">
                             <tr>
                                 <td>{{ i18n.trans('total-sales') }}</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_resultadoejercicioactual["total_ventas"])|raw }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_resultadoejercicioactual["total_ventas"]) }}</td>
                             </tr>
                             <tr>
                                 <td>{{ i18n.trans('total-spends') }}</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_resultadoejercicioactual["total_gastos"])|raw }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_resultadoejercicioactual["total_gastos"]) }}</td>
                             </tr>
                             <tr>
-                                <td>{{ i18n.trans('result-exploitation')|upper }}</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_resultadoejercicioactual["resultadoexplotacion"])|raw }}</td>
+                                <td>{{ _self.trans(i18n, 'result-exploitation', true) }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_resultadoejercicioactual["resultadoexplotacion"]) }}</td>
                             </tr>
                             <tr>
                                 <td></td>
@@ -292,27 +292,27 @@
                             </tr>
                             <tr>
                                 <td>{{ i18n.trans('amortization-intangible-assets') }} (680xxx)</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_resultadoejercicioactual["amortizacioninmovintang"])|raw }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_resultadoejercicioactual["amortizacioninmovintang"]) }}</td>
                             </tr>
                             <tr>
                                 <td>{{ i18n.trans('amortization-intangible-material') }} (681xxx)</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_resultadoejercicioactual["amortizacioninmovmat"])|raw }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_resultadoejercicioactual["amortizacioninmovmat"]) }}</td>
                             </tr>
                             <tr>
                                 <td>{{ i18n.trans('total-amortizations') }}</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_resultadoejercicioactual["total_amort"])|raw }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_resultadoejercicioactual["total_amort"]) }}</td>
                             </tr>
                             <tr>
                                 <td>{{ i18n.trans('result-before-taxes-rai') }}</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_resultadoejercicioactual["resultado_antes_impuestos"])|raw }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_resultadoejercicioactual["resultado_antes_impuestos"]) }}</td>
                             </tr>
                             <tr>
                                 <td>{{ i18n.trans('corporate-tax') }}</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_resultadoejercicioactual["impuesto_sociedades"])|raw }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_resultadoejercicioactual["impuesto_sociedades"]) }}</td>
                             </tr>
                             <tr>
                                 <td>{{ i18n.trans('result-after-taxes-rdi') }}</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_resultadoejercicioactual["resultado_despues_impuestos"])|raw }}</td>
+                                <td class="money">{{ _self.showPrice(fsc, fsc.da_resultadoejercicioactual["resultado_despues_impuestos"]) }}</td>
                             </tr>
                         </table>
                     </div>
@@ -348,3 +348,15 @@
         });
     </script>
 {% endblock %}
+
+{% macro showPrice(fsc, price) %}
+    {{ fsc.show_precio(price)|raw }}
+{% endmacro %}
+
+{% macro trans(i18n, txt, uppercase) %}
+    {% if uppercase %}
+        {{ i18n.trans(txt)|upper }}
+    {% else %}
+        {{ i18n.trans(txt) }}
+    {% endif %}
+{% endmacro %}
