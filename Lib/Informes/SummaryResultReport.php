@@ -171,7 +171,7 @@ class SummaryResultReport extends ResultReport
 
         // compras
         $html .= '<tr class="table-danger">'
-            . '<td class="title align-middle"><b>' . ToolBox::i18n()->trans('purchases') . '</b></td>'
+            . '<td class="title align-middle"><b>' . ToolBox::i18n()->trans('expenses') . '</b></td>'
             . '<td class="porc">';
 
         $money = self::$gastos[self::$year]['total_mes']['media'];
