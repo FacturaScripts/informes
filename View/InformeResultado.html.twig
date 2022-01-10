@@ -31,18 +31,20 @@
         <div class="row">
             <div class="col-sm-12">
                 <div class="card border-primary shadow mt-4">
-                    <div class="card-header bg-primary">
+                    <div class="card-header bg-primary d-flex flex-row">
                         <select class="form-control" id="selectYear">
                             {{ fsc.loadYears()|raw }}
                         </select>
+                        <div class="ml-2 mt-2" load-after="true" id="yearSpinner"></div>
                     </div>
                     <div id="summaryData"></div>
                 </div>
 
                 <div class="card border-success shadow mt-4">
-                    <h5 class="card-header bg-success text-white cursor-pointer" id="showSales">
-                        <i class="fa fa-plus float-right"></i>
+                    <h5 class="card-header bg-success text-white cursor-pointer d-flex" id="showSales">
                         {{ i18n.trans('sales') }}
+                        <div class="ml-2" load-after="true" id="salesSpinner"></div>
+                        <i class="fa fa-plus ml-auto"></i>
                     </h5>
                     <div id="salesReport" class="collapse">
                         <div class="card-body p-0"></div>
@@ -50,9 +52,10 @@
                 </div>
 
                 <div class="card border-danger shadow mt-4">
-                    <h5 class="card-header bg-danger text-white cursor-pointer" id="showPurchases">
-                        <i class="fa fa-plus float-right"></i>
+                    <h5 class="card-header bg-danger text-white cursor-pointer d-flex" id="showPurchases">
                         {{ i18n.trans('purchases') }}
+                        <div class="ml-2" load-after="true" id="purchasesSpinner"></div>
+                        <i class="fa fa-plus ml-auto"></i>
                     </h5>
                     <div id="purchasesReport" class="collapse">
                         <div class="card-body p-0"></div>
@@ -82,10 +85,10 @@
                     <div class="table-responsive" id="chartsListFamilies">
                         <table class="table mb-0 table-sm">
                             <thead>
-                                <th></th>
-                                <th>{{ i18n.trans('family') }}</th>
-                                <th class="porc">%</th>
-                                <th class="total">{{ i18n.trans('total') }}</th>
+                            <th></th>
+                            <th>{{ i18n.trans('family') }}</th>
+                            <th class="porc">%</th>
+                            <th class="total">{{ i18n.trans('total') }}</th>
                             </thead>
                             <tbody></tbody>
                         </table>
@@ -103,10 +106,10 @@
                     <div class="table-responsive" id="chartsListSeries">
                         <table class="table mb-0 table-sm">
                             <thead>
-                                <th></th>
-                                <th>{{ i18n.trans('serie') }}</th>
-                                <th class="porc">%</th>
-                                <th class="total">{{ i18n.trans('total') }}</th>
+                            <th></th>
+                            <th>{{ i18n.trans('serie') }}</th>
+                            <th class="porc">%</th>
+                            <th class="total">{{ i18n.trans('total') }}</th>
                             </thead>
                             <tbody></tbody>
                         </table>
@@ -124,10 +127,10 @@
                     <div class="table-responsive" id="chartsListPagos">
                         <table class="table mb-0 table-sm">
                             <thead>
-                                <th></th>
-                                <th>{{ i18n.trans('method-payment') }}</th>
-                                <th class="porc">%</th>
-                                <th class="total">{{ i18n.trans('total') }}</th>
+                            <th></th>
+                            <th>{{ i18n.trans('method-payment') }}</th>
+                            <th class="porc">%</th>
+                            <th class="total">{{ i18n.trans('total') }}</th>
                             </thead>
                             <tbody></tbody>
                         </table>
@@ -145,10 +148,10 @@
                     <div class="table-responsive" id="chartsListAgentes">
                         <table class="table mb-0 table-sm">
                             <thead>
-                                <th></th>
-                                <th>{{ i18n.trans('agent') }}</th>
-                                <th class="porc">%</th>
-                                <th class="total">{{ i18n.trans('total') }}</th>
+                            <th></th>
+                            <th>{{ i18n.trans('agent') }}</th>
+                            <th class="porc">%</th>
+                            <th class="total">{{ i18n.trans('total') }}</th>
                             </thead>
                             <tbody></tbody>
                         </table>
@@ -212,21 +215,40 @@
     {{ parent() }}
 
     <script src="{{ asset('node_modules/chart.js/dist/Chart.min.js') }}"></script>
+    {% include 'LoadSpinner.html.twig' %}
+
     <script>
-        let resumeChart;
-        let familiesChart;
-        let seriesChart;
-        let pagosChart;
+        let accountReport = '';
         let agentesChart;
+        let familiesChart;
+        let familyReport = '';
+        let pagosChart;
+        let purchasesReport = false;
+        let resumeChart;
+        let salesReport = false;
+        let seriesChart;
 
         $(document).ready(function () {
             function initPage() {
+                console.log(salesReport);
+                if (salesReport) {
+                    $('#showSales').click();
+                }
+
+                if (purchasesReport) {
+                    $('#showPurchases').click();
+                }
+
                 let formData = new FormData();
                 formData.append('action', 'load-summary');
-                sendForm(formData);
+                sendForm(formData, $('#yearSpinner'));
             }
 
-            function sendForm(formData) {
+            function sendForm(formData, btn = '') {
+                if (btn !== '') {
+                    animateSpinner(btn, 'add');
+                }
+
                 formData.append('codejercicio', $('#selectYear option:selected').val());
 
                 console.log(Object.fromEntries(formData));
@@ -236,7 +258,13 @@
                     body: formData
                 }).then(function (response) {
                     if (response.ok) {
+                        if (btn !== '') {
+                            animateSpinner(btn, 'remove', true);
+                        }
                         return response.json();
+                    }
+                    if (btn !== '') {
+                        animateSpinner(btn, 'remove', false);
                     }
                     return Promise.reject(response);
                 }).then(function (data) {
@@ -244,8 +272,6 @@
 
                     if (data.summary && data.summary !== '') {
                         $('#summaryData').html(data.summary);
-                        $('#salesReport').collapse('hide');
-                        $('#purchasesReport').collapse('hide');
                         setCharts(data.charts);
                     }
 
@@ -563,18 +589,13 @@
                 initPage();
             });
 
-            let salesReport = false;
-            let familyReport = '';
-            let purchasesReport = false;
-            let accountReport = '';
-
             $(document).on('click', '#showSales', function () {
                 if (salesReport === false) {
                     $('#showSales i').removeClass('fa-plus').addClass('fa-minus');
                     salesReport = true;
                     let formData = new FormData();
                     formData.append('action', 'load-sales');
-                    sendForm(formData);
+                    sendForm(formData, $('#salesSpinner'));
                 } else {
                     $('#showSales i').addClass('fa-plus').removeClass('fa-minus');
                     salesReport = false;
@@ -599,7 +620,7 @@
                     let formData = new FormData();
                     formData.append('action', 'load-family');
                     formData.append('parent_codfamilia', familyReport);
-                    sendForm(formData);
+                    sendForm(formData, $(this).find('td:first'));
                     $($(this).attr('data-target')).collapse('toggle');
                 }
             });
@@ -610,7 +631,7 @@
                     purchasesReport = true;
                     let formData = new FormData();
                     formData.append('action', 'load-purchases');
-                    sendForm(formData);
+                    sendForm(formData, $('#purchasesSpinner'));
                 } else {
                     $('#showPurchases i').addClass('fa-plus').removeClass('fa-minus');
                     purchasesReport = false;
@@ -635,7 +656,7 @@
                     let formData = new FormData();
                     formData.append('action', 'load-account');
                     formData.append('parent_codcuenta', accountReport);
-                    sendForm(formData);
+                    sendForm(formData, $(this).find('td:first'));
                     $($(this).attr('data-target')).collapse('toggle');
                 }
             });

@@ -64,8 +64,8 @@ class ResultReport
             }
         }
 
-        self::$parent_codcuenta = isset($formData['parent_codcuenta']) ? (string) $formData['parent_codcuenta'] : null;
-        self::$parent_codfamilia = isset($formData['parent_codfamilia']) ? (string) $formData['parent_codfamilia'] : null;
+        self::$parent_codcuenta = isset($formData['parent_codcuenta']) ? (string)$formData['parent_codcuenta'] : null;
+        self::$parent_codfamilia = isset($formData['parent_codfamilia']) ? (string)$formData['parent_codfamilia'] : null;
 
         /// Llamamos a la función que crea los arrays con los datos,
         /// pasandole el año seleccionado y el anterior.
@@ -201,7 +201,7 @@ class ResultReport
                     if ($partidas) {
                         foreach ($partidas as $p) {
                             $codcuenta = substr($p['codsubcuenta'], 0, 3);
-                            $pvptotal = (float) $p['debe'] - (float) $p['haber'];
+                            $pvptotal = (float)$p['debe'] - (float)$p['haber'];
 
                             // Array con los datos a mostrar
                             if (isset($gastos['total_cuenta_mes'][$codcuenta][$mes])) {
@@ -261,7 +261,7 @@ class ResultReport
                             $gastos['descripciones'][$codcuenta] = $codcuenta . ' - ' . $cuenta->descripcion;
                         }
 
-                        if (self::$parent_codcuenta === (string) $codcuenta) {
+                        if (self::$parent_codcuenta === (string)$codcuenta) {
                             foreach ($arraycuenta as $codsubcuenta => $arraysubcuenta) {
                                 $gastos['descripciones'][$codsubcuenta] = '-';
                                 $subcuenta = new Subcuenta();
@@ -295,7 +295,7 @@ class ResultReport
         foreach ($gastos['cuentas'] as $codcuenta => $cuenta) {
             if ($gastos_total_meses != 0) {
                 $gastos['porc_cuenta'][$codcuenta] = round($gastos['total_cuenta'][$codcuenta] * 100 / $gastos_total_meses, FS_NF0);
-                if (self::$parent_codcuenta === (string) $codcuenta) {
+                if (self::$parent_codcuenta === (string)$codcuenta) {
                     foreach ($cuenta as $codsubcuenta => $subcuenta) {
                         $gastos['porc_subcuenta'][$codcuenta][$codsubcuenta] = round($gastos['total_subcuenta'][$codcuenta][$codsubcuenta] * 100 / $gastos_total_meses, FS_NF0);
                     }
@@ -406,7 +406,7 @@ class ResultReport
                 if ($lineas) {
                     foreach ($lineas as $dl) {
                         $data = self::build_data($dl);
-                        $pvptotal = (float) $data['pvptotal'];
+                        $pvptotal = (float)$data['pvptotal'];
                         $referencia = $data['ref'];
                         $codfamilia = $data['codfamilia'];
 
@@ -424,7 +424,7 @@ class ResultReport
                         }
 
                         // Solo al pinchar en una familia
-                        if (self::$parent_codfamilia === (string) $codfamilia) {
+                        if (self::$parent_codfamilia === (string)$codfamilia) {
                             // Productos
                             if (isset($ventas['total_ref'][$codfamilia][$referencia])) {
                                 $ventas['total_ref'][$codfamilia][$referencia] += $pvptotal;
@@ -520,7 +520,7 @@ class ResultReport
                             $data = self::build_data($dl);
 
                             $ventas['descripciones'][$codfamilia] = $data['familia'];
-                            if (self::$parent_codfamilia === (string) $codfamilia) {
+                            if (self::$parent_codfamilia === (string)$codfamilia) {
                                 $ventas['descripciones'][$referencia] = $data['art_desc'];
                             }
                         }
@@ -562,7 +562,7 @@ class ResultReport
         foreach ($ventas['familias'] as $codfamilia => $familias) {
             if ($ventas_total_fam_meses != 0) {
                 $ventas['porc_fam'][$codfamilia] = round($ventas['total_fam'][$codfamilia] * 100 / $ventas_total_fam_meses, FS_NF0);
-                if (self::$parent_codfamilia === (string) $codfamilia) {
+                if (self::$parent_codfamilia === (string)$codfamilia) {
                     foreach ($familias as $referencia => $array) {
                         $ventas['porc_ref'][$codfamilia][$referencia] = round($ventas['total_ref'][$codfamilia][$referencia] * 100 / $ventas_total_fam_meses, FS_NF0);
                     }
