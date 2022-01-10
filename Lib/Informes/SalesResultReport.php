@@ -64,7 +64,12 @@ class SalesResultReport extends ResultReport
                 . '</tr>';
         }
 
-        foreach (self::$ventas[self::$year]['familias'] as $key => $value) {
+        asort(self::$ventas[self::$year]['descripciones']);
+        foreach (self::$ventas[self::$year]['descripciones'] as $key => $value) {
+            if (!isset(self::$ventas[self::$year]['familias'][$key])) {
+                continue;
+            }
+
             $html .= ''
                 . '<tr codfamilia ="' . $key . '" data-target="#ventas-' . $key . '" class="ventas cursor-pointer">'
                 . '<td class="title">' . self::$ventas[self::$year]['descripciones'][$key] . '</td>'

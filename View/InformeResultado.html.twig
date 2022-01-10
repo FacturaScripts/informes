@@ -235,7 +235,6 @@
 
         $(document).ready(function () {
             function initPage() {
-
                 if (salesReport) {
                     $('#showSales').click();
                 }
@@ -243,6 +242,9 @@
                 if (purchasesReport) {
                     $('#showPurchases').click();
                 }
+
+                $('#salesReport .card-body').html('');
+                $('#purchasesReport .card-body').html('');
 
                 let formData = new FormData();
                 formData.append('action', 'load-summary');
