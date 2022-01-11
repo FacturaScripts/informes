@@ -32,6 +32,7 @@ class ReportInvoice extends Controller
     public $estado;
     public $forma_pago;
     public $hasta;
+    public $idempresa;
     public $pais;
     public $proveedor;
     public $provincia;
@@ -62,6 +63,16 @@ class ReportInvoice extends Controller
         $html = '';
         foreach (CodeModel::all('agentes', 'codagente', 'nombre', true) as $row) {
             $check = (!empty($this->codagente) && $row->code == $this->codagente) ? 'selected' : '';
+            $html .= '<option value="' . $row->code . '" ' . $check . '>' . $row->description . '</option>';
+        }
+        return $html;
+    }
+
+    public function loadCompanies()
+    {
+        $html = '';
+        foreach (CodeModel::all('empresas', 'idempresa', 'nombrecorto', false) as $row) {
+            $check = (!empty($this->idempresa) && $row->code == $this->idempresa) ? 'selected' : '';
             $html .= '<option value="' . $row->code . '" ' . $check . '>' . $row->description . '</option>';
         }
         return $html;
@@ -206,7 +217,8 @@ class ReportInvoice extends Controller
     {
         $sql = "SELECT codproveedor,fecha,SUM(neto) as total FROM facturasprov"
             . " WHERE fecha >= " . $this->dataBase->var2str($this->desde)
-            . " AND fecha <= " . $this->dataBase->var2str($this->hasta);
+            . " AND fecha <= " . $this->dataBase->var2str($this->hasta)
+            . " AND idempresa = " . $this->idempresa;
 
         if ($this->codserie) {
             $sql .= " AND codserie = " . $this->dataBase->var2str($this->codserie);
@@ -307,7 +319,7 @@ class ReportInvoice extends Controller
                     }
 
                     foreach ($value2 as $value3) {
-                        echo ';' . number_format($value3, FS_NF0);
+                        echo ';' . number_format($value3, FS_NF0, '.', '');
                     }
 
                     echo "\n";
@@ -320,11 +332,11 @@ class ReportInvoice extends Controller
                 $l_total = 0;
                 foreach ($value as $j => $value3) {
                     if ($j < 13) {
-                        echo ';' . number_format($value3, FS_NF0);
+                        echo ';' . number_format($value3, FS_NF0, '.', '');
                         $l_total += $value3;
                     }
                 }
-                echo ";" . number_format($l_total, FS_NF0) . ";\n";
+                echo ";" . number_format($l_total, FS_NF0, '.', '') . ";\n";
             }
         } else {
             $this->toolBox()->i18nLog()->warning('no-data');
@@ -336,6 +348,7 @@ class ReportInvoice extends Controller
         $sql = "SELECT f.codalmacen,f.codproveedor,f.fecha,l.referencia,l.descripcion,SUM(l.cantidad) as total"
             . " FROM facturasprov f, lineasfacturasprov l"
             . " WHERE f.idfactura = l.idfactura AND l.referencia IS NOT NULL"
+            . " AND f.idempresa = " . $this->idempresa
             . " AND f.fecha >= " . $this->dataBase->var2str($this->desde)
             . " AND f.fecha <= " . $this->dataBase->var2str($this->hasta);
 
@@ -439,7 +452,7 @@ class ReportInvoice extends Controller
 
                         foreach ($value3 as $x => $value4) {
                             if ($x < 15) {
-                                echo ';' . number_format($value4, FS_NF0);
+                                echo ';' . number_format($value4, FS_NF0, '.', '');
                             }
                         }
                         echo "\n";
@@ -457,14 +470,15 @@ class ReportInvoice extends Controller
     {
         $sql = "SELECT codalmacen,codcliente,fecha,SUM(neto) as total FROM facturascli"
             . " WHERE fecha >= " . $this->dataBase->var2str($this->desde)
-            . " AND fecha <= " . $this->dataBase->var2str($this->hasta);
+            . " AND fecha <= " . $this->dataBase->var2str($this->hasta)
+            . " AND idempresa = " . $this->idempresa;
 
-        if ($this->request->get('codpais')) {
-            $sql .= " AND codpais = " . $this->dataBase->var2str($this->request->get('codpais'));
+        if ($this->codpais) {
+            $sql .= " AND codpais = " . $this->dataBase->var2str($this->codpais);
         }
 
-        if ($this->request->get('provincia')) {
-            $sql .= " AND lower(provincia) = lower(" . $this->dataBase->var2str($this->request->get('provincia')) . ")";
+        if ($this->provincia) {
+            $sql .= " AND lower(provincia) = lower(" . $this->dataBase->var2str($this->provincia) . ")";
         }
 
         if ($this->cliente) {
@@ -555,9 +569,7 @@ class ReportInvoice extends Controller
 
                     if (isset($totales[$j])) {
                         foreach ($value2 as $k => $value3) {
-                            if (is_numeric($value3)) {
-                                $totales[$j][$k] += $value3;
-                            }
+                            $totales[$j][$k] += $value3;
                         }
                     } else {
                         $totales[$j] = $value2;
@@ -574,7 +586,7 @@ class ReportInvoice extends Controller
 
                     foreach ($value2 as $x => $value3) {
                         if ($x < 15) {
-                            echo ';' . number_format($value3, FS_NF0);
+                            echo ';' . number_format($value3, FS_NF0, '.', '');
                         }
                     }
                     echo "\n";
@@ -586,10 +598,10 @@ class ReportInvoice extends Controller
                 $l_total = 0;
                 foreach ($value as $j => $value3) {
                     if ($j < 13) {
-                        echo ';' . number_format($value3, FS_NF0);
+                        echo ';' . number_format($value3, FS_NF0, '.', '');
                     }
                 }
-                echo ";" . number_format($l_total, FS_NF0) . ";\n";
+                echo ";" . number_format($l_total, FS_NF0, '.', '') . ";\n";
             }
         } else {
             $this->toolBox()->i18nLog()->warning('no-data');
@@ -601,15 +613,16 @@ class ReportInvoice extends Controller
         $sql = "SELECT f.codalmacen,f.codcliente,f.fecha,l.referencia,l.descripcion,SUM(l.cantidad) as total"
             . " FROM facturascli f, lineasfacturascli l"
             . " WHERE f.idfactura = l.idfactura AND l.referencia IS NOT NULL"
+            . " AND f.idempresa = " . $this->idempresa
             . " AND f.fecha >= " . $this->dataBase->var2str($this->desde)
             . " AND f.fecha <= " . $this->dataBase->var2str($this->hasta);
 
-        if ($this->request->get('codpais')) {
-            $sql .= " AND f.codpais = " . $this->dataBase->var2str($this->request->get('codpais'));
+        if ($this->codpais) {
+            $sql .= " AND f.codpais = " . $this->dataBase->var2str($this->codpais);
         }
 
-        if ($this->request->get('provincia')) {
-            $sql .= " AND lower(f.provincia) = lower(" . $this->dataBase->var2str($this->request->get('codpais')) . ")";
+        if ($this->provincia) {
+            $sql .= " AND lower(f.provincia) = lower(" . $this->dataBase->var2str($this->provincia) . ")";
         }
 
         if ($this->cliente) {
@@ -712,7 +725,7 @@ class ReportInvoice extends Controller
 
                         foreach ($value3 as $x => $value4) {
                             if ($x < 15) {
-                                echo ';' . number_format($value4, FS_NF0);
+                                echo ';' . number_format($value4, FS_NF0, '.', '');
                             }
                         }
 
@@ -740,6 +753,11 @@ class ReportInvoice extends Controller
         $this->hasta = Date('Y') . '-12-31';
         if ($this->request->get('hasta')) {
             $this->hasta = $this->request->get('hasta');
+        }
+
+        $this->idempresa = FALSE;
+        if ($this->request->get('idempresa')) {
+            $this->idempresa = $this->request->get('idempresa');
         }
 
         $this->codpais = FALSE;
