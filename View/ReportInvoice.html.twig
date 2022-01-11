@@ -36,169 +36,218 @@
 
     <div class="container-fluid mt-3">
         <form action="{{ fsc.url() }}" method="post">
-            <div class="row">
-                <div class="col-12 col-md-2 mb-2">
-                    <label>{{ i18n.trans('from-date') }}</label>
-                    <input type="date" name="desde" class="form-control" value="{{ 'now' | date('Y') }}-01-01">
-                </div>
-                <div class="col-12 col-md-2 mb-2">
-                    <label>{{ i18n.trans('until-date') }}</label>
-                    <input type="date" name="hasta" class="form-control" value="{{ 'now' | date('Y') }}-12-31">
-                </div>
-                <div class="col-12 col-md-2 mb-2">
-                    <label>{{ i18n.trans('agent') }}</label>
-                    <select name="codagente" class="form-control">
-                        {{ fsc.loadAgents()|raw }}
-                    </select>
-                </div>
-                <div class="col-12 col-md-2 mb-2">
-                    <label>{{ i18n.trans('serie') }}</label>
-                    <select name="codserie" class="form-control">
-                        {{ fsc.loadSeries()|raw }}
-                    </select>
-                </div>
-                <div class="col-12 col-md-2 mb-2">
-                    <label>{{ i18n.trans('currency') }}</label>
-                    <select name="coddivisa" class="form-control">
-                        {{ fsc.loadDivisas()|raw }}
-                    </select>
-                </div>
-                <div class="col-12 col-md-2 mb-2">
-                    <label>{{ i18n.trans('method-payment') }}</label>
-                    <select name="codpago" class="form-control">
-                        {{ fsc.loadPayments()|raw }}
-                    </select>
-                </div>
-                <div class="col-12 col-md-2 mb-2">
-                    <label>{{ i18n.trans('warehouse') }}</label>
-                    <select name="codalmacen" class="form-control">
-                        {{ fsc.loadWarehouses()|raw }}
-                    </select>
-                </div>
-                <div class="col-12 col-md-2 mb-2">
-                    <label>{{ i18n.trans('status') }}</label>
-                    <select name="estado" class="form-control">
-                        <option value="">{{ i18n.trans('all') }}</option>
-                        <option value="1">{{ i18n.trans('paid') }}</option>
-                        <option value="0">{{ i18n.trans('unpaid') }}</option>
-                    </select>
-                </div>
-                <div class="col-12 col-md-2 mb-2">
-                    <label>{{ i18n.trans('format') }}</label>
-                    <select name="generar" class="form-control">
-                        <option value="pdf">{{ i18n.trans('pdf')|upper }}</option>
-                        <option value="xls">{{ i18n.trans('xls')|upper }}</option>
-                        <option value="csv">{{ i18n.trans('csv')|upper }}</option>
-                    </select>
-                </div>
-            </div>
-
-            <hr class="mt-3 mb-4">
-
-            <div class="row">
-                <div class="col-12 col-md-4">
-                    <div class="card">
-                        <div class="card-header">
-                            {{ i18n.trans('purchase-report') }}
-                        </div>
-                        <div class="card-body">
-                            <p>{{ i18n.trans('purchase-report-legend') }}</p>
+            <input type="hidden" name="generar" value="informe_ventas">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12 col-md-2">
                             <div class="form-group">
-                                <label>{{ i18n.trans('supplier') }}</label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" id="supplier"
-                                           placeholder="{{ i18n.trans('any-provider') }}">
-                                    <input type="hidden" name="codproveedor" value="">
-                                    <div class="input-group-append">
-                                        <button class="btn btn-secondary" type="button" onclick="cleanSupplier()">
-                                            <span class="fa fa-times"></span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="purchase-unidades"
-                                       id="purchaseUndFalse" value="FALSE" checked>
-                                <label class="form-check-label" for="purchaseUndFalse">
-                                    {{ i18n.trans('amounts') }}
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="purchase-unidades"
-                                       id="purchaseUndTrue" value="TRUE">
-                                <label class="form-check-label" for="purchaseUndTrue">
-                                    {{ i18n.trans('units') }}
-                                </label>
-                            </div>
-                            <div class="form-group mt-2">
-                                <label>{{ i18n.trans('minimum-amount') }}</label>
-                                <input type="number" class="form-control" name="purchase-minimo"
-                                       placeholder="{{ i18n.trans('purchase-amounts-units') }}">
+                                <label>{{ i18n.trans('from-date') }}</label>
+                                <input type="date" name="desde" class="form-control" value="{{ fsc.desde }}">
                             </div>
                         </div>
-                        <div class="card-footer text-right">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-eye mr-2"></i>{{ i18n.trans('show') }}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12 col-md-4">
-                    <div class="card">
-                        <div class="card-header">
-                            {{ i18n.trans('sale-report') }}
-                        </div>
-                        <div class="card-body">
-                            <p>{{ i18n.trans('sale-report-legend') }}</p>
+                        <div class="col-12 col-md-2">
                             <div class="form-group">
-                                <label>{{ i18n.trans('country') }}</label>
-                                <select name="codpais" class="form-control" id="countries">
-                                    {{ fsc.loadCountries()|raw }}
+                                <label>{{ i18n.trans('until-date') }}</label>
+                                <input type="date" name="hasta" class="form-control" value="{{ fsc.hasta }}">
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-2">
+                            <div class="form-group">
+                                <label>{{ i18n.trans('agent') }}</label>
+                                <select name="codagente" class="form-control">
+                                    {{ fsc.loadAgents()|raw }}
                                 </select>
                             </div>
+                        </div>
+                        <div class="col-12 col-md-2">
                             <div class="form-group">
-                                <label>{{ i18n.trans('province') }}</label>
-                                <select name="provincia" class="form-control" id="provincies"></select>
+                                <label>{{ i18n.trans('serie') }}</label>
+                                <select name="codserie" class="form-control">
+                                    {{ fsc.loadSeries()|raw }}
+                                </select>
                             </div>
+                        </div>
+                        <div class="col-12 col-md-2">
                             <div class="form-group">
-                                <label>{{ i18n.trans('customer') }}</label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" id="customer"
-                                           placeholder="{{ i18n.trans('any-customer') }}">
-                                    <input type="hidden" name="codcliente" value="">
-                                    <div class="input-group-append">
-                                        <button class="btn btn-secondary" type="button" onclick="cleanCustomer()">
-                                            <span class="fa fa-times"></span>
-                                        </button>
+                                <label>{{ i18n.trans('currency') }}</label>
+                                <select name="coddivisa" class="form-control">
+                                    {{ fsc.loadDivisas()|raw }}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-2">
+                            <div class="form-group">
+                                <label>{{ i18n.trans('method-payment') }}</label>
+                                <select name="codpago" class="form-control">
+                                    {{ fsc.loadPayments()|raw }}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-2">
+                            <div class="form-group">
+                                <label>{{ i18n.trans('warehouse') }}</label>
+                                <select name="codalmacen" class="form-control">
+                                    {{ fsc.loadWarehouses()|raw }}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-2">
+                            <div class="form-group">
+                                <label>{{ i18n.trans('status') }}</label>
+                                <select name="estado" class="form-control">
+                                    <option value="">{{ i18n.trans('all') }}</option>
+                                    <option value="pagada" {{ fsc.estado == 'pagada' ? 'selected' : '' }}>{{ i18n.trans('paid') }}</option>
+                                    <option value="sinpagar" {{ fsc.estado == 'sinpagar' ? 'selected' : '' }}>{{ i18n.trans('unpaid') }}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <ul class="nav nav-pills mt-4" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <a id="tabVentas" class="nav-link active" data-toggle="tab" role="tab" aria-selected="true"
+                               aria-controls="contentSaleReport" href="#contentSaleReport">
+                                {{ i18n.trans('sale-report') }}
+                            </a>
+                        </li>
+                        <li id="tabCompras" class="nav-item" role="presentation">
+                            <a class="nav-link" data-toggle="tab" role="tab" aria-selected="false"
+                               aria-controls="contentPurchaseReport" href="#contentPurchaseReport">
+                                {{ i18n.trans('purchase-report') }}
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content mt-3">
+                        <div class="tab-pane fade show active" id="contentSaleReport"
+                             aria-labelledby="contentSaleReport-tab" role="tabpanel">
+                            <p>{{ i18n.trans('sale-report-legend') }}</p>
+                            <div class="row">
+                                <div class="col-12 col-md-2">
+                                    <div class="form-group">
+                                        <label>{{ i18n.trans('country') }}</label>
+                                        <select name="codpais" class="form-control" id="countries">
+                                            {{ fsc.loadCountries()|raw }}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-2">
+                                    <div class="form-group">
+                                        <label>{{ i18n.trans('province') }}</label>
+                                        <select name="provincia" class="form-control" id="provincies"></select>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-2">
+                                    <div class="form-group">
+                                        <label>{{ i18n.trans('customer') }}</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="customer"
+                                                   placeholder="{{ i18n.trans('any-customer') }}"
+                                                   value="{{ fsc.cliente.nombre }}">
+                                            <input type="hidden" name="codcliente" value="{{ fsc.cliente.codcliente }}">
+                                            <div class="input-group-append">
+                                                <button class="btn btn-secondary" type="button"
+                                                        onclick="cleanCustomer()">
+                                                    <span class="fa fa-times"></span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-2">
+                                    <div class="form-group">
+                                        <label>{{ i18n.trans('minimum-amount') }}</label>
+                                        <input type="number" class="form-control" name="sale-minimo"
+                                               placeholder="{{ i18n.trans('optional-amounts-units') }}"
+                                               value="{{ fsc.sale_minimo }}">
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-2">
+                                    <div class="form-group">
+                                        <label>{{ i18n.trans('select-option') }}</label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="sale-unidades"
+                                                   id="saleUndFalse"
+                                                   value="0" {{ fsc.sale_unidades == 0 ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="saleUndFalse">
+                                                {{ i18n.trans('amounts') }}
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="sale-unidades"
+                                                   id="saleUndTrue"
+                                                   value="1" {{ fsc.sale_unidades == 1 ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="saleUndTrue">
+                                                {{ i18n.trans('units') }}
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="sale-unidades" id="saleUndFalse"
-                                       value="FALSE" checked>
-                                <label class="form-check-label" for="saleUndFalse">
-                                    {{ i18n.trans('amounts') }}
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="sale-unidades" id="saleUndTrue"
-                                       value="TRUE">
-                                <label class="form-check-label" for="saleUndTrue">
-                                    {{ i18n.trans('units') }}
-                                </label>
-                            </div>
-                            <div class="form-group mt-2">
-                                <label>{{ i18n.trans('minimum-amount') }}</label>
-                                <input type="number" class="form-control" name="sale-minimo"
-                                       placeholder="{{ i18n.trans('purchase-amounts-units') }}">
-                            </div>
                         </div>
-                        <div class="card-footer text-right">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-eye mr-2"></i>{{ i18n.trans('show') }}
-                            </button>
+
+                        <div class="tab-pane" id="contentPurchaseReport" aria-labelledby="contentPurchaseReport-tab"
+                             role="tabpanel">
+                            <p>{{ i18n.trans('purchase-report-legend') }}</p>
+                            <div class="row">
+                                <div class="col-12 col-md-2">
+                                    <div class="form-group">
+                                        <label>{{ i18n.trans('supplier') }}</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="supplier"
+                                                   placeholder="{{ i18n.trans('any-provider') }}"
+                                                   value="{{ fsc.proveedor.nombre }}">
+                                            <input type="hidden" name="codproveedor"
+                                                   value="{{ fsc.proveedor.codproveedor }}">
+                                            <div class="input-group-append">
+                                                <button class="btn btn-secondary" type="button"
+                                                        onclick="cleanSupplier()">
+                                                    <span class="fa fa-times"></span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-2">
+                                    <div class="form-group">
+                                        <label>{{ i18n.trans('minimum-amount') }}</label>
+                                        <input type="number" class="form-control" name="purchase-minimo"
+                                               placeholder="{{ i18n.trans('optional-amounts-units') }}"
+                                               value="{{ fsc.purchase_minimo }}">
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-2">
+                                    <div class="form-group">
+                                        <label>{{ i18n.trans('select-option') }}</label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="purchase-unidades"
+                                                   id="purchaseUndFalse"
+                                                   value="0" {{ fsc.purchase_unidades == 0 ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="purchaseUndFalse">
+                                                {{ i18n.trans('amounts') }}
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="purchase-unidades"
+                                                   id="purchaseUndTrue"
+                                                   value="1" {{ fsc.purchase_unidades == 1 ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="purchaseUndTrue">
+                                                {{ i18n.trans('units') }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                </div>
+                <div class="card-footer text-right">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-eye mr-2"></i>{{ i18n.trans('show') }}
+                    </button>
                 </div>
             </div>
         </form>
@@ -227,6 +276,7 @@
             let formData = {};
             formData["action"] = "load-provincies";
             formData["codpais"] = $("#countries option:selected").val();
+            formData["provincia"] = '{{ fsc.provincia }}';
             $('#provincies').html('');
 
             $.ajax({
@@ -243,10 +293,18 @@
             });
         }
 
-        loadProvincies();
-
         $(document).ready(function () {
-            $('#countries').change(function(){
+            loadProvincies();
+
+            $(document).on('click', '#tabVentas', function () {
+                $('input[name="generar"]').val('informe_ventas');
+            });
+
+            $(document).on('click', '#tabCompras', function () {
+                $('input[name="generar"]').val('informe_compras');
+            });
+
+            $('#countries').change(function () {
                 loadProvincies();
             });
 
