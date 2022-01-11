@@ -54,6 +54,14 @@
                         </div>
                         <div class="col-12 col-md-2">
                             <div class="form-group">
+                                <label>{{ i18n.trans('company') }}</label>
+                                <select name="idempresa" class="form-control">
+                                    {{ fsc.loadCompanies()|raw }}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-2">
+                            <div class="form-group">
                                 <label>{{ i18n.trans('agent') }}</label>
                                 <select name="codagente" class="form-control">
                                     {{ fsc.loadAgents()|raw }}
