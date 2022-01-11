@@ -16,7 +16,7 @@ class SalesResultReport extends ResultReport
     public static function render(array $formData)
     {
         self::apply($formData);
-        
+
         $html = ''
             . '<div class="table-responsive">'
             . '<table class="table table-hover mb-0">'
@@ -64,13 +64,18 @@ class SalesResultReport extends ResultReport
                 . '</tr>';
         }
 
-        foreach (self::$ventas[self::$year]['familias'] as $key => $value) {
+        asort(self::$ventas[self::$year]['descripciones']);
+        foreach (self::$ventas[self::$year]['descripciones'] as $key => $value) {
+            if (!isset(self::$ventas[self::$year]['familias'][$key])) {
+                continue;
+            }
+
             $html .= ''
                 . '<tr codfamilia ="' . $key . '" data-target="#ventas-' . $key . '" class="ventas cursor-pointer">'
                 . '<td class="title">' . self::$ventas[self::$year]['descripciones'][$key] . '</td>'
                 . '<td class="porc align-middle">';
 
-            $percentage = (float) self::$ventas[self::$year]['porc_fam'][$key];
+            $percentage = (float)self::$ventas[self::$year]['porc_fam'][$key];
             $html .= $percentage > 0 ? $percentage . ' %' : self::defaultPerc();
 
             $html .= ''

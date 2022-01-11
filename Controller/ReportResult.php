@@ -18,7 +18,7 @@ use FacturaScripts\Dinamic\Model\Empresa;
  *
  * @author Daniel Fernández Giménez <hola@danielfg.es>
  */
-class InformeResultado extends Controller
+class ReportResult extends Controller
 {
     private $logLevels = ['critical', 'error', 'info', 'notice', 'warning'];
 
@@ -48,7 +48,7 @@ class InformeResultado extends Controller
     public function privateCore(&$response, $user, $permissions)
     {
         parent::privateCore($response, $user, $permissions);
-        $this->execPreviousAction($this->request->get('action'));
+        $this->execPreviousAction($this->request->get('action', ''));
     }
 
     protected function execPreviousAction($action)

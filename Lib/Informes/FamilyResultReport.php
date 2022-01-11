@@ -21,13 +21,18 @@ class FamilyResultReport extends ResultReport
             . '<table class="table table-hover mb-0">'
             . '<tbody>';
 
-        foreach (self::$ventas[self::$year]['familias'][self::$parent_codfamilia] as $key => $value) {
+        asort(self::$ventas[self::$year]['descripciones']);
+        foreach (self::$ventas[self::$year]['descripciones'] as $key => $value) {
+            if (!isset(self::$ventas[self::$year]['familias'][self::$parent_codfamilia][$key])) {
+                continue;
+            }
+
             $html .= ''
                 . '<tr>'
                 . '<td class="title">' . self::$ventas[self::$year]['descripciones'][$key] . '</td>'
                 . '<td class="porc text-right align-middle">';
 
-            $percentage = (float) self::$ventas[self::$year]['porc_ref'][self::$parent_codfamilia][$key];
+            $percentage = (float)self::$ventas[self::$year]['porc_ref'][self::$parent_codfamilia][$key];
             $html .= $percentage > 0 ? $percentage . ' %' : self::defaultPerc();
 
             $html .= ''

@@ -27,7 +27,7 @@ class AccountResultReport extends ResultReport
                 . '<td class="title">' . self::$gastos[self::$year]['descripciones'][$key] . '</td>'
                 . '<td class="porc text-right align-middle">';
 
-            $percentage = (float) self::$gastos[self::$year]['porc_subcuenta'][self::$parent_codcuenta][$key];
+            $percentage = (float)self::$gastos[self::$year]['porc_subcuenta'][self::$parent_codcuenta][$key];
             $html .= $percentage > 0 ? $percentage . ' %' : self::defaultPerc();
 
             $html .= ''
