@@ -496,18 +496,18 @@ class ResultReport
                     // Agentes
                     if (!is_null($factura->codagente)) {
                         if (isset($ventas['total_age_mes'][$factura->codagente][$mes])) {
-                            $ventas['total_age_mes'][$factura->codagente][$mes] += $factura->totalcomision;
+                            $ventas['total_age_mes'][$factura->codagente][$mes] += $factura->neto;
                         } else {
-                            $ventas['total_age_mes'][$factura->codagente][$mes] = $factura->totalcomision;
+                            $ventas['total_age_mes'][$factura->codagente][$mes] = $factura->neto;
                         }
 
                         if (isset($ventas['total_age'][$factura->codagente])) {
-                            $ventas['total_age'][$factura->codagente] += $factura->totalcomision;
+                            $ventas['total_age'][$factura->codagente] += $factura->neto;
                         } else {
-                            $ventas['total_age'][$factura->codagente] = $factura->totalcomision;
+                            $ventas['total_age'][$factura->codagente] = $factura->neto;
                         }
 
-                        $ventas['agentes'][$factura->codagente][$mes] = array('pvptotal' => $factura->totalcomision);
+                        $ventas['agentes'][$factura->codagente][$mes] = array('pvptotal' => $factura->neto);
                         $ventas_total_age_meses = $factura->totalcomision + $ventas_total_age_meses;
                     }
                 }
