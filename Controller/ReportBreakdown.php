@@ -16,7 +16,7 @@ use FacturaScripts\Dinamic\Model\Proveedor;
  *
  * @author Daniel Fernández Giménez <hola@danielfg.es>
  */
-class ReportInvoice extends Controller
+class ReportBreakdown extends Controller
 {
     public $agente;
     public $almacen;
@@ -53,8 +53,8 @@ class ReportInvoice extends Controller
     {
         $data = parent::getPageData();
         $data["menu"] = "reports";
-        $data["title"] = "invoice-report";
-        $data["icon"] = "fas fa-file-invoice";
+        $data["title"] = "report-breakdown";
+        $data["icon"] = "fas fa-braille";
         return $data;
     }
 
@@ -136,8 +136,10 @@ class ReportInvoice extends Controller
         switch ($action) {
             case 'autocomplete-customer':
                 return $this->autocompleteCustomerAction();
+
             case 'autocomplete-supplier':
                 return $this->autocompleteSupplierAction();
+
             case 'load-provincies':
                 return $this->loadProvincies();
         }
