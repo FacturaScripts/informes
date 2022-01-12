@@ -15,6 +15,7 @@ use FacturaScripts\Dinamic\Model\Familia;
 use FacturaScripts\Dinamic\Model\Producto;
 use FacturaScripts\Dinamic\Model\Subcuenta;
 use FacturaScripts\Dinamic\Model\Variante;
+use FacturaScripts\Dinamic\Model\FacturaCliente;
 
 /**
  *
