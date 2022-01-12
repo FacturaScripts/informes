@@ -30,6 +30,7 @@ class SummaryResultReport extends ResultReport
             self::$charts['totales']['resultado'][$mes - 1] = self::$resultado[self::$year]['total_mes'][$mes];
         }
 
+        self::$charts['families']['table'] = '';
         foreach (self::$ventas[self::$year]['porc_fam'] as $codfamilia => $porc) {
             $totalaux = round(self::$ventas[self::$year]['total_fam'][$codfamilia], FS_NF0);
             $fam_desc = 'Sin Familia';
@@ -37,11 +38,77 @@ class SummaryResultReport extends ResultReport
                 $fam_desc = self::$ventas[self::$year]['descripciones'][$codfamilia];
             }
 
+            $color = '#' . self::randomColor();
             self::$charts['families']['codfamilia'][] = $codfamilia;
             self::$charts['families']['labels'][] = $fam_desc;
             self::$charts['families']['porc'][] = $porc;
-            self::$charts['families']['colors'][] = '#' . self::randomColor();
+            self::$charts['families']['colors'][] = $color;
             self::$charts['families']['totales'][] = $totalaux;
+
+            self::$charts['families']['table'] .= ''
+                . '<tr>'
+                . '<td class="align-middle"><span style="color: ' . $color . '"><i class="fas fa-square"></i></span></td>'
+                . '<td>' . $fam_desc . '</td>'
+                . '<td class="porc align-middle">' . $porc . ' %</td>'
+                . '<td class="total align-middle">' . ToolBox::coins()::format($totalaux) . '</td>'
+                . '</tr>';
+        }
+
+        self::$charts['series']['table'] = '';
+        foreach (self::$ventas[self::$year]['porc_ser'] as $codserie => $porc) {
+            $color = '#' . self::randomColor();
+            $totalaux = round(self::$ventas[self::$year]['total_ser'][$codserie], FS_NF0);
+            self::$charts['series']['codserie'][] = $codserie;
+            self::$charts['series']['labels'][] = self::$ventas[self::$year]['descripciones'][$codserie];
+            self::$charts['series']['porc'][] = $porc;
+            self::$charts['series']['colors'][] = $color;
+            self::$charts['series']['totales'][] = $totalaux;
+
+            self::$charts['series']['table'] .= ''
+                . '<tr>'
+                . '<td class="align-middle"><span style="color: ' . $color . '"><i class="fas fa-square"></i></span></td>'
+                . '<td>' . self::$ventas[self::$year]['descripciones'][$codserie] . '</td>'
+                . '<td class="porc align-middle">' . $porc . ' %</td>'
+                . '<td class="total align-middle">' . ToolBox::coins()::format($totalaux) . '</td>'
+                . '</tr>';
+        }
+
+        self::$charts['pagos']['table'] = '';
+        foreach (self::$ventas[self::$year]['porc_pag'] as $codpago => $porc) {
+            $color = '#' . self::randomColor();
+            $totalaux = round(self::$ventas[self::$year]['total_pag'][$codpago], FS_NF0);
+            self::$charts['pagos']['codpago'][] = $codpago;
+            self::$charts['pagos']['labels'][] = self::$ventas[self::$year]['descripciones'][$codpago];
+            self::$charts['pagos']['porc'][] = $porc;
+            self::$charts['pagos']['colors'][] = $color;
+            self::$charts['pagos']['totales'][] = $totalaux;
+
+            self::$charts['pagos']['table'] .= ''
+                . '<tr>'
+                . '<td class="align-middle"><span style="color: ' . $color . '"><i class="fas fa-square"></i></span></td>'
+                . '<td>' . self::$ventas[self::$year]['descripciones'][$codpago] . '</td>'
+                . '<td class="porc align-middle">' . $porc . ' %</td>'
+                . '<td class="total align-middle">' . ToolBox::coins()::format($totalaux) . '</td>'
+                . '</tr>';
+        }
+
+        self::$charts['agentes']['table'] = '';
+        foreach (self::$ventas[self::$year]['porc_age'] as $codagente => $porc) {
+            $color = '#' . self::randomColor();
+            $totalaux = round(self::$ventas[self::$year]['total_age'][$codagente], FS_NF0);
+            self::$charts['agentes']['codagente'][] = $codagente;
+            self::$charts['agentes']['labels'][] = self::$ventas[self::$year]['descripciones'][$codagente];
+            self::$charts['agentes']['porc'][] = $porc;
+            self::$charts['agentes']['colors'][] = $color;
+            self::$charts['agentes']['totales'][] = $totalaux;
+
+            self::$charts['agentes']['table'] .= ''
+                . '<tr>'
+                . '<td class="align-middle"><span style="color: ' . $color . '"><i class="fas fa-square"></i></span></td>'
+                . '<td>' . self::$ventas[self::$year]['descripciones'][$codagente] . '</td>'
+                . '<td class="porc align-middle">' . $porc . ' %</td>'
+                . '<td class="total align-middle">' . ToolBox::coins()::format($totalaux) . '</td>'
+                . '</tr>';
         }
     }
 
@@ -104,7 +171,7 @@ class SummaryResultReport extends ResultReport
 
         // compras
         $html .= '<tr class="table-danger">'
-            . '<td class="title align-middle"><b>' . ToolBox::i18n()->trans('purchases') . '</b></td>'
+            . '<td class="title align-middle"><b>' . ToolBox::i18n()->trans('expenses') . '</b></td>'
             . '<td class="porc">';
 
         $money = self::$gastos[self::$year]['total_mes']['media'];

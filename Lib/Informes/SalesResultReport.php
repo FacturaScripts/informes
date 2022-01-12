@@ -61,13 +61,19 @@ class SalesResultReport extends ResultReport
             $html .= '</tr>';
         }
 
-        foreach (self::$ventas[self::$year]['familias'] as $key => $value) {
-            $html .= '<tr codfamilia ="' . $key . '" data-target="#ventas-' . $key . '" class="ventas cursor-pointer">'
+        asort(self::$ventas[self::$year]['descripciones']);
+        foreach (self::$ventas[self::$year]['descripciones'] as $key => $value) {
+            if (!isset(self::$ventas[self::$year]['familias'][$key])) {
+                continue;
+            }
+
+            $html .= ''
+                . '<tr codfamilia ="' . $key . '" data-target="#ventas-' . $key . '" class="ventas cursor-pointer">'
                 . '<td class="title">' . self::$ventas[self::$year]['descripciones'][$key] . '</td>'
                 . '<td class="porc align-middle">';
 
             $percentage = (float)self::$ventas[self::$year]['porc_fam'][$key];
-            $html .= $percentage > 0 ? ToolBox::numbers()::format($percentage, 1) . ' %' : self::defaultPerc();
+            $html .= $percentage > 0 ? $percentage . ' %' : self::defaultPerc();
 
             $html .= '</td>'
                 . '<td class="total align-middle">';

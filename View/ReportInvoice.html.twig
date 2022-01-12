@@ -1,0 +1,404 @@
+{#
+* Copyright (C) 2019-2021 Carlos Garcia Gomez <carlos@facturascripts.com>
+* Author Daniel Fernández Giménez <hola@danielfg.es>
+#}
+
+{% extends "Master/MenuBgTemplate.html.twig" %}
+
+{% set pageData = fsc.getPageData() %}
+
+{% block body %}
+    {{ parent() }}
+
+    <div class="container-fluid d-print-none">
+        {{ parent() }}
+        <div class="row">
+            <div class="col-md-7">
+                <div class="btn-group">
+                    <a class="btn btn-sm btn-secondary" href="{{ fsc.url() }}" title="{{ i18n.trans('refresh') }}">
+                        <i class="fas fa-redo" aria-hidden="true"></i>
+                    </a>
+                    <a class="btn btn-sm btn-secondary" href="{{ fsc.url() }}?defaultPage=TRUE"
+                       title="{{ i18n.trans('ark-as-homepage') }}">
+                        <i class="far fa-bookmark" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-md-5 text-right">
+                <h1 class="h4 mb-0 d-none d-md-inline-block">
+                    {% set title = i18n.trans(fsc.getPageData()['title']) | capitalize %}
+                    {{ title }}<i class="{{ fsc.getPageData()['icon'] }} ml-3" aria-hidden="true"></i>
+                </h1>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid mt-3">
+        <form action="{{ fsc.url() }}" method="post">
+            <input type="hidden" name="generar" value="informe_ventas">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12 col-md-2">
+                            <div class="form-group">
+                                <label>{{ i18n.trans('from-date') }}</label>
+                                <input type="date" name="desde" class="form-control" value="{{ fsc.desde }}">
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-2">
+                            <div class="form-group">
+                                <label>{{ i18n.trans('until-date') }}</label>
+                                <input type="date" name="hasta" class="form-control" value="{{ fsc.hasta }}">
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-2">
+                            <div class="form-group">
+                                <label>{{ i18n.trans('company') }}</label>
+                                <select name="idempresa" class="form-control">
+                                    {{ fsc.loadCompanies()|raw }}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-2">
+                            <div class="form-group">
+                                <label>{{ i18n.trans('agent') }}</label>
+                                <select name="codagente" class="form-control">
+                                    {{ fsc.loadAgents()|raw }}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-2">
+                            <div class="form-group">
+                                <label>{{ i18n.trans('serie') }}</label>
+                                <select name="codserie" class="form-control">
+                                    {{ fsc.loadSeries()|raw }}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-2">
+                            <div class="form-group">
+                                <label>{{ i18n.trans('currency') }}</label>
+                                <select name="coddivisa" class="form-control">
+                                    {{ fsc.loadDivisas()|raw }}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-2">
+                            <div class="form-group">
+                                <label>{{ i18n.trans('method-payment') }}</label>
+                                <select name="codpago" class="form-control">
+                                    {{ fsc.loadPayments()|raw }}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-2">
+                            <div class="form-group">
+                                <label>{{ i18n.trans('warehouse') }}</label>
+                                <select name="codalmacen" class="form-control">
+                                    {{ fsc.loadWarehouses()|raw }}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-2">
+                            <div class="form-group">
+                                <label>{{ i18n.trans('status') }}</label>
+                                <select name="estado" class="form-control">
+                                    <option value="">{{ i18n.trans('all') }}</option>
+                                    <option value="pagada" {{ fsc.estado == 'pagada' ? 'selected' : '' }}>{{ i18n.trans('paid') }}</option>
+                                    <option value="sinpagar" {{ fsc.estado == 'sinpagar' ? 'selected' : '' }}>{{ i18n.trans('unpaid') }}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <ul class="nav nav-pills mt-4" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <a id="tabVentas" class="nav-link active" data-toggle="tab" role="tab" aria-selected="true"
+                               aria-controls="contentSaleReport" href="#contentSaleReport">
+                                {{ i18n.trans('sale-report') }}
+                            </a>
+                        </li>
+                        <li id="tabCompras" class="nav-item" role="presentation">
+                            <a class="nav-link" data-toggle="tab" role="tab" aria-selected="false"
+                               aria-controls="contentPurchaseReport" href="#contentPurchaseReport">
+                                {{ i18n.trans('purchase-report') }}
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content mt-3">
+                        <div class="tab-pane fade show active" id="contentSaleReport"
+                             aria-labelledby="contentSaleReport-tab" role="tabpanel">
+                            <p>{{ i18n.trans('sale-report-legend') }}</p>
+                            <div class="row">
+                                <div class="col-12 col-md-2">
+                                    <div class="form-group">
+                                        <label>{{ i18n.trans('country') }}</label>
+                                        <select name="codpais" class="form-control" id="countries">
+                                            {{ fsc.loadCountries()|raw }}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-2">
+                                    <div class="form-group">
+                                        <label>{{ i18n.trans('province') }}</label>
+                                        <select name="provincia" class="form-control" id="provincies"></select>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-2">
+                                    <div class="form-group">
+                                        <label>{{ i18n.trans('customer') }}</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="customer"
+                                                   placeholder="{{ i18n.trans('any-customer') }}"
+                                                   value="{{ fsc.cliente.nombre }}">
+                                            <input type="hidden" name="codcliente" value="{{ fsc.cliente.codcliente }}">
+                                            <div class="input-group-append">
+                                                <button class="btn btn-secondary" type="button"
+                                                        onclick="cleanCustomer()">
+                                                    <span class="fa fa-times"></span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-2">
+                                    <div class="form-group">
+                                        <label>{{ i18n.trans('minimum-amount') }}</label>
+                                        <input type="number" class="form-control" name="sale-minimo"
+                                               placeholder="{{ i18n.trans('optional-amounts-units') }}"
+                                               value="{{ fsc.sale_minimo }}">
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-2">
+                                    <div class="form-group">
+                                        <label>{{ i18n.trans('select-option') }}</label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="sale-unidades"
+                                                   id="saleUndFalse"
+                                                   value="0" {{ fsc.sale_unidades == 0 ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="saleUndFalse">
+                                                {{ i18n.trans('amounts') }}
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="sale-unidades"
+                                                   id="saleUndTrue"
+                                                   value="1" {{ fsc.sale_unidades == 1 ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="saleUndTrue">
+                                                {{ i18n.trans('units') }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane" id="contentPurchaseReport" aria-labelledby="contentPurchaseReport-tab"
+                             role="tabpanel">
+                            <p>{{ i18n.trans('purchase-report-legend') }}</p>
+                            <div class="row">
+                                <div class="col-12 col-md-2">
+                                    <div class="form-group">
+                                        <label>{{ i18n.trans('supplier') }}</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="supplier"
+                                                   placeholder="{{ i18n.trans('any-provider') }}"
+                                                   value="{{ fsc.proveedor.nombre }}">
+                                            <input type="hidden" name="codproveedor"
+                                                   value="{{ fsc.proveedor.codproveedor }}">
+                                            <div class="input-group-append">
+                                                <button class="btn btn-secondary" type="button"
+                                                        onclick="cleanSupplier()">
+                                                    <span class="fa fa-times"></span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-2">
+                                    <div class="form-group">
+                                        <label>{{ i18n.trans('minimum-amount') }}</label>
+                                        <input type="number" class="form-control" name="purchase-minimo"
+                                               placeholder="{{ i18n.trans('optional-amounts-units') }}"
+                                               value="{{ fsc.purchase_minimo }}">
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-2">
+                                    <div class="form-group">
+                                        <label>{{ i18n.trans('select-option') }}</label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="purchase-unidades"
+                                                   id="purchaseUndFalse"
+                                                   value="0" {{ fsc.purchase_unidades == 0 ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="purchaseUndFalse">
+                                                {{ i18n.trans('amounts') }}
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="purchase-unidades"
+                                                   id="purchaseUndTrue"
+                                                   value="1" {{ fsc.purchase_unidades == 1 ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="purchaseUndTrue">
+                                                {{ i18n.trans('units') }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer text-right">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-eye mr-2"></i>{{ i18n.trans('show') }}
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+
+{% block css %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('node_modules/jquery-ui-dist/jquery-ui.min.css') }}"/>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('node_modules/jquery-ui-dist/jquery-ui.min.js') }}"></script>
+
+    <script>
+        function cleanCustomer() {
+            $('#customer, input[name="codcliente"]').val('')
+        }
+
+        function cleanSupplier() {
+            $('#supplier, input[name="codproveedor"]').val('')
+        }
+
+        function loadProvincies() {
+            let formData = {};
+            formData["action"] = "load-provincies";
+            formData["codpais"] = $("#countries option:selected").val();
+            formData["provincia"] = '{{ fsc.provincia }}';
+            $('#provincies').html('');
+
+            $.ajax({
+                method: "POST",
+                url: "{{ fsc.url() }}",
+                data: formData,
+                dataType: "json",
+                success: function (results) {
+                    $('#provincies').html(results);
+                },
+                error: function (msg) {
+                    alert(msg.status + " " + msg.responseText);
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            loadProvincies();
+
+            $(document).on('click', '#tabVentas', function () {
+                $('input[name="generar"]').val('informe_ventas');
+            });
+
+            $(document).on('click', '#tabCompras', function () {
+                $('input[name="generar"]').val('informe_compras');
+            });
+
+            $('#countries').change(function () {
+                loadProvincies();
+            });
+
+            $("#customer").autocomplete({
+                source: function (request, response) {
+                    let formData = {};
+                    formData["action"] = "autocomplete-customer";
+                    formData["query"] = $("#customer").val();
+                    $('input[name="codcliente"]').val('');
+
+                    $.ajax({
+                        method: "POST",
+                        url: "{{ fsc.url() }}",
+                        data: formData,
+                        dataType: "json",
+                        success: function (results) {
+                            let values = [];
+                            results.forEach(function (element) {
+                                if (element.key === null || element.key === element.value) {
+                                    values.push(element);
+                                } else {
+                                    values.push({key: element.key, value: element.key + " | " + element.value});
+                                }
+                            });
+                            response(values);
+                        },
+                        error: function (msg) {
+                            alert(msg.status + " " + msg.responseText);
+                        }
+                    });
+                },
+                select: function (event, ui) {
+                    if (ui.item.key !== null) {
+                        $('input[name="codcliente"]').val(ui.item.key);
+
+                        let value = ui.item.value.split(" | ");
+                        if (value.length > 1) {
+                            ui.item.value = value[1];
+                        } else {
+                            ui.item.value = value[0];
+                        }
+                    }
+                }
+            });
+
+            $("#supplier").autocomplete({
+                source: function (request, response) {
+                    let formData = {};
+                    formData["action"] = "autocomplete-supplier";
+                    formData["query"] = $("#supplier").val();
+                    $('input[name="codproveedor"]').val('');
+
+                    $.ajax({
+                        method: "POST",
+                        url: "{{ fsc.url() }}",
+                        data: formData,
+                        dataType: "json",
+                        success: function (results) {
+                            let values = [];
+                            results.forEach(function (element) {
+                                if (element.key === null || element.key === element.value) {
+                                    values.push(element);
+                                } else {
+                                    values.push({key: element.key, value: element.key + " | " + element.value});
+                                }
+                            });
+                            response(values);
+                        },
+                        error: function (msg) {
+                            alert(msg.status + " " + msg.responseText);
+                        }
+                    });
+                },
+                select: function (event, ui) {
+                    if (ui.item.key !== null) {
+                        $('input[name="codproveedor"]').val(ui.item.key);
+
+                        let value = ui.item.value.split(" | ");
+                        if (value.length > 1) {
+                            ui.item.value = value[1];
+                        } else {
+                            ui.item.value = value[0];
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}

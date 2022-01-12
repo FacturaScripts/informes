@@ -61,7 +61,6 @@ class PurchasesResultReport extends ResultReport
             $html .= '</tr>';
         }
 
-        // fila para cada cuenta
         foreach (self::$gastos[self::$year]['cuentas'] as $key => $value) {
             $html .= '<tr codcuenta="' . $key . '" data-target="#gastos-' . $key . '" class="gastos cursor-pointer">'
                 . '<td class="title align-middle">' . self::$gastos[self::$year]['descripciones'][$key] . '</td>'

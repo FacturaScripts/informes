@@ -15,7 +15,7 @@ use FacturaScripts\Dinamic\Model\Subcuenta;
  *
  * @author Daniel Fernández Giménez <hola@danielfg.es>
  */
-class InformeTesoreria extends Controller
+class ReportTreasury extends Controller
 {
     public $bancos;
     public $cajas;
