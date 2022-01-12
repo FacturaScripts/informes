@@ -13,7 +13,7 @@ use FacturaScripts\Core\Base\ToolBox;
  */
 class SalesResultReport extends ResultReport
 {
-    public static function render(array $formData)
+    public static function render(array $formData): string
     {
         self::apply($formData);
 
@@ -22,7 +22,7 @@ class SalesResultReport extends ResultReport
             . '<table class="table table-hover mb-0">'
             . '<thead>'
             . '<tr>'
-            . '<th class="title"></th>'
+            . '<th class="title">' . ToolBox::i18n()->trans('family') . '</th>'
             . '<th class="porc">%</th>'
             . '<th class="total">' . ToolBox::i18n()->trans('total') . '</th>'
             . '<th class="month">' . ToolBox::i18n()->trans('january') . '</th>'
@@ -42,10 +42,9 @@ class SalesResultReport extends ResultReport
             . '<tbody>';
 
         if (self::$ventas[self::$year]) {
-            $html .= ''
-                . '<tr>'
-                . '<td class="title"></td>'
-                . '<td class="porc align-middle"></td>';
+            $html .= '<tr>'
+                . '<td class="title align-middle">' . ToolBox::i18n()->trans('all') . '</td>'
+                . '<td class="porc align-middle">100.0 %</td>';
 
             for ($x = 0; $x <= 12; $x++) {
                 $css = $x == 0 ? 'total' : 'month';
@@ -55,13 +54,11 @@ class SalesResultReport extends ResultReport
                 $html .= $money ? ToolBox::coins()::format($money) : self::defaultMoney();
                 $html .= '<div class="small">';
                 $html .= $lastmoney ? ToolBox::coins()::format($lastmoney) : self::defaultMoney();
-                $html .= ''
-                    . '</div>'
+                $html .= '</div>'
                     . '</td>';
             }
 
-            $html .= ''
-                . '</tr>';
+            $html .= '</tr>';
         }
 
         asort(self::$ventas[self::$year]['descripciones']);
@@ -78,25 +75,21 @@ class SalesResultReport extends ResultReport
             $percentage = (float)self::$ventas[self::$year]['porc_fam'][$key];
             $html .= $percentage > 0 ? $percentage . ' %' : self::defaultPerc();
 
-            $html .= ''
-                . '</td>'
+            $html .= '</td>'
                 . '<td class="total align-middle">';
 
             $money = self::$ventas[self::$year]['total_fam'][$key];
             $html .= $money ? ToolBox::coins()::format($money) : self::defaultMoney();
 
-            $html .= ''
-                . '</td>';
+            $html .= '</td>';
 
             for ($x = 1; $x <= 12; $x++) {
                 $html .= '<td class="month align-middle">';
                 $html .= isset(self::$ventas[self::$year]['total_fam_mes'][$key][$x]) ? ToolBox::coins()::format(self::$ventas[self::$year]['total_fam_mes'][$key][$x]) : self::defaultMoney();
-                $html .= ''
-                    . '</td>';
+                $html .= '</td>';
             }
 
-            $html .= ''
-                . '</tr>'
+            $html .= '</tr>'
                 . '<tr>'
                 . '<td colspan="15" class="hiddenRow">'
                 . '<div class="collapse" id="ventas-' . $key . '">'
@@ -105,8 +98,7 @@ class SalesResultReport extends ResultReport
                 . '</tr>';
         }
 
-        $html .= ''
-            . '</tbody>'
+        $html .= '</tbody>'
             . '</table>'
             . '</div>';
 

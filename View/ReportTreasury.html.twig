@@ -1,15 +1,10 @@
-{#
-* Copyright (C) 2019-2021 Carlos Garcia Gomez <carlos@facturascripts.com>
-* Author Daniel Fernández Giménez <hola@danielfg.es>
-#}
-
-{% extends "Master/MenuBgTemplate.html.twig" %}
+{% extends "Master/MenuBghTemplate.html.twig" %}
 
 {% set pageData = fsc.getPageData() %}
 
-{% block body %}
+{% block bodyHeaderOptions %}
+    {{ parent() }}
     <div class="container-fluid mb-1 d-print-none">
-        {{ parent() }}
         <div class="row">
             <div class="col-md-7">
                 <div class="btn-group">
@@ -31,15 +26,18 @@
             </div>
         </div>
     </div>
+    <div class="pb-5">
+        <div class="h5 text-success text-center">{{ i18n.trans('select-year') }}</div>
+        <select class="form-control ml-auto mr-auto" id="selectYear">
+            {{ fsc.loadYears()|raw }}
+        </select>
+        <br/>
+    </div>
+{% endblock %}
 
-    <div class="container-fluid mt-3">
-        <div class="text-center mb-3">
-            <span class="text-success h5">{{ i18n.trans('select-year') }}</span>
-            <select class="form-control text-center mx-auto" id="selectYear">
-                {{ fsc.loadYears()|raw }}
-            </select>
-        </div>
-
+{% block body %}
+    {{ parent() }}
+    <div class="container-fluid" style="margin-top: -50px;">
         <div class="form-row">
             <div class="col-sm-6">
                 <div class="card shadow mb-3">

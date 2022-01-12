@@ -8,15 +8,11 @@ namespace FacturaScripts\Plugins\Informes\Lib\Informes;
 use FacturaScripts\Core\Base\DataBase;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Base\ToolBox;
-use FacturaScripts\Dinamic\Model\Agente;
 use FacturaScripts\Dinamic\Model\Asiento;
 use FacturaScripts\Dinamic\Model\Cuenta;
 use FacturaScripts\Dinamic\Model\Ejercicio;
-use FacturaScripts\Dinamic\Model\FacturaCliente;
 use FacturaScripts\Dinamic\Model\Familia;
-use FacturaScripts\Dinamic\Model\FormaPago;
 use FacturaScripts\Dinamic\Model\Producto;
-use FacturaScripts\Dinamic\Model\Serie;
 use FacturaScripts\Dinamic\Model\Subcuenta;
 use FacturaScripts\Dinamic\Model\Variante;
 
@@ -132,14 +128,14 @@ class ResultReport
         return $month == 2 ? ($year % 4 ? 28 : ($year % 100 ? 29 : ($year % 400 ? 28 : 29))) : (($month - 1) % 7 % 2 ? 30 : 31);
     }
 
-    protected static function defaultMoney()
+    protected static function defaultMoney(): string
     {
         return '<span style="color:#ccc;">' . ToolBox::coins()::format(0) . '</span>';
     }
 
-    protected static function defaultPerc()
+    protected static function defaultPerc(): string
     {
-        return '<span style="color:#ccc;">0 %</span>';
+        return '<span style="color:#ccc;">0.0 %</span>';
     }
 
     protected static function purchases_build_year($year, $codejercicio)
@@ -203,7 +199,7 @@ class ResultReport
                     if ($partidas) {
                         foreach ($partidas as $p) {
                             $codcuenta = substr($p['codsubcuenta'], 0, 3);
-                            $pvptotal = (float)$p['debe'] - (float)$p['haber'];
+                            $pvptotal = (float) $p['debe'] - (float) $p['haber'];
 
                             // Array con los datos a mostrar
                             if (isset($gastos['total_cuenta_mes'][$codcuenta][$mes])) {
