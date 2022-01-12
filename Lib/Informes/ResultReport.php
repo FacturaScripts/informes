@@ -508,7 +508,7 @@ class ResultReport
                         }
 
                         $ventas['agentes'][$factura->codagente][$mes] = array('pvptotal' => $factura->neto);
-                        $ventas_total_age_meses = $factura->totalcomision + $ventas_total_age_meses;
+                        $ventas_total_age_meses = $factura->neto + $ventas_total_age_meses;
                     }
                 }
 
