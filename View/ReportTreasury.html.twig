@@ -79,7 +79,7 @@
                             {% endif %}
                             <tr>
                                 <td class="text-center align-middle">{{ i18n.trans('total-treasury')|upper }}</td>
-                                <td class="money">{{ _self.showPrice(fsc, fsc.da_tesoreria['total_tesoreria']) }}</td>
+                                <td class="money">{{ fsc.show_precio(fsc.da_tesoreria['total_tesoreria'])|raw  }}</td>
                             </tr>
                         </table>
                     </div>
@@ -223,13 +223,9 @@
     </script>
 {% endblock %}
 
-{% macro showPrice(fsc, price) %}
-    {{ fsc.show_precio(price)|raw }}
-{% endmacro %}
-
 {% macro showLine(fsc, title, price) %}
     <tr>
         <td>{{ title }}</td>
-        <td class="money">{{ _self.showPrice(fsc, price) }}</td>
+        <td class="money">{{ fsc.show_precio(price)|raw }}</td>
     </tr>
 {% endmacro %}
