@@ -15,6 +15,7 @@
 
 {% block body %}
     {{ parent() }}
+    {% import 'Macro/Forms.html.twig' as forms %}
     <div class="container" style="margin-top: -70px;">
         <form action="{{ fsc.url() }}" method="post">
             <input type="hidden" name="generar" value="informe_ventas">
@@ -38,50 +39,38 @@
                         </div>
                         <div class="col-12 col-md-3">
                             <div class="form-group">
-                                {{ i18n.trans('company') }}
-                                <select name="idempresa" class="form-control">
-                                    {{ fsc.loadCompanies()|raw }}
-                                </select>
+                                {{ forms.simpleSelect('idempresa', 'idempresa', fsc.idempresa,
+                                    fsc.getSelectValues('empresas', 'idempresa', 'nombrecorto', false), i18n.trans('company')) }}
                             </div>
                         </div>
                         <div class="col-12 col-md-3">
                             <div class="form-group">
-                                {{ i18n.trans('warehouse') }}
-                                <select name="codalmacen" class="form-control">
-                                    {{ fsc.loadWarehouses()|raw }}
-                                </select>
+                                {{ forms.simpleSelect('codalmacen', 'codalmacen', fsc.codalmacen,
+                                    fsc.getSelectValues('almacenes', 'codalmacen', 'nombre', true), i18n.trans('warehouse')) }}
                             </div>
                         </div>
                         <div class="col-12 col-md-3">
                             <div class="form-group">
-                                {{ i18n.trans('serie') }}
-                                <select name="codserie" class="form-control">
-                                    {{ fsc.loadSeries()|raw }}
-                                </select>
+                                {{ forms.simpleSelect('codserie', 'codserie', fsc.codserie,
+                                    fsc.getSelectValues('series', 'codserie', 'descripcion', true), i18n.trans('serie')) }}
                             </div>
                         </div>
                         <div class="col-12 col-md-3">
                             <div class="form-group">
-                                {{ i18n.trans('method-payment') }}
-                                <select name="codpago" class="form-control">
-                                    {{ fsc.loadPayments()|raw }}
-                                </select>
+                                {{ forms.simpleSelect('codpago', 'codpago', fsc.codpago,
+                                    fsc.getSelectValues('formaspago', 'codpago', 'descripcion', true), i18n.trans('method-payment')) }}
                             </div>
                         </div>
                         <div class="col-12 col-md-3">
                             <div class="form-group">
-                                {{ i18n.trans('currency') }}
-                                <select name="coddivisa" class="form-control">
-                                    {{ fsc.loadDivisas()|raw }}
-                                </select>
+                                {{ forms.simpleSelect('coddivisa', 'coddivisa', fsc.coddivisa,
+                                    fsc.getSelectValues('divisas', 'coddivisa', 'descripcion', false), i18n.trans('currency')) }}
                             </div>
                         </div>
                         <div class="col-12 col-md-3">
                             <div class="form-group">
-                                {{ i18n.trans('agent') }}
-                                <select name="codagente" class="form-control">
-                                    {{ fsc.loadAgents()|raw }}
-                                </select>
+                                {{ forms.simpleSelect('codagente', 'codagente', fsc.codagente,
+                                    fsc.getSelectValues('agentes', 'codagente', 'nombre', true), i18n.trans('agent')) }}
                             </div>
                         </div>
                         <div class="col-12 col-md-3">
@@ -117,10 +106,8 @@
                             <div class="form-row">
                                 <div class="col-12 col-md-3">
                                     <div class="form-group">
-                                        {{ i18n.trans('country') }}
-                                        <select name="codpais" class="form-control" id="countries">
-                                            {{ fsc.loadCountries()|raw }}
-                                        </select>
+                                        {{ forms.simpleSelect('codpais', 'codpais', fsc.codpais,
+                                            fsc.getSelectValues('paises', 'codpais', 'nombre', true), i18n.trans('country')) }}
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-3">

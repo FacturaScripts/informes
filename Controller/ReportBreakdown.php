@@ -18,6 +18,7 @@ use FacturaScripts\Dinamic\Model\Proveedor;
  */
 class ReportBreakdown extends Controller
 {
+    public $codeModel;
     public $agente;
     public $almacen;
     public $cliente;
@@ -58,79 +59,19 @@ class ReportBreakdown extends Controller
         return $data;
     }
 
-    public function loadAgents()
+    public function getSelectValues($table, $code, $description, $empty = false):array
     {
-        $html = '';
-        foreach (CodeModel::all('agentes', 'codagente', 'nombre', true) as $row) {
-            $check = (!empty($this->codagente) && $row->code == $this->codagente) ? 'selected' : '';
-            $html .= '<option value="' . $row->code . '" ' . $check . '>' . $row->description . '</option>';
+        $values = $empty ? ['' => '------'] : [];
+        foreach (CodeModel::all($table, $code, $description, $empty) as $row) {
+            $values[$row->code] = $row->description;
         }
-        return $html;
-    }
-
-    public function loadCompanies()
-    {
-        $html = '';
-        foreach (CodeModel::all('empresas', 'idempresa', 'nombrecorto', false) as $row) {
-            $check = (!empty($this->idempresa) && $row->code == $this->idempresa) ? 'selected' : '';
-            $html .= '<option value="' . $row->code . '" ' . $check . '>' . $row->description . '</option>';
-        }
-        return $html;
-    }
-
-    public function loadCountries()
-    {
-        $html = '';
-        foreach (CodeModel::all('paises', 'codpais', 'nombre', true) as $row) {
-            $check = (!empty($this->codpais) && $row->code == $this->codpais) ? 'selected' : '';
-            $html .= '<option value="' . $row->code . '" ' . $check . '>' . $row->description . '</option>';
-        }
-        return $html;
-    }
-
-    public function loadDivisas()
-    {
-        $html = '';
-        foreach (CodeModel::all('divisas', 'coddivisa', 'descripcion', false) as $row) {
-            $check = (!empty($this->coddivisa) && $row->code == $this->coddivisa) ? 'selected' : '';
-            $html .= '<option value="' . $row->code . '" ' . $check . '>' . $row->description . '</option>';
-        }
-        return $html;
-    }
-
-    public function loadPayments()
-    {
-        $html = '';
-        foreach (CodeModel::all('formaspago', 'codpago', 'descripcion', true) as $row) {
-            $check = (!empty($this->codpago) && $row->code == $this->codpago) ? 'selected' : '';
-            $html .= '<option value="' . $row->code . '" ' . $check . '>' . $row->description . '</option>';
-        }
-        return $html;
-    }
-
-    public function loadSeries()
-    {
-        $html = '';
-        foreach (CodeModel::all('series', 'codserie', 'descripcion', true) as $row) {
-            $check = (!empty($this->codserie) && $row->code == $this->codserie) ? 'selected' : '';
-            $html .= '<option value="' . $row->code . '" ' . $check . '>' . $row->description . '</option>';
-        }
-        return $html;
-    }
-
-    public function loadWarehouses()
-    {
-        $html = '';
-        foreach (CodeModel::all('almacenes', 'codalmacen', 'nombre', true) as $row) {
-            $check = (!empty($this->codalmacen) && $row->code == $this->codalmacen) ? 'selected' : '';
-            $html .= '<option value="' . $row->code . '" ' . $check . '>' . $row->description . '</option>';
-        }
-        return $html;
+        return $values;
     }
 
     public function privateCore(&$response, $user, $permissions)
     {
         parent::privateCore($response, $user, $permissions);
+        $this->codeModel = new CodeModel();
 
         $action = $this->request->get('action', '');
         switch ($action) {
