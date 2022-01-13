@@ -250,33 +250,7 @@ class ResultReport
                 // Las descripciones solo las necesitamos en el año seleccionado,
                 // en el año anterior se omite
                 if ($year == self::$year) {
-                    // GASTOS: Creamos un array con las descripciones de las cuentas
-                    foreach ($gastos['cuentas'] as $codcuenta => $arraycuenta) {
-                        $gastos['descripciones'][$codcuenta] = '-';
-                        $cuenta = new Cuenta();
-                        $where = [
-                            new DataBaseWhere('codcuenta', $codcuenta),
-                            new DataBaseWhere('codejercicio', $codejercicio)
-                        ];
-
-                        if ($cuenta->loadFromCode('', $where)) {
-                            $gastos['descripciones'][$codcuenta] = $codcuenta . ' - ' . $cuenta->descripcion;
-                        }
-
-                        if (self::$parent_codcuenta === (string)$codcuenta) {
-                            foreach ($arraycuenta as $codsubcuenta => $arraysubcuenta) {
-                                $gastos['descripciones'][$codsubcuenta] = '-';
-                                $subcuenta = new Subcuenta();
-                                $where = [
-                                    new DataBaseWhere('codsubcuenta', $codsubcuenta),
-                                    new DataBaseWhere('codejercicio', $codejercicio)
-                                ];
-                                if ($subcuenta->loadFromCode('', $where)) {
-                                    $gastos['descripciones'][$codsubcuenta] = $codsubcuenta . ' - ' . $subcuenta->descripcion;
-                                }
-                            }
-                        }
-                    }
+                    $gastos = self::setDescriptionAccount($gastos, $codejercicio);
                 }
             }
         }
@@ -312,6 +286,106 @@ class ResultReport
     protected static function randomColor()
     {
         return substr(str_shuffle('ABCDEF0123456789'), 0, 6);
+    }
+
+    protected static function setDescriptionAccount(array $gastos, string $codejercicio):array
+    {
+        // GASTOS: Creamos un array con las descripciones de las cuentas
+        foreach ($gastos['cuentas'] as $codcuenta => $arraycuenta) {
+            $gastos['descripciones'][$codcuenta] = '-';
+            $cuenta = new Cuenta();
+            $where = [
+                new DataBaseWhere('codcuenta', $codcuenta),
+                new DataBaseWhere('codejercicio', $codejercicio)
+            ];
+
+            if ($cuenta->loadFromCode('', $where)) {
+                $gastos['descripciones'][$codcuenta] = $codcuenta . ' - ' . $cuenta->descripcion;
+            }
+
+            // Añadimos las descripciones de las subcuentas
+            // solo al desplegar una cuenta
+            if (self::$parent_codcuenta === (string)$codcuenta) {
+                $gastos = self::setDescriptionSubaccount($gastos, $arraycuenta, $codejercicio);
+            }
+        }
+
+        return $gastos;
+    }
+
+    protected static function setDescriptionAgents(array $ventas):array
+    {
+        foreach ($ventas['agentes'] as $codagente => $agentes) {
+            $agente = new Agente();
+            $agente->loadFromCode($codagente);
+            $ventas['descripciones'][$codagente] = $agente->nombre;
+        }
+
+        return $ventas;
+    }
+
+    protected static function setDescriptionFamilies(array $ventas, string $codejercicio):array
+    {
+        // Recorremos ventas['familias'] crear un array con las descripciones de las familias
+        foreach ($ventas['familias'] as $codfamilia => $familia) {
+            foreach ($familia as $referencia => $array) {
+                $dl['referencia'] = $referencia;
+                $dl['pvptotal'] = 0;
+                $data = self::build_data($dl);
+                $ventas['descripciones'][$codfamilia] = $data['familia'];
+
+                if (self::$parent_codfamilia === (string)$codfamilia) {
+                    $ventas = self::setDescriptionProducts($ventas, $referencia, $data['art_desc']);
+                }
+            }
+        }
+
+        return $ventas;
+    }
+
+    protected static function setDescriptionPayments(array $ventas):array
+    {
+        foreach ($ventas['pagos'] as $codpago => $pagos) {
+            $pago = new FormaPago();
+            $pago->loadFromCode($codpago);
+            $ventas['descripciones'][$codpago] = $pago->descripcion;
+        }
+
+        return $ventas;
+    }
+
+    protected static function setDescriptionProducts(array $ventas, string $referencia, string $desc):array
+    {
+        $ventas['descripciones'][$referencia] = $desc;
+        return $ventas;
+    }
+
+    protected static function setDescriptionSubaccount(array $gastos, array $arraycuenta, string $codejercicio):array
+    {
+        foreach ($arraycuenta as $codsubcuenta => $arraysubcuenta) {
+            $gastos['descripciones'][$codsubcuenta] = '-';
+            $subcuenta = new Subcuenta();
+            $where = [
+                new DataBaseWhere('codsubcuenta', $codsubcuenta),
+                new DataBaseWhere('codejercicio', $codejercicio)
+            ];
+            if ($subcuenta->loadFromCode('', $where)) {
+                $gastos['descripciones'][$codsubcuenta] = $codsubcuenta . ' - ' . $subcuenta->descripcion;
+            }
+        }
+
+        return $gastos;
+    }
+
+    protected static function setDescriptionSeries(array $ventas):array
+    {
+        foreach ($ventas['series'] as $codserie => $series) {
+            $serie = new Serie();
+            $serie->loadFromCode($codserie);
+            $ventas['descripciones'][$codserie] = $serie->descripcion;
+        }
+
+        return $ventas;
     }
 
     protected static function summary_build_year($year, $codejercicio)
@@ -515,36 +589,10 @@ class ResultReport
                 // Las descripciones solo las necesitamos en el año seleccionado,
                 // en el año anterior se omite
                 if ($year == self::$year) {
-                    // Recorremos ventas['familias'] crear un array con las descripciones de las familias
-                    foreach ($ventas['familias'] as $codfamilia => $familia) {
-                        foreach ($familia as $referencia => $array) {
-                            $dl['referencia'] = $referencia;
-                            $data = self::build_data($dl);
-
-                            $ventas['descripciones'][$codfamilia] = $data['familia'];
-                            if (self::$parent_codfamilia === (string)$codfamilia) {
-                                $ventas['descripciones'][$referencia] = $data['art_desc'];
-                            }
-                        }
-                    }
-
-                    foreach ($ventas['series'] as $codserie => $series) {
-                        $serie = new Serie();
-                        $serie->loadFromCode($codserie);
-                        $ventas['descripciones'][$codserie] = $serie->descripcion;
-                    }
-
-                    foreach ($ventas['pagos'] as $codpago => $pagos) {
-                        $pago = new FormaPago();
-                        $pago->loadFromCode($codpago);
-                        $ventas['descripciones'][$codpago] = $pago->descripcion;
-                    }
-
-                    foreach ($ventas['agentes'] as $codagente => $agentes) {
-                        $agente = new Agente();
-                        $agente->loadFromCode($codagente);
-                        $ventas['descripciones'][$codagente] = $agente->nombre;
-                    }
+                    $ventas = self::setDescriptionFamilies($ventas, $codejercicio);
+                    $ventas = self::setDescriptionSeries($ventas);
+                    $ventas = self::setDescriptionPayments($ventas);
+                    $ventas = self::setDescriptionAgents($ventas);
                 }
             }
         }
