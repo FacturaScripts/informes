@@ -1,108 +1,92 @@
 {#
-* Copyright (C) 2019-2021 Carlos Garcia Gomez <carlos@facturascripts.com>
+* Copyright (C) 2019-2022 Carlos Garcia Gomez <carlos@facturascripts.com>
 * Author Daniel Fernández Giménez <hola@danielfg.es>
 #}
 
-{% extends "Master/MenuBgTemplate.html.twig" %}
+{% extends "Master/MenuBghTemplate.html.twig" %}
 
-{% set pageData = fsc.getPageData() %}
+{% block bodyHeaderOptions %}
+    {{ parent() }}
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+{% endblock %}
 
 {% block body %}
     {{ parent() }}
-
-    <div class="container-fluid d-print-none">
-        {{ parent() }}
-        <div class="row">
-            <div class="col-md-7">
-                <div class="btn-group">
-                    <a class="btn btn-sm btn-secondary" href="{{ fsc.url() }}" title="{{ i18n.trans('refresh') }}">
-                        <i class="fas fa-redo" aria-hidden="true"></i>
-                    </a>
-                    <a class="btn btn-sm btn-secondary" href="{{ fsc.url() }}?defaultPage=TRUE"
-                       title="{{ i18n.trans('ark-as-homepage') }}">
-                        <i class="far fa-bookmark" aria-hidden="true"></i>
-                    </a>
-                </div>
-            </div>
-
-            <div class="col-md-5 text-right">
-                <h1 class="h4 mb-0 d-none d-md-inline-block">
-                    {% set title = i18n.trans(fsc.getPageData()['title']) | capitalize %}
-                    {{ title }}<i class="{{ fsc.getPageData()['icon'] }} ml-3" aria-hidden="true"></i>
-                </h1>
-            </div>
-        </div>
-    </div>
-
-    <div class="container-fluid mt-3">
+    <div class="container" style="margin-top: -70px;">
         <form action="{{ fsc.url() }}" method="post">
             <input type="hidden" name="generar" value="informe_ventas">
-            <div class="card">
+            <div class="card shadow">
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-12 col-md-2">
+                    <h1 class="h3 mb-4">
+                        <i class="{{ fsc.getPageData().icon }}"></i> {{ fsc.title }}
+                    </h1>
+                    <div class="form-row">
+                        <div class="col-12 col-md-3">
                             <div class="form-group">
-                                <label>{{ i18n.trans('from-date') }}</label>
+                                {{ i18n.trans('from-date') }}
                                 <input type="date" name="desde" class="form-control" value="{{ fsc.desde }}">
                             </div>
                         </div>
-                        <div class="col-12 col-md-2">
+                        <div class="col-12 col-md-3">
                             <div class="form-group">
-                                <label>{{ i18n.trans('until-date') }}</label>
+                                {{ i18n.trans('until-date') }}
                                 <input type="date" name="hasta" class="form-control" value="{{ fsc.hasta }}">
                             </div>
                         </div>
-                        <div class="col-12 col-md-2">
+                        <div class="col-12 col-md-3">
                             <div class="form-group">
-                                <label>{{ i18n.trans('company') }}</label>
+                                {{ i18n.trans('company') }}
                                 <select name="idempresa" class="form-control">
                                     {{ fsc.loadCompanies()|raw }}
                                 </select>
                             </div>
                         </div>
-                        <div class="col-12 col-md-2">
+                        <div class="col-12 col-md-3">
                             <div class="form-group">
-                                <label>{{ i18n.trans('agent') }}</label>
-                                <select name="codagente" class="form-control">
-                                    {{ fsc.loadAgents()|raw }}
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-2">
-                            <div class="form-group">
-                                <label>{{ i18n.trans('serie') }}</label>
-                                <select name="codserie" class="form-control">
-                                    {{ fsc.loadSeries()|raw }}
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-2">
-                            <div class="form-group">
-                                <label>{{ i18n.trans('currency') }}</label>
-                                <select name="coddivisa" class="form-control">
-                                    {{ fsc.loadDivisas()|raw }}
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-2">
-                            <div class="form-group">
-                                <label>{{ i18n.trans('method-payment') }}</label>
-                                <select name="codpago" class="form-control">
-                                    {{ fsc.loadPayments()|raw }}
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-2">
-                            <div class="form-group">
-                                <label>{{ i18n.trans('warehouse') }}</label>
+                                {{ i18n.trans('warehouse') }}
                                 <select name="codalmacen" class="form-control">
                                     {{ fsc.loadWarehouses()|raw }}
                                 </select>
                             </div>
                         </div>
-                        <div class="col-12 col-md-2">
+                        <div class="col-12 col-md-3">
                             <div class="form-group">
-                                <label>{{ i18n.trans('status') }}</label>
+                                {{ i18n.trans('serie') }}
+                                <select name="codserie" class="form-control">
+                                    {{ fsc.loadSeries()|raw }}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="form-group">
+                                {{ i18n.trans('method-payment') }}
+                                <select name="codpago" class="form-control">
+                                    {{ fsc.loadPayments()|raw }}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="form-group">
+                                {{ i18n.trans('currency') }}
+                                <select name="coddivisa" class="form-control">
+                                    {{ fsc.loadDivisas()|raw }}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="form-group">
+                                {{ i18n.trans('agent') }}
+                                <select name="codagente" class="form-control">
+                                    {{ fsc.loadAgents()|raw }}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="form-group">
+                                {{ i18n.trans('status') }}
                                 <select name="estado" class="form-control">
                                     <option value="">{{ i18n.trans('all') }}</option>
                                     <option value="pagada" {{ fsc.estado == 'pagada' ? 'selected' : '' }}>{{ i18n.trans('paid') }}</option>
@@ -112,45 +96,42 @@
                         </div>
                     </div>
 
-                    <hr>
-
-                    <ul class="nav nav-pills mt-4" role="tablist">
+                    <ul class="nav nav-pills mt-3 mb-3" role="tablist">
                         <li class="nav-item" role="presentation">
                             <a id="tabVentas" class="nav-link active" data-toggle="tab" role="tab" aria-selected="true"
                                aria-controls="contentSaleReport" href="#contentSaleReport">
-                                {{ i18n.trans('sale-report') }}
+                                {{ i18n.trans('sales') }}
                             </a>
                         </li>
                         <li id="tabCompras" class="nav-item" role="presentation">
                             <a class="nav-link" data-toggle="tab" role="tab" aria-selected="false"
                                aria-controls="contentPurchaseReport" href="#contentPurchaseReport">
-                                {{ i18n.trans('purchase-report') }}
+                                {{ i18n.trans('purchases') }}
                             </a>
                         </li>
                     </ul>
 
-                    <div class="tab-content mt-3">
+                    <div class="tab-content">
                         <div class="tab-pane fade show active" id="contentSaleReport"
                              aria-labelledby="contentSaleReport-tab" role="tabpanel">
-                            <p>{{ i18n.trans('sale-report-legend') }}</p>
-                            <div class="row">
-                                <div class="col-12 col-md-2">
+                            <div class="form-row">
+                                <div class="col-12 col-md-3">
                                     <div class="form-group">
-                                        <label>{{ i18n.trans('country') }}</label>
+                                        {{ i18n.trans('country') }}
                                         <select name="codpais" class="form-control" id="countries">
                                             {{ fsc.loadCountries()|raw }}
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-12 col-md-2">
+                                <div class="col-12 col-md-3">
                                     <div class="form-group">
-                                        <label>{{ i18n.trans('province') }}</label>
+                                        {{ i18n.trans('province') }}
                                         <select name="provincia" class="form-control" id="provincies"></select>
                                     </div>
                                 </div>
-                                <div class="col-12 col-md-2">
+                                <div class="col-12 col-md-3">
                                     <div class="form-group">
-                                        <label>{{ i18n.trans('customer') }}</label>
+                                        {{ i18n.trans('customer') }}
                                         <div class="input-group">
                                             <input type="text" class="form-control" id="customer"
                                                    placeholder="{{ i18n.trans('any-customer') }}"
@@ -165,17 +146,18 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-12 col-md-2">
+                                <div class="col-12 col-md-3">
                                     <div class="form-group">
-                                        <label>{{ i18n.trans('minimum-amount') }}</label>
+                                        {{ i18n.trans('minimum-amount') }}
                                         <input type="number" class="form-control" name="sale-minimo"
                                                placeholder="{{ i18n.trans('optional-amounts-units') }}"
                                                value="{{ fsc.sale_minimo }}">
                                     </div>
                                 </div>
-                                <div class="col-12 col-md-2">
+                                <div class="col-md-12">
+                                    <p class="text-muted">{{ i18n.trans('sale-report-legend') }}</p>
                                     <div class="form-group">
-                                        <label>{{ i18n.trans('select-option') }}</label>
+                                        {{ i18n.trans('select-option') }}
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" name="sale-unidades"
                                                    id="saleUndFalse"
@@ -199,11 +181,10 @@
 
                         <div class="tab-pane" id="contentPurchaseReport" aria-labelledby="contentPurchaseReport-tab"
                              role="tabpanel">
-                            <p>{{ i18n.trans('purchase-report-legend') }}</p>
-                            <div class="row">
-                                <div class="col-12 col-md-2">
+                            <div class="form-row">
+                                <div class="col-12 col-md-3">
                                     <div class="form-group">
-                                        <label>{{ i18n.trans('supplier') }}</label>
+                                        {{ i18n.trans('supplier') }}
                                         <div class="input-group">
                                             <input type="text" class="form-control" id="supplier"
                                                    placeholder="{{ i18n.trans('any-provider') }}"
@@ -219,17 +200,18 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-12 col-md-2">
+                                <div class="col-12 col-md-3">
                                     <div class="form-group">
-                                        <label>{{ i18n.trans('minimum-amount') }}</label>
+                                        {{ i18n.trans('minimum-amount') }}
                                         <input type="number" class="form-control" name="purchase-minimo"
                                                placeholder="{{ i18n.trans('optional-amounts-units') }}"
                                                value="{{ fsc.purchase_minimo }}">
                                     </div>
                                 </div>
-                                <div class="col-12 col-md-2">
+                                <div class="col-md-12">
+                                    <p class="text-muted">{{ i18n.trans('purchase-report-legend') }}</p>
                                     <div class="form-group">
-                                        <label>{{ i18n.trans('select-option') }}</label>
+                                        {{ i18n.trans('select-option') }}
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" name="purchase-unidades"
                                                    id="purchaseUndFalse"
