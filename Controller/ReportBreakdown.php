@@ -18,6 +18,7 @@ use FacturaScripts\Dinamic\Model\Proveedor;
  */
 class ReportBreakdown extends Controller
 {
+    public $codeModel;
     public $agente;
     public $almacen;
     public $cliente;
@@ -58,79 +59,19 @@ class ReportBreakdown extends Controller
         return $data;
     }
 
-    public function loadAgents()
+    public function getSelectValues($table, $code, $description, $empty = false): array
     {
-        $html = '';
-        foreach (CodeModel::all('agentes', 'codagente', 'nombre', true) as $row) {
-            $check = (!empty($this->codagente) && $row->code == $this->codagente) ? 'selected' : '';
-            $html .= '<option value="' . $row->code . '" ' . $check . '>' . $row->description . '</option>';
+        $values = $empty ? ['' => '------'] : [];
+        foreach (CodeModel::all($table, $code, $description, $empty) as $row) {
+            $values[$row->code] = $row->description;
         }
-        return $html;
-    }
-
-    public function loadCompanies()
-    {
-        $html = '';
-        foreach (CodeModel::all('empresas', 'idempresa', 'nombrecorto', false) as $row) {
-            $check = (!empty($this->idempresa) && $row->code == $this->idempresa) ? 'selected' : '';
-            $html .= '<option value="' . $row->code . '" ' . $check . '>' . $row->description . '</option>';
-        }
-        return $html;
-    }
-
-    public function loadCountries()
-    {
-        $html = '';
-        foreach (CodeModel::all('paises', 'codpais', 'nombre', true) as $row) {
-            $check = (!empty($this->codpais) && $row->code == $this->codpais) ? 'selected' : '';
-            $html .= '<option value="' . $row->code . '" ' . $check . '>' . $row->description . '</option>';
-        }
-        return $html;
-    }
-
-    public function loadDivisas()
-    {
-        $html = '';
-        foreach (CodeModel::all('divisas', 'coddivisa', 'descripcion', false) as $row) {
-            $check = (!empty($this->coddivisa) && $row->code == $this->coddivisa) ? 'selected' : '';
-            $html .= '<option value="' . $row->code . '" ' . $check . '>' . $row->description . '</option>';
-        }
-        return $html;
-    }
-
-    public function loadPayments()
-    {
-        $html = '';
-        foreach (CodeModel::all('formaspago', 'codpago', 'descripcion', true) as $row) {
-            $check = (!empty($this->codpago) && $row->code == $this->codpago) ? 'selected' : '';
-            $html .= '<option value="' . $row->code . '" ' . $check . '>' . $row->description . '</option>';
-        }
-        return $html;
-    }
-
-    public function loadSeries()
-    {
-        $html = '';
-        foreach (CodeModel::all('series', 'codserie', 'descripcion', true) as $row) {
-            $check = (!empty($this->codserie) && $row->code == $this->codserie) ? 'selected' : '';
-            $html .= '<option value="' . $row->code . '" ' . $check . '>' . $row->description . '</option>';
-        }
-        return $html;
-    }
-
-    public function loadWarehouses()
-    {
-        $html = '';
-        foreach (CodeModel::all('almacenes', 'codalmacen', 'nombre', true) as $row) {
-            $check = (!empty($this->codalmacen) && $row->code == $this->codalmacen) ? 'selected' : '';
-            $html .= '<option value="' . $row->code . '" ' . $check . '>' . $row->description . '</option>';
-        }
-        return $html;
+        return $values;
     }
 
     public function privateCore(&$response, $user, $permissions)
     {
         parent::privateCore($response, $user, $permissions);
+        $this->codeModel = new CodeModel();
 
         $action = $this->request->get('action', '');
         switch ($action) {
@@ -140,8 +81,8 @@ class ReportBreakdown extends Controller
             case 'autocomplete-supplier':
                 return $this->autocompleteSupplierAction();
 
-            case 'load-provincies':
-                return $this->loadProvincies();
+            case 'get-provincies':
+                return $this->getProvincies();
         }
 
         $this->nombre_docs = 'Facturas';
@@ -215,32 +156,32 @@ class ReportBreakdown extends Controller
         }
     }
 
-    private function informe_compras()
+    protected function getProvincies()
     {
-        $sql = "SELECT codproveedor,fecha,SUM(neto) as total FROM facturasprov"
-            . " WHERE fecha >= " . $this->dataBase->var2str($this->desde)
-            . " AND fecha <= " . $this->dataBase->var2str($this->hasta)
-            . " AND idempresa = " . $this->idempresa;
+        $this->setTemplate(false);
 
-        if ($this->codserie) {
-            $sql .= " AND codserie = " . $this->dataBase->var2str($this->codserie);
+        $html = '<option value="">------</option>';
+        $this->provincia = $this->request->get('provincia');
+        $this->codpais = $this->request->get('codpais');
+        if (!empty($this->codpais)) {
+            $sql = "select distinct provincia from facturascli as fc"
+                . " where fc.codpais = '" . $this->codpais . "'";
+            $lineas = $this->dataBase->select($sql);
+            foreach ($lineas as $dl) {
+                if (!is_null($dl['provincia'])) {
+                    $check = $this->provincia == $dl['provincia'] ? 'selected' : '';
+                    $html .= '<option value="' . $dl['provincia'] . '" ' . $check . '>' . $dl['provincia'] . '</option>';
+                }
+            }
         }
 
-        if ($this->codagente) {
-            $sql .= " AND codagente = " . $this->dataBase->var2str($this->codagente);
-        }
+        $this->response->setContent(json_encode($html));
+        return true;
+    }
 
-        if ($this->proveedor) {
-            $sql .= " AND codproveedor = " . $this->dataBase->var2str($this->proveedor->codproveedor);
-        }
-
-        if ($this->purchase_minimo) {
-            $sql .= " AND neto > " . $this->dataBase->var2str($this->purchase_minimo);
-        }
-
-        $sql .= " GROUP BY codproveedor,fecha ORDER BY codproveedor ASC, fecha DESC;";
-
-        $data = $this->dataBase->select($sql);
+    protected function informe_compras()
+    {
+        $data = $this->loadDataInformeCompras();
         if ($data) {
             $this->setTemplate(false);
 
@@ -345,38 +286,9 @@ class ReportBreakdown extends Controller
         }
     }
 
-    private function informe_compras_unidades()
+    protected function informe_compras_unidades()
     {
-        $sql = "SELECT f.codalmacen,f.codproveedor,f.fecha,l.referencia,l.descripcion,SUM(l.cantidad) as total"
-            . " FROM facturasprov f, lineasfacturasprov l"
-            . " WHERE f.idfactura = l.idfactura AND l.referencia IS NOT NULL"
-            . " AND f.idempresa = " . $this->idempresa
-            . " AND f.fecha >= " . $this->dataBase->var2str($this->desde)
-            . " AND f.fecha <= " . $this->dataBase->var2str($this->hasta);
-
-        if ($this->codserie) {
-            $sql .= " AND f.codserie = " . $this->dataBase->var2str($this->codserie);
-        }
-
-        if ($this->codalmacen) {
-            $sql .= " AND f.codalmacen = " . $this->dataBase->var2str($this->codalmacen);
-        }
-
-        if ($this->codagente) {
-            $sql .= " AND f.codagente = " . $this->dataBase->var2str($this->codagente);
-        }
-
-        if ($this->proveedor) {
-            $sql .= " AND codproveedor = " . $this->dataBase->var2str($this->proveedor->codproveedor);
-        }
-
-        if ($this->purchase_minimo) {
-            $sql .= " AND l.cantidad > " . $this->dataBase->var2str($this->purchase_minimo);
-        }
-
-        $sql .= " GROUP BY f.codalmacen,f.codproveedor,f.fecha,l.referencia,l.descripcion ORDER BY f.codproveedor ASC, l.referencia ASC, f.fecha DESC;";
-
-        $data = $this->dataBase->select($sql);
+        $data = $this->loadDataInformeComprasUnidades();
         if ($data) {
             $this->setTemplate(false);
             header("content-type:application/csv;charset=UTF-8");
@@ -468,44 +380,9 @@ class ReportBreakdown extends Controller
         }
     }
 
-    private function informe_ventas()
+    protected function informe_ventas()
     {
-        $sql = "SELECT codalmacen,codcliente,fecha,SUM(neto) as total FROM facturascli"
-            . " WHERE fecha >= " . $this->dataBase->var2str($this->desde)
-            . " AND fecha <= " . $this->dataBase->var2str($this->hasta)
-            . " AND idempresa = " . $this->idempresa;
-
-        if ($this->codpais) {
-            $sql .= " AND codpais = " . $this->dataBase->var2str($this->codpais);
-        }
-
-        if ($this->provincia) {
-            $sql .= " AND lower(provincia) = lower(" . $this->dataBase->var2str($this->provincia) . ")";
-        }
-
-        if ($this->cliente) {
-            $sql .= " AND codcliente = " . $this->dataBase->var2str($this->cliente->codcliente);
-        }
-
-        if ($this->codserie) {
-            $sql .= " AND codserie = " . $this->dataBase->var2str($this->codserie);
-        }
-
-        if ($this->codalmacen) {
-            $sql .= " AND codalmacen = " . $this->dataBase->var2str($this->codalmacen);
-        }
-
-        if ($this->codagente) {
-            $sql .= " AND codagente = " . $this->dataBase->var2str($this->codagente);
-        }
-
-        if ($this->sale_minimo) {
-            $sql .= " AND neto > " . $this->dataBase->var2str($this->sale_minimo);
-        }
-
-        $sql .= " GROUP BY codalmacen,codcliente,fecha ORDER BY codcliente ASC, fecha DESC;";
-
-        $data = $this->dataBase->select($sql);
+        $data = $this->loadDataInformeVentas();
         if ($data) {
             $this->setTemplate(false);
             header("content-type:application/csv;charset=UTF-8");
@@ -610,46 +487,9 @@ class ReportBreakdown extends Controller
         }
     }
 
-    private function informe_ventas_unidades()
+    protected function informe_ventas_unidades()
     {
-        $sql = "SELECT f.codalmacen,f.codcliente,f.fecha,l.referencia,l.descripcion,SUM(l.cantidad) as total"
-            . " FROM facturascli f, lineasfacturascli l"
-            . " WHERE f.idfactura = l.idfactura AND l.referencia IS NOT NULL"
-            . " AND f.idempresa = " . $this->idempresa
-            . " AND f.fecha >= " . $this->dataBase->var2str($this->desde)
-            . " AND f.fecha <= " . $this->dataBase->var2str($this->hasta);
-
-        if ($this->codpais) {
-            $sql .= " AND f.codpais = " . $this->dataBase->var2str($this->codpais);
-        }
-
-        if ($this->provincia) {
-            $sql .= " AND lower(f.provincia) = lower(" . $this->dataBase->var2str($this->provincia) . ")";
-        }
-
-        if ($this->cliente) {
-            $sql .= " AND codcliente = " . $this->dataBase->var2str($this->cliente->codcliente);
-        }
-
-        if ($this->codalmacen) {
-            $sql .= " AND f.codalmacen = " . $this->dataBase->var2str($this->codalmacen);
-        }
-
-        if ($this->codserie) {
-            $sql .= " AND f.codserie = " . $this->dataBase->var2str($this->codserie);
-        }
-
-        if ($this->codagente) {
-            $sql .= " AND f.codagente = " . $this->dataBase->var2str($this->codagente);
-        }
-
-        if ($this->sale_minimo) {
-            $sql .= " AND l.cantidad > " . $this->dataBase->var2str($this->sale_minimo);
-        }
-
-        $sql .= " GROUP BY f.codalmacen,f.codcliente,f.fecha,l.referencia,l.descripcion ORDER BY f.codcliente ASC, l.referencia ASC, f.fecha DESC;";
-
-        $data = $this->dataBase->select($sql);
+        $data = $this->loadDataInformeVentasUnidades();
         if ($data) {
             $this->setTemplate(false);
             header("content-type:application/csv;charset=UTF-8");
@@ -835,27 +675,135 @@ class ReportBreakdown extends Controller
         }
     }
 
-    protected function loadProvincies()
+    protected function loadDataInformeCompras():array
     {
-        $this->setTemplate(false);
+        $sql = "SELECT codproveedor,fecha,SUM(neto) as total FROM facturasprov"
+            . " WHERE fecha >= " . $this->dataBase->var2str($this->desde)
+            . " AND fecha <= " . $this->dataBase->var2str($this->hasta)
+            . " AND idempresa = " . $this->idempresa;
 
-        $html = '<option value="">------</option>';
-        $this->provincia = $this->request->get('provincia');
-        $this->codpais = $this->request->get('codpais');
-        if (!empty($this->codpais)) {
-            $sql = "select distinct provincia from facturascli as fc"
-                . " where fc.codpais = '" . $this->codpais . "'";
-            $lineas = $this->dataBase->select($sql);
-            foreach ($lineas as $dl) {
-                if (!is_null($dl['provincia'])) {
-                    $check = $this->provincia == $dl['provincia'] ? 'selected' : '';
-                    $html .= '<option value="' . $dl['provincia'] . '" ' . $check . '>' . $dl['provincia'] . '</option>';
-                }
-            }
+        if ($this->codserie) {
+            $sql .= " AND codserie = " . $this->dataBase->var2str($this->codserie);
         }
 
-        $this->response->setContent(json_encode($html));
-        return true;
+        if ($this->codagente) {
+            $sql .= " AND codagente = " . $this->dataBase->var2str($this->codagente);
+        }
+
+        if ($this->proveedor) {
+            $sql .= " AND codproveedor = " . $this->dataBase->var2str($this->proveedor->codproveedor);
+        }
+
+        if ($this->purchase_minimo) {
+            $sql .= " AND neto > " . $this->dataBase->var2str($this->purchase_minimo);
+        }
+
+        $sql .= " GROUP BY codproveedor,fecha ORDER BY codproveedor ASC, fecha DESC;";
+
+        return $this->dataBase->select($sql);
+    }
+
+    protected function loadDataInformeComprasUnidades():array
+    {
+        $sql = "SELECT f.codalmacen,f.codproveedor,f.fecha,l.referencia,l.descripcion,SUM(l.cantidad) as total"
+            . " FROM facturasprov f, lineasfacturasprov l"
+            . " WHERE f.idfactura = l.idfactura AND l.referencia IS NOT NULL"
+            . " AND f.idempresa = " . $this->idempresa
+            . " AND f.fecha >= " . $this->dataBase->var2str($this->desde)
+            . " AND f.fecha <= " . $this->dataBase->var2str($this->hasta);
+
+        if ($this->codserie) {
+            $sql .= " AND f.codserie = " . $this->dataBase->var2str($this->codserie);
+        }
+
+        if ($this->codalmacen) {
+            $sql .= " AND f.codalmacen = " . $this->dataBase->var2str($this->codalmacen);
+        }
+
+        if ($this->codagente) {
+            $sql .= " AND f.codagente = " . $this->dataBase->var2str($this->codagente);
+        }
+
+        if ($this->proveedor) {
+            $sql .= " AND codproveedor = " . $this->dataBase->var2str($this->proveedor->codproveedor);
+        }
+
+        if ($this->purchase_minimo) {
+            $sql .= " AND l.cantidad > " . $this->dataBase->var2str($this->purchase_minimo);
+        }
+
+        $sql .= " GROUP BY f.codalmacen,f.codproveedor,f.fecha,l.referencia,l.descripcion ORDER BY f.codproveedor ASC, l.referencia ASC, f.fecha DESC;";
+
+        return $this->dataBase->select($sql);
+    }
+
+    protected function loadDataInformeVentas():array
+    {
+        $sql = "SELECT codalmacen,codcliente,fecha,SUM(neto) as total FROM facturascli"
+            . " WHERE fecha >= " . $this->dataBase->var2str($this->desde)
+            . " AND fecha <= " . $this->dataBase->var2str($this->hasta)
+            . " AND idempresa = " . $this->idempresa;
+
+        $sql .= $this->loadDataInformeVentasWhere($sql);
+
+        $sql .= " GROUP BY codalmacen,codcliente,fecha ORDER BY codcliente ASC, fecha DESC;";
+
+        return $this->dataBase->select($sql);
+    }
+
+    protected function loadDataInformeVentasUnidades():array
+    {
+        $sql = "SELECT f.codalmacen,f.codcliente,f.fecha,l.referencia,l.descripcion,SUM(l.cantidad) as total"
+            . " FROM facturascli f, lineasfacturascli l"
+            . " WHERE f.idfactura = l.idfactura AND l.referencia IS NOT NULL"
+            . " AND f.idempresa = " . $this->idempresa
+            . " AND f.fecha >= " . $this->dataBase->var2str($this->desde)
+            . " AND f.fecha <= " . $this->dataBase->var2str($this->hasta);
+
+        $sql .= $this->loadDataInformeVentasWhere($sql);
+
+        $sql .= " GROUP BY f.codalmacen,f.codcliente,f.fecha,l.referencia,l.descripcion ORDER BY f.codcliente ASC, l.referencia ASC, f.fecha DESC;";
+
+        return $this->dataBase->select($sql);
+    }
+
+    protected function loadDataInformeVentasWhere($sql)
+    {
+        $oldSql = $sql;
+
+        if ($this->codpais) {
+            $sql .= " AND codpais = " . $this->dataBase->var2str($this->codpais);
+        }
+
+        if ($this->provincia) {
+            $sql .= " AND lower(provincia) = lower(" . $this->dataBase->var2str($this->provincia) . ")";
+        }
+
+        if ($this->cliente) {
+            $sql .= " AND codcliente = " . $this->dataBase->var2str($this->cliente->codcliente);
+        }
+
+        if ($this->codserie) {
+            $sql .= " AND codserie = " . $this->dataBase->var2str($this->codserie);
+        }
+
+        if ($this->codalmacen) {
+            $sql .= " AND codalmacen = " . $this->dataBase->var2str($this->codalmacen);
+        }
+
+        if ($this->codagente) {
+            $sql .= " AND codagente = " . $this->dataBase->var2str($this->codagente);
+        }
+
+        if ($this->sale_minimo) {
+            $sql .= " AND neto > " . $this->dataBase->var2str($this->sale_minimo);
+        }
+
+        if ($sql === $oldSql) {
+            $sql = '';
+        }
+
+        return $sql;
     }
 
     /**

@@ -250,33 +250,7 @@ class ResultReport
                 // Las descripciones solo las necesitamos en el año seleccionado,
                 // en el año anterior se omite
                 if ($year == self::$year) {
-                    // GASTOS: Creamos un array con las descripciones de las cuentas
-                    foreach ($gastos['cuentas'] as $codcuenta => $arraycuenta) {
-                        $gastos['descripciones'][$codcuenta] = '-';
-                        $cuenta = new Cuenta();
-                        $where = [
-                            new DataBaseWhere('codcuenta', $codcuenta),
-                            new DataBaseWhere('codejercicio', $codejercicio)
-                        ];
-
-                        if ($cuenta->loadFromCode('', $where)) {
-                            $gastos['descripciones'][$codcuenta] = $codcuenta . ' - ' . $cuenta->descripcion;
-                        }
-
-                        if (self::$parent_codcuenta === (string)$codcuenta) {
-                            foreach ($arraycuenta as $codsubcuenta => $arraysubcuenta) {
-                                $gastos['descripciones'][$codsubcuenta] = '-';
-                                $subcuenta = new Subcuenta();
-                                $where = [
-                                    new DataBaseWhere('codsubcuenta', $codsubcuenta),
-                                    new DataBaseWhere('codejercicio', $codejercicio)
-                                ];
-                                if ($subcuenta->loadFromCode('', $where)) {
-                                    $gastos['descripciones'][$codsubcuenta] = $codsubcuenta . ' - ' . $subcuenta->descripcion;
-                                }
-                            }
-                        }
-                    }
+                    $gastos = self::setDescriptionAccount($gastos, $codejercicio);
                 }
             }
         }
@@ -294,6 +268,177 @@ class ResultReport
          */
 
         // GASTOS: Calculamos los porcentajes con los totales globales
+        $gastos = self::setPercentagePurchases($gastos, $gastos_total_meses);
+
+        // Variables globales para usar en la vista
+        self::$gastos[$year] = $gastos;
+    }
+
+    protected static function randomColor()
+    {
+        return substr(str_shuffle('ABCDEF0123456789'), 0, 6);
+    }
+
+    protected static function setDescriptionAccount(array $gastos, string $codejercicio):array
+    {
+        // GASTOS: Creamos un array con las descripciones de las cuentas
+        foreach ($gastos['cuentas'] as $codcuenta => $arraycuenta) {
+            $gastos['descripciones'][$codcuenta] = '-';
+            $cuenta = new Cuenta();
+            $where = [
+                new DataBaseWhere('codcuenta', $codcuenta),
+                new DataBaseWhere('codejercicio', $codejercicio)
+            ];
+
+            if ($cuenta->loadFromCode('', $where)) {
+                $gastos['descripciones'][$codcuenta] = $codcuenta . ' - ' . $cuenta->descripcion;
+            }
+
+            // Añadimos las descripciones de las subcuentas
+            // solo al desplegar una cuenta
+            if (self::$parent_codcuenta === (string)$codcuenta) {
+                $gastos = self::setDescriptionSubaccount($gastos, $arraycuenta, $codejercicio);
+            }
+        }
+
+        return $gastos;
+    }
+
+    protected static function setDescriptionAgents(array $ventas):array
+    {
+        foreach ($ventas['agentes'] as $codagente => $agentes) {
+            $agente = new Agente();
+            $agente->loadFromCode($codagente);
+            $ventas['descripciones'][$codagente] = $agente->nombre;
+        }
+
+        return $ventas;
+    }
+
+    protected static function setDescriptionFamilies(array $ventas, string $codejercicio):array
+    {
+        // Recorremos ventas['familias'] crear un array con las descripciones de las familias
+        foreach ($ventas['familias'] as $codfamilia => $familia) {
+            foreach ($familia as $referencia => $array) {
+                $dl['referencia'] = $referencia;
+                $dl['pvptotal'] = 0;
+                $data = self::build_data($dl);
+                $ventas['descripciones'][$codfamilia] = $data['familia'];
+
+                if (self::$parent_codfamilia === (string)$codfamilia) {
+                    $ventas = self::setDescriptionProducts($ventas, $referencia, $data['art_desc']);
+                }
+            }
+        }
+
+        return $ventas;
+    }
+
+    protected static function setDescriptionPayments(array $ventas):array
+    {
+        foreach ($ventas['pagos'] as $codpago => $pagos) {
+            $pago = new FormaPago();
+            $pago->loadFromCode($codpago);
+            $ventas['descripciones'][$codpago] = $pago->descripcion;
+        }
+
+        return $ventas;
+    }
+
+    protected static function setDescriptionProducts(array $ventas, string $referencia, string $desc):array
+    {
+        $ventas['descripciones'][$referencia] = $desc;
+        return $ventas;
+    }
+
+    protected static function setDescriptionSubaccount(array $gastos, array $arraycuenta, string $codejercicio):array
+    {
+        foreach ($arraycuenta as $codsubcuenta => $arraysubcuenta) {
+            $gastos['descripciones'][$codsubcuenta] = '-';
+            $subcuenta = new Subcuenta();
+            $where = [
+                new DataBaseWhere('codsubcuenta', $codsubcuenta),
+                new DataBaseWhere('codejercicio', $codejercicio)
+            ];
+            if ($subcuenta->loadFromCode('', $where)) {
+                $gastos['descripciones'][$codsubcuenta] = $codsubcuenta . ' - ' . $subcuenta->descripcion;
+            }
+        }
+
+        return $gastos;
+    }
+
+    protected static function setDescriptionSeries(array $ventas):array
+    {
+        foreach ($ventas['series'] as $codserie => $series) {
+            $serie = new Serie();
+            $serie->loadFromCode($codserie);
+            $ventas['descripciones'][$codserie] = $serie->descripcion;
+        }
+
+        return $ventas;
+    }
+
+    protected static function setPercentageAgents(array $ventas, float $ventas_total_age_meses):array
+    {
+        foreach ($ventas['agentes'] as $codagente => $agentes) {
+            if ($ventas_total_age_meses != 0) {
+                $ventas['porc_age'][$codagente] = round($ventas['total_age'][$codagente] * 100 / $ventas_total_age_meses, FS_NF0);
+            }
+        }
+
+        return $ventas;
+    }
+
+    protected static function setPercentageFamilies(array $ventas, float $ventas_total_fam_meses):array
+    {
+        foreach ($ventas['familias'] as $codfamilia => $familias) {
+            if ($ventas_total_fam_meses != 0) {
+                $ventas['porc_fam'][$codfamilia] = round($ventas['total_fam'][$codfamilia] * 100 / $ventas_total_fam_meses, FS_NF0);
+
+                // añadimos los porcentages de los productos
+                if (self::$parent_codfamilia === (string)$codfamilia) {
+                    $ventas = self::setPercentageProducts($ventas, $codfamilia, $ventas_total_fam_meses, $familias);
+                }
+            }
+        }
+
+        return $ventas;
+    }
+
+    protected static function setPercentagePayments(array $ventas, float $ventas_total_pag_meses):array
+    {
+        foreach ($ventas['pagos'] as $codpago => $pagos) {
+            if ($ventas_total_pag_meses != 0) {
+                $ventas['porc_pag'][$codpago] = round($ventas['total_pag'][$codpago] * 100 / $ventas_total_pag_meses, FS_NF0);
+            }
+        }
+
+        return $ventas;
+    }
+
+    protected static function setPercentageProducts(array $ventas, string $codfamilia, float $ventas_total_fam_meses, array $familias):array
+    {
+        foreach ($familias as $referencia => $array) {
+            $ventas['porc_ref'][$codfamilia][$referencia] = round($ventas['total_ref'][$codfamilia][$referencia] * 100 / $ventas_total_fam_meses, FS_NF0);
+        }
+
+        return $ventas;
+    }
+
+    protected static function setPercentageSeries(array $ventas, float $ventas_total_ser_meses):array
+    {
+        foreach ($ventas['series'] as $codserie => $series) {
+            if ($ventas_total_ser_meses != 0) {
+                $ventas['porc_ser'][$codserie] = round($ventas['total_ser'][$codserie] * 100 / $ventas_total_ser_meses, FS_NF0);
+            }
+        }
+
+        return $ventas;
+    }
+
+    protected static function setPercentagePurchases(array $gastos, float $gastos_total_meses):array
+    {
         foreach ($gastos['cuentas'] as $codcuenta => $cuenta) {
             if ($gastos_total_meses != 0) {
                 $gastos['porc_cuenta'][$codcuenta] = round($gastos['total_cuenta'][$codcuenta] * 100 / $gastos_total_meses, FS_NF0);
@@ -305,13 +450,7 @@ class ResultReport
             }
         }
 
-        // Variables globales para usar en la vista
-        self::$gastos[$year] = $gastos;
-    }
-
-    protected static function randomColor()
-    {
-        return substr(str_shuffle('ABCDEF0123456789'), 0, 6);
+        return $gastos;
     }
 
     protected static function summary_build_year($year, $codejercicio)
@@ -348,8 +487,6 @@ class ResultReport
 
     protected static function sales_build_year($year, $codejercicio)
     {
-        $dataBase = new DataBase();
-
         $date = array(
             'desde' => '',
             'hasta' => '',
@@ -396,155 +533,18 @@ class ResultReport
                  *  VENTAS: Consulta con las lineasfacturascli
                  * *****************************************************************
                  */
-                $sql = "select lfc.referencia, sum(lfc.pvptotal) as pvptotal from lineasfacturascli as lfc"
-                    . " LEFT JOIN facturascli as fc ON lfc.idfactura = fc.idfactura"
-                    . " where fc.fecha >= " . $dataBase->var2str($date['desde'])
-                    . " AND fc.fecha <= " . $dataBase->var2str($date['hasta'])
-                    . " AND fc.codejercicio = " . $codejercicio
-                    . " group by lfc.referencia";
-
-                // VENTAS: Recorremos lineasfacturascli y montamos arrays
-                $lineas = $dataBase->select($sql);
-                if ($lineas) {
-                    foreach ($lineas as $dl) {
-                        $data = self::build_data($dl);
-                        $pvptotal = (float)$data['pvptotal'];
-                        $referencia = $data['ref'];
-                        $codfamilia = $data['codfamilia'];
-
-                        // Familias
-                        if (isset($ventas['total_fam_mes'][$codfamilia][$mes])) {
-                            $ventas['total_fam_mes'][$codfamilia][$mes] += $pvptotal;
-                        } else {
-                            $ventas['total_fam_mes'][$codfamilia][$mes] = $pvptotal;
-                        }
-
-                        if (isset($ventas['total_fam'][$codfamilia])) {
-                            $ventas['total_fam'][$codfamilia] += $pvptotal;
-                        } else {
-                            $ventas['total_fam'][$codfamilia] = $pvptotal;
-                        }
-
-                        // Solo al pinchar en una familia
-                        if (self::$parent_codfamilia === (string)$codfamilia) {
-                            // Productos
-                            if (isset($ventas['total_ref'][$codfamilia][$referencia])) {
-                                $ventas['total_ref'][$codfamilia][$referencia] += $pvptotal;
-                            } else {
-                                $ventas['total_ref'][$codfamilia][$referencia] = $pvptotal;
-                            }
-
-                            if (isset($ventas['familias'][$codfamilia][$referencia][$mes])) {
-                                $ventas['familias'][$codfamilia][$referencia][$mes]['pvptotal'] += $pvptotal;
-                            } else {
-                                $ventas['familias'][$codfamilia][$referencia][$mes]['pvptotal'] = $pvptotal;
-                            }
-                        }
-
-                        // Totales
-                        $ventas['total_mes'][$mes] = $pvptotal + $ventas['total_mes'][$mes];
-                        $ventas_total_fam_meses = $pvptotal + $ventas_total_fam_meses;
-
-                        // Array temporal con los totales (falta añadir descripción familia)
-                        $ventas['familias'][$codfamilia][$referencia][$mes] = array('pvptotal' => $pvptotal);
-                    }
-                }
+                $ventas = self::salesLineasFacturasCli($ventas, $date, $codejercicio, $mes, $ventas_total_fam_meses);
 
                 // Recorremos las facturas pagadas
-                $modelFacturas = new FacturaCliente();
-
-                $where = [
-                    new DataBaseWhere('fecha', $date['desde'], '>='),
-                    new DataBaseWhere('fecha', $date['hasta'], '<='),
-                    new DataBaseWhere('codejercicio', $codejercicio),
-                    new DataBaseWhere('pagada', 1)
-                ];
-
-                foreach ($modelFacturas->all($where, [], 0, 0) as $factura) {
-                    // Series
-                    if (isset($ventas['total_ser_mes'][$factura->codserie][$mes])) {
-                        $ventas['total_ser_mes'][$factura->codserie][$mes] += $factura->neto;
-                    } else {
-                        $ventas['total_ser_mes'][$factura->codserie][$mes] = $factura->neto;
-                    }
-
-                    if (isset($ventas['total_ser'][$factura->codserie])) {
-                        $ventas['total_ser'][$factura->codserie] += $factura->neto;
-                    } else {
-                        $ventas['total_ser'][$factura->codserie] = $factura->neto;
-                    }
-
-                    $ventas['series'][$factura->codserie][$mes] = array('pvptotal' => $factura->neto);
-                    $ventas_total_ser_meses = $factura->neto + $ventas_total_ser_meses;
-
-                    // Pagos
-                    if (isset($ventas['total_pag_mes'][$factura->codpago][$mes])) {
-                        $ventas['total_pag_mes'][$factura->codpago][$mes] += $factura->neto;
-                    } else {
-                        $ventas['total_pag_mes'][$factura->codpago][$mes] = $factura->neto;
-                    }
-
-                    if (isset($ventas['total_pag'][$factura->codpago])) {
-                        $ventas['total_pag'][$factura->codpago] += $factura->neto;
-                    } else {
-                        $ventas['total_pag'][$factura->codpago] = $factura->neto;
-                    }
-
-                    $ventas['pagos'][$factura->codpago][$mes] = array('pvptotal' => $factura->neto);
-                    $ventas_total_pag_meses = $factura->neto + $ventas_total_pag_meses;
-
-                    // Agentes
-                    if (!is_null($factura->codagente)) {
-                        if (isset($ventas['total_age_mes'][$factura->codagente][$mes])) {
-                            $ventas['total_age_mes'][$factura->codagente][$mes] += $factura->neto;
-                        } else {
-                            $ventas['total_age_mes'][$factura->codagente][$mes] = $factura->neto;
-                        }
-
-                        if (isset($ventas['total_age'][$factura->codagente])) {
-                            $ventas['total_age'][$factura->codagente] += $factura->neto;
-                        } else {
-                            $ventas['total_age'][$factura->codagente] = $factura->neto;
-                        }
-
-                        $ventas['agentes'][$factura->codagente][$mes] = array('pvptotal' => $factura->neto);
-                        $ventas_total_age_meses = $factura->neto + $ventas_total_age_meses;
-                    }
-                }
+                $ventas = self::salesPaid($ventas, $date, $codejercicio, $mes, $ventas_total_ser_meses, $ventas_total_pag_meses, $ventas_total_age_meses);
 
                 // Las descripciones solo las necesitamos en el año seleccionado,
                 // en el año anterior se omite
                 if ($year == self::$year) {
-                    // Recorremos ventas['familias'] crear un array con las descripciones de las familias
-                    foreach ($ventas['familias'] as $codfamilia => $familia) {
-                        foreach ($familia as $referencia => $array) {
-                            $dl['referencia'] = $referencia;
-                            $data = self::build_data($dl);
-
-                            $ventas['descripciones'][$codfamilia] = $data['familia'];
-                            if (self::$parent_codfamilia === (string)$codfamilia) {
-                                $ventas['descripciones'][$referencia] = $data['art_desc'];
-                            }
-                        }
-                    }
-
-                    foreach ($ventas['series'] as $codserie => $series) {
-                        $serie = new Serie();
-                        $serie->loadFromCode($codserie);
-                        $ventas['descripciones'][$codserie] = $serie->descripcion;
-                    }
-
-                    foreach ($ventas['pagos'] as $codpago => $pagos) {
-                        $pago = new FormaPago();
-                        $pago->loadFromCode($codpago);
-                        $ventas['descripciones'][$codpago] = $pago->descripcion;
-                    }
-
-                    foreach ($ventas['agentes'] as $codagente => $agentes) {
-                        $agente = new Agente();
-                        $agente->loadFromCode($codagente);
-                        $ventas['descripciones'][$codagente] = $agente->nombre;
-                    }
+                    $ventas = self::setDescriptionFamilies($ventas, $codejercicio);
+                    $ventas = self::setDescriptionSeries($ventas);
+                    $ventas = self::setDescriptionPayments($ventas);
+                    $ventas = self::setDescriptionAgents($ventas);
                 }
             }
         }
@@ -561,36 +561,137 @@ class ResultReport
          * *****************************************************************
          */
         // VENTAS: Calculamos los porcentajes con los totales globales
-        foreach ($ventas['familias'] as $codfamilia => $familias) {
-            if ($ventas_total_fam_meses != 0) {
-                $ventas['porc_fam'][$codfamilia] = round($ventas['total_fam'][$codfamilia] * 100 / $ventas_total_fam_meses, FS_NF0);
-                if (self::$parent_codfamilia === (string)$codfamilia) {
-                    foreach ($familias as $referencia => $array) {
-                        $ventas['porc_ref'][$codfamilia][$referencia] = round($ventas['total_ref'][$codfamilia][$referencia] * 100 / $ventas_total_fam_meses, FS_NF0);
-                    }
-                }
-            }
-        }
-
-        foreach ($ventas['series'] as $codserie => $series) {
-            if ($ventas_total_ser_meses != 0) {
-                $ventas['porc_ser'][$codserie] = round($ventas['total_ser'][$codserie] * 100 / $ventas_total_ser_meses, FS_NF0);
-            }
-        }
-
-        foreach ($ventas['pagos'] as $codpago => $pagos) {
-            if ($ventas_total_pag_meses != 0) {
-                $ventas['porc_pag'][$codpago] = round($ventas['total_pag'][$codpago] * 100 / $ventas_total_pag_meses, FS_NF0);
-            }
-        }
-
-        foreach ($ventas['agentes'] as $codagente => $agentes) {
-            if ($ventas_total_age_meses != 0) {
-                $ventas['porc_age'][$codagente] = round($ventas['total_age'][$codagente] * 100 / $ventas_total_age_meses, FS_NF0);
-            }
-        }
+        $ventas = self::setPercentageFamilies($ventas, $ventas_total_fam_meses);
+        $ventas = self::setPercentageSeries($ventas, $ventas_total_ser_meses);
+        $ventas = self::setPercentagePayments($ventas, $ventas_total_pag_meses);
+        $ventas = self::setPercentageAgents($ventas, $ventas_total_age_meses);
 
         // Variables globales para usar en la vista
         self::$ventas[$year] = $ventas;
+    }
+
+    protected static function salesLineasFacturasCli(array $ventas, array $date, string $codejercicio, int $mes, float &$ventas_total_fam_meses):array
+    {
+        $dataBase = new DataBase();
+
+        $sql = "select lfc.referencia, sum(lfc.pvptotal) as pvptotal from lineasfacturascli as lfc"
+            . " LEFT JOIN facturascli as fc ON lfc.idfactura = fc.idfactura"
+            . " where fc.fecha >= " . $dataBase->var2str($date['desde'])
+            . " AND fc.fecha <= " . $dataBase->var2str($date['hasta'])
+            . " AND fc.codejercicio = " . $codejercicio
+            . " group by lfc.referencia";
+
+        // VENTAS: Recorremos lineasfacturascli y montamos arrays
+        $lineas = $dataBase->select($sql);
+        foreach ($lineas as $dl) {
+            $data = self::build_data($dl);
+            $pvptotal = (float)$data['pvptotal'];
+            $referencia = $data['ref'];
+            $codfamilia = $data['codfamilia'];
+
+            // Familias
+            if (isset($ventas['total_fam_mes'][$codfamilia][$mes])) {
+                $ventas['total_fam_mes'][$codfamilia][$mes] += $pvptotal;
+            } else {
+                $ventas['total_fam_mes'][$codfamilia][$mes] = $pvptotal;
+            }
+
+            if (isset($ventas['total_fam'][$codfamilia])) {
+                $ventas['total_fam'][$codfamilia] += $pvptotal;
+            } else {
+                $ventas['total_fam'][$codfamilia] = $pvptotal;
+            }
+
+            // Solo al pinchar en una familia
+            if (self::$parent_codfamilia === (string)$codfamilia) {
+                // Productos
+                if (isset($ventas['total_ref'][$codfamilia][$referencia])) {
+                    $ventas['total_ref'][$codfamilia][$referencia] += $pvptotal;
+                } else {
+                    $ventas['total_ref'][$codfamilia][$referencia] = $pvptotal;
+                }
+
+                if (isset($ventas['familias'][$codfamilia][$referencia][$mes])) {
+                    $ventas['familias'][$codfamilia][$referencia][$mes]['pvptotal'] += $pvptotal;
+                } else {
+                    $ventas['familias'][$codfamilia][$referencia][$mes]['pvptotal'] = $pvptotal;
+                }
+            }
+
+            // Totales
+            $ventas['total_mes'][$mes] = $pvptotal + $ventas['total_mes'][$mes];
+            $ventas_total_fam_meses = $pvptotal + $ventas_total_fam_meses;
+
+            // Array temporal con los totales (falta añadir descripción familia)
+            $ventas['familias'][$codfamilia][$referencia][$mes] = array('pvptotal' => $pvptotal);
+        }
+
+        return $ventas;
+    }
+
+    protected static function salesPaid(array $ventas, array $date, string $codejercicio, int $mes, float &$ventas_total_ser_meses, float &$ventas_total_pag_meses, float &$ventas_total_age_meses):array
+    {
+        $modelFacturas = new FacturaCliente();
+
+        $where = [
+            new DataBaseWhere('fecha', $date['desde'], '>='),
+            new DataBaseWhere('fecha', $date['hasta'], '<='),
+            new DataBaseWhere('codejercicio', $codejercicio),
+            new DataBaseWhere('pagada', 1)
+        ];
+
+        foreach ($modelFacturas->all($where, [], 0, 0) as $factura) {
+            // Series
+            if (isset($ventas['total_ser_mes'][$factura->codserie][$mes])) {
+                $ventas['total_ser_mes'][$factura->codserie][$mes] += $factura->neto;
+            } else {
+                $ventas['total_ser_mes'][$factura->codserie][$mes] = $factura->neto;
+            }
+
+            if (isset($ventas['total_ser'][$factura->codserie])) {
+                $ventas['total_ser'][$factura->codserie] += $factura->neto;
+            } else {
+                $ventas['total_ser'][$factura->codserie] = $factura->neto;
+            }
+
+            $ventas['series'][$factura->codserie][$mes] = array('pvptotal' => $factura->neto);
+            $ventas_total_ser_meses = $factura->neto + $ventas_total_ser_meses;
+
+            // Pagos
+            if (isset($ventas['total_pag_mes'][$factura->codpago][$mes])) {
+                $ventas['total_pag_mes'][$factura->codpago][$mes] += $factura->neto;
+            } else {
+                $ventas['total_pag_mes'][$factura->codpago][$mes] = $factura->neto;
+            }
+
+            if (isset($ventas['total_pag'][$factura->codpago])) {
+                $ventas['total_pag'][$factura->codpago] += $factura->neto;
+            } else {
+                $ventas['total_pag'][$factura->codpago] = $factura->neto;
+            }
+
+            $ventas['pagos'][$factura->codpago][$mes] = array('pvptotal' => $factura->neto);
+            $ventas_total_pag_meses = $factura->neto + $ventas_total_pag_meses;
+
+            // Agentes
+            if (!is_null($factura->codagente)) {
+                if (isset($ventas['total_age_mes'][$factura->codagente][$mes])) {
+                    $ventas['total_age_mes'][$factura->codagente][$mes] += $factura->neto;
+                } else {
+                    $ventas['total_age_mes'][$factura->codagente][$mes] = $factura->neto;
+                }
+
+                if (isset($ventas['total_age'][$factura->codagente])) {
+                    $ventas['total_age'][$factura->codagente] += $factura->neto;
+                } else {
+                    $ventas['total_age'][$factura->codagente] = $factura->neto;
+                }
+
+                $ventas['agentes'][$factura->codagente][$mes] = array('pvptotal' => $factura->neto);
+                $ventas_total_age_meses = $factura->neto + $ventas_total_age_meses;
+            }
+        }
+
+        return $ventas;
     }
 }
