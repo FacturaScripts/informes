@@ -251,7 +251,7 @@
 
         function loadProvincies() {
             let formData = {};
-            formData["action"] = "load-provincies";
+            formData["action"] = "get-provincies";
             formData["codpais"] = $("#countries option:selected").val();
             formData["provincia"] = '{{ fsc.provincia }}';
             $('#provincies').html('');
