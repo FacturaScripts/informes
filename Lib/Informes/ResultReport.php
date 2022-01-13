@@ -268,16 +268,7 @@ class ResultReport
          */
 
         // GASTOS: Calculamos los porcentajes con los totales globales
-        foreach ($gastos['cuentas'] as $codcuenta => $cuenta) {
-            if ($gastos_total_meses != 0) {
-                $gastos['porc_cuenta'][$codcuenta] = round($gastos['total_cuenta'][$codcuenta] * 100 / $gastos_total_meses, FS_NF0);
-                if (self::$parent_codcuenta === (string)$codcuenta) {
-                    foreach ($cuenta as $codsubcuenta => $subcuenta) {
-                        $gastos['porc_subcuenta'][$codcuenta][$codsubcuenta] = round($gastos['total_subcuenta'][$codcuenta][$codsubcuenta] * 100 / $gastos_total_meses, FS_NF0);
-                    }
-                }
-            }
-        }
+        $gastos = self::setPercentagePurchases($gastos, $gastos_total_meses);
 
         // Variables globales para usar en la vista
         self::$gastos[$year] = $gastos;
@@ -386,6 +377,80 @@ class ResultReport
         }
 
         return $ventas;
+    }
+
+    protected static function setPercentageAgents(array $ventas, float $ventas_total_age_meses):array
+    {
+        foreach ($ventas['agentes'] as $codagente => $agentes) {
+            if ($ventas_total_age_meses != 0) {
+                $ventas['porc_age'][$codagente] = round($ventas['total_age'][$codagente] * 100 / $ventas_total_age_meses, FS_NF0);
+            }
+        }
+
+        return $ventas;
+    }
+
+    protected static function setPercentageFamilies(array $ventas, float $ventas_total_fam_meses):array
+    {
+        foreach ($ventas['familias'] as $codfamilia => $familias) {
+            if ($ventas_total_fam_meses != 0) {
+                $ventas['porc_fam'][$codfamilia] = round($ventas['total_fam'][$codfamilia] * 100 / $ventas_total_fam_meses, FS_NF0);
+
+                // añadimos los porcentages de los productos
+                if (self::$parent_codfamilia === (string)$codfamilia) {
+                    $ventas = self::setPercentageProducts($ventas, $codfamilia, $ventas_total_fam_meses, $familias);
+                }
+            }
+        }
+
+        return $ventas;
+    }
+
+    protected static function setPercentagePayments(array $ventas, float $ventas_total_pag_meses):array
+    {
+        foreach ($ventas['pagos'] as $codpago => $pagos) {
+            if ($ventas_total_pag_meses != 0) {
+                $ventas['porc_pag'][$codpago] = round($ventas['total_pag'][$codpago] * 100 / $ventas_total_pag_meses, FS_NF0);
+            }
+        }
+
+        return $ventas;
+    }
+
+    protected static function setPercentageProducts(array $ventas, string $codfamilia, float $ventas_total_fam_meses, array $familias):array
+    {
+        foreach ($familias as $referencia => $array) {
+            $ventas['porc_ref'][$codfamilia][$referencia] = round($ventas['total_ref'][$codfamilia][$referencia] * 100 / $ventas_total_fam_meses, FS_NF0);
+        }
+
+        return $ventas;
+    }
+
+    protected static function setPercentageSeries(array $ventas, float $ventas_total_ser_meses):array
+    {
+        foreach ($ventas['series'] as $codserie => $series) {
+            if ($ventas_total_ser_meses != 0) {
+                $ventas['porc_ser'][$codserie] = round($ventas['total_ser'][$codserie] * 100 / $ventas_total_ser_meses, FS_NF0);
+            }
+        }
+
+        return $ventas;
+    }
+
+    protected static function setPercentagePurchases(array $gastos, float $gastos_total_meses):array
+    {
+        foreach ($gastos['cuentas'] as $codcuenta => $cuenta) {
+            if ($gastos_total_meses != 0) {
+                $gastos['porc_cuenta'][$codcuenta] = round($gastos['total_cuenta'][$codcuenta] * 100 / $gastos_total_meses, FS_NF0);
+                if (self::$parent_codcuenta === (string)$codcuenta) {
+                    foreach ($cuenta as $codsubcuenta => $subcuenta) {
+                        $gastos['porc_subcuenta'][$codcuenta][$codsubcuenta] = round($gastos['total_subcuenta'][$codcuenta][$codsubcuenta] * 100 / $gastos_total_meses, FS_NF0);
+                    }
+                }
+            }
+        }
+
+        return $gastos;
     }
 
     protected static function summary_build_year($year, $codejercicio)
@@ -609,34 +674,10 @@ class ResultReport
          * *****************************************************************
          */
         // VENTAS: Calculamos los porcentajes con los totales globales
-        foreach ($ventas['familias'] as $codfamilia => $familias) {
-            if ($ventas_total_fam_meses != 0) {
-                $ventas['porc_fam'][$codfamilia] = round($ventas['total_fam'][$codfamilia] * 100 / $ventas_total_fam_meses, FS_NF0);
-                if (self::$parent_codfamilia === (string)$codfamilia) {
-                    foreach ($familias as $referencia => $array) {
-                        $ventas['porc_ref'][$codfamilia][$referencia] = round($ventas['total_ref'][$codfamilia][$referencia] * 100 / $ventas_total_fam_meses, FS_NF0);
-                    }
-                }
-            }
-        }
-
-        foreach ($ventas['series'] as $codserie => $series) {
-            if ($ventas_total_ser_meses != 0) {
-                $ventas['porc_ser'][$codserie] = round($ventas['total_ser'][$codserie] * 100 / $ventas_total_ser_meses, FS_NF0);
-            }
-        }
-
-        foreach ($ventas['pagos'] as $codpago => $pagos) {
-            if ($ventas_total_pag_meses != 0) {
-                $ventas['porc_pag'][$codpago] = round($ventas['total_pag'][$codpago] * 100 / $ventas_total_pag_meses, FS_NF0);
-            }
-        }
-
-        foreach ($ventas['agentes'] as $codagente => $agentes) {
-            if ($ventas_total_age_meses != 0) {
-                $ventas['porc_age'][$codagente] = round($ventas['total_age'][$codagente] * 100 / $ventas_total_age_meses, FS_NF0);
-            }
-        }
+        $ventas = self::setPercentageFamilies($ventas, $ventas_total_fam_meses);
+        $ventas = self::setPercentageSeries($ventas, $ventas_total_ser_meses);
+        $ventas = self::setPercentagePayments($ventas, $ventas_total_pag_meses);
+        $ventas = self::setPercentageAgents($ventas, $ventas_total_age_meses);
 
         // Variables globales para usar en la vista
         self::$ventas[$year] = $ventas;
