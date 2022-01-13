@@ -487,8 +487,6 @@ class ResultReport
 
     protected static function sales_build_year($year, $codejercicio)
     {
-        $dataBase = new DataBase();
-
         $date = array(
             'desde' => '',
             'hasta' => '',
@@ -535,59 +533,7 @@ class ResultReport
                  *  VENTAS: Consulta con las lineasfacturascli
                  * *****************************************************************
                  */
-                $sql = "select lfc.referencia, sum(lfc.pvptotal) as pvptotal from lineasfacturascli as lfc"
-                    . " LEFT JOIN facturascli as fc ON lfc.idfactura = fc.idfactura"
-                    . " where fc.fecha >= " . $dataBase->var2str($date['desde'])
-                    . " AND fc.fecha <= " . $dataBase->var2str($date['hasta'])
-                    . " AND fc.codejercicio = " . $codejercicio
-                    . " group by lfc.referencia";
-
-                // VENTAS: Recorremos lineasfacturascli y montamos arrays
-                $lineas = $dataBase->select($sql);
-                if ($lineas) {
-                    foreach ($lineas as $dl) {
-                        $data = self::build_data($dl);
-                        $pvptotal = (float)$data['pvptotal'];
-                        $referencia = $data['ref'];
-                        $codfamilia = $data['codfamilia'];
-
-                        // Familias
-                        if (isset($ventas['total_fam_mes'][$codfamilia][$mes])) {
-                            $ventas['total_fam_mes'][$codfamilia][$mes] += $pvptotal;
-                        } else {
-                            $ventas['total_fam_mes'][$codfamilia][$mes] = $pvptotal;
-                        }
-
-                        if (isset($ventas['total_fam'][$codfamilia])) {
-                            $ventas['total_fam'][$codfamilia] += $pvptotal;
-                        } else {
-                            $ventas['total_fam'][$codfamilia] = $pvptotal;
-                        }
-
-                        // Solo al pinchar en una familia
-                        if (self::$parent_codfamilia === (string)$codfamilia) {
-                            // Productos
-                            if (isset($ventas['total_ref'][$codfamilia][$referencia])) {
-                                $ventas['total_ref'][$codfamilia][$referencia] += $pvptotal;
-                            } else {
-                                $ventas['total_ref'][$codfamilia][$referencia] = $pvptotal;
-                            }
-
-                            if (isset($ventas['familias'][$codfamilia][$referencia][$mes])) {
-                                $ventas['familias'][$codfamilia][$referencia][$mes]['pvptotal'] += $pvptotal;
-                            } else {
-                                $ventas['familias'][$codfamilia][$referencia][$mes]['pvptotal'] = $pvptotal;
-                            }
-                        }
-
-                        // Totales
-                        $ventas['total_mes'][$mes] = $pvptotal + $ventas['total_mes'][$mes];
-                        $ventas_total_fam_meses = $pvptotal + $ventas_total_fam_meses;
-
-                        // Array temporal con los totales (falta añadir descripción familia)
-                        $ventas['familias'][$codfamilia][$referencia][$mes] = array('pvptotal' => $pvptotal);
-                    }
-                }
+                $ventas = self::salesLineasFacturasCli($ventas, $date, $codejercicio, $mes, $ventas_total_fam_meses);
 
                 // Recorremos las facturas pagadas
                 $ventas = self::salesPaid($ventas, $date, $codejercicio, $mes, $ventas_total_ser_meses, $ventas_total_pag_meses, $ventas_total_age_meses);
@@ -622,6 +568,65 @@ class ResultReport
 
         // Variables globales para usar en la vista
         self::$ventas[$year] = $ventas;
+    }
+
+    protected static function salesLineasFacturasCli(array $ventas, array $date, string $codejercicio, int $mes, float &$ventas_total_fam_meses):array
+    {
+        $dataBase = new DataBase();
+
+        $sql = "select lfc.referencia, sum(lfc.pvptotal) as pvptotal from lineasfacturascli as lfc"
+            . " LEFT JOIN facturascli as fc ON lfc.idfactura = fc.idfactura"
+            . " where fc.fecha >= " . $dataBase->var2str($date['desde'])
+            . " AND fc.fecha <= " . $dataBase->var2str($date['hasta'])
+            . " AND fc.codejercicio = " . $codejercicio
+            . " group by lfc.referencia";
+
+        // VENTAS: Recorremos lineasfacturascli y montamos arrays
+        $lineas = $dataBase->select($sql);
+        foreach ($lineas as $dl) {
+            $data = self::build_data($dl);
+            $pvptotal = (float)$data['pvptotal'];
+            $referencia = $data['ref'];
+            $codfamilia = $data['codfamilia'];
+
+            // Familias
+            if (isset($ventas['total_fam_mes'][$codfamilia][$mes])) {
+                $ventas['total_fam_mes'][$codfamilia][$mes] += $pvptotal;
+            } else {
+                $ventas['total_fam_mes'][$codfamilia][$mes] = $pvptotal;
+            }
+
+            if (isset($ventas['total_fam'][$codfamilia])) {
+                $ventas['total_fam'][$codfamilia] += $pvptotal;
+            } else {
+                $ventas['total_fam'][$codfamilia] = $pvptotal;
+            }
+
+            // Solo al pinchar en una familia
+            if (self::$parent_codfamilia === (string)$codfamilia) {
+                // Productos
+                if (isset($ventas['total_ref'][$codfamilia][$referencia])) {
+                    $ventas['total_ref'][$codfamilia][$referencia] += $pvptotal;
+                } else {
+                    $ventas['total_ref'][$codfamilia][$referencia] = $pvptotal;
+                }
+
+                if (isset($ventas['familias'][$codfamilia][$referencia][$mes])) {
+                    $ventas['familias'][$codfamilia][$referencia][$mes]['pvptotal'] += $pvptotal;
+                } else {
+                    $ventas['familias'][$codfamilia][$referencia][$mes]['pvptotal'] = $pvptotal;
+                }
+            }
+
+            // Totales
+            $ventas['total_mes'][$mes] = $pvptotal + $ventas['total_mes'][$mes];
+            $ventas_total_fam_meses = $pvptotal + $ventas_total_fam_meses;
+
+            // Array temporal con los totales (falta añadir descripción familia)
+            $ventas['familias'][$codfamilia][$referencia][$mes] = array('pvptotal' => $pvptotal);
+        }
+
+        return $ventas;
     }
 
     protected static function salesPaid(array $ventas, array $date, string $codejercicio, int $mes, float &$ventas_total_ser_meses, float &$ventas_total_pag_meses, float &$ventas_total_age_meses):array
