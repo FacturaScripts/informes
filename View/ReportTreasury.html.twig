@@ -40,8 +40,8 @@
     <div class="container-fluid" style="margin-top: -50px;">
         <div class="form-row">
             <div class="col-sm-6">
-                <div class="card shadow mb-3">
-                    <div class="card-header text-center">
+                <div class="card border-info shadow mb-3">
+                    <div class="card-header bg-info text-white text-center">
                         <strong>{{ i18n.trans('treasury')|upper }}</strong>
                     </div>
                     <div class="table-responsive">
@@ -79,15 +79,15 @@
                             {% endif %}
                             <tr>
                                 <td class="text-center align-middle">{{ i18n.trans('total-treasury')|upper }}</td>
-                                <td class="money">{{ fsc.show_precio(fsc.da_tesoreria['total_tesoreria'])|raw  }}</td>
+                                <td class="money">{{ fsc.show_precio(fsc.da_tesoreria['total_tesoreria'])|raw }}</td>
                             </tr>
                         </table>
                     </div>
                 </div>
             </div>
             <div class="col-sm-6">
-                <div class="card shadow mb-3">
-                    <div class="card-header text-center">
+                <div class="card border-danger shadow mb-3">
+                    <div class="card-header bg-danger text-white text-center">
                         <strong>{{ i18n.trans('pending-expenses-charges')|upper }}</strong>
                     </div>
                     <div class="table-responsive">
@@ -105,8 +105,8 @@
         </div>
         <div class="form-row">
             <div class="col-sm-6">
-                <div class="card shadow mb-3">
-                    <div class="card-header text-center">
+                <div class="card border-warning shadow mb-3">
+                    <div class="card-header bg-warning text-white text-center">
                         <strong>{{ i18n.trans('taxes')|upper }}</strong>
                     </div>
                     <div class="table-responsive">
@@ -147,8 +147,8 @@
                 </div>
             </div>
             <div class="col-sm-6">
-                <div class="card shadow mb-3">
-                    <div class="card-header text-center">
+                <div class="card border-success shadow mb-3">
+                    <div class="card-header bg-success text-white text-center">
                         <strong>{{ i18n.trans('short-situation-results')|upper }}</strong>
                     </div>
                     <div class="table-responsive">
@@ -157,8 +157,8 @@
                         </table>
                     </div>
                 </div>
-                <div class="card shadow mb-3">
-                    <div class="card-header text-center">
+                <div class="card border-dark shadow mb-3">
+                    <div class="card-header bg-dark text-white text-center">
                         <strong>{{ i18n.trans('reserves-results-exercises')|upper }}</strong>
                     </div>
                     <div class="table-responsive">
@@ -170,8 +170,8 @@
                         </table>
                     </div>
                 </div>
-                <div class="card shadow mb-3">
-                    <div class="card-header text-center">
+                <div class="card border-primary shadow mb-3">
+                    <div class="card-header bg-primary text-white text-center">
                         <strong>{{ i18n.trans('current-year-results')|upper }}</strong>
                     </div>
                     <div class="table-responsive">
