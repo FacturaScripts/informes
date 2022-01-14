@@ -31,6 +31,7 @@ class SummaryResultReport extends ResultReport
         }
 
         self::$charts['families']['table'] = '';
+        arsort(self::$ventas[self::$year]['porc_fam']);
         foreach (self::$ventas[self::$year]['porc_fam'] as $codfamilia => $porc) {
             $totalaux = round(self::$ventas[self::$year]['total_fam'][$codfamilia], FS_NF0);
             $fam_desc = 'Sin Familia';
@@ -55,6 +56,7 @@ class SummaryResultReport extends ResultReport
         }
 
         self::$charts['series']['table'] = '';
+        arsort(self::$ventas[self::$year]['porc_ser']);
         foreach (self::$ventas[self::$year]['porc_ser'] as $codserie => $porc) {
             $color = '#' . self::randomColor();
             $totalaux = round(self::$ventas[self::$year]['total_ser'][$codserie], FS_NF0);
@@ -74,6 +76,7 @@ class SummaryResultReport extends ResultReport
         }
 
         self::$charts['pagos']['table'] = '';
+        arsort(self::$ventas[self::$year]['porc_pag']);
         foreach (self::$ventas[self::$year]['porc_pag'] as $codpago => $porc) {
             $color = '#' . self::randomColor();
             $totalaux = round(self::$ventas[self::$year]['total_pag'][$codpago], FS_NF0);
@@ -93,6 +96,7 @@ class SummaryResultReport extends ResultReport
         }
 
         self::$charts['agentes']['table'] = '';
+        arsort(self::$ventas[self::$year]['porc_age']);
         foreach (self::$ventas[self::$year]['porc_age'] as $codagente => $porc) {
             $color = '#' . self::randomColor();
             $totalaux = round(self::$ventas[self::$year]['total_age'][$codagente], FS_NF0);
