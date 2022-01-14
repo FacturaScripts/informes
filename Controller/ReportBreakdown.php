@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2019-2021 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2019-2022 Carlos Garcia Gomez <carlos@facturascripts.com>
  */
 
 namespace FacturaScripts\Plugins\Informes\Controller;
@@ -13,14 +13,10 @@ use FacturaScripts\Dinamic\Model\CodeModel;
 use FacturaScripts\Dinamic\Model\Proveedor;
 
 /**
- *
  * @author Daniel Fernández Giménez <hola@danielfg.es>
  */
 class ReportBreakdown extends Controller
 {
-    public $codeModel;
-    public $agente;
-    public $almacen;
     public $cliente;
     public $codagente;
     public $codalmacen;
@@ -29,22 +25,15 @@ class ReportBreakdown extends Controller
     public $codpago;
     public $codserie;
     public $desde;
-    public $divisa;
     public $estado;
-    public $forma_pago;
     public $hasta;
     public $idempresa;
-    public $pais;
     public $proveedor;
     public $provincia;
     public $purchase_minimo;
     public $purchase_unidades;
-    public $serie;
     public $sale_minimo;
     public $sale_unidades;
-    protected $nombre_docs;
-    protected $table_compras;
-    protected $table_ventas;
     protected $where_compras;
     protected $where_compras_nf;
     protected $where_ventas;
@@ -71,28 +60,25 @@ class ReportBreakdown extends Controller
     public function privateCore(&$response, $user, $permissions)
     {
         parent::privateCore($response, $user, $permissions);
-        $this->codeModel = new CodeModel();
 
         $action = $this->request->get('action', '');
         switch ($action) {
             case 'autocomplete-customer':
-                return $this->autocompleteCustomerAction();
+                $this->autocompleteCustomerAction();
+                return;
 
             case 'autocomplete-supplier':
-                return $this->autocompleteSupplierAction();
+                $this->autocompleteSupplierAction();
+                return;
 
             case 'get-provincies':
-                return $this->getProvincies();
+                $this->getProvincias();
+                return;
+
+            default:
+                $this->iniFilters();
+                $this->generarInforme();
         }
-
-        $this->nombre_docs = 'Facturas';
-        $this->table_compras = 'facturasprov';
-        $this->table_ventas = 'facturascli';
-
-        $this->ini_filters();
-        $this->set_where();
-        $this->generar_extra();
-        return true;
     }
 
     protected function autocompleteCustomerAction()
@@ -113,8 +99,7 @@ class ReportBreakdown extends Controller
             $list[] = ['key' => null, 'value' => $this->toolBox()->i18n()->trans('no-data')];
         }
 
-        $this->response->setContent(\json_encode($list));
-        return true;
+        $this->response->setContent(json_encode($list));
     }
 
     protected function autocompleteSupplierAction()
@@ -135,28 +120,49 @@ class ReportBreakdown extends Controller
             $list[] = ['key' => null, 'value' => $this->toolBox()->i18n()->trans('no-data')];
         }
 
-        $this->response->setContent(\json_encode($list));
-        return true;
+        $this->response->setContent(json_encode($list));
     }
 
-    protected function generar_extra()
+    protected function generarInforme()
     {
-        if ($this->request->get('generar') === 'informe_compras') {
-            if ($this->purchase_unidades) {
-                $this->informe_compras_unidades();
-            } else {
-                $this->informe_compras();
-            }
-        } else if ($this->request->get('generar') === 'informe_ventas') {
-            if ($this->sale_unidades) {
-                $this->informe_ventas_unidades();
-            } else {
-                $this->informe_ventas();
-            }
+        $this->setWhere();
+        switch ($this->request->get('generar')) {
+            case 'informe_compras':
+                if ($this->purchase_unidades) {
+                    $this->informeComprasUnidades();
+                    break;
+                }
+                $this->informeCompras();
+                break;
+
+            case 'informe_ventas':
+                if ($this->sale_unidades) {
+                    $this->informeVentasUnidades();
+                    break;
+                }
+                $this->informeVentas();
+                break;
         }
     }
 
-    protected function getProvincies()
+    protected function getMonthsTitlesRows(): string
+    {
+        $i18n = ToolBox::i18n();
+        return substr($i18n->trans('january'), 0, 3) . ';'
+            . substr($i18n->trans('february'), 0, 3) . ';'
+            . substr($i18n->trans('march'), 0, 3) . ';'
+            . substr($i18n->trans('april'), 0, 3) . ';'
+            . substr($i18n->trans('may'), 0, 3) . ';'
+            . substr($i18n->trans('june'), 0, 3) . ';'
+            . substr($i18n->trans('july'), 0, 3) . ';'
+            . substr($i18n->trans('august'), 0, 3) . ';'
+            . substr($i18n->trans('september'), 0, 3) . ';'
+            . substr($i18n->trans('october'), 0, 3) . ';'
+            . substr($i18n->trans('november'), 0, 3) . ';'
+            . substr($i18n->trans('december'), 0, 3) . ';';
+    }
+
+    protected function getProvincias()
     {
         $this->setTemplate(false);
 
@@ -164,8 +170,7 @@ class ReportBreakdown extends Controller
         $this->provincia = $this->request->get('provincia');
         $this->codpais = $this->request->get('codpais');
         if (!empty($this->codpais)) {
-            $sql = "select distinct provincia from facturascli as fc"
-                . " where fc.codpais = '" . $this->codpais . "'";
+            $sql = "select distinct provincia from facturascli as fc where fc.codpais = '" . $this->codpais . "'";
             $lineas = $this->dataBase->select($sql);
             foreach ($lineas as $dl) {
                 if (!is_null($dl['provincia'])) {
@@ -176,293 +181,176 @@ class ReportBreakdown extends Controller
         }
 
         $this->response->setContent(json_encode($html));
-        return true;
     }
 
-    protected function informe_compras()
+    protected function informeCompras()
     {
-        $data = $this->loadDataInformeCompras();
-        if ($data) {
-            $this->setTemplate(false);
+        $data = $this->getInformeComprasData();
+        if (empty($data)) {
+            $this->toolBox()->i18nLog()->warning('no-data');
+            return;
+        }
 
-            header("content-type:application/csv;charset=UTF-8");
-            header("Content-Disposition: attachment; filename=\"" . str_replace(' ', '_', strtolower(ToolBox::i18n()->trans('purchase-report'))) . ".csv\"");
-            echo 'codproveedor;'
-                . ToolBox::i18n()->trans('name') . ';'
-                . ToolBox::i18n()->trans('year') . ';'
-                . substr(ToolBox::i18n()->trans('january'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('february'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('march'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('april'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('may'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('june'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('july'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('august'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('september'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('october'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('november'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('december'), 0, 3) . ';'
-                . ToolBox::i18n()->trans('total') . ';'
-                . "%VAR\n";
+        $i18n = ToolBox::i18n();
+        $this->setTemplate(false);
+        header("content-type:application/csv;charset=UTF-8");
+        header("Content-Disposition: attachment; filename=\""
+            . str_replace(' ', '_', strtolower($i18n->trans('purchase-report'))) . ".csv\"");
+        echo 'codproveedor;'
+            . $i18n->trans('name') . ';'
+            . $i18n->trans('year') . ';'
+            . $this->getMonthsTitlesRows()
+            . $i18n->trans('total') . ';'
+            . "%VAR\n";
 
-            $proveedor = new proveedor();
-            $stats = array();
-            foreach ($data as $d) {
-                $anyo = date('Y', strtotime($d['fecha']));
-                $mes = date('n', strtotime($d['fecha']));
-                if (!isset($stats[$d['codproveedor']][$anyo])) {
-                    $stats[$d['codproveedor']][$anyo] = array(
-                        1 => 0,
-                        2 => 0,
-                        3 => 0,
-                        4 => 0,
-                        5 => 0,
-                        6 => 0,
-                        7 => 0,
-                        8 => 0,
-                        9 => 0,
-                        10 => 0,
-                        11 => 0,
-                        12 => 0,
-                        13 => 0,
-                        14 => 0
-                    );
-                }
-
-                $stats[$d['codproveedor']][$anyo][$mes] += floatval($d['total']);
-                $stats[$d['codproveedor']][$anyo][13] += floatval($d['total']);
+        $proveedor = new proveedor();
+        $stats = array();
+        foreach ($data as $d) {
+            $anyo = date('Y', strtotime($d['fecha']));
+            $mes = date('n', strtotime($d['fecha']));
+            if (!isset($stats[$d['codproveedor']][$anyo])) {
+                $stats[$d['codproveedor']][$anyo] = array(
+                    1 => 0,
+                    2 => 0,
+                    3 => 0,
+                    4 => 0,
+                    5 => 0,
+                    6 => 0,
+                    7 => 0,
+                    8 => 0,
+                    9 => 0,
+                    10 => 0,
+                    11 => 0,
+                    12 => 0,
+                    13 => 0,
+                    14 => 0
+                );
             }
 
-            $totales = array();
-            foreach ($stats as $codproveedor => $arrayProveedor) {
+            $stats[$d['codproveedor']][$anyo][$mes] += floatval($d['total']);
+            $stats[$d['codproveedor']][$anyo][13] += floatval($d['total']);
+        }
+
+        $totales = array();
+        foreach ($stats as $codproveedor => $arrayProveedor) {
+            /// calculamos la variación
+            $anterior = 0;
+            foreach (array_reverse($arrayProveedor, TRUE) as $year => $arrayYear) {
+                if ($anterior > 0) {
+                    $arrayProveedor[$year][14] = ($arrayYear[13] * 100 / $anterior) - 100;
+                }
+
+                $anterior = $arrayYear[13];
+
+                if (isset($totales[$year])) {
+                    foreach ($arrayYear as $k => $total) {
+                        $totales[$year][$k] += $total;
+                    }
+                } else {
+                    $totales[$year] = $arrayYear;
+                }
+            }
+
+            $pro = $proveedor->get($codproveedor);
+            foreach ($arrayProveedor as $year => $arrayYear) {
+                if ($pro) {
+                    echo '"' . $codproveedor . '";' . ToolBox::utils()::fixHtml($pro->nombre) . ';' . $year;
+                } else {
+                    echo '"' . $codproveedor . '";-;' . $year;
+                }
+
+                foreach ($arrayYear as $total) {
+                    echo ';' . number_format($total, FS_NF0, '.', '');
+                }
+
+                echo "\n";
+            }
+            echo ";;;;;;;;;;;;;;;\n";
+        }
+
+        foreach (array_reverse($totales, TRUE) as $year => $arrayYear) {
+            echo ";" . strtoupper(ToolBox::i18n()->trans('totals')) . ";" . $year;
+            $l_total = 0;
+            foreach ($arrayYear as $j => $total) {
+                if ($j < 13) {
+                    echo ';' . number_format($total, FS_NF0, '.', '');
+                    $l_total += $total;
+                }
+            }
+            echo ";" . number_format($l_total, FS_NF0, '.', '') . ";\n";
+        }
+    }
+
+    protected function informeComprasUnidades()
+    {
+        $data = $this->getInformeComprasUnidadesData();
+        if (empty($data)) {
+            $this->toolBox()->i18nLog()->warning('no-data');
+            return;
+        }
+
+        $i18n = ToolBox::i18n();
+        $this->setTemplate(false);
+        header("content-type:application/csv;charset=UTF-8");
+        header("Content-Disposition: attachment; filename=\""
+            . str_replace(' ', '_', strtolower($i18n->trans('units-purchase-report'))) . ".csv\"");
+        echo $i18n->trans('warehouse') . ';'
+            . 'codproveedor;'
+            . $i18n->trans('name') . ';'
+            . $i18n->trans('reference') . ';'
+            . $i18n->trans('description') . ';'
+            . $i18n->trans('year') . ';'
+            . $this->getMonthsTitlesRows()
+            . $i18n->trans('total') . ';'
+            . "%VAR\n";
+
+        $proveedor = new Proveedor();
+        $stats = array();
+        foreach ($data as $d) {
+            $anyo = date('Y', strtotime($d['fecha']));
+            $mes = date('n', strtotime($d['fecha']));
+            if (!isset($stats[$d['codproveedor']][$d['referencia']][$anyo])) {
+                $stats[$d['codproveedor']][$d['referencia']][$anyo] = array(
+                    1 => 0,
+                    2 => 0,
+                    3 => 0,
+                    4 => 0,
+                    5 => 0,
+                    6 => 0,
+                    7 => 0,
+                    8 => 0,
+                    9 => 0,
+                    10 => 0,
+                    11 => 0,
+                    12 => 0,
+                    13 => 0,
+                    14 => 0,
+                    15 => $d['codalmacen'],
+                    16 => $d['descripcion'],
+                );
+            }
+
+            $stats[$d['codproveedor']][$d['referencia']][$anyo][$mes] += floatval($d['total']);
+            $stats[$d['codproveedor']][$d['referencia']][$anyo][13] += floatval($d['total']);
+        }
+
+        foreach ($stats as $codproveedor => $arrayProveedor) {
+            $pro = $proveedor->get($codproveedor);
+            foreach ($arrayProveedor as $referencia => $arrayProducto) {
                 /// calculamos la variación
                 $anterior = 0;
-                foreach (array_reverse($arrayProveedor, TRUE) as $year => $arrayYear) {
+                foreach (array_reverse($arrayProducto, TRUE) as $year => $arrayYear) {
                     if ($anterior > 0) {
-                        $arrayProveedor[$year][14] = ($arrayYear[13] * 100 / $anterior) - 100;
+                        $arrayProducto[$year][14] = ($arrayYear[13] * 100 / $anterior) - 100;
                     }
-
                     $anterior = $arrayYear[13];
-
-                    if (isset($totales[$year])) {
-                        foreach ($arrayYear as $k => $total) {
-                            $totales[$year][$k] += $total;
-                        }
-                    } else {
-                        $totales[$year] = $arrayYear;
-                    }
                 }
 
-                $pro = $proveedor->get($codproveedor);
-                foreach ($arrayProveedor as $year => $arrayYear) {
+                foreach ($arrayProducto as $year => $total) {
                     if ($pro) {
-                        echo '"' . $codproveedor . '";' . ToolBox::utils()::fixHtml($pro->nombre) . ';' . $year;
+                        echo '"' . $arrayProducto[$year][15] . '";' . '"' . $codproveedor . '";' . ToolBox::utils()::fixHtml($pro->nombre) . ';"' . $referencia . '";' . '"' . $arrayProducto[$year][16] . '"' . ';' . $year;
                     } else {
-                        echo '"' . $codproveedor . '";-;' . $year;
-                    }
-
-                    foreach ($arrayYear as $total) {
-                        echo ';' . number_format($total, FS_NF0, '.', '');
-                    }
-
-                    echo "\n";
-                }
-                echo ";;;;;;;;;;;;;;;\n";
-            }
-
-            foreach (array_reverse($totales, TRUE) as $year => $arrayYear) {
-                echo ";" . strtoupper(ToolBox::i18n()->trans('totals')) . ";" . $year;
-                $l_total = 0;
-                foreach ($arrayYear as $j => $total) {
-                    if ($j < 13) {
-                        echo ';' . number_format($total, FS_NF0, '.', '');
-                        $l_total += $total;
-                    }
-                }
-                echo ";" . number_format($l_total, FS_NF0, '.', '') . ";\n";
-            }
-        } else {
-            $this->toolBox()->i18nLog()->warning('no-data');
-        }
-    }
-
-    protected function informe_compras_unidades()
-    {
-        $data = $this->loadDataInformeComprasUnidades();
-        if ($data) {
-            $this->setTemplate(false);
-            header("content-type:application/csv;charset=UTF-8");
-            header("Content-Disposition: attachment; filename=\"" . str_replace(' ', '_', strtolower(ToolBox::i18n()->trans('units-purchase-report'))) . ".csv\"");
-            echo ToolBox::i18n()->trans('warehouse') . ';'
-                . 'codproveedor;'
-                . ToolBox::i18n()->trans('name') . ';'
-                . ToolBox::i18n()->trans('reference') . ';'
-                . ToolBox::i18n()->trans('description') . ';'
-                . ToolBox::i18n()->trans('year') . ';'
-                . substr(ToolBox::i18n()->trans('january'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('february'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('march'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('april'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('may'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('june'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('july'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('august'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('september'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('october'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('november'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('december'), 0, 3) . ';'
-                . ToolBox::i18n()->trans('total') . ';'
-                . "%VAR\n";
-
-            $proveedor = new Proveedor();
-            $stats = array();
-
-            foreach ($data as $d) {
-                $anyo = date('Y', strtotime($d['fecha']));
-                $mes = date('n', strtotime($d['fecha']));
-                if (!isset($stats[$d['codproveedor']][$d['referencia']][$anyo])) {
-                    $stats[$d['codproveedor']][$d['referencia']][$anyo] = array(
-                        1 => 0,
-                        2 => 0,
-                        3 => 0,
-                        4 => 0,
-                        5 => 0,
-                        6 => 0,
-                        7 => 0,
-                        8 => 0,
-                        9 => 0,
-                        10 => 0,
-                        11 => 0,
-                        12 => 0,
-                        13 => 0,
-                        14 => 0,
-                        15 => $d['codalmacen'],
-                        16 => $d['descripcion'],
-                    );
-                }
-
-                $stats[$d['codproveedor']][$d['referencia']][$anyo][$mes] += floatval($d['total']);
-                $stats[$d['codproveedor']][$d['referencia']][$anyo][13] += floatval($d['total']);
-            }
-
-            foreach ($stats as $codproveedor => $arrayProveedor) {
-                $pro = $proveedor->get($codproveedor);
-                foreach ($arrayProveedor as $referencia => $arrayProducto) {
-                    /// calculamos la variación
-                    $anterior = 0;
-                    foreach (array_reverse($arrayProducto, TRUE) as $year => $arrayYear) {
-                        if ($anterior > 0) {
-                            $arrayProducto[$year][14] = ($arrayYear[13] * 100 / $anterior) - 100;
-                        }
-                        $anterior = $arrayYear[13];
-                    }
-
-                    foreach ($arrayProducto as $year => $total) {
-                        if ($pro) {
-                            echo '"' . $arrayProducto[$year][15] . '";' . '"' . $codproveedor . '";' . ToolBox::utils()::fixHtml($pro->nombre) . ';"' . $referencia . '";' . '"' . $arrayProducto[$year][16] . '"' . ';' . $year;
-                        } else {
-                            echo '"' . $arrayProducto[$year][15] . '";' . '"' . $codproveedor . '";-;"' . $referencia . '";' . '"' . $arrayProducto[$year][16] . '"' . ';' . $year;
-                        }
-
-                        foreach ($arrayYear as $x => $total) {
-                            if ($x < 15) {
-                                echo ';' . number_format($total, FS_NF0, '.', '');
-                            }
-                        }
-                        echo "\n";
-                    }
-                    echo ";;;;;;;;;;;;;;;\n";
-                }
-                echo ";;;;;;;;;;;;;;;\n";
-            }
-        } else {
-            $this->toolBox()->i18nLog()->warning('no-data');
-        }
-    }
-
-    protected function informe_ventas()
-    {
-        $data = $this->loadDataInformeVentas();
-        if ($data) {
-            $this->setTemplate(false);
-            header("content-type:application/csv;charset=UTF-8");
-            header("Content-Disposition: attachment; filename=\"" . str_replace(' ', '_', strtolower(ToolBox::i18n()->trans('sale-report'))) . ".csv\"");
-            echo ToolBox::i18n()->trans('warehouse') . ';'
-                . 'codcliente;'
-                . ToolBox::i18n()->trans('name') . ';'
-                . ToolBox::i18n()->trans('year') . ';'
-                . substr(ToolBox::i18n()->trans('january'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('february'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('march'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('april'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('may'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('june'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('july'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('august'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('september'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('october'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('november'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('december'), 0, 3) . ';'
-                . ToolBox::i18n()->trans('total') . ';'
-                . "%VAR\n";
-
-            $cliente = new Cliente();
-            $stats = array();
-            foreach ($data as $d) {
-                $anyo = date('Y', strtotime($d['fecha']));
-                $mes = date('n', strtotime($d['fecha']));
-                if (!isset($stats[$d['codcliente']][$anyo])) {
-                    $stats[$d['codcliente']][$anyo] = array(
-                        1 => 0,
-                        2 => 0,
-                        3 => 0,
-                        4 => 0,
-                        5 => 0,
-                        6 => 0,
-                        7 => 0,
-                        8 => 0,
-                        9 => 0,
-                        10 => 0,
-                        11 => 0,
-                        12 => 0,
-                        13 => 0,
-                        14 => 0,
-                        15 => $d['codalmacen']
-                    );
-                }
-
-                $stats[$d['codcliente']][$anyo][$mes] += floatval($d['total']);
-                $stats[$d['codcliente']][$anyo][13] += floatval($d['total']);
-            }
-
-            $totales = array();
-            foreach ($stats as $codcliente => $arrayCliente) {
-                /// calculamos la variación y los totales
-                $anterior = 0;
-                foreach (array_reverse($arrayCliente, TRUE) as $year => $arrayYear) {
-                    if ($anterior > 0) {
-                        $arrayCliente[$year][14] = ($arrayYear[13] * 100 / $anterior) - 100;
-                    }
-
-                    $anterior = $arrayYear[13];
-
-                    if (isset($totales[$year])) {
-                        foreach ($arrayYear as $k => $total) {
-                            if ($k < 15) {
-                                $totales[$year][$k] += $total;
-                            }
-                        }
-                    } else {
-                        $totales[$year] = $arrayYear;
-                    }
-                }
-
-                $cli = $cliente->get($codcliente);
-                foreach ($arrayCliente as $year => $arrayYear) {
-                    if ($cli) {
-                        echo '"' . $arrayCliente[$year][15] . '";' . '"' . $codcliente . '";' . ToolBox::utils()::fixHtml($cli->nombre) . ';' . $year;
-                    } else {
-                        echo '"' . $arrayCliente[$year][15] . '";' . '"' . $codcliente . '";-;' . $year;
+                        echo '"' . $arrayProducto[$year][15] . '";' . '"' . $codproveedor . '";-;"' . $referencia . '";' . '"' . $arrayProducto[$year][16] . '"' . ';' . $year;
                     }
 
                     foreach ($arrayYear as $x => $total) {
@@ -474,167 +362,214 @@ class ReportBreakdown extends Controller
                 }
                 echo ";;;;;;;;;;;;;;;\n";
             }
-
-            foreach (array_reverse($totales, TRUE) as $year => $arrayYear) {
-                echo ";;" . strtoupper(ToolBox::i18n()->trans('totals')) . ";" . $year;
-                $l_total = 0;
-                foreach ($arrayYear as $j => $total) {
-                    if ($j < 13) {
-                        $l_total += $total;
-                        echo ';' . number_format($total, FS_NF0, '.', '');
-                    }
-                }
-                echo ";" . number_format($l_total, FS_NF0, '.', '') . ";\n";
-            }
-        } else {
-            $this->toolBox()->i18nLog()->warning('no-data');
+            echo ";;;;;;;;;;;;;;;\n";
         }
     }
 
-    protected function informe_ventas_unidades()
+    protected function informeVentas()
     {
-        $data = $this->loadDataInformeVentasUnidades();
-        if ($data) {
-            $this->setTemplate(false);
-            header("content-type:application/csv;charset=UTF-8");
-            header("Content-Disposition: attachment; filename=\"" . str_replace(' ', '_', strtolower(ToolBox::i18n()->trans('units-sale-report'))) . ".csv\"");
-            echo ToolBox::i18n()->trans('warehouse') . ';'
-                . 'codcliente;'
-                . ToolBox::i18n()->trans('name') . ';'
-                . ToolBox::i18n()->trans('reference') . ';'
-                . ToolBox::i18n()->trans('description') . ';'
-                . ToolBox::i18n()->trans('year') . ';'
-                . substr(ToolBox::i18n()->trans('january'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('february'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('march'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('april'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('may'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('june'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('july'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('august'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('september'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('october'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('november'), 0, 3) . ';'
-                . substr(ToolBox::i18n()->trans('december'), 0, 3) . ';'
-                . ToolBox::i18n()->trans('total') . ';'
-                . "%VAR\n";
+        $data = $this->getInformeVentasData();
+        if (empty($data)) {
+            $this->toolBox()->i18nLog()->warning('no-data');
+            return;
+        }
 
-            $cliente = new Cliente();
-            $stats = array();
-            foreach ($data as $d) {
-                $anyo = date('Y', strtotime($d['fecha']));
-                $mes = date('n', strtotime($d['fecha']));
-                if (!isset($stats[$d['codcliente']][$d['referencia']][$anyo])) {
-                    $stats[$d['codcliente']][$d['referencia']][$anyo] = array(
-                        1 => 0,
-                        2 => 0,
-                        3 => 0,
-                        4 => 0,
-                        5 => 0,
-                        6 => 0,
-                        7 => 0,
-                        8 => 0,
-                        9 => 0,
-                        10 => 0,
-                        11 => 0,
-                        12 => 0,
-                        13 => 0,
-                        14 => 0,
-                        15 => $d['codalmacen'],
-                        16 => $d['descripcion'],
-                    );
-                }
+        $i18n = ToolBox::i18n();
+        $this->setTemplate(false);
+        header("content-type:application/csv;charset=UTF-8");
+        header("Content-Disposition: attachment; filename=\""
+            . str_replace(' ', '_', strtolower($i18n->trans('sale-report'))) . ".csv\"");
+        echo $i18n->trans('warehouse') . ';'
+            . 'codcliente;'
+            . $i18n->trans('name') . ';'
+            . $i18n->trans('year') . ';'
+            . $this->getMonthsTitlesRows()
+            . $i18n->trans('total') . ';'
+            . "%VAR\n";
 
-                $stats[$d['codcliente']][$d['referencia']][$anyo][$mes] += floatval($d['total']);
-                $stats[$d['codcliente']][$d['referencia']][$anyo][13] += floatval($d['total']);
+        $cliente = new Cliente();
+        $stats = array();
+        foreach ($data as $d) {
+            $anyo = date('Y', strtotime($d['fecha']));
+            $mes = date('n', strtotime($d['fecha']));
+            if (!isset($stats[$d['codcliente']][$anyo])) {
+                $stats[$d['codcliente']][$anyo] = array(
+                    1 => 0,
+                    2 => 0,
+                    3 => 0,
+                    4 => 0,
+                    5 => 0,
+                    6 => 0,
+                    7 => 0,
+                    8 => 0,
+                    9 => 0,
+                    10 => 0,
+                    11 => 0,
+                    12 => 0,
+                    13 => 0,
+                    14 => 0,
+                    15 => $d['codalmacen']
+                );
             }
 
-            foreach ($stats as $codcliente => $arrayCliente) {
-                $cli = $cliente->get($codcliente);
-                foreach ($arrayCliente as $referencia => $arrayProducto) {
-                    /// calculamos la variación
-                    $anterior = 0;
-                    foreach (array_reverse($arrayProducto, TRUE) as $year => $arrayYear) {
-                        if ($anterior > 0) {
-                            $arrayProducto[$year][14] = ($arrayYear[13] * 100 / $anterior) - 100;
-                        }
+            $stats[$d['codcliente']][$anyo][$mes] += floatval($d['total']);
+            $stats[$d['codcliente']][$anyo][13] += floatval($d['total']);
+        }
 
-                        $anterior = $arrayYear[13];
+        $totales = array();
+        foreach ($stats as $codcliente => $arrayCliente) {
+            /// calculamos la variación y los totales
+            $anterior = 0;
+            foreach (array_reverse($arrayCliente, TRUE) as $year => $arrayYear) {
+                if ($anterior > 0) {
+                    $arrayCliente[$year][14] = ($arrayYear[13] * 100 / $anterior) - 100;
+                }
+
+                $anterior = $arrayYear[13];
+
+                if (isset($totales[$year])) {
+                    foreach ($arrayYear as $k => $total) {
+                        if ($k < 15) {
+                            $totales[$year][$k] += $total;
+                        }
+                    }
+                } else {
+                    $totales[$year] = $arrayYear;
+                }
+            }
+
+            $cli = $cliente->get($codcliente);
+            foreach ($arrayCliente as $year => $arrayYear) {
+                if ($cli) {
+                    echo '"' . $arrayCliente[$year][15] . '";' . '"' . $codcliente . '";' . ToolBox::utils()::fixHtml($cli->nombre) . ';' . $year;
+                } else {
+                    echo '"' . $arrayCliente[$year][15] . '";' . '"' . $codcliente . '";-;' . $year;
+                }
+
+                foreach ($arrayYear as $x => $total) {
+                    if ($x < 15) {
+                        echo ';' . number_format($total, FS_NF0, '.', '');
+                    }
+                }
+                echo "\n";
+            }
+            echo ";;;;;;;;;;;;;;;\n";
+        }
+
+        foreach (array_reverse($totales, TRUE) as $year => $arrayYear) {
+            echo ";;" . strtoupper(ToolBox::i18n()->trans('totals')) . ";" . $year;
+            $l_total = 0;
+            foreach ($arrayYear as $j => $total) {
+                if ($j < 13) {
+                    $l_total += $total;
+                    echo ';' . number_format($total, FS_NF0, '.', '');
+                }
+            }
+            echo ";" . number_format($l_total, FS_NF0, '.', '') . ";\n";
+        }
+    }
+
+    protected function informeVentasUnidades()
+    {
+        $data = $this->getInformeVentasUnidadesData();
+        if (empty($data)) {
+            $this->toolBox()->i18nLog()->warning('no-data');
+            return;
+        }
+
+        $i18n = ToolBox::i18n();
+        $this->setTemplate(false);
+        header("content-type:application/csv;charset=UTF-8");
+        header("Content-Disposition: attachment; filename=\""
+            . str_replace(' ', '_', strtolower($i18n->trans('units-sale-report'))) . ".csv\"");
+        echo $i18n->trans('warehouse') . ';'
+            . 'codcliente;'
+            . $i18n->trans('name') . ';'
+            . $i18n->trans('reference') . ';'
+            . $i18n->trans('description') . ';'
+            . $i18n->trans('year') . ';'
+            . $this->getMonthsTitlesRows()
+            . $i18n->trans('total') . ';'
+            . "%VAR\n";
+
+        $cliente = new Cliente();
+        $stats = array();
+        foreach ($data as $d) {
+            $anyo = date('Y', strtotime($d['fecha']));
+            $mes = date('n', strtotime($d['fecha']));
+            if (!isset($stats[$d['codcliente']][$d['referencia']][$anyo])) {
+                $stats[$d['codcliente']][$d['referencia']][$anyo] = array(
+                    1 => 0,
+                    2 => 0,
+                    3 => 0,
+                    4 => 0,
+                    5 => 0,
+                    6 => 0,
+                    7 => 0,
+                    8 => 0,
+                    9 => 0,
+                    10 => 0,
+                    11 => 0,
+                    12 => 0,
+                    13 => 0,
+                    14 => 0,
+                    15 => $d['codalmacen'],
+                    16 => $d['descripcion'],
+                );
+            }
+
+            $stats[$d['codcliente']][$d['referencia']][$anyo][$mes] += floatval($d['total']);
+            $stats[$d['codcliente']][$d['referencia']][$anyo][13] += floatval($d['total']);
+        }
+
+        foreach ($stats as $codcliente => $arrayCliente) {
+            $cli = $cliente->get($codcliente);
+            foreach ($arrayCliente as $referencia => $arrayProducto) {
+                /// calculamos la variación
+                $anterior = 0;
+                foreach (array_reverse($arrayProducto, TRUE) as $year => $arrayYear) {
+                    if ($anterior > 0) {
+                        $arrayProducto[$year][14] = ($arrayYear[13] * 100 / $anterior) - 100;
                     }
 
-                    foreach ($arrayProducto as $year => $arrayYear) {
-                        if ($cli) {
-                            echo '"' . $arrayProducto[$year][15] . '";' . '"' . $codcliente . '";' . Toolbox::utils()::fixHtml($cli->nombre) . ';"' . $referencia . '";' . '"' . $arrayProducto[$year][16] . '"' . ';' . $year;
-                        } else {
-                            echo '"' . $arrayProducto[$year][15] . '";' . '"' . $codcliente . '";-;"' . $referencia . '";' . '"' . $arrayProducto[$year][16] . '"' . ';' . $year;
-                        }
+                    $anterior = $arrayYear[13];
+                }
 
-                        foreach ($arrayYear as $x => $total) {
-                            if ($x < 15) {
-                                echo ';' . number_format($total, FS_NF0, '.', '');
-                            }
-                        }
-
-                        echo "\n";
+                foreach ($arrayProducto as $year => $arrayYear) {
+                    if ($cli) {
+                        echo '"' . $arrayProducto[$year][15] . '";' . '"' . $codcliente . '";' . Toolbox::utils()::fixHtml($cli->nombre) . ';"' . $referencia . '";' . '"' . $arrayProducto[$year][16] . '"' . ';' . $year;
+                    } else {
+                        echo '"' . $arrayProducto[$year][15] . '";' . '"' . $codcliente . '";-;"' . $referencia . '";' . '"' . $arrayProducto[$year][16] . '"' . ';' . $year;
                     }
-                    echo ";;;;;;;;;;;;;;;;\n";
+
+                    foreach ($arrayYear as $x => $total) {
+                        if ($x < 15) {
+                            echo ';' . number_format($total, FS_NF0, '.', '');
+                        }
+                    }
+
+                    echo "\n";
                 }
                 echo ";;;;;;;;;;;;;;;;\n";
             }
-        } else {
-            $this->toolBox()->i18nLog()->warning('no-data');
+            echo ";;;;;;;;;;;;;;;;\n";
         }
     }
 
     /**
      * Obtenemos los valores de los filtros del formulario.
      */
-    protected function ini_filters()
+    protected function iniFilters()
     {
-        $this->desde = Date('Y') . '-01-01';
-        if ($this->request->get('desde')) {
-            $this->desde = $this->request->get('desde');
-        }
-
-        $this->hasta = Date('Y') . '-12-31';
-        if ($this->request->get('hasta')) {
-            $this->hasta = $this->request->get('hasta');
-        }
-
-        $this->idempresa = FALSE;
-        if ($this->request->get('idempresa')) {
-            $this->idempresa = $this->request->get('idempresa');
-        }
-
-        $this->codpais = FALSE;
-        if ($this->request->get('codpais')) {
-            $this->codpais = $this->request->get('codpais');
-        }
-
-        $this->codserie = FALSE;
-        if ($this->request->get('codserie')) {
-            $this->codserie = $this->request->get('codserie');
-        }
-
-        $this->codpago = FALSE;
-        if ($this->request->get('codpago')) {
-            $this->codpago = $this->request->get('codpago');
-        }
-
-        $this->codagente = FALSE;
-        if ($this->request->get('codagente')) {
-            $this->codagente = $this->request->get('codagente');
-        }
-
-        $this->codalmacen = FALSE;
-        if ($this->request->get('codalmacen')) {
-            $this->codalmacen = $this->request->get('codalmacen');
-        }
-
-        $this->coddivisa = AppSettings::get('default', 'coddivisa');
-        if ($this->request->get('coddivisa')) {
-            $this->coddivisa = $this->request->get('coddivisa');
-        }
+        $this->desde = $this->request->get('desde', Date('Y') . '-01-01');
+        $this->hasta = $this->request->get('hasta', Date('Y') . '-12-31');
+        $this->idempresa = $this->request->get('idempresa', false);
+        $this->codpais = $this->request->get('codpais', false);
+        $this->codserie = $this->request->get('codserie', false);
+        $this->codpago = $this->request->get('codpago', false);
+        $this->codagente = $this->request->get('codagente', false);
+        $this->codalmacen = $this->request->get('codalmacen', false);
+        $this->coddivisa = $this->request->get('coddivisa', AppSettings::get('default', 'coddivisa'));
 
         $this->cliente = FALSE;
         if ($this->request->get('codcliente')) {
@@ -648,43 +583,20 @@ class ReportBreakdown extends Controller
             $this->proveedor->loadFromCode($this->request->get('codproveedor'));
         }
 
-        $this->estado = FALSE;
-        if ($this->request->get('estado')) {
-            $this->estado = $this->request->get('estado');
-        }
-
-        $this->purchase_minimo = FALSE;
-        if ($this->request->get('purchase-minimo')) {
-            $this->purchase_minimo = $this->request->get('purchase-minimo');
-        }
-
-        $this->sale_minimo = FALSE;
-        if ($this->request->get('sale-minimo')) {
-            $this->sale_minimo = $this->request->get('sale-minimo');
-        }
-
-        $this->purchase_unidades = FALSE;
-        if ($this->request->get('purchase-unidades')) {
-            $this->purchase_unidades = (bool)$this->request->get('purchase-unidades');
-        }
-
-        $this->sale_unidades = FALSE;
-        if ($this->request->get('sale-unidades')) {
-            $this->sale_unidades = (bool)$this->request->get('sale-unidades');
-        }
-
-        $this->provincia = FALSE;
-        if ($this->request->get('provincia')) {
-            $this->provincia = $this->request->get('provincia');
-        }
+        $this->estado = $this->request->get('estado', false);
+        $this->purchase_minimo = $this->request->get('purchase-minimo', false);
+        $this->purchase_unidades = (bool)$this->request->get('purchase-unidades', '0');
+        $this->sale_minimo = $this->request->get('sale-minimo', false);
+        $this->sale_unidades = (bool)$this->request->get('sale-unidades', '0');
+        $this->provincia = $this->request->get('provincia', false);
     }
 
-    protected function loadDataInformeCompras(): array
+    protected function getInformeComprasData(): array
     {
         $sql = "SELECT codproveedor,fecha,SUM(neto) as total FROM facturasprov"
             . " WHERE fecha >= " . $this->dataBase->var2str($this->desde)
             . " AND fecha <= " . $this->dataBase->var2str($this->hasta)
-            . " AND idempresa = " . $this->idempresa;
+            . " AND idempresa = " . $this->dataBase->var2str($this->idempresa);
 
         if ($this->codserie) {
             $sql .= " AND codserie = " . $this->dataBase->var2str($this->codserie);
@@ -703,16 +615,15 @@ class ReportBreakdown extends Controller
         }
 
         $sql .= " GROUP BY codproveedor,fecha ORDER BY codproveedor ASC, fecha DESC;";
-
         return $this->dataBase->select($sql);
     }
 
-    protected function loadDataInformeComprasUnidades(): array
+    protected function getInformeComprasUnidadesData(): array
     {
         $sql = "SELECT f.codalmacen,f.codproveedor,f.fecha,l.referencia,l.descripcion,SUM(l.cantidad) as total"
             . " FROM facturasprov f, lineasfacturasprov l"
             . " WHERE f.idfactura = l.idfactura AND l.referencia IS NOT NULL"
-            . " AND f.idempresa = " . $this->idempresa
+            . " AND f.idempresa = " . $this->dataBase->var2str($this->idempresa)
             . " AND f.fecha >= " . $this->dataBase->var2str($this->desde)
             . " AND f.fecha <= " . $this->dataBase->var2str($this->hasta);
 
@@ -736,45 +647,41 @@ class ReportBreakdown extends Controller
             $sql .= " AND l.cantidad > " . $this->dataBase->var2str($this->purchase_minimo);
         }
 
-        $sql .= " GROUP BY f.codalmacen,f.codproveedor,f.fecha,l.referencia,l.descripcion ORDER BY f.codproveedor ASC, l.referencia ASC, f.fecha DESC;";
-
+        $sql .= " GROUP BY f.codalmacen,f.codproveedor,f.fecha,l.referencia,l.descripcion"
+            . " ORDER BY f.codproveedor ASC, l.referencia ASC, f.fecha DESC;";
         return $this->dataBase->select($sql);
     }
 
-    protected function loadDataInformeVentas(): array
+    protected function getInformeVentasData(): array
     {
         $sql = "SELECT codalmacen,codcliente,fecha,SUM(neto) as total FROM facturascli"
             . " WHERE fecha >= " . $this->dataBase->var2str($this->desde)
             . " AND fecha <= " . $this->dataBase->var2str($this->hasta)
-            . " AND idempresa = " . $this->idempresa;
+            . " AND idempresa = " . $this->dataBase->var2str($this->idempresa);
 
-        $sql .= $this->loadDataInformeVentasWhere($sql);
-
-        $sql .= " GROUP BY codalmacen,codcliente,fecha ORDER BY codcliente ASC, fecha DESC;";
-
+        $sql .= $this->loadDataInformeVentasWhere($sql)
+            . " GROUP BY codalmacen,codcliente,fecha ORDER BY codcliente ASC, fecha DESC;";
         return $this->dataBase->select($sql);
     }
 
-    protected function loadDataInformeVentasUnidades(): array
+    protected function getInformeVentasUnidadesData(): array
     {
         $sql = "SELECT f.codalmacen,f.codcliente,f.fecha,l.referencia,l.descripcion,SUM(l.cantidad) as total"
             . " FROM facturascli f, lineasfacturascli l"
             . " WHERE f.idfactura = l.idfactura AND l.referencia IS NOT NULL"
-            . " AND f.idempresa = " . $this->idempresa
+            . " AND f.idempresa = " . $this->dataBase->var2str($this->idempresa)
             . " AND f.fecha >= " . $this->dataBase->var2str($this->desde)
             . " AND f.fecha <= " . $this->dataBase->var2str($this->hasta);
 
-        $sql .= $this->loadDataInformeVentasWhere($sql);
-
-        $sql .= " GROUP BY f.codalmacen,f.codcliente,f.fecha,l.referencia,l.descripcion ORDER BY f.codcliente ASC, l.referencia ASC, f.fecha DESC;";
-
+        $sql .= $this->loadDataInformeVentasWhere($sql)
+            . " GROUP BY f.codalmacen,f.codcliente,f.fecha,l.referencia,l.descripcion"
+            . " ORDER BY f.codcliente ASC, l.referencia ASC, f.fecha DESC;";
         return $this->dataBase->select($sql);
     }
 
-    protected function loadDataInformeVentasWhere($sql)
+    protected function loadDataInformeVentasWhere($sql): string
     {
         $oldSql = $sql;
-
         if ($this->codpais) {
             $sql .= " AND codpais = " . $this->dataBase->var2str($this->codpais);
         }
@@ -803,22 +710,18 @@ class ReportBreakdown extends Controller
             $sql .= " AND neto > " . $this->dataBase->var2str($this->sale_minimo);
         }
 
-        if ($sql === $oldSql) {
-            $sql = '';
-        }
-
-        return $sql;
+        return $sql === $oldSql ? '' : $sql;
     }
 
     /**
-     * Contruimos sentencias where para las consultas sql.
+     * Construimos sentencias where para las consultas sql.
      */
-    protected function set_where()
+    protected function setWhere()
     {
         $this->where_compras = " WHERE fecha >= " . $this->dataBase->var2str($this->desde)
             . " AND fecha <= " . $this->dataBase->var2str($this->hasta);
 
-        /// nos guardamos un where sin fechas
+        // nos guardamos un where sin fechas
         $this->where_compras_nf = " WHERE 1 = 1";
 
         if ($this->codserie) {
@@ -860,7 +763,7 @@ class ReportBreakdown extends Controller
         }
 
         if ($this->estado) {
-            $estado = $this->estado == 'pagada' ? TRUE : FALSE;
+            $estado = $this->estado == 'pagada';
             $this->where_compras .= " AND pagada = " . $this->dataBase->var2str($estado);
             $this->where_ventas .= " AND pagada = " . $this->dataBase->var2str($estado);
         }
