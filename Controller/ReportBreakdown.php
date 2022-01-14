@@ -234,35 +234,35 @@ class ReportBreakdown extends Controller
             }
 
             $totales = array();
-            foreach ($stats as $i => $value) {
+            foreach ($stats as $codproveedor => $arrayProveedor) {
                 /// calculamos la variación
                 $anterior = 0;
-                foreach (array_reverse($value, TRUE) as $j => $value2) {
+                foreach (array_reverse($arrayProveedor, TRUE) as $year => $arrayYear) {
                     if ($anterior > 0) {
-                        $value[$j][14] = ($value2[13] * 100 / $anterior) - 100;
+                        $arrayProveedor[$year][14] = ($arrayYear[13] * 100 / $anterior) - 100;
                     }
 
-                    $anterior = $value2[13];
+                    $anterior = $arrayYear[13];
 
-                    if (isset($totales[$j])) {
-                        foreach ($value2 as $k => $value3) {
-                            $totales[$j][$k] += $value3;
+                    if (isset($totales[$year])) {
+                        foreach ($arrayYear as $k => $total) {
+                            $totales[$year][$k] += $total;
                         }
                     } else {
-                        $totales[$j] = $value2;
+                        $totales[$year] = $arrayYear;
                     }
                 }
 
-                $pro = $proveedor->get($i);
-                foreach ($value as $j => $value2) {
+                $pro = $proveedor->get($codproveedor);
+                foreach ($arrayProveedor as $year => $arrayYear) {
                     if ($pro) {
-                        echo '"' . $i . '";' . ToolBox::utils()::fixHtml($pro->nombre) . ';' . $j;
+                        echo '"' . $codproveedor . '";' . ToolBox::utils()::fixHtml($pro->nombre) . ';' . $year;
                     } else {
-                        echo '"' . $i . '";-;' . $j;
+                        echo '"' . $codproveedor . '";-;' . $year;
                     }
 
-                    foreach ($value2 as $value3) {
-                        echo ';' . number_format($value3, FS_NF0, '.', '');
+                    foreach ($arrayYear as $total) {
+                        echo ';' . number_format($total, FS_NF0, '.', '');
                     }
 
                     echo "\n";
@@ -270,13 +270,13 @@ class ReportBreakdown extends Controller
                 echo ";;;;;;;;;;;;;;;\n";
             }
 
-            foreach (array_reverse($totales, TRUE) as $i => $value) {
-                echo ";" . strtoupper(ToolBox::i18n()->trans('totals')) . ";" . $i;
+            foreach (array_reverse($totales, TRUE) as $year => $arrayYear) {
+                echo ";" . strtoupper(ToolBox::i18n()->trans('totals')) . ";" . $year;
                 $l_total = 0;
-                foreach ($value as $j => $value3) {
+                foreach ($arrayYear as $j => $total) {
                     if ($j < 13) {
-                        echo ';' . number_format($value3, FS_NF0, '.', '');
-                        $l_total += $value3;
+                        echo ';' . number_format($total, FS_NF0, '.', '');
+                        $l_total += $total;
                     }
                 }
                 echo ";" . number_format($l_total, FS_NF0, '.', '') . ";\n";
@@ -345,28 +345,28 @@ class ReportBreakdown extends Controller
                 $stats[$d['codproveedor']][$d['referencia']][$anyo][13] += floatval($d['total']);
             }
 
-            foreach ($stats as $i => $value) {
-                $pro = $proveedor->get($i);
-                foreach ($value as $j => $value2) {
+            foreach ($stats as $codproveedor => $arrayProveedor) {
+                $pro = $proveedor->get($codproveedor);
+                foreach ($arrayProveedor as $referencia => $arrayProducto) {
                     /// calculamos la variación
                     $anterior = 0;
-                    foreach (array_reverse($value2, TRUE) as $k => $value3) {
+                    foreach (array_reverse($arrayProducto, TRUE) as $year => $arrayYear) {
                         if ($anterior > 0) {
-                            $value2[$k][14] = ($value3[13] * 100 / $anterior) - 100;
+                            $arrayProducto[$year][14] = ($arrayYear[13] * 100 / $anterior) - 100;
                         }
-                        $anterior = $value3[13];
+                        $anterior = $arrayYear[13];
                     }
 
-                    foreach ($value2 as $k => $value3) {
+                    foreach ($arrayProducto as $year => $total) {
                         if ($pro) {
-                            echo '"' . $value2[$k][15] . '";' . '"' . $i . '";' . ToolBox::utils()::fixHtml($pro->nombre) . ';"' . $j . '";' . '"' . $value2[$k][16] . '"' . ';' . $k;
+                            echo '"' . $arrayProducto[$year][15] . '";' . '"' . $codproveedor . '";' . ToolBox::utils()::fixHtml($pro->nombre) . ';"' . $referencia . '";' . '"' . $arrayProducto[$year][16] . '"' . ';' . $year;
                         } else {
-                            echo '"' . $value2[$k][15] . '";' . '"' . $i . '";-;"' . $j . '";' . '"' . $value2[$k][16] . '"' . ';' . $k;
+                            echo '"' . $arrayProducto[$year][15] . '";' . '"' . $codproveedor . '";-;"' . $referencia . '";' . '"' . $arrayProducto[$year][16] . '"' . ';' . $year;
                         }
 
-                        foreach ($value3 as $x => $value4) {
+                        foreach ($arrayYear as $x => $total) {
                             if ($x < 15) {
-                                echo ';' . number_format($value4, FS_NF0, '.', '');
+                                echo ';' . number_format($total, FS_NF0, '.', '');
                             }
                         }
                         echo "\n";
@@ -436,48 +436,52 @@ class ReportBreakdown extends Controller
             }
 
             $totales = array();
-            foreach ($stats as $i => $value) {
+            foreach ($stats as $codcliente => $arrayCliente) {
                 /// calculamos la variación y los totales
                 $anterior = 0;
-                foreach (array_reverse($value, TRUE) as $j => $value2) {
+                foreach (array_reverse($arrayCliente, TRUE) as $year => $arrayYear) {
                     if ($anterior > 0) {
-                        $value[$j][14] = ($value2[13] * 100 / $anterior) - 100;
+                        $arrayCliente[$year][14] = ($arrayYear[13] * 100 / $anterior) - 100;
                     }
 
-                    $anterior = $value2[13];
+                    $anterior = $arrayYear[13];
 
-                    if (isset($totales[$j])) {
-                        foreach ($value2 as $k => $value3) {
-                            $totales[$j][$k] += $value3;
+                    if (isset($totales[$year])) {
+                        foreach ($arrayYear as $k => $total) {
+                            if ($k < 15) {
+                                $totales[$year][$k] += $total;
+                            }
                         }
                     } else {
-                        $totales[$j] = $value2;
+                        $totales[$year] = $arrayYear;
                     }
                 }
 
-                $cli = $cliente->get($i);
-                foreach ($value as $j => $value2) {
+                $cli = $cliente->get($codcliente);
+                foreach ($arrayCliente as $year => $arrayYear) {
                     if ($cli) {
-                        echo '"' . $value[$j][15] . '";' . '"' . $i . '";' . ToolBox::utils()::fixHtml($cli->nombre) . ';' . $j;
+                        echo '"' . $arrayCliente[$year][15] . '";' . '"' . $codcliente . '";' . ToolBox::utils()::fixHtml($cli->nombre) . ';' . $year;
                     } else {
-                        echo '"' . $value[$j][15] . '";' . '"' . $i . '";-;' . $j;
+                        echo '"' . $arrayCliente[$year][15] . '";' . '"' . $codcliente . '";-;' . $year;
                     }
 
-                    foreach ($value2 as $x => $value3) {
+                    foreach ($arrayYear as $x => $total) {
                         if ($x < 15) {
-                            echo ';' . number_format($value3, FS_NF0, '.', '');
+                            echo ';' . number_format($total, FS_NF0, '.', '');
                         }
                     }
                     echo "\n";
                 }
                 echo ";;;;;;;;;;;;;;;\n";
             }
-            foreach (array_reverse($totales, TRUE) as $i => $value) {
-                echo ";;" . strtoupper(ToolBox::i18n()->trans('totals')) . ";" . $i;
+
+            foreach (array_reverse($totales, TRUE) as $year => $arrayYear) {
+                echo ";;" . strtoupper(ToolBox::i18n()->trans('totals')) . ";" . $year;
                 $l_total = 0;
-                foreach ($value as $j => $value3) {
+                foreach ($arrayYear as $j => $total) {
                     if ($j < 13) {
-                        echo ';' . number_format($value3, FS_NF0, '.', '');
+                        $l_total += $total;
+                        echo ';' . number_format($total, FS_NF0, '.', '');
                     }
                 }
                 echo ";" . number_format($l_total, FS_NF0, '.', '') . ";\n";
@@ -545,29 +549,29 @@ class ReportBreakdown extends Controller
                 $stats[$d['codcliente']][$d['referencia']][$anyo][13] += floatval($d['total']);
             }
 
-            foreach ($stats as $i => $value) {
-                $cli = $cliente->get($i);
-                foreach ($value as $j => $value2) {
+            foreach ($stats as $codcliente => $arrayCliente) {
+                $cli = $cliente->get($codcliente);
+                foreach ($arrayCliente as $referencia => $arrayProducto) {
                     /// calculamos la variación
                     $anterior = 0;
-                    foreach (array_reverse($value2, TRUE) as $k => $value3) {
+                    foreach (array_reverse($arrayProducto, TRUE) as $year => $arrayYear) {
                         if ($anterior > 0) {
-                            $value2[$k][14] = ($value3[13] * 100 / $anterior) - 100;
+                            $arrayProducto[$year][14] = ($arrayYear[13] * 100 / $anterior) - 100;
                         }
 
-                        $anterior = $value3[13];
+                        $anterior = $arrayYear[13];
                     }
 
-                    foreach ($value2 as $k => $value3) {
+                    foreach ($arrayProducto as $year => $arrayYear) {
                         if ($cli) {
-                            echo '"' . $value2[$k][15] . '";' . '"' . $i . '";' . Toolbox::utils()::fixHtml($cli->nombre) . ';"' . $j . '";' . '"' . $value2[$k][16] . '"' . ';' . $k;
+                            echo '"' . $arrayProducto[$year][15] . '";' . '"' . $codcliente . '";' . Toolbox::utils()::fixHtml($cli->nombre) . ';"' . $referencia . '";' . '"' . $arrayProducto[$year][16] . '"' . ';' . $year;
                         } else {
-                            echo '"' . $value2[$k][15] . '";' . '"' . $i . '";-;"' . $j . '";' . '"' . $value2[$k][16] . '"' . ';' . $k;
+                            echo '"' . $arrayProducto[$year][15] . '";' . '"' . $codcliente . '";-;"' . $referencia . '";' . '"' . $arrayProducto[$year][16] . '"' . ';' . $year;
                         }
 
-                        foreach ($value3 as $x => $value4) {
+                        foreach ($arrayYear as $x => $total) {
                             if ($x < 15) {
-                                echo ';' . number_format($value4, FS_NF0, '.', '');
+                                echo ';' . number_format($total, FS_NF0, '.', '');
                             }
                         }
 
@@ -675,7 +679,7 @@ class ReportBreakdown extends Controller
         }
     }
 
-    protected function loadDataInformeCompras():array
+    protected function loadDataInformeCompras(): array
     {
         $sql = "SELECT codproveedor,fecha,SUM(neto) as total FROM facturasprov"
             . " WHERE fecha >= " . $this->dataBase->var2str($this->desde)
@@ -703,7 +707,7 @@ class ReportBreakdown extends Controller
         return $this->dataBase->select($sql);
     }
 
-    protected function loadDataInformeComprasUnidades():array
+    protected function loadDataInformeComprasUnidades(): array
     {
         $sql = "SELECT f.codalmacen,f.codproveedor,f.fecha,l.referencia,l.descripcion,SUM(l.cantidad) as total"
             . " FROM facturasprov f, lineasfacturasprov l"
@@ -737,7 +741,7 @@ class ReportBreakdown extends Controller
         return $this->dataBase->select($sql);
     }
 
-    protected function loadDataInformeVentas():array
+    protected function loadDataInformeVentas(): array
     {
         $sql = "SELECT codalmacen,codcliente,fecha,SUM(neto) as total FROM facturascli"
             . " WHERE fecha >= " . $this->dataBase->var2str($this->desde)
@@ -751,7 +755,7 @@ class ReportBreakdown extends Controller
         return $this->dataBase->select($sql);
     }
 
-    protected function loadDataInformeVentasUnidades():array
+    protected function loadDataInformeVentasUnidades(): array
     {
         $sql = "SELECT f.codalmacen,f.codcliente,f.fecha,l.referencia,l.descripcion,SUM(l.cantidad) as total"
             . " FROM facturascli f, lineasfacturascli l"
