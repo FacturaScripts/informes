@@ -73,16 +73,6 @@
                                     fsc.getSelectValues('agentes', 'codagente', 'nombre', true), i18n.trans('agent')) }}
                             </div>
                         </div>
-                        <div class="col-12 col-md-3">
-                            <div class="form-group">
-                                {{ i18n.trans('status') }}
-                                <select name="estado" class="form-control">
-                                    <option value="">{{ i18n.trans('all') }}</option>
-                                    <option value="pagada" {{ fsc.estado == 'pagada' ? 'selected' : '' }}>{{ i18n.trans('paid') }}</option>
-                                    <option value="sinpagar" {{ fsc.estado == 'sinpagar' ? 'selected' : '' }}>{{ i18n.trans('unpaid') }}</option>
-                                </select>
-                            </div>
-                        </div>
                     </div>
 
                     <ul class="nav nav-pills mt-3 mb-3" role="tablist">

@@ -25,7 +25,6 @@ class ReportBreakdown extends Controller
     public $codpago;
     public $codserie;
     public $desde;
-    public $estado;
     public $hasta;
     public $idempresa;
     public $proveedor;
@@ -34,10 +33,6 @@ class ReportBreakdown extends Controller
     public $purchase_unidades;
     public $sale_minimo;
     public $sale_unidades;
-    protected $where_compras;
-    protected $where_compras_nf;
-    protected $where_ventas;
-    protected $where_ventas_nf;
 
     public function getPageData()
     {
@@ -125,7 +120,6 @@ class ReportBreakdown extends Controller
 
     protected function generarInforme()
     {
-        $this->setWhere();
         switch ($this->request->get('generar')) {
             case 'informe_compras':
                 if ($this->purchase_unidades) {
@@ -145,6 +139,203 @@ class ReportBreakdown extends Controller
         }
     }
 
+    protected function getDatosAgrupados(array $data, string $key): array
+    {
+        $agrupados = [];
+        foreach ($data as $row) {
+            $keyValue = $row[$key];
+            $year = date('Y', strtotime($row['fecha']));
+            $mes = date('n', strtotime($row['fecha']));
+            if (!isset($agrupados[$keyValue][$year])) {
+                $agrupados[$keyValue][$year] = [
+                    1 => 0, // enero
+                    2 => 0, // febrero
+                    3 => 0,
+                    4 => 0,
+                    5 => 0,
+                    6 => 0,
+                    7 => 0,
+                    8 => 0,
+                    9 => 0,
+                    10 => 0,
+                    11 => 0,
+                    12 => 0, // diciembre
+                    13 => 0 // total anual
+                ];
+            }
+
+            // acumulamos mes a mes
+            $agrupados[$keyValue][$year][$mes] += floatval($row['total']);
+
+            // acumulamos el año
+            $agrupados[$keyValue][$year][13] += floatval($row['total']);
+        }
+
+        return $agrupados;
+    }
+
+    protected function getDatosAgrupadosRef(array $data, string $key): array
+    {
+        $agrupados = [];
+        foreach ($data as $row) {
+            $keyVal = $row[$key];
+            $ref = $row['referencia'];
+            $year = date('Y', strtotime($row['fecha']));
+            $mes = date('n', strtotime($row['fecha']));
+            if (!isset($agrupados[$keyVal][$ref][$year])) {
+                $agrupados[$keyVal][$ref][$year] = [
+                    1 => 0, // enero
+                    2 => 0, // febrero
+                    3 => 0,
+                    4 => 0,
+                    5 => 0,
+                    6 => 0,
+                    7 => 0,
+                    8 => 0,
+                    9 => 0,
+                    10 => 0,
+                    11 => 0,
+                    12 => 0, // diciembre
+                    13 => 0 // total anual
+                ];
+            }
+
+            // acumulamos mes a mes
+            $agrupados[$keyVal][$ref][$year][$mes] += floatval($row['total']);
+
+            // acumulamos el año
+            $agrupados[$keyVal][$ref][$year][13] += floatval($row['total']);
+        }
+
+        return $agrupados;
+    }
+
+    protected function getInformeComprasData(): array
+    {
+        $sql = "SELECT codproveedor,fecha,SUM(neto) as total FROM facturasprov"
+            . " WHERE fecha >= " . $this->dataBase->var2str($this->desde)
+            . " AND fecha <= " . $this->dataBase->var2str($this->hasta)
+            . " AND idempresa = " . $this->dataBase->var2str($this->idempresa)
+            . $this->getInformeComprasDataWhere()
+            . " GROUP BY codproveedor,fecha"
+            . " ORDER BY codproveedor ASC, fecha DESC;";
+        return $this->dataBase->select($sql);
+    }
+
+    protected function getInformeComprasDataWhere(): string
+    {
+        $sql = '';
+        if ($this->codalmacen) {
+            $sql .= " AND codalmacen = " . $this->dataBase->var2str($this->codalmacen);
+        }
+
+        if ($this->coddivisa) {
+            $sql .= " AND coddivisa = " . $this->dataBase->var2str($this->coddivisa);
+        }
+
+        if ($this->codpago) {
+            $sql .= " AND codpago = " . $this->dataBase->var2str($this->codpago);
+        }
+
+        if ($this->codserie) {
+            $sql .= " AND codserie = " . $this->dataBase->var2str($this->codserie);
+        }
+
+        if ($this->proveedor) {
+            $sql .= " AND codproveedor = " . $this->dataBase->var2str($this->proveedor->codproveedor);
+        }
+
+        if ($this->purchase_minimo) {
+            $sql .= " AND neto > " . $this->dataBase->var2str($this->purchase_minimo);
+        }
+
+        return $sql;
+    }
+
+    protected function getInformeComprasUnidadesData(): array
+    {
+        $sql = "SELECT f.codproveedor,f.fecha,l.referencia,SUM(l.cantidad) as total"
+            . " FROM facturasprov f, lineasfacturasprov l"
+            . " WHERE l.idfactura = f.idfactura"
+            . " AND l.referencia IS NOT NULL"
+            . " AND f.idempresa = " . $this->dataBase->var2str($this->idempresa)
+            . " AND f.fecha >= " . $this->dataBase->var2str($this->desde)
+            . " AND f.fecha <= " . $this->dataBase->var2str($this->hasta)
+            . $this->getInformeComprasDataWhere()
+            . " GROUP BY f.codproveedor,f.fecha,l.referencia,l.descripcion"
+            . " ORDER BY f.codproveedor ASC, l.referencia ASC, f.fecha DESC;";
+        return $this->dataBase->select($sql);
+    }
+
+    protected function getInformeVentasData(): array
+    {
+        $sql = "SELECT codcliente,fecha,SUM(neto) as total FROM facturascli"
+            . " WHERE fecha >= " . $this->dataBase->var2str($this->desde)
+            . " AND fecha <= " . $this->dataBase->var2str($this->hasta)
+            . " AND idempresa = " . $this->dataBase->var2str($this->idempresa)
+            . $this->getInformeVentasDataWhere()
+            . " GROUP BY codalmacen,codcliente,fecha"
+            . " ORDER BY codcliente ASC, fecha DESC;";
+        return $this->dataBase->select($sql);
+    }
+
+    protected function getInformeVentasDataWhere(): string
+    {
+        $sql = '';
+        if ($this->cliente) {
+            $sql .= " AND codcliente = " . $this->dataBase->var2str($this->cliente->codcliente);
+        }
+
+        if ($this->codagente) {
+            $sql .= " AND codagente = " . $this->dataBase->var2str($this->codagente);
+        }
+
+        if ($this->codalmacen) {
+            $sql .= " AND codalmacen = " . $this->dataBase->var2str($this->codalmacen);
+        }
+
+        if ($this->coddivisa) {
+            $sql .= " AND coddivisa = " . $this->dataBase->var2str($this->coddivisa);
+        }
+
+        if ($this->codpago) {
+            $sql .= " AND codpago = " . $this->dataBase->var2str($this->codpago);
+        }
+
+        if ($this->codpais) {
+            $sql .= " AND codpais = " . $this->dataBase->var2str($this->codpais);
+        }
+
+        if ($this->codserie) {
+            $sql .= " AND codserie = " . $this->dataBase->var2str($this->codserie);
+        }
+
+        if ($this->provincia) {
+            $sql .= " AND lower(provincia) = lower(" . $this->dataBase->var2str($this->provincia) . ")";
+        }
+
+        if ($this->sale_minimo) {
+            $sql .= " AND neto > " . $this->dataBase->var2str($this->sale_minimo);
+        }
+
+        return $sql;
+    }
+
+    protected function getInformeVentasUnidadesData(): array
+    {
+        $sql = "SELECT f.codcliente,f.fecha,l.referencia,SUM(l.cantidad) as total"
+            . " FROM facturascli f, lineasfacturascli l"
+            . " WHERE l.idfactura = f.idfactura"
+            . " AND l.referencia IS NOT NULL"
+            . " AND f.idempresa = " . $this->dataBase->var2str($this->idempresa)
+            . " AND f.fecha >= " . $this->dataBase->var2str($this->desde)
+            . " AND f.fecha <= " . $this->dataBase->var2str($this->hasta)
+            . $this->getInformeVentasDataWhere()
+            . " GROUP BY f.codcliente,f.fecha,l.referencia,l.descripcion"
+            . " ORDER BY f.codcliente ASC, l.referencia ASC, f.fecha DESC;";
+        return $this->dataBase->select($sql);
+    }
+
     protected function getMonthsTitlesRows(): string
     {
         $i18n = ToolBox::i18n();
@@ -160,6 +351,26 @@ class ReportBreakdown extends Controller
             . substr($i18n->trans('october'), 0, 3) . ';'
             . substr($i18n->trans('november'), 0, 3) . ';'
             . substr($i18n->trans('december'), 0, 3) . ';';
+    }
+
+    protected function getNombreCliente(string $codcliente): string
+    {
+        $cliente = new Cliente();
+        if ($codcliente && $cliente->loadFromCode($codcliente)) {
+            return self::toolBox()::utils()::fixHtml($cliente->nombre);
+        }
+
+        return '-';
+    }
+
+    protected function getNombreProveedor(string $codproveedor): string
+    {
+        $proveedor = new Proveedor();
+        if ($codproveedor && $proveedor->loadFromCode($codproveedor)) {
+            return self::toolBox()::utils()::fixHtml($proveedor->nombre);
+        }
+
+        return '-';
     }
 
     protected function getProvincias()
@@ -183,6 +394,38 @@ class ReportBreakdown extends Controller
         $this->response->setContent(json_encode($html));
     }
 
+    protected function getTotalesAgrupados(array $agrupados): array
+    {
+        $totales = [];
+        foreach ($agrupados as $years) {
+            foreach ($years as $year => $meses) {
+                if (!isset($totales[$year])) {
+                    $totales[$year] = [
+                        1 => 0, // enero
+                        2 => 0,
+                        3 => 0,
+                        4 => 0,
+                        5 => 0,
+                        6 => 0,
+                        7 => 0,
+                        8 => 0,
+                        9 => 0,
+                        10 => 0,
+                        11 => 0,
+                        12 => 0, // diciembre
+                        13 => 0 // total anual
+                    ];
+                }
+
+                foreach ($meses as $mes => $total) {
+                    $totales[$year][$mes] += $total;
+                }
+            }
+        }
+
+        return $totales;
+    }
+
     protected function informeCompras()
     {
         $data = $this->getInformeComprasData();
@@ -191,93 +434,41 @@ class ReportBreakdown extends Controller
             return;
         }
 
+        // imprimimos las cabeceras
         $i18n = ToolBox::i18n();
         $this->setTemplate(false);
         header("content-type:application/csv;charset=UTF-8");
-        header("Content-Disposition: attachment; filename=\""
-            . str_replace(' ', '_', strtolower($i18n->trans('purchase-report'))) . ".csv\"");
+        header('Content-Disposition: attachment; filename="'
+            . str_replace(' ', '_', strtolower($i18n->trans('purchase-report'))) . '.csv"');
         echo 'codproveedor;'
             . $i18n->trans('name') . ';'
             . $i18n->trans('year') . ';'
             . $this->getMonthsTitlesRows()
-            . $i18n->trans('total') . ';'
-            . "%VAR\n";
+            . $i18n->trans('total') . "\n";
 
-        $proveedor = new proveedor();
-        $stats = array();
-        foreach ($data as $d) {
-            $anyo = date('Y', strtotime($d['fecha']));
-            $mes = date('n', strtotime($d['fecha']));
-            if (!isset($stats[$d['codproveedor']][$anyo])) {
-                $stats[$d['codproveedor']][$anyo] = array(
-                    1 => 0,
-                    2 => 0,
-                    3 => 0,
-                    4 => 0,
-                    5 => 0,
-                    6 => 0,
-                    7 => 0,
-                    8 => 0,
-                    9 => 0,
-                    10 => 0,
-                    11 => 0,
-                    12 => 0,
-                    13 => 0,
-                    14 => 0
-                );
-            }
+        // agrupamos los datos por proveedor, año y mes
+        $agrupados = $this->getDatosAgrupados($data, 'codproveedor');
 
-            $stats[$d['codproveedor']][$anyo][$mes] += floatval($d['total']);
-            $stats[$d['codproveedor']][$anyo][13] += floatval($d['total']);
-        }
-
-        $totales = array();
-        foreach ($stats as $codproveedor => $arrayProveedor) {
-            /// calculamos la variación
-            $anterior = 0;
-            foreach (array_reverse($arrayProveedor, TRUE) as $year => $arrayYear) {
-                if ($anterior > 0) {
-                    $arrayProveedor[$year][14] = ($arrayYear[13] * 100 / $anterior) - 100;
+        // imprimimos las líneas
+        foreach ($agrupados as $codproveedor => $years) {
+            foreach ($years as $year => $meses) {
+                // ahora para cada año imprimimos una línea
+                echo '"' . $codproveedor . '";' . $this->getNombreProveedor($codproveedor) . ';' . $year;
+                foreach ($meses as $mes) {
+                    echo ';' . number_format($mes, FS_NF0, '.', '');
                 }
-
-                $anterior = $arrayYear[13];
-
-                if (isset($totales[$year])) {
-                    foreach ($arrayYear as $k => $total) {
-                        $totales[$year][$k] += $total;
-                    }
-                } else {
-                    $totales[$year] = $arrayYear;
-                }
-            }
-
-            $pro = $proveedor->get($codproveedor);
-            foreach ($arrayProveedor as $year => $arrayYear) {
-                if ($pro) {
-                    echo '"' . $codproveedor . '";' . ToolBox::utils()::fixHtml($pro->nombre) . ';' . $year;
-                } else {
-                    echo '"' . $codproveedor . '";-;' . $year;
-                }
-
-                foreach ($arrayYear as $total) {
-                    echo ';' . number_format($total, FS_NF0, '.', '');
-                }
-
                 echo "\n";
             }
             echo ";;;;;;;;;;;;;;;\n";
         }
 
-        foreach (array_reverse($totales, TRUE) as $year => $arrayYear) {
+        // imprimimos los totales por año
+        foreach ($this->getTotalesAgrupados($agrupados) as $year => $meses) {
             echo ";" . strtoupper(ToolBox::i18n()->trans('totals')) . ";" . $year;
-            $l_total = 0;
-            foreach ($arrayYear as $j => $total) {
-                if ($j < 13) {
-                    echo ';' . number_format($total, FS_NF0, '.', '');
-                    $l_total += $total;
-                }
+            foreach ($meses as $mes) {
+                echo ';' . number_format($mes, FS_NF0, '.', '');
             }
-            echo ";" . number_format($l_total, FS_NF0, '.', '') . ";\n";
+            echo ";\n";
         }
     }
 
@@ -289,74 +480,29 @@ class ReportBreakdown extends Controller
             return;
         }
 
+        // imprimimos las cabeceras
         $i18n = ToolBox::i18n();
         $this->setTemplate(false);
         header("content-type:application/csv;charset=UTF-8");
         header("Content-Disposition: attachment; filename=\""
             . str_replace(' ', '_', strtolower($i18n->trans('units-purchase-report'))) . ".csv\"");
-        echo $i18n->trans('warehouse') . ';'
-            . 'codproveedor;'
+        echo 'codproveedor;'
             . $i18n->trans('name') . ';'
             . $i18n->trans('reference') . ';'
-            . $i18n->trans('description') . ';'
             . $i18n->trans('year') . ';'
             . $this->getMonthsTitlesRows()
-            . $i18n->trans('total') . ';'
-            . "%VAR\n";
+            . $i18n->trans('total') . "\n";
 
-        $proveedor = new Proveedor();
-        $stats = array();
-        foreach ($data as $d) {
-            $anyo = date('Y', strtotime($d['fecha']));
-            $mes = date('n', strtotime($d['fecha']));
-            if (!isset($stats[$d['codproveedor']][$d['referencia']][$anyo])) {
-                $stats[$d['codproveedor']][$d['referencia']][$anyo] = array(
-                    1 => 0,
-                    2 => 0,
-                    3 => 0,
-                    4 => 0,
-                    5 => 0,
-                    6 => 0,
-                    7 => 0,
-                    8 => 0,
-                    9 => 0,
-                    10 => 0,
-                    11 => 0,
-                    12 => 0,
-                    13 => 0,
-                    14 => 0,
-                    15 => $d['codalmacen'],
-                    16 => $d['descripcion'],
-                );
-            }
+        // agrupamos los datos por proveedor, referencia, año y mes
+        $agrupados = $this->getDatosAgrupadosRef($data, 'codproveedor');
 
-            $stats[$d['codproveedor']][$d['referencia']][$anyo][$mes] += floatval($d['total']);
-            $stats[$d['codproveedor']][$d['referencia']][$anyo][13] += floatval($d['total']);
-        }
-
-        foreach ($stats as $codproveedor => $arrayProveedor) {
-            $pro = $proveedor->get($codproveedor);
-            foreach ($arrayProveedor as $referencia => $arrayProducto) {
-                /// calculamos la variación
-                $anterior = 0;
-                foreach (array_reverse($arrayProducto, TRUE) as $year => $arrayYear) {
-                    if ($anterior > 0) {
-                        $arrayProducto[$year][14] = ($arrayYear[13] * 100 / $anterior) - 100;
-                    }
-                    $anterior = $arrayYear[13];
-                }
-
-                foreach ($arrayProducto as $year => $total) {
-                    if ($pro) {
-                        echo '"' . $arrayProducto[$year][15] . '";' . '"' . $codproveedor . '";' . ToolBox::utils()::fixHtml($pro->nombre) . ';"' . $referencia . '";' . '"' . $arrayProducto[$year][16] . '"' . ';' . $year;
-                    } else {
-                        echo '"' . $arrayProducto[$year][15] . '";' . '"' . $codproveedor . '";-;"' . $referencia . '";' . '"' . $arrayProducto[$year][16] . '"' . ';' . $year;
-                    }
-
-                    foreach ($arrayYear as $x => $total) {
-                        if ($x < 15) {
-                            echo ';' . number_format($total, FS_NF0, '.', '');
-                        }
+        // imprimimos las líneas
+        foreach ($agrupados as $codproveedor => $referencias) {
+            foreach ($referencias as $referencia => $years) {
+                foreach ($years as $year => $meses) {
+                    echo '"' . $codproveedor . '";' . $this->getNombreProveedor($codproveedor) . ';"' . $referencia . '";' . $year;
+                    foreach ($meses as $mes) {
+                        echo ';' . number_format($mes, FS_NF0, '.', '');
                     }
                     echo "\n";
                 }
@@ -374,98 +520,40 @@ class ReportBreakdown extends Controller
             return;
         }
 
+        // imprimimos las cabeceras
         $i18n = ToolBox::i18n();
         $this->setTemplate(false);
         header("content-type:application/csv;charset=UTF-8");
         header("Content-Disposition: attachment; filename=\""
             . str_replace(' ', '_', strtolower($i18n->trans('sale-report'))) . ".csv\"");
-        echo $i18n->trans('warehouse') . ';'
-            . 'codcliente;'
+        echo 'codcliente;'
             . $i18n->trans('name') . ';'
             . $i18n->trans('year') . ';'
             . $this->getMonthsTitlesRows()
-            . $i18n->trans('total') . ';'
-            . "%VAR\n";
+            . $i18n->trans('total') . "\n";
 
-        $cliente = new Cliente();
-        $stats = array();
-        foreach ($data as $d) {
-            $anyo = date('Y', strtotime($d['fecha']));
-            $mes = date('n', strtotime($d['fecha']));
-            if (!isset($stats[$d['codcliente']][$anyo])) {
-                $stats[$d['codcliente']][$anyo] = array(
-                    1 => 0,
-                    2 => 0,
-                    3 => 0,
-                    4 => 0,
-                    5 => 0,
-                    6 => 0,
-                    7 => 0,
-                    8 => 0,
-                    9 => 0,
-                    10 => 0,
-                    11 => 0,
-                    12 => 0,
-                    13 => 0,
-                    14 => 0,
-                    15 => $d['codalmacen']
-                );
-            }
+        // agrupamos los datos por cliente, año y mes
+        $agrupados = $this->getDatosAgrupados($data, 'codcliente');
 
-            $stats[$d['codcliente']][$anyo][$mes] += floatval($d['total']);
-            $stats[$d['codcliente']][$anyo][13] += floatval($d['total']);
-        }
-
-        $totales = array();
-        foreach ($stats as $codcliente => $arrayCliente) {
-            /// calculamos la variación y los totales
-            $anterior = 0;
-            foreach (array_reverse($arrayCliente, TRUE) as $year => $arrayYear) {
-                if ($anterior > 0) {
-                    $arrayCliente[$year][14] = ($arrayYear[13] * 100 / $anterior) - 100;
-                }
-
-                $anterior = $arrayYear[13];
-
-                if (isset($totales[$year])) {
-                    foreach ($arrayYear as $k => $total) {
-                        if ($k < 15) {
-                            $totales[$year][$k] += $total;
-                        }
-                    }
-                } else {
-                    $totales[$year] = $arrayYear;
-                }
-            }
-
-            $cli = $cliente->get($codcliente);
-            foreach ($arrayCliente as $year => $arrayYear) {
-                if ($cli) {
-                    echo '"' . $arrayCliente[$year][15] . '";' . '"' . $codcliente . '";' . ToolBox::utils()::fixHtml($cli->nombre) . ';' . $year;
-                } else {
-                    echo '"' . $arrayCliente[$year][15] . '";' . '"' . $codcliente . '";-;' . $year;
-                }
-
-                foreach ($arrayYear as $x => $total) {
-                    if ($x < 15) {
-                        echo ';' . number_format($total, FS_NF0, '.', '');
-                    }
+        // imprimimos las líneas
+        foreach ($agrupados as $codcliente => $years) {
+            foreach ($years as $year => $meses) {
+                echo '"' . $codcliente . '";' . $this->getNombreCliente($codcliente) . ';' . $year;
+                foreach ($meses as $mes) {
+                    echo ';' . number_format($mes, FS_NF0, '.', '');
                 }
                 echo "\n";
             }
             echo ";;;;;;;;;;;;;;;\n";
         }
 
-        foreach (array_reverse($totales, TRUE) as $year => $arrayYear) {
-            echo ";;" . strtoupper(ToolBox::i18n()->trans('totals')) . ";" . $year;
-            $l_total = 0;
-            foreach ($arrayYear as $j => $total) {
-                if ($j < 13) {
-                    $l_total += $total;
-                    echo ';' . number_format($total, FS_NF0, '.', '');
-                }
+        // imprimimos los totales por año
+        foreach ($this->getTotalesAgrupados($agrupados) as $year => $meses) {
+            echo ";" . strtoupper(ToolBox::i18n()->trans('totals')) . ";" . $year;
+            foreach ($meses as $mes) {
+                echo ';' . number_format($mes, FS_NF0, '.', '');
             }
-            echo ";" . number_format($l_total, FS_NF0, '.', '') . ";\n";
+            echo ";\n";
         }
     }
 
@@ -482,72 +570,24 @@ class ReportBreakdown extends Controller
         header("content-type:application/csv;charset=UTF-8");
         header("Content-Disposition: attachment; filename=\""
             . str_replace(' ', '_', strtolower($i18n->trans('units-sale-report'))) . ".csv\"");
-        echo $i18n->trans('warehouse') . ';'
-            . 'codcliente;'
+        echo 'codcliente;'
             . $i18n->trans('name') . ';'
             . $i18n->trans('reference') . ';'
-            . $i18n->trans('description') . ';'
             . $i18n->trans('year') . ';'
             . $this->getMonthsTitlesRows()
-            . $i18n->trans('total') . ';'
-            . "%VAR\n";
+            . $i18n->trans('total') . "\n";
 
-        $cliente = new Cliente();
-        $stats = array();
-        foreach ($data as $d) {
-            $anyo = date('Y', strtotime($d['fecha']));
-            $mes = date('n', strtotime($d['fecha']));
-            if (!isset($stats[$d['codcliente']][$d['referencia']][$anyo])) {
-                $stats[$d['codcliente']][$d['referencia']][$anyo] = array(
-                    1 => 0,
-                    2 => 0,
-                    3 => 0,
-                    4 => 0,
-                    5 => 0,
-                    6 => 0,
-                    7 => 0,
-                    8 => 0,
-                    9 => 0,
-                    10 => 0,
-                    11 => 0,
-                    12 => 0,
-                    13 => 0,
-                    14 => 0,
-                    15 => $d['codalmacen'],
-                    16 => $d['descripcion'],
-                );
-            }
+        // agrupamos los datos por cliente, referencia, añi y mes
+        $agrupados = $this->getDatosAgrupadosRef($data, 'codcliente');
 
-            $stats[$d['codcliente']][$d['referencia']][$anyo][$mes] += floatval($d['total']);
-            $stats[$d['codcliente']][$d['referencia']][$anyo][13] += floatval($d['total']);
-        }
-
-        foreach ($stats as $codcliente => $arrayCliente) {
-            $cli = $cliente->get($codcliente);
-            foreach ($arrayCliente as $referencia => $arrayProducto) {
-                /// calculamos la variación
-                $anterior = 0;
-                foreach (array_reverse($arrayProducto, TRUE) as $year => $arrayYear) {
-                    if ($anterior > 0) {
-                        $arrayProducto[$year][14] = ($arrayYear[13] * 100 / $anterior) - 100;
+        // imprimimos las líneas
+        foreach ($agrupados as $codcliente => $referencias) {
+            foreach ($referencias as $referencia => $years) {
+                foreach ($years as $year => $meses) {
+                    echo '"' . $codcliente . '";' . $this->getNombreCliente($codcliente) . ';"' . $referencia . '";' . $year;
+                    foreach ($meses as $mes) {
+                        echo ';' . number_format($mes, FS_NF0, '.', '');
                     }
-
-                    $anterior = $arrayYear[13];
-                }
-
-                foreach ($arrayProducto as $year => $arrayYear) {
-                    if ($cli) {
-                        echo '"' . $arrayProducto[$year][15] . '";' . '"' . $codcliente . '";' . Toolbox::utils()::fixHtml($cli->nombre) . ';"' . $referencia . '";' . '"' . $arrayProducto[$year][16] . '"' . ';' . $year;
-                    } else {
-                        echo '"' . $arrayProducto[$year][15] . '";' . '"' . $codcliente . '";-;"' . $referencia . '";' . '"' . $arrayProducto[$year][16] . '"' . ';' . $year;
-                    }
-
-                    foreach ($arrayYear as $x => $total) {
-                        if ($x < 15) {
-                            echo ';' . number_format($total, FS_NF0, '.', '');
-                        }
-                    }
-
                     echo "\n";
                 }
                 echo ";;;;;;;;;;;;;;;;\n";
@@ -583,189 +623,10 @@ class ReportBreakdown extends Controller
             $this->proveedor->loadFromCode($this->request->get('codproveedor'));
         }
 
-        $this->estado = $this->request->get('estado', false);
         $this->purchase_minimo = $this->request->get('purchase-minimo', false);
         $this->purchase_unidades = (bool)$this->request->get('purchase-unidades', '0');
         $this->sale_minimo = $this->request->get('sale-minimo', false);
         $this->sale_unidades = (bool)$this->request->get('sale-unidades', '0');
         $this->provincia = $this->request->get('provincia', false);
-    }
-
-    protected function getInformeComprasData(): array
-    {
-        $sql = "SELECT codproveedor,fecha,SUM(neto) as total FROM facturasprov"
-            . " WHERE fecha >= " . $this->dataBase->var2str($this->desde)
-            . " AND fecha <= " . $this->dataBase->var2str($this->hasta)
-            . " AND idempresa = " . $this->dataBase->var2str($this->idempresa);
-
-        if ($this->codserie) {
-            $sql .= " AND codserie = " . $this->dataBase->var2str($this->codserie);
-        }
-
-        if ($this->codagente) {
-            $sql .= " AND codagente = " . $this->dataBase->var2str($this->codagente);
-        }
-
-        if ($this->proveedor) {
-            $sql .= " AND codproveedor = " . $this->dataBase->var2str($this->proveedor->codproveedor);
-        }
-
-        if ($this->purchase_minimo) {
-            $sql .= " AND neto > " . $this->dataBase->var2str($this->purchase_minimo);
-        }
-
-        $sql .= " GROUP BY codproveedor,fecha ORDER BY codproveedor ASC, fecha DESC;";
-        return $this->dataBase->select($sql);
-    }
-
-    protected function getInformeComprasUnidadesData(): array
-    {
-        $sql = "SELECT f.codalmacen,f.codproveedor,f.fecha,l.referencia,l.descripcion,SUM(l.cantidad) as total"
-            . " FROM facturasprov f, lineasfacturasprov l"
-            . " WHERE f.idfactura = l.idfactura AND l.referencia IS NOT NULL"
-            . " AND f.idempresa = " . $this->dataBase->var2str($this->idempresa)
-            . " AND f.fecha >= " . $this->dataBase->var2str($this->desde)
-            . " AND f.fecha <= " . $this->dataBase->var2str($this->hasta);
-
-        if ($this->codserie) {
-            $sql .= " AND f.codserie = " . $this->dataBase->var2str($this->codserie);
-        }
-
-        if ($this->codalmacen) {
-            $sql .= " AND f.codalmacen = " . $this->dataBase->var2str($this->codalmacen);
-        }
-
-        if ($this->codagente) {
-            $sql .= " AND f.codagente = " . $this->dataBase->var2str($this->codagente);
-        }
-
-        if ($this->proveedor) {
-            $sql .= " AND codproveedor = " . $this->dataBase->var2str($this->proveedor->codproveedor);
-        }
-
-        if ($this->purchase_minimo) {
-            $sql .= " AND l.cantidad > " . $this->dataBase->var2str($this->purchase_minimo);
-        }
-
-        $sql .= " GROUP BY f.codalmacen,f.codproveedor,f.fecha,l.referencia,l.descripcion"
-            . " ORDER BY f.codproveedor ASC, l.referencia ASC, f.fecha DESC;";
-        return $this->dataBase->select($sql);
-    }
-
-    protected function getInformeVentasData(): array
-    {
-        $sql = "SELECT codalmacen,codcliente,fecha,SUM(neto) as total FROM facturascli"
-            . " WHERE fecha >= " . $this->dataBase->var2str($this->desde)
-            . " AND fecha <= " . $this->dataBase->var2str($this->hasta)
-            . " AND idempresa = " . $this->dataBase->var2str($this->idempresa);
-
-        $sql .= $this->loadDataInformeVentasWhere($sql)
-            . " GROUP BY codalmacen,codcliente,fecha ORDER BY codcliente ASC, fecha DESC;";
-        return $this->dataBase->select($sql);
-    }
-
-    protected function getInformeVentasUnidadesData(): array
-    {
-        $sql = "SELECT f.codalmacen,f.codcliente,f.fecha,l.referencia,l.descripcion,SUM(l.cantidad) as total"
-            . " FROM facturascli f, lineasfacturascli l"
-            . " WHERE f.idfactura = l.idfactura AND l.referencia IS NOT NULL"
-            . " AND f.idempresa = " . $this->dataBase->var2str($this->idempresa)
-            . " AND f.fecha >= " . $this->dataBase->var2str($this->desde)
-            . " AND f.fecha <= " . $this->dataBase->var2str($this->hasta);
-
-        $sql .= $this->loadDataInformeVentasWhere($sql)
-            . " GROUP BY f.codalmacen,f.codcliente,f.fecha,l.referencia,l.descripcion"
-            . " ORDER BY f.codcliente ASC, l.referencia ASC, f.fecha DESC;";
-        return $this->dataBase->select($sql);
-    }
-
-    protected function loadDataInformeVentasWhere($sql): string
-    {
-        $oldSql = $sql;
-        if ($this->codpais) {
-            $sql .= " AND codpais = " . $this->dataBase->var2str($this->codpais);
-        }
-
-        if ($this->provincia) {
-            $sql .= " AND lower(provincia) = lower(" . $this->dataBase->var2str($this->provincia) . ")";
-        }
-
-        if ($this->cliente) {
-            $sql .= " AND codcliente = " . $this->dataBase->var2str($this->cliente->codcliente);
-        }
-
-        if ($this->codserie) {
-            $sql .= " AND codserie = " . $this->dataBase->var2str($this->codserie);
-        }
-
-        if ($this->codalmacen) {
-            $sql .= " AND codalmacen = " . $this->dataBase->var2str($this->codalmacen);
-        }
-
-        if ($this->codagente) {
-            $sql .= " AND codagente = " . $this->dataBase->var2str($this->codagente);
-        }
-
-        if ($this->sale_minimo) {
-            $sql .= " AND neto > " . $this->dataBase->var2str($this->sale_minimo);
-        }
-
-        return $sql === $oldSql ? '' : $sql;
-    }
-
-    /**
-     * Construimos sentencias where para las consultas sql.
-     */
-    protected function setWhere()
-    {
-        $this->where_compras = " WHERE fecha >= " . $this->dataBase->var2str($this->desde)
-            . " AND fecha <= " . $this->dataBase->var2str($this->hasta);
-
-        // nos guardamos un where sin fechas
-        $this->where_compras_nf = " WHERE 1 = 1";
-
-        if ($this->codserie) {
-            $this->where_compras .= " AND codserie = " . $this->dataBase->var2str($this->codserie);
-            $this->where_compras_nf .= " AND codserie = " . $this->dataBase->var2str($this->codserie);
-        }
-
-        if ($this->codagente) {
-            $this->where_compras .= " AND codagente = " . $this->dataBase->var2str($this->codagente);
-            $this->where_compras_nf .= " AND codagente = " . $this->dataBase->var2str($this->codagente);
-        }
-
-        if ($this->codalmacen) {
-            $this->where_compras .= " AND codalmacen = " . $this->dataBase->var2str($this->codalmacen);
-            $this->where_compras_nf .= " AND codalmacen = " . $this->dataBase->var2str($this->codalmacen);
-        }
-
-        if ($this->coddivisa) {
-            $this->where_compras .= " AND coddivisa = " . $this->dataBase->var2str($this->coddivisa);
-            $this->where_compras_nf .= " AND coddivisa = " . $this->dataBase->var2str($this->coddivisa);
-        }
-
-        if ($this->codpago) {
-            $this->where_compras .= " AND codpago = " . $this->dataBase->var2str($this->codpago);
-            $this->where_compras_nf .= " AND codpago = " . $this->dataBase->var2str($this->codpago);
-        }
-
-        $this->where_ventas = $this->where_compras;
-        $this->where_ventas_nf = $this->where_compras_nf;
-
-        if ($this->cliente) {
-            $this->where_ventas .= " AND codcliente = " . $this->dataBase->var2str($this->cliente->codcliente);
-            $this->where_ventas_nf .= " AND codcliente = " . $this->dataBase->var2str($this->cliente->codcliente);
-        }
-
-        if ($this->proveedor) {
-            $this->where_compras .= " AND codproveedor = " . $this->dataBase->var2str($this->proveedor->codproveedor);
-            $this->where_compras_nf .= " AND codproveedor = " . $this->dataBase->var2str($this->proveedor->codproveedor);
-        }
-
-        if ($this->estado) {
-            $estado = $this->estado == 'pagada';
-            $this->where_compras .= " AND pagada = " . $this->dataBase->var2str($estado);
-            $this->where_ventas .= " AND pagada = " . $this->dataBase->var2str($estado);
-        }
     }
 }
