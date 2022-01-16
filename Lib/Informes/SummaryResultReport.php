@@ -146,7 +146,8 @@ class SummaryResultReport extends ResultReport
 
         // ventas
         $html .= '<tr class="table-success">'
-            . '<td class="title align-middle"><b>' . ToolBox::i18n()->trans('sales') . '</b></td>'
+            . '<td class="title align-middle"><b>' . ToolBox::i18n()->trans('sales') . '</b><br/>'
+            . '<small>' . ToolBox::i18n()->trans('previous') . '</small></td>'
             . '<td class="porc">';
 
         $money = self::$ventas[self::$year]['total_mes']['media'];
@@ -155,8 +156,7 @@ class SummaryResultReport extends ResultReport
         $html .= '<div class="small">';
         $html .= $lastmoney ? ToolBox::coins()::format($lastmoney) : self::defaultMoney();
 
-        $html .= ''
-            . '</div>'
+        $html .= '</div>'
             . '</td>';
 
         for ($x = 0; $x <= 12; $x++) {
@@ -167,15 +167,15 @@ class SummaryResultReport extends ResultReport
             $html .= $money ? $money < 0 ? '<span class="text-danger">' . ToolBox::coins()::format($money) . '</span>' : ToolBox::coins()::format($money) : self::defaultMoney();
             $html .= '<div class="small">';
             $html .= $lastmoney ? ToolBox::coins()::format($lastmoney) : self::defaultMoney();
-            $html .= ''
-                . '</div>'
+            $html .= '</div>'
                 . '</td>';
         }
         $html .= '</tr>';
 
         // compras
         $html .= '<tr class="table-danger">'
-            . '<td class="title align-middle"><b>' . ToolBox::i18n()->trans('expenses') . '</b></td>'
+            . '<td class="title align-middle"><b>' . ToolBox::i18n()->trans('expenses') . '</b><br/>'
+            . '<small>' . ToolBox::i18n()->trans('previous') . '</small></td>'
             . '<td class="porc">';
 
         $money = self::$gastos[self::$year]['total_mes']['media'];
@@ -184,8 +184,7 @@ class SummaryResultReport extends ResultReport
         $html .= '<div class="small">';
         $html .= $lastmoney ? ToolBox::coins()::format($lastmoney) : self::defaultMoney();
 
-        $html .= ''
-            . '</div>'
+        $html .= '</div>'
             . '</td>';
 
         for ($x = 0; $x <= 12; $x++) {
@@ -196,15 +195,15 @@ class SummaryResultReport extends ResultReport
             $html .= $money ? $money < 0 ? '<span class="text-danger">' . ToolBox::coins()::format($money) . '</span>' : ToolBox::coins()::format($money) : self::defaultMoney();
             $html .= '<div class="small">';
             $html .= $lastmoney ? ToolBox::coins()::format($lastmoney) : self::defaultMoney();
-            $html .= ''
-                . '</div>'
+            $html .= '</div>'
                 . '</td>';
         }
         $html .= '</tr>';
 
         // resultados
         $html .= '<tr class="table-primary">'
-            . '<td class="title align-middle"><b>' . ToolBox::i18n()->trans('result') . '</b></td>'
+            . '<td class="title align-middle"><b>' . ToolBox::i18n()->trans('result') . '</b><br/>'
+            . '<small>' . ToolBox::i18n()->trans('previous') . '</small></td>'
             . '<td class="porc">';
 
         $money = self::$resultado[self::$year]['total_mes']['media'];
@@ -213,8 +212,7 @@ class SummaryResultReport extends ResultReport
         $html .= '<div class="small">';
         $html .= $lastmoney ? ToolBox::coins()::format($lastmoney) : self::defaultMoney();
 
-        $html .= ''
-            . '</div>'
+        $html .= '</div>'
             . '</td>';
 
         for ($x = 0; $x <= 12; $x++) {
@@ -225,8 +223,7 @@ class SummaryResultReport extends ResultReport
             $html .= $money ? $money < 0 ? '<span class="text-danger">' . ToolBox::coins()::format($money) . '</span>' : ToolBox::coins()::format($money) : self::defaultMoney();
             $html .= '<div class="small">';
             $html .= $lastmoney ? ToolBox::coins()::format($lastmoney) : self::defaultMoney();
-            $html .= ''
-                . '</div>'
+            $html .= '</div>'
                 . '</td>';
         }
 
@@ -234,7 +231,6 @@ class SummaryResultReport extends ResultReport
             . '</tbody>'
             . '</table>'
             . '</div>';
-
         return $html;
     }
 }
