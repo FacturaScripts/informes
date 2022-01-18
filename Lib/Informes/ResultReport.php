@@ -363,21 +363,21 @@ class ResultReport
     {
         // GASTOS: Creamos un array con las descripciones de las cuentas
         foreach ($gastos['cuentas'] as $codcuenta => $arraycuenta) {
-            $gastos['descripciones'][$codcuenta] = '-';
-            $cuenta = new Cuenta();
-            $where = [
-                new DataBaseWhere('codcuenta', $codcuenta),
-                new DataBaseWhere('codejercicio', $codejercicio)
-            ];
-
-            if ($cuenta->loadFromCode('', $where)) {
-                $gastos['descripciones'][$codcuenta] = $codcuenta . ' - ' . $cuenta->descripcion;
-            }
-
             // Añadimos las descripciones de las subcuentas
             // solo al desplegar una cuenta
             if (self::$parent_codcuenta === (string)$codcuenta) {
                 $gastos = self::setDescriptionSubaccount($gastos, $arraycuenta, $codejercicio);
+            } else {
+                $gastos['descripciones'][$codcuenta] = '-';
+                $cuenta = new Cuenta();
+                $where = [
+                    new DataBaseWhere('codcuenta', $codcuenta),
+                    new DataBaseWhere('codejercicio', $codejercicio)
+                ];
+
+                if ($cuenta->loadFromCode('', $where)) {
+                    $gastos['descripciones'][$codcuenta] = $codcuenta . ' - ' . $cuenta->descripcion;
+                }
             }
         }
 
@@ -403,10 +403,11 @@ class ResultReport
                 $dl['referencia'] = $referencia;
                 $dl['pvptotal'] = 0;
                 $data = self::build_data($dl);
-                $ventas['descripciones'][$codfamilia] = $data['familia'];
 
                 if (self::$parent_codfamilia === (string)$codfamilia) {
                     $ventas = self::setDescriptionProducts($ventas, $referencia, $data['art_desc']);
+                } else {
+                    $ventas['descripciones'][$codfamilia] = $data['familia'];
                 }
             }
         }
