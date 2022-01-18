@@ -17,7 +17,7 @@
                         <i class="fas fa-redo" aria-hidden="true"></i>
                     </a>
                     <a class="btn btn-sm btn-secondary" href="{{ fsc.url() }}?defaultPage=TRUE"
-                       title="{{ i18n.trans('ark-as-homepage') }}">
+                       title="{{ i18n.trans('mark-as-homepage') }}">
                         <i class="far fa-bookmark" aria-hidden="true"></i>
                     </a>
                 </div>
@@ -36,7 +36,7 @@
         <div class="row">
             <div class="col-sm-12">
                 <div class="card border-primary shadow mt-4">
-                    <div class="card-header bg-primary d-flex flex-row">
+                    <div class="card-header bg-primary text-white d-flex flex-row">
                         <select class="form-control" id="selectYear">
                             {{ fsc.loadYears()|raw }}
                         </select>
@@ -79,10 +79,10 @@
                     </div>
                 </div>
             </div>
-            <div class="col-12 col-md-3">
+            <div class="col-md-6 col-lg-3">
                 <div class="card shadow mt-4">
                     <div class="card-body h5">
-                        <i class="fas fa-chart-pie"></i> {{ i18n.trans('sales-families') }}
+                        <i class="fas fa-chart-pie"></i> {{ i18n.trans('sales-per-family') }}
                     </div>
                     <div class="canva">
                         <canvas id="chartsFamilies"></canvas>
@@ -100,10 +100,10 @@
                     </div>
                 </div>
             </div>
-            <div class="col-12 col-md-3">
+            <div class="col-md-6 col-lg-3">
                 <div class="card shadow mt-4">
                     <div class="card-body h5">
-                        <i class="fas fa-chart-pie"></i> {{ i18n.trans('sales-series') }}
+                        <i class="fas fa-chart-pie"></i> {{ i18n.trans('sales-per-serie') }}
                     </div>
                     <div class="canva">
                         <canvas id="chartsSeries"></canvas>
@@ -121,10 +121,10 @@
                     </div>
                 </div>
             </div>
-            <div class="col-12 col-md-3">
+            <div class="col-md-6 col-lg-3">
                 <div class="card shadow mt-4">
                     <div class="card-body h5">
-                        <i class="fas fa-chart-pie"></i> {{ i18n.trans('sales-payments') }}
+                        <i class="fas fa-chart-pie"></i> {{ i18n.trans('sales-per-paymethod') }}
                     </div>
                     <div class="canva">
                         <canvas id="chartsPagos"></canvas>
@@ -142,10 +142,10 @@
                     </div>
                 </div>
             </div>
-            <div class="col-12 col-md-3">
+            <div class="col-md-6 col-lg-3">
                 <div class="card shadow mt-4">
                     <div class="card-body h5">
-                        <i class="fas fa-chart-pie"></i> {{ i18n.trans('sales-agents') }}
+                        <i class="fas fa-chart-pie"></i> {{ i18n.trans('sales-per-agent') }}
                     </div>
                     <div class="canva">
                         <canvas id="chartsAgentes"></canvas>
