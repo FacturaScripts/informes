@@ -75,13 +75,14 @@ class SalesResultReport extends ResultReport
 
         if (isset(self::$ventas[self::$year]['descripciones'])) {
             asort(self::$ventas[self::$year]['descripciones']);
+            $cont = 1;
             foreach (self::$ventas[self::$year]['descripciones'] as $key => $value) {
                 if (!isset(self::$ventas[self::$year]['familias'][$key])) {
                     continue;
                 }
 
                 $html .= ''
-                    . '<tr codfamilia ="' . $key . '" data-target="#ventas-' . $key . '" class="ventas cursor-pointer">'
+                    . '<tr codfamilia ="' . $key . '" data-target="#ventas-' . $cont . '" class="ventas cursor-pointer">'
                     . '<td class="title">' . self::$ventas[self::$year]['descripciones'][$key] . '</td>'
                     . '<td class="porc align-middle">';
 
@@ -105,10 +106,12 @@ class SalesResultReport extends ResultReport
                 $html .= '</tr>'
                     . '<tr>'
                     . '<td colspan="15" class="hiddenRow">'
-                    . '<div class="collapse" id="ventas-' . $key . '">'
+                    . '<div class="collapse" id="ventas-' . $cont . '">'
                     . '</div>'
                     . '</td>'
                     . '</tr>';
+
+                $cont++;
             }
         }
 

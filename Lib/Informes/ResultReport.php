@@ -141,6 +141,71 @@ class ResultReport
         return array('ref' => $referencia, 'art_desc' => $art_desc, 'codfamilia' => $codfamilia, 'familia' => $familia, 'pvptotal' => $pvptotal);
     }
 
+    protected static function customerInvoices(array $ventas, array $date, string $codejercicio, int $mes, float &$ventas_total_ser_meses, float &$ventas_total_pag_meses, float &$ventas_total_age_meses): array
+    {
+        $modelFacturas = new FacturaCliente();
+
+        $where = [
+            new DataBaseWhere('fecha', $date['desde'], '>='),
+            new DataBaseWhere('fecha', $date['hasta'], '<='),
+            new DataBaseWhere('codejercicio', $codejercicio)
+        ];
+
+        foreach ($modelFacturas->all($where, [], 0, 0) as $factura) {
+            // Series
+            if (isset($ventas['total_ser_mes'][$factura->codserie][$mes])) {
+                $ventas['total_ser_mes'][$factura->codserie][$mes] += $factura->neto;
+            } else {
+                $ventas['total_ser_mes'][$factura->codserie][$mes] = $factura->neto;
+            }
+
+            if (isset($ventas['total_ser'][$factura->codserie])) {
+                $ventas['total_ser'][$factura->codserie] += $factura->neto;
+            } else {
+                $ventas['total_ser'][$factura->codserie] = $factura->neto;
+            }
+
+            $ventas['series'][$factura->codserie][$mes] = array('pvptotal' => $factura->neto);
+            $ventas_total_ser_meses = $factura->neto + $ventas_total_ser_meses;
+
+            // Pagos
+            if (isset($ventas['total_pag_mes'][$factura->codpago][$mes])) {
+                $ventas['total_pag_mes'][$factura->codpago][$mes] += $factura->neto;
+            } else {
+                $ventas['total_pag_mes'][$factura->codpago][$mes] = $factura->neto;
+            }
+
+            if (isset($ventas['total_pag'][$factura->codpago])) {
+                $ventas['total_pag'][$factura->codpago] += $factura->neto;
+            } else {
+                $ventas['total_pag'][$factura->codpago] = $factura->neto;
+            }
+
+            $ventas['pagos'][$factura->codpago][$mes] = array('pvptotal' => $factura->neto);
+            $ventas_total_pag_meses = $factura->neto + $ventas_total_pag_meses;
+
+            // Agentes
+            if (!is_null($factura->codagente)) {
+                if (isset($ventas['total_age_mes'][$factura->codagente][$mes])) {
+                    $ventas['total_age_mes'][$factura->codagente][$mes] += $factura->neto;
+                } else {
+                    $ventas['total_age_mes'][$factura->codagente][$mes] = $factura->neto;
+                }
+
+                if (isset($ventas['total_age'][$factura->codagente])) {
+                    $ventas['total_age'][$factura->codagente] += $factura->neto;
+                } else {
+                    $ventas['total_age'][$factura->codagente] = $factura->neto;
+                }
+
+                $ventas['agentes'][$factura->codagente][$mes] = array('pvptotal' => $factura->neto);
+                $ventas_total_age_meses = $factura->neto + $ventas_total_age_meses;
+            }
+        }
+
+        return $ventas;
+    }
+
     protected static function days_in_month($month, $year)
     {
         // calculate number of days in a month CALC_GREGORIAN
@@ -552,7 +617,7 @@ class ResultReport
                 $ventas = self::salesLineasFacturasCli($ventas, $date, $codejercicio, $mes, $ventas_total_fam_meses);
 
                 // Recorremos las facturas pagadas
-                $ventas = self::salesPaid($ventas, $date, $codejercicio, $mes, $ventas_total_ser_meses, $ventas_total_pag_meses, $ventas_total_age_meses);
+                $ventas = self::customerInvoices($ventas, $date, $codejercicio, $mes, $ventas_total_ser_meses, $ventas_total_pag_meses, $ventas_total_age_meses);
 
                 // Las descripciones solo las necesitamos en el año seleccionado,
                 // en el año anterior se omite
@@ -640,72 +705,6 @@ class ResultReport
 
             // Array temporal con los totales (falta añadir descripción familia)
             $ventas['familias'][$codfamilia][$referencia][$mes] = array('pvptotal' => $pvptotal);
-        }
-
-        return $ventas;
-    }
-
-    protected static function salesPaid(array $ventas, array $date, string $codejercicio, int $mes, float &$ventas_total_ser_meses, float &$ventas_total_pag_meses, float &$ventas_total_age_meses): array
-    {
-        $modelFacturas = new FacturaCliente();
-
-        $where = [
-            new DataBaseWhere('fecha', $date['desde'], '>='),
-            new DataBaseWhere('fecha', $date['hasta'], '<='),
-            new DataBaseWhere('codejercicio', $codejercicio),
-            new DataBaseWhere('pagada', 1)
-        ];
-
-        foreach ($modelFacturas->all($where, [], 0, 0) as $factura) {
-            // Series
-            if (isset($ventas['total_ser_mes'][$factura->codserie][$mes])) {
-                $ventas['total_ser_mes'][$factura->codserie][$mes] += $factura->neto;
-            } else {
-                $ventas['total_ser_mes'][$factura->codserie][$mes] = $factura->neto;
-            }
-
-            if (isset($ventas['total_ser'][$factura->codserie])) {
-                $ventas['total_ser'][$factura->codserie] += $factura->neto;
-            } else {
-                $ventas['total_ser'][$factura->codserie] = $factura->neto;
-            }
-
-            $ventas['series'][$factura->codserie][$mes] = array('pvptotal' => $factura->neto);
-            $ventas_total_ser_meses = $factura->neto + $ventas_total_ser_meses;
-
-            // Pagos
-            if (isset($ventas['total_pag_mes'][$factura->codpago][$mes])) {
-                $ventas['total_pag_mes'][$factura->codpago][$mes] += $factura->neto;
-            } else {
-                $ventas['total_pag_mes'][$factura->codpago][$mes] = $factura->neto;
-            }
-
-            if (isset($ventas['total_pag'][$factura->codpago])) {
-                $ventas['total_pag'][$factura->codpago] += $factura->neto;
-            } else {
-                $ventas['total_pag'][$factura->codpago] = $factura->neto;
-            }
-
-            $ventas['pagos'][$factura->codpago][$mes] = array('pvptotal' => $factura->neto);
-            $ventas_total_pag_meses = $factura->neto + $ventas_total_pag_meses;
-
-            // Agentes
-            if (!is_null($factura->codagente)) {
-                if (isset($ventas['total_age_mes'][$factura->codagente][$mes])) {
-                    $ventas['total_age_mes'][$factura->codagente][$mes] += $factura->neto;
-                } else {
-                    $ventas['total_age_mes'][$factura->codagente][$mes] = $factura->neto;
-                }
-
-                if (isset($ventas['total_age'][$factura->codagente])) {
-                    $ventas['total_age'][$factura->codagente] += $factura->neto;
-                } else {
-                    $ventas['total_age'][$factura->codagente] = $factura->neto;
-                }
-
-                $ventas['agentes'][$factura->codagente][$mes] = array('pvptotal' => $factura->neto);
-                $ventas_total_age_meses = $factura->neto + $ventas_total_age_meses;
-            }
         }
 
         return $ventas;

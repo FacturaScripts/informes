@@ -291,11 +291,19 @@
                     }
 
                     if (data.family && data.family !== '') {
-                        $('#salesReport #ventas-' + data.codfamilia).html(data.family);
+                        $('#salesReport tr').each(function(){
+                            if ($(this).attr('codfamilia') === data.codfamilia) {
+                                $(this).next().find('div').html(data.family);
+                            }
+                        });
                     }
 
                     if (data.account && data.account !== '') {
-                        $('#purchasesReport #gastos-' + data.codcuenta).html(data.account);
+                        $('#purchasesReport tr').each(function(){
+                            if ($(this).attr('codcuenta') === data.codcuenta) {
+                                $(this).next().find('div').html(data.account);
+                            }
+                        });
                     }
 
                     if (Array.isArray(data.messages)) {
