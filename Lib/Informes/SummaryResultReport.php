@@ -47,7 +47,7 @@ class SummaryResultReport extends ResultReport
         arsort(self::$ventas[self::$year]['porc_fam']);
         foreach (self::$ventas[self::$year]['porc_fam'] as $codfamilia => $porc) {
             $totalaux = round(self::$ventas[self::$year]['total_fam'][$codfamilia], FS_NF0);
-            $fam_desc = 'Sin Familia';
+            $fam_desc = ToolBox::i18n()->trans('no-family');
             if ($codfamilia != 'SIN_FAMILIA' && isset(self::$ventas[self::$year]['descripciones'][$codfamilia])) {
                 $fam_desc = self::$ventas[self::$year]['descripciones'][$codfamilia];
             }
