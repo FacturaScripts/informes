@@ -73,41 +73,43 @@ class SalesResultReport extends ResultReport
             $html .= '</tr>';
         }
 
-        asort(self::$ventas[self::$year]['descripciones']);
-        foreach (self::$ventas[self::$year]['descripciones'] as $key => $value) {
-            if (!isset(self::$ventas[self::$year]['familias'][$key])) {
-                continue;
-            }
+        if (isset(self::$ventas[self::$year]['descripciones'])) {
+            asort(self::$ventas[self::$year]['descripciones']);
+            foreach (self::$ventas[self::$year]['descripciones'] as $key => $value) {
+                if (!isset(self::$ventas[self::$year]['familias'][$key])) {
+                    continue;
+                }
 
-            $html .= ''
-                . '<tr codfamilia ="' . $key . '" data-target="#ventas-' . $key . '" class="ventas cursor-pointer">'
-                . '<td class="title">' . self::$ventas[self::$year]['descripciones'][$key] . '</td>'
-                . '<td class="porc align-middle">';
+                $html .= ''
+                    . '<tr codfamilia ="' . $key . '" data-target="#ventas-' . $key . '" class="ventas cursor-pointer">'
+                    . '<td class="title">' . self::$ventas[self::$year]['descripciones'][$key] . '</td>'
+                    . '<td class="porc align-middle">';
 
-            $percentage = (float)self::$ventas[self::$year]['porc_fam'][$key];
-            $html .= $percentage > 0 ? $percentage . ' %' : self::defaultPerc();
+                $percentage = (float)self::$ventas[self::$year]['porc_fam'][$key];
+                $html .= $percentage > 0 ? $percentage . ' %' : self::defaultPerc();
 
-            $html .= '</td>'
-                . '<td class="total align-middle">';
+                $html .= '</td>'
+                    . '<td class="total align-middle">';
 
-            $money = self::$ventas[self::$year]['total_fam'][$key];
-            $html .= $money ? ToolBox::coins()::format($money) : self::defaultMoney();
+                $money = self::$ventas[self::$year]['total_fam'][$key];
+                $html .= $money ? ToolBox::coins()::format($money) : self::defaultMoney();
 
-            $html .= '</td>';
-
-            for ($x = 1; $x <= 12; $x++) {
-                $html .= '<td class="month align-middle">';
-                $html .= isset(self::$ventas[self::$year]['total_fam_mes'][$key][$x]) ? ToolBox::coins()::format(self::$ventas[self::$year]['total_fam_mes'][$key][$x]) : self::defaultMoney();
                 $html .= '</td>';
-            }
 
-            $html .= '</tr>'
-                . '<tr>'
-                . '<td colspan="15" class="hiddenRow">'
-                . '<div class="collapse" id="ventas-' . $key . '">'
-                . '</div>'
-                . '</td>'
-                . '</tr>';
+                for ($x = 1; $x <= 12; $x++) {
+                    $html .= '<td class="month align-middle">';
+                    $html .= isset(self::$ventas[self::$year]['total_fam_mes'][$key][$x]) ? ToolBox::coins()::format(self::$ventas[self::$year]['total_fam_mes'][$key][$x]) : self::defaultMoney();
+                    $html .= '</td>';
+                }
+
+                $html .= '</tr>'
+                    . '<tr>'
+                    . '<td colspan="15" class="hiddenRow">'
+                    . '<div class="collapse" id="ventas-' . $key . '">'
+                    . '</div>'
+                    . '</td>'
+                    . '</tr>';
+            }
         }
 
         $html .= '</tbody>'
