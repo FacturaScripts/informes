@@ -74,8 +74,9 @@ class PurchasesResultReport extends ResultReport
             $html .= '</tr>';
         }
 
+        $cont = 1;
         foreach (self::$gastos[self::$year]['cuentas'] as $key => $value) {
-            $html .= '<tr codcuenta="' . $key . '" data-target="#gastos-' . $key . '" class="gastos cursor-pointer">'
+            $html .= '<tr codcuenta="' . $key . '" data-target="#gastos-' . $cont . '" class="gastos cursor-pointer">'
                 . '<td class="title align-middle">' . self::$gastos[self::$year]['descripciones'][$key] . '</td>'
                 . '<td class="porc align-middle">';
 
@@ -101,10 +102,12 @@ class PurchasesResultReport extends ResultReport
                 . '</tr>'
                 . '<tr>'
                 . '<td colspan="15" class="hiddenRow">'
-                . '<div class="collapse" id="gastos-' . $key . '">'
+                . '<div class="collapse" id="gastos-' . $cont . '">'
                 . '</div>'
                 . '</td>'
                 . '</tr>';
+
+            $cont++;
         }
 
         $html .= ''
