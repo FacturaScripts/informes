@@ -73,16 +73,6 @@
                                     fsc.getSelectValues('agentes', 'codagente', 'nombre', true), i18n.trans('agent')) }}
                             </div>
                         </div>
-                        <div class="col-12 col-md-3">
-                            <div class="form-group">
-                                {{ i18n.trans('status') }}
-                                <select name="estado" class="form-control">
-                                    <option value="">{{ i18n.trans('all') }}</option>
-                                    <option value="pagada" {{ fsc.estado == 'pagada' ? 'selected' : '' }}>{{ i18n.trans('paid') }}</option>
-                                    <option value="sinpagar" {{ fsc.estado == 'sinpagar' ? 'selected' : '' }}>{{ i18n.trans('unpaid') }}</option>
-                                </select>
-                            </div>
-                        </div>
                     </div>
 
                     <ul class="nav nav-pills mt-3 mb-3" role="tablist">
@@ -137,20 +127,20 @@
                                     <div class="form-group">
                                         {{ i18n.trans('minimum-amount') }}
                                         <input type="number" class="form-control" name="sale-minimo"
-                                               placeholder="{{ i18n.trans('optional-amounts-units') }}"
+                                               placeholder="{{ i18n.trans('optional') }}"
                                                value="{{ fsc.sale_minimo }}">
                                     </div>
                                 </div>
                                 <div class="col-md-12">
                                     <p class="text-muted">{{ i18n.trans('sale-report-legend') }}</p>
                                     <div class="form-group">
-                                        {{ i18n.trans('select-option') }}
+                                        {{ i18n.trans('type') }}
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" name="sale-unidades"
                                                    id="saleUndFalse"
                                                    value="0" {{ fsc.sale_unidades == 0 ? 'checked' : '' }}>
                                             <label class="form-check-label" for="saleUndFalse">
-                                                {{ i18n.trans('amounts') }}
+                                                {{ i18n.trans('amount') }}
                                             </label>
                                         </div>
                                         <div class="form-check">
@@ -158,7 +148,7 @@
                                                    id="saleUndTrue"
                                                    value="1" {{ fsc.sale_unidades == 1 ? 'checked' : '' }}>
                                             <label class="form-check-label" for="saleUndTrue">
-                                                {{ i18n.trans('units') }}
+                                                {{ i18n.trans('quantities') }}
                                             </label>
                                         </div>
                                     </div>
@@ -174,7 +164,7 @@
                                         {{ i18n.trans('supplier') }}
                                         <div class="input-group">
                                             <input type="text" class="form-control" id="supplier"
-                                                   placeholder="{{ i18n.trans('any-provider') }}"
+                                                   placeholder="{{ i18n.trans('any-supplier') }}"
                                                    value="{{ fsc.proveedor.nombre }}">
                                             <input type="hidden" name="codproveedor"
                                                    value="{{ fsc.proveedor.codproveedor }}">
@@ -191,20 +181,20 @@
                                     <div class="form-group">
                                         {{ i18n.trans('minimum-amount') }}
                                         <input type="number" class="form-control" name="purchase-minimo"
-                                               placeholder="{{ i18n.trans('optional-amounts-units') }}"
+                                               placeholder="{{ i18n.trans('optional') }}"
                                                value="{{ fsc.purchase_minimo }}">
                                     </div>
                                 </div>
                                 <div class="col-md-12">
                                     <p class="text-muted">{{ i18n.trans('purchase-report-legend') }}</p>
                                     <div class="form-group">
-                                        {{ i18n.trans('select-option') }}
+                                        {{ i18n.trans('type') }}
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" name="purchase-unidades"
                                                    id="purchaseUndFalse"
                                                    value="0" {{ fsc.purchase_unidades == 0 ? 'checked' : '' }}>
                                             <label class="form-check-label" for="purchaseUndFalse">
-                                                {{ i18n.trans('amounts') }}
+                                                {{ i18n.trans('amount') }}
                                             </label>
                                         </div>
                                         <div class="form-check">
@@ -212,7 +202,7 @@
                                                    id="purchaseUndTrue"
                                                    value="1" {{ fsc.purchase_unidades == 1 ? 'checked' : '' }}>
                                             <label class="form-check-label" for="purchaseUndTrue">
-                                                {{ i18n.trans('units') }}
+                                                {{ i18n.trans('quantities') }}
                                             </label>
                                         </div>
                                     </div>

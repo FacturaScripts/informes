@@ -1,6 +1,20 @@
 <?php
 /**
- * Copyright (C) 2019-2021 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * This file is part of Informes plugin for FacturaScripts
+ * Copyright (C) 2022 Carlos Garcia Gomez <carlos@facturascripts.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 namespace FacturaScripts\Plugins\Informes\Lib\Informes;
@@ -21,7 +35,6 @@ use FacturaScripts\Dinamic\Model\Agente;
 use FacturaScripts\Dinamic\Model\FormaPago;
 
 /**
- *
  * @author Daniel Fernández Giménez <hola@danielfg.es>
  */
 class ResultReport
@@ -43,7 +56,7 @@ class ResultReport
 
         $year = date('Y', strtotime($eje->fechafin));
 
-        /// seleccionamos el año anterior
+        // seleccionamos el año anterior
         self::$codejercicio = FALSE;
         self::$codejercicio_ant = FALSE;
         self::$lastyear = FALSE;
@@ -67,19 +80,21 @@ class ResultReport
         self::$parent_codcuenta = isset($formData['parent_codcuenta']) ? (string)$formData['parent_codcuenta'] : null;
         self::$parent_codfamilia = isset($formData['parent_codfamilia']) ? (string)$formData['parent_codfamilia'] : null;
 
-        /// Llamamos a la función que crea los arrays con los datos,
-        /// pasandole el año seleccionado y el anterior.
+        // Llamamos a la función que crea los arrays con los datos,
+        // pasandole el año seleccionado y el anterior.
         switch ($formData['action']) {
             case 'load-account':
             case 'load-purchases':
                 self::purchases_build_year(self::$year, self::$codejercicio);
                 self::purchases_build_year(self::$lastyear, self::$codejercicio_ant);
                 break;
+
             case 'load-family':
             case 'load-sales':
                 self::sales_build_year(self::$year, self::$codejercicio);
                 self::sales_build_year(self::$lastyear, self::$codejercicio_ant);
                 break;
+
             case 'load-summary':
                 self::summary_build_year(self::$year, self::$codejercicio);
                 self::summary_build_year(self::$lastyear, self::$codejercicio_ant);
@@ -172,7 +187,7 @@ class ResultReport
 
         // Recorremos los meses y ejecutamos una consulta filtrando por el mes
         for ($mes = 1; $mes <= 12; $mes++) {
-            /// inicializamos
+            // inicializamos
             $gastos['total_mes'][$mes] = 0;
 
             if ($year) {
@@ -203,7 +218,7 @@ class ResultReport
                     if ($partidas) {
                         foreach ($partidas as $p) {
                             $codcuenta = substr($p['codsubcuenta'], 0, 3);
-                            $pvptotal = (float) $p['debe'] - (float) $p['haber'];
+                            $pvptotal = (float)$p['debe'] - (float)$p['haber'];
 
                             // Array con los datos a mostrar
                             if (isset($gastos['total_cuenta_mes'][$codcuenta][$mes])) {
@@ -279,7 +294,7 @@ class ResultReport
         return substr(str_shuffle('ABCDEF0123456789'), 0, 6);
     }
 
-    protected static function setDescriptionAccount(array $gastos, string $codejercicio):array
+    protected static function setDescriptionAccount(array $gastos, string $codejercicio): array
     {
         // GASTOS: Creamos un array con las descripciones de las cuentas
         foreach ($gastos['cuentas'] as $codcuenta => $arraycuenta) {
@@ -304,7 +319,7 @@ class ResultReport
         return $gastos;
     }
 
-    protected static function setDescriptionAgents(array $ventas):array
+    protected static function setDescriptionAgents(array $ventas): array
     {
         foreach ($ventas['agentes'] as $codagente => $agentes) {
             $agente = new Agente();
@@ -315,7 +330,7 @@ class ResultReport
         return $ventas;
     }
 
-    protected static function setDescriptionFamilies(array $ventas, string $codejercicio):array
+    protected static function setDescriptionFamilies(array $ventas, string $codejercicio): array
     {
         // Recorremos ventas['familias'] crear un array con las descripciones de las familias
         foreach ($ventas['familias'] as $codfamilia => $familia) {
@@ -334,7 +349,7 @@ class ResultReport
         return $ventas;
     }
 
-    protected static function setDescriptionPayments(array $ventas):array
+    protected static function setDescriptionPayments(array $ventas): array
     {
         foreach ($ventas['pagos'] as $codpago => $pagos) {
             $pago = new FormaPago();
@@ -345,13 +360,13 @@ class ResultReport
         return $ventas;
     }
 
-    protected static function setDescriptionProducts(array $ventas, string $referencia, string $desc):array
+    protected static function setDescriptionProducts(array $ventas, string $referencia, string $desc): array
     {
         $ventas['descripciones'][$referencia] = $desc;
         return $ventas;
     }
 
-    protected static function setDescriptionSubaccount(array $gastos, array $arraycuenta, string $codejercicio):array
+    protected static function setDescriptionSubaccount(array $gastos, array $arraycuenta, string $codejercicio): array
     {
         foreach ($arraycuenta as $codsubcuenta => $arraysubcuenta) {
             $gastos['descripciones'][$codsubcuenta] = '-';
@@ -368,7 +383,7 @@ class ResultReport
         return $gastos;
     }
 
-    protected static function setDescriptionSeries(array $ventas):array
+    protected static function setDescriptionSeries(array $ventas): array
     {
         foreach ($ventas['series'] as $codserie => $series) {
             $serie = new Serie();
@@ -379,7 +394,7 @@ class ResultReport
         return $ventas;
     }
 
-    protected static function setPercentageAgents(array $ventas, float $ventas_total_age_meses):array
+    protected static function setPercentageAgents(array $ventas, float $ventas_total_age_meses): array
     {
         foreach ($ventas['agentes'] as $codagente => $agentes) {
             if ($ventas_total_age_meses != 0) {
@@ -390,7 +405,7 @@ class ResultReport
         return $ventas;
     }
 
-    protected static function setPercentageFamilies(array $ventas, float $ventas_total_fam_meses):array
+    protected static function setPercentageFamilies(array $ventas, float $ventas_total_fam_meses): array
     {
         foreach ($ventas['familias'] as $codfamilia => $familias) {
             if ($ventas_total_fam_meses != 0) {
@@ -406,7 +421,7 @@ class ResultReport
         return $ventas;
     }
 
-    protected static function setPercentagePayments(array $ventas, float $ventas_total_pag_meses):array
+    protected static function setPercentagePayments(array $ventas, float $ventas_total_pag_meses): array
     {
         foreach ($ventas['pagos'] as $codpago => $pagos) {
             if ($ventas_total_pag_meses != 0) {
@@ -417,7 +432,7 @@ class ResultReport
         return $ventas;
     }
 
-    protected static function setPercentageProducts(array $ventas, string $codfamilia, float $ventas_total_fam_meses, array $familias):array
+    protected static function setPercentageProducts(array $ventas, string $codfamilia, float $ventas_total_fam_meses, array $familias): array
     {
         foreach ($familias as $referencia => $array) {
             $ventas['porc_ref'][$codfamilia][$referencia] = round($ventas['total_ref'][$codfamilia][$referencia] * 100 / $ventas_total_fam_meses, FS_NF0);
@@ -426,7 +441,7 @@ class ResultReport
         return $ventas;
     }
 
-    protected static function setPercentageSeries(array $ventas, float $ventas_total_ser_meses):array
+    protected static function setPercentageSeries(array $ventas, float $ventas_total_ser_meses): array
     {
         foreach ($ventas['series'] as $codserie => $series) {
             if ($ventas_total_ser_meses != 0) {
@@ -437,7 +452,7 @@ class ResultReport
         return $ventas;
     }
 
-    protected static function setPercentagePurchases(array $gastos, float $gastos_total_meses):array
+    protected static function setPercentagePurchases(array $gastos, float $gastos_total_meses): array
     {
         foreach ($gastos['cuentas'] as $codcuenta => $cuenta) {
             if ($gastos_total_meses != 0) {
@@ -464,7 +479,7 @@ class ResultReport
 
         // Recorremos los meses y ejecutamos una consulta filtrando por el mes
         for ($mes = 1; $mes <= 12; $mes++) {
-            /// inicializamos
+            // inicializamos
             $resultado['total_mes'][$mes] = 0;
 
             /**
@@ -493,10 +508,11 @@ class ResultReport
         );
 
         $ventas = array(
-            'familias' => [],
-            'series' => [],
-            'pagos' => [],
             'agentes' => [],
+            'descripciones' => [],
+            'familias' => [],
+            'pagos' => [],
+            'series' => [],
             'total_fam' => [],
             'total_ser' => [],
             'total_pag' => [],
@@ -521,7 +537,7 @@ class ResultReport
 
         // Recorremos los meses y ejecutamos una consulta filtrando por el mes
         for ($mes = 1; $mes <= 12; $mes++) {
-            /// inicializamos
+            // inicializamos
             $ventas['total_mes'][$mes] = 0;
 
             if ($year) {
@@ -570,7 +586,7 @@ class ResultReport
         self::$ventas[$year] = $ventas;
     }
 
-    protected static function salesLineasFacturasCli(array $ventas, array $date, string $codejercicio, int $mes, float &$ventas_total_fam_meses):array
+    protected static function salesLineasFacturasCli(array $ventas, array $date, string $codejercicio, int $mes, float &$ventas_total_fam_meses): array
     {
         $dataBase = new DataBase();
 
@@ -629,7 +645,7 @@ class ResultReport
         return $ventas;
     }
 
-    protected static function salesPaid(array $ventas, array $date, string $codejercicio, int $mes, float &$ventas_total_ser_meses, float &$ventas_total_pag_meses, float &$ventas_total_age_meses):array
+    protected static function salesPaid(array $ventas, array $date, string $codejercicio, int $mes, float &$ventas_total_ser_meses, float &$ventas_total_pag_meses, float &$ventas_total_age_meses): array
     {
         $modelFacturas = new FacturaCliente();
 
