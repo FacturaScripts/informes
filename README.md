@@ -1,5 +1,5 @@
 # informes
-Informes adicionales de resultados y tesorería para FacturaScripts.
+Añade informes adicionales de resultados, tesorería y desgloses de compras y ventas a FacturaScripts.
 
 ## Web / documentación / soporte
 - https://facturascripts.com/plugins/informes
