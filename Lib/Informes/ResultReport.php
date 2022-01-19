@@ -185,22 +185,21 @@ class ResultReport
             $ventas_total_pag_meses = $factura->neto + $ventas_total_pag_meses;
 
             // Agentes
-            if (!is_null($factura->codagente)) {
-                if (isset($ventas['total_age_mes'][$factura->codagente][$mes])) {
-                    $ventas['total_age_mes'][$factura->codagente][$mes] += $factura->neto;
-                } else {
-                    $ventas['total_age_mes'][$factura->codagente][$mes] = $factura->neto;
-                }
-
-                if (isset($ventas['total_age'][$factura->codagente])) {
-                    $ventas['total_age'][$factura->codagente] += $factura->neto;
-                } else {
-                    $ventas['total_age'][$factura->codagente] = $factura->neto;
-                }
-
-                $ventas['agentes'][$factura->codagente][$mes] = array('pvptotal' => $factura->neto);
-                $ventas_total_age_meses = $factura->neto + $ventas_total_age_meses;
+            $codagente = $factura->codagente ?? 'SIN_AGENTE';
+            if (isset($ventas['total_age_mes'][$codagente][$mes])) {
+                $ventas['total_age_mes'][$codagente][$mes] += $factura->neto;
+            } else {
+                $ventas['total_age_mes'][$codagente][$mes] = $factura->neto;
             }
+
+            if (isset($ventas['total_age'][$codagente])) {
+                $ventas['total_age'][$codagente] += $factura->neto;
+            } else {
+                $ventas['total_age'][$codagente] = $factura->neto;
+            }
+
+            $ventas['agentes'][$codagente][$mes] = array('pvptotal' => $factura->neto);
+            $ventas_total_age_meses = $factura->neto + $ventas_total_age_meses;
         }
 
         return $ventas;
@@ -387,6 +386,11 @@ class ResultReport
     protected static function setDescriptionAgents(array $ventas): array
     {
         foreach ($ventas['agentes'] as $codagente => $agentes) {
+            if ($codagente === 'SIN_AGENTE') {
+                $ventas['descripciones'][$codagente] = ToolBox::i18n()->trans('no-agent');
+                continue;
+            }
+
             $agente = new Agente();
             $agente->loadFromCode($codagente);
             $ventas['descripciones'][$codagente] = $agente->nombre;
@@ -617,7 +621,7 @@ class ResultReport
                  */
                 $ventas = self::salesLineasFacturasCli($ventas, $date, $codejercicio, $mes, $ventas_total_fam_meses);
 
-                // Recorremos las facturas pagadas
+                // Recorremos las facturas
                 $ventas = self::customerInvoices($ventas, $date, $codejercicio, $mes, $ventas_total_ser_meses, $ventas_total_pag_meses, $ventas_total_age_meses);
 
                 // Las descripciones solo las necesitamos en el año seleccionado,
