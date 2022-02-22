@@ -92,7 +92,8 @@ class PurchasesResultReport extends ResultReport
             $html .= '</td>';
 
             for ($x = 1; $x <= 12; $x++) {
-                $html .= '<td class="month align-middle">';
+                $title = ToolBox::i18n()->trans(strtolower(date("F", mktime(0, 0, 0, $x, 10))));
+                $html .= '<td title="' . $title . '" class="month align-middle">';
                 $html .= isset(self::$gastos[self::$year]['total_cuenta_mes'][$key][$x]) ? ToolBox::coins()::format(self::$gastos[self::$year]['total_cuenta_mes'][$key][$x]) : self::defaultMoney();
                 $html .= ''
                     . '</td>';

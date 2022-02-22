@@ -98,7 +98,8 @@ class SalesResultReport extends ResultReport
                 $html .= '</td>';
 
                 for ($x = 1; $x <= 12; $x++) {
-                    $html .= '<td class="month align-middle">';
+                    $title = ToolBox::i18n()->trans(strtolower(date("F", mktime(0, 0, 0, $x, 10))));
+                    $html .= '<td title="' . $title . '" class="month align-middle">';
                     $html .= isset(self::$ventas[self::$year]['total_fam_mes'][$key][$x]) ? ToolBox::coins()::format(self::$ventas[self::$year]['total_fam_mes'][$key][$x]) : self::defaultMoney();
                     $html .= '</td>';
                 }
