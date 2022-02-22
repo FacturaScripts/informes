@@ -54,7 +54,8 @@ class AccountResultReport extends ResultReport
                 . '</td>';
 
             for ($x = 1; $x <= 12; $x++) {
-                $html .= '<td class="month text-right align-middle">';
+                $title = ToolBox::i18n()->trans(strtolower(date("F", mktime(0, 0, 0, $x, 10))));
+                $html .= '<td title="' . $title . '" class="month text-right align-middle">';
                 $html .= isset(self::$gastos[self::$year]['cuentas'][self::$parent_codcuenta][$key][$x]['pvptotal']) ? ToolBox::coins()::format(self::$gastos[self::$year]['cuentas'][self::$parent_codcuenta][$key][$x]['pvptotal']) : self::defaultMoney();
                 $html .= ''
                     . '</td>';
