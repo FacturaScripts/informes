@@ -1,0 +1,10 @@
+<script src="{{ asset('node_modules/chart.js/dist/Chart.min.js') }}"></script>
+
+<div class="form-row">
+    {% for line in fsc.getLines() %}
+        {% set report = line.getReport() %}
+        <div class="col-md-{{ line.columns }}">
+            {{ fsc.getChart(report).render() | raw }}
+        </div>
+    {% endfor %}
+</div>

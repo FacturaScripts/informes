@@ -281,7 +281,8 @@ class ResultReport
                     $partidas = $dataBase->select($sql);
                     if ($partidas) {
                         foreach ($partidas as $p) {
-                            $codcuenta = substr($p['codsubcuenta'], 0, 3);
+                            $codsubcuenta = $p['codsubcuenta'];
+                            $codcuenta = substr($codsubcuenta, 0, 3);
                             $pvptotal = (float)$p['debe'] - (float)$p['haber'];
 
                             // Array con los datos a mostrar
@@ -306,8 +307,6 @@ class ResultReport
                             $gastos_total_meses = $pvptotal + $gastos_total_meses;
 
                             if (self::$parent_codcuenta === $codcuenta) {
-                                $codsubcuenta = $p['codsubcuenta'];
-
                                 if (isset($gastos['total_subcuenta'][$codcuenta][$codsubcuenta])) {
                                     $gastos['total_subcuenta'][$codcuenta][$codsubcuenta] += $pvptotal;
                                 } else {
@@ -320,7 +319,7 @@ class ResultReport
                                     $gastos['cuentas'][$codcuenta][$codsubcuenta][$mes]['pvptotal'] = $pvptotal;
                                 }
                             } else {
-                                $gastos['cuentas'][$codcuenta] = $codcuenta;
+                                $gastos['cuentas'][$codcuenta]['codsubcuenta'] = $codsubcuenta;
                             }
                         }
                     }
@@ -368,11 +367,17 @@ class ResultReport
                 $gastos = self::setDescriptionSubaccount($gastos, $arraycuenta, $codejercicio);
             } else {
                 $gastos['descripciones'][$codcuenta] = '-';
-                $cuenta = new Cuenta();
+                $subcuenta = new Subcuenta();
                 $where = [
-                    new DataBaseWhere('codcuenta', $codcuenta),
+                    new DataBaseWhere('codsubcuenta', $arraycuenta['codsubcuenta']),
                     new DataBaseWhere('codejercicio', $codejercicio)
                 ];
+                if (false === $subcuenta->loadFromCode('', $where)) {
+                    continue;
+                }
+
+                $cuenta = new Cuenta();
+                $where = [new DataBaseWhere('codcuenta', $subcuenta->codcuenta),];
 
                 if ($cuenta->loadFromCode('', $where)) {
                     $gastos['descripciones'][$codcuenta] = $codcuenta . ' - ' . $cuenta->descripcion;
@@ -387,13 +392,15 @@ class ResultReport
     {
         foreach ($ventas['agentes'] as $codagente => $agentes) {
             if ($codagente === 'SIN_AGENTE') {
-                $ventas['descripciones'][$codagente] = ToolBox::i18n()->trans('no-agent');
+                //$ventas['descripciones'][$codagente] = ToolBox::i18n()->trans('no-agent');
+                $ventas['agentes'][$codagente]['descripcion'] = ToolBox::i18n()->trans('no-agent');
                 continue;
             }
 
             $agente = new Agente();
             $agente->loadFromCode($codagente);
-            $ventas['descripciones'][$codagente] = $agente->nombre;
+            //$ventas['descripciones'][$codagente] = $agente->nombre;
+            $ventas['agentes'][$codagente]['descripcion'] = $agente->nombre;
         }
 
         return $ventas;
@@ -424,7 +431,8 @@ class ResultReport
         foreach ($ventas['pagos'] as $codpago => $pagos) {
             $pago = new FormaPago();
             $pago->loadFromCode($codpago);
-            $ventas['descripciones'][$codpago] = $pago->descripcion;
+            $ventas['pagos'][$codpago]['descripcion'] = $pago->descripcion;
+            //$ventas['descripciones'][$codpago] = $pago->descripcion;
         }
 
         return $ventas;
@@ -458,7 +466,8 @@ class ResultReport
         foreach ($ventas['series'] as $codserie => $series) {
             $serie = new Serie();
             $serie->loadFromCode($codserie);
-            $ventas['descripciones'][$codserie] = $serie->descripcion;
+            //$ventas['descripciones'][$codserie] = $serie->descripcion;
+            $ventas['series'][$codserie]['descripcion'] = $serie->descripcion;
         }
 
         return $ventas;

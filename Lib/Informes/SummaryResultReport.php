@@ -74,7 +74,7 @@ class SummaryResultReport extends ResultReport
             $color = '#' . self::randomColor();
             $totalaux = round(self::$ventas[self::$year]['total_ser'][$codserie], FS_NF0);
             self::$charts['series']['codserie'][] = $codserie;
-            self::$charts['series']['labels'][] = self::$ventas[self::$year]['descripciones'][$codserie];
+            self::$charts['series']['labels'][] = self::$ventas[self::$year]['series'][$codserie]['descripcion'];
             self::$charts['series']['porc'][] = $porc;
             self::$charts['series']['colors'][] = $color;
             self::$charts['series']['totales'][] = $totalaux;
@@ -82,7 +82,7 @@ class SummaryResultReport extends ResultReport
             self::$charts['series']['table'] .= ''
                 . '<tr>'
                 . '<td class="align-middle"><span style="color: ' . $color . '"><i class="fas fa-square"></i></span></td>'
-                . '<td>' . self::$ventas[self::$year]['descripciones'][$codserie] . '</td>'
+                . '<td>' . self::$ventas[self::$year]['series'][$codserie]['descripcion'] . '</td>'
                 . '<td class="porc align-middle">' . $porc . ' %</td>'
                 . '<td class="total align-middle">' . ToolBox::coins()::format($totalaux) . '</td>'
                 . '</tr>';
@@ -94,7 +94,7 @@ class SummaryResultReport extends ResultReport
             $color = '#' . self::randomColor();
             $totalaux = round(self::$ventas[self::$year]['total_pag'][$codpago], FS_NF0);
             self::$charts['pagos']['codpago'][] = $codpago;
-            self::$charts['pagos']['labels'][] = self::$ventas[self::$year]['descripciones'][$codpago];
+            self::$charts['pagos']['labels'][] = self::$ventas[self::$year]['pagos'][$codpago]['descripcion'];
             self::$charts['pagos']['porc'][] = $porc;
             self::$charts['pagos']['colors'][] = $color;
             self::$charts['pagos']['totales'][] = $totalaux;
@@ -102,7 +102,7 @@ class SummaryResultReport extends ResultReport
             self::$charts['pagos']['table'] .= ''
                 . '<tr>'
                 . '<td class="align-middle"><span style="color: ' . $color . '"><i class="fas fa-square"></i></span></td>'
-                . '<td>' . self::$ventas[self::$year]['descripciones'][$codpago] . '</td>'
+                . '<td>' . self::$ventas[self::$year]['pagos'][$codpago]['descripcion'] . '</td>'
                 . '<td class="porc align-middle">' . $porc . ' %</td>'
                 . '<td class="total align-middle">' . ToolBox::coins()::format($totalaux) . '</td>'
                 . '</tr>';
@@ -114,7 +114,7 @@ class SummaryResultReport extends ResultReport
             $color = '#' . self::randomColor();
             $totalaux = round(self::$ventas[self::$year]['total_age'][$codagente], FS_NF0);
             self::$charts['agentes']['codagente'][] = $codagente;
-            self::$charts['agentes']['labels'][] = self::$ventas[self::$year]['descripciones'][$codagente];
+            self::$charts['agentes']['labels'][] = self::$ventas[self::$year]['agentes'][$codagente]['descripcion'];
             self::$charts['agentes']['porc'][] = $porc;
             self::$charts['agentes']['colors'][] = $color;
             self::$charts['agentes']['totales'][] = $totalaux;
@@ -122,7 +122,7 @@ class SummaryResultReport extends ResultReport
             self::$charts['agentes']['table'] .= ''
                 . '<tr>'
                 . '<td class="align-middle"><span style="color: ' . $color . '"><i class="fas fa-square"></i></span></td>'
-                . '<td>' . self::$ventas[self::$year]['descripciones'][$codagente] . '</td>'
+                . '<td>' . self::$ventas[self::$year]['agentes'][$codagente]['descripcion'] . '</td>'
                 . '<td class="porc align-middle">' . $porc . ' %</td>'
                 . '<td class="total align-middle">' . ToolBox::coins()::format($totalaux) . '</td>'
                 . '</tr>';

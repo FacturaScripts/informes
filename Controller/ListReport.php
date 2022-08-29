@@ -44,9 +44,21 @@ class ListReport extends ListController
 
     protected function createViews()
     {
-        $viewName = 'ListReport';
+        $this->createViewsReport();
+        $this->createViewsReportBoard();
+    }
+
+    protected function createViewsReport(string $viewName = 'ListReport')
+    {
         $this->addView($viewName, 'Report', 'reports', 'fas fa-chart-pie');
         $this->addOrderBy($viewName, ['name'], 'name');
         $this->addSearchFields($viewName, ['name', 'table', 'xcolumn', 'ycolumn']);
+    }
+
+    protected function createViewsReportBoard(string $viewName = 'ListReportBoard')
+    {
+        $this->addView($viewName, 'ReportBoard', 'reports-board', 'fas fa-project-diagram');
+        $this->addOrderBy($viewName, ['name'], 'name');
+        $this->addSearchFields($viewName, ['name']);
     }
 }
