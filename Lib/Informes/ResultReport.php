@@ -392,13 +392,15 @@ class ResultReport
     {
         foreach ($ventas['agentes'] as $codagente => $agentes) {
             if ($codagente === 'SIN_AGENTE') {
-                $ventas['descripciones'][$codagente] = ToolBox::i18n()->trans('no-agent');
+                //$ventas['descripciones'][$codagente] = ToolBox::i18n()->trans('no-agent');
+                $ventas['agentes'][$codagente]['descripcion'] = ToolBox::i18n()->trans('no-agent');
                 continue;
             }
 
             $agente = new Agente();
             $agente->loadFromCode($codagente);
-            $ventas['descripciones'][$codagente] = $agente->nombre;
+            //$ventas['descripciones'][$codagente] = $agente->nombre;
+            $ventas['agentes'][$codagente]['descripcion'] = $agente->nombre;
         }
 
         return $ventas;
@@ -429,7 +431,8 @@ class ResultReport
         foreach ($ventas['pagos'] as $codpago => $pagos) {
             $pago = new FormaPago();
             $pago->loadFromCode($codpago);
-            $ventas['descripciones'][$codpago] = $pago->descripcion;
+            $ventas['pagos'][$codpago]['descripcion'] = $pago->descripcion;
+            //$ventas['descripciones'][$codpago] = $pago->descripcion;
         }
 
         return $ventas;
@@ -463,7 +466,8 @@ class ResultReport
         foreach ($ventas['series'] as $codserie => $series) {
             $serie = new Serie();
             $serie->loadFromCode($codserie);
-            $ventas['descripciones'][$codserie] = $serie->descripcion;
+            //$ventas['descripciones'][$codserie] = $serie->descripcion;
+            $ventas['series'][$codserie]['descripcion'] = $serie->descripcion;
         }
 
         return $ventas;
