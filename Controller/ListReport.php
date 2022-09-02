@@ -28,11 +28,6 @@ use FacturaScripts\Core\Lib\ExtendedController\ListController;
  */
 class ListReport extends ListController
 {
-
-    /**
-     *
-     * @return array
-     */
     public function getPageData(): array
     {
         $data = parent::getPageData();
@@ -50,14 +45,14 @@ class ListReport extends ListController
 
     protected function createViewsReport(string $viewName = 'ListReport')
     {
-        $this->addView($viewName, 'Report', 'reports', 'fas fa-chart-pie');
+        $this->addView($viewName, 'Report', 'charts', 'fas fa-chart-pie');
         $this->addOrderBy($viewName, ['name'], 'name');
         $this->addSearchFields($viewName, ['name', 'table', 'xcolumn', 'ycolumn']);
     }
 
     protected function createViewsReportBoard(string $viewName = 'ListReportBoard')
     {
-        $this->addView($viewName, 'ReportBoard', 'reports-board', 'fas fa-project-diagram');
+        $this->addView($viewName, 'ReportBoard', 'reports-board', 'fas fa-chalkboard');
         $this->addOrderBy($viewName, ['name'], 'name');
         $this->addSearchFields($viewName, ['name']);
     }

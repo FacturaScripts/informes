@@ -76,7 +76,7 @@ class AreaChart
             $num = 1 + $pos;
             $data = [];
             foreach ($mix as $row) {
-                $data[] = $row['ycol' . $num];
+                $data[] = round($row['ycol' . $num], 2);
             }
 
             $datasets[] = ['label' => $label, 'data' => $data];

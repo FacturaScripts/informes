@@ -42,14 +42,14 @@ class EditReportBoard extends EditController
 
     public function getModelClassName(): string
     {
-        return "ReportBoard";
+        return 'ReportBoard';
     }
 
     public function getPageData(): array
     {
         $data = parent::getPageData();
-        $data["title"] = "reports-board";
-        $data["icon"] = "fas fa-project-diagram";
+        $data['title'] = 'reports-board';
+        $data['icon'] = 'fas fa-chalkboard';
         return $data;
     }
 
@@ -68,12 +68,12 @@ class EditReportBoard extends EditController
 
     protected function createViewsBoard(string $viewName = 'ReportBoard')
     {
-        $this->addHtmlView($viewName, $viewName, 'ReportBoard', 'reports-board', 'fas fa-project-diagram');
+        $this->addHtmlView($viewName, $viewName, 'ReportBoard', 'reports-board', 'fas fa-chalkboard');
     }
 
     protected function createViewsReport(string $viewName = 'EditListReport')
     {
-        $this->addEditListView($viewName, 'ReportBoardLine', 'reports', 'fas fa-chart-pie');
+        $this->addEditListView($viewName, 'ReportBoardLine', 'charts', 'fas fa-chart-pie');
 
         // ponemos la vista compacta
         $this->views[$viewName]->setInLine(true);
