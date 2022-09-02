@@ -1,15 +1,17 @@
 <script src="{{ asset('node_modules/chart.js/dist/Chart.min.js') }}"></script>
 
-{% set lines = fsc.getLines() %}
-{% if lines is empty %}
+<div class="card shadow">
+    {% set lines = fsc.getLines() %}
+    {% if lines is empty %}
         <div class="h5">{{ i18n.trans('empty-reports-lines') }}</div>
-{% else %}
+    {% else %}
         <div class="form-row">
-                {% for line in lines %}
-                        {% set report = line.getReport() %}
-                        <div class="col-md-{{ line.columns }}">
-                                {{ fsc.getChart(report).render() | raw }}
-                        </div>
-                {% endfor %}
+            {% for line in lines %}
+                {% set report = line.getReport() %}
+                <div class="col-md-{{ line.columns }}">
+                    {{ fsc.getChart(report).render() | raw }}
+                </div>
+            {% endfor %}
         </div>
-{% endif %}
+    {% endif %}
+</div>

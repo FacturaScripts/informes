@@ -29,23 +29,24 @@ use FacturaScripts\Plugins\Informes\Model\Report;
  */
 class EditReportBoard extends EditController
 {
-
     public function getChart(Report $report): AreaChart
     {
         return new AreaChart($report);
     }
 
-    public function getLines()
+    public function getLines(): array
     {
         $model = $this->getModel();
         return $model->getLines();
     }
 
-    public function getModelClassName(): string {
+    public function getModelClassName(): string
+    {
         return "ReportBoard";
     }
 
-    public function getPageData(): array {
+    public function getPageData(): array
+    {
         $data = parent::getPageData();
         $data["title"] = "reports-board";
         $data["icon"] = "fas fa-project-diagram";
@@ -56,11 +57,13 @@ class EditReportBoard extends EditController
     {
         parent::createViews();
         $this->setTabsPosition('bottom');
+
+        // desactivamos el botón de imprimir
+        $this->setSettings($this->getMainViewName(), 'btnPrint', false);
+
+        // añadimos las pestañas
         $this->createViewsBoard();
         $this->createViewsReport();
-
-        // disable print button
-        $this->setSettings($this->getMainViewName(), 'btnPrint', false);
     }
 
     protected function createViewsBoard(string $viewName = 'ReportBoard')
@@ -71,6 +74,9 @@ class EditReportBoard extends EditController
     protected function createViewsReport(string $viewName = 'EditListReport')
     {
         $this->addEditListView($viewName, 'ReportBoardLine', 'reports', 'fas fa-chart-pie');
+
+        // ponemos la vista compacta
+        $this->views[$viewName]->setInLine(true);
     }
 
     protected function loadData($viewName, $view)
@@ -78,11 +84,10 @@ class EditReportBoard extends EditController
         $mvn = $this->getMainViewName();
         switch ($viewName) {
             case 'EditListReport':
-                $idreportboard = $this->getViewModelValue($mvn, 'id');
-                $where = [new DataBaseWhere('idreportboard', $idreportboard)];
-                $order = ['sort' => 'ASC'];
-                $view->loadData('', $where, $order);
-                $view->idreportboard = $idreportboard;
+                $code = $this->getViewModelValue($mvn, 'id');
+                $where = [new DataBaseWhere('idreportboard', $code)];
+                $orderBy = ['sort' => 'ASC'];
+                $view->loadData('', $where, $orderBy);
                 break;
 
             default:
