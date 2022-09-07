@@ -9,7 +9,7 @@
             {% for line in lines %}
                 {% set report = line.getReport() %}
                 <div class="col-md-{{ line.columns }}">
-                    {{ fsc.getChart(report).render() | raw }}
+                    {{ report.getChart().render() | raw }}
                 </div>
             {% endfor %}
         </div>

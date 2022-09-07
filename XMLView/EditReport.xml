@@ -49,10 +49,16 @@
                 <widget type="select" fieldname="ycolumn" />
             </column>
         </group>
-        <group name="compare" numcolumns="12">
+        <group name="advanced" numcolumns="12">
             <column name="compared" numcolumns="3" order="100">
                 <widget type="select" fieldname="compared">
                     <values source="reports" fieldcode="id" fieldtitle="name"/>
+                </widget>
+            </column>
+            <column name="type" numcolumns="3" order="110">
+                <widget type="select" fieldname="type" translate="true" required="true">
+                    <values title="lines">area</values>
+                    <values title="bars">bar</values>
                 </widget>
             </column>
         </group>

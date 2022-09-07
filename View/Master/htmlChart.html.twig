@@ -1,5 +1,8 @@
 <script src="{{ asset('node_modules/chart.js/dist/Chart.min.js') }}"></script>
 
+{% set firstView = fsc.views | first %}
+{% set model = firstView.model %}
+
 <div class="card shadow">
-    {{ fsc.getChart().render() | raw }}
+    {{ model.getChart().render() | raw }}
 </div>
