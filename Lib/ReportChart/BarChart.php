@@ -20,11 +20,11 @@
 namespace FacturaScripts\Plugins\Informes\Lib\ReportChart;
 
 /**
- * Description of AreaChart
+ * Description of BarChart
  *
- * @author Carlos Garcia Gomez <carlos@facturascripts.com>
+ * @author Daniel Fernández Giménez <hola@danielfg.es>
  */
-class AreaChart extends Chart
+class BarChart extends Chart
 {
 
     public function render(): string
@@ -39,7 +39,7 @@ class AreaChart extends Chart
         return '<canvas id="' . $canvasId . '" height="250"/>'
             . "<script>let ctx" . $num . " = document.getElementById('" . $canvasId . "').getContext('2d');"
             . "let myChart" . $num . " = new Chart(ctx" . $num . ", {
-    type: 'line',
+    type: 'bar',
     data: {
         labels: ['" . implode("','", $data['labels']) . "'],
         datasets: [" . $this->renderDatasets($data['datasets']) . "]
@@ -49,5 +49,28 @@ class AreaChart extends Chart
         maintainAspectRatio: false
     }
 });</script>";
+    }
+
+    protected function renderDatasets(array $datasets): string
+    {
+        $colors = ['255, 99, 132', '54, 162, 235', '255, 206, 86', '75, 192, 192', '153, 102, 255', '255, 159, 64'];
+        shuffle($colors);
+
+        $items = [];
+        $num = 0;
+        foreach ($datasets as $dataset) {
+            $color = $colors[$num] ?? '255, 206, 86';
+            $num++;
+
+            $items[] = "{
+                label: '" . $dataset['label'] . "',
+                data: [" . implode(",", $dataset['data']) . "],
+                backgroundColor: 'rgba(" . $color . ", 0.2)',
+                borderColor: 'rgba(" . $color . ", 1)',
+                borderWidth: 1
+            }";
+        }
+
+        return implode(',', $items);
     }
 }

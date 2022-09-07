@@ -21,8 +21,6 @@ namespace FacturaScripts\Plugins\Informes\Controller;
 
 use FacturaScripts\Core\Lib\ExtendedController\BaseView;
 use FacturaScripts\Core\Lib\ExtendedController\EditController;
-use FacturaScripts\Dinamic\Lib\ReportChart\AreaChart;
-use FacturaScripts\Dinamic\Model\Report;
 
 /**
  * Description of EditReport
@@ -31,15 +29,6 @@ use FacturaScripts\Dinamic\Model\Report;
  */
 class EditReport extends EditController
 {
-
-    public function getChart(): AreaChart
-    {
-        foreach ($this->views as $view) {
-            return new AreaChart($view->model);
-        }
-
-        return new AreaChart(new Report());
-    }
 
     public function getModelClassName(): string
     {

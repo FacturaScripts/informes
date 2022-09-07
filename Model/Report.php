@@ -20,6 +20,7 @@
 namespace FacturaScripts\Plugins\Informes\Model;
 
 use FacturaScripts\Core\Model\Base;
+use FacturaScripts\Dinamic\Lib\ReportChart\AreaChart;
 
 /**
  * Description of Report
@@ -77,6 +78,16 @@ class Report extends Base\ModelClass
     {
         parent::clear();
         $this->type = self::DEFAULT_TYPE;
+    }
+
+    public function getChart()
+    {
+        $className = 'FacturaScripts\\Dinamic\\Lib\\ReportChart\\' . ucfirst($this->type) . 'Chart';
+        if (false === class_exists($className)) {
+            return '';
+        }
+
+        return new $className($this);
     }
 
     public static function primaryColumn(): string
