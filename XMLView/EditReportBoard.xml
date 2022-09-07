@@ -22,10 +22,13 @@
     <columns>
         <group name="data" numcolumns="12">
             <column name="id" display="none" order="100">
-                <widget type="text" fieldname="id" />
+                <widget type="text" fieldname="id"/>
             </column>
             <column name="name" order="110">
-                <widget type="text" fieldname="name" />
+                <widget type="text" fieldname="name"/>
+            </column>
+            <column name="creation-date" order="120">
+                <widget type="datetime" fieldname="creationdate" readonly="true"/>
             </column>
         </group>
     </columns>

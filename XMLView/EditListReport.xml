@@ -22,26 +22,21 @@
     <columns>
         <group name="data" numcolumns="12">
             <column name="id" display="none" order="0">
-                <widget type="text" fieldname="id" />
+                <widget type="text" fieldname="id"/>
             </column>
             <column name="board" display="none" order="10">
-                <widget type="text" fieldname="idreportboard" />
+                <widget type="text" fieldname="idreportboard"/>
             </column>
             <column name="report" order="100">
-                <widget type="select" fieldname="idreport" required="true">
+                <widget type="select" fieldname="idreport" onclick="EditReport" readonly="dinamic" required="true">
                     <values source="reports" fieldcode="id" fieldtitle="name"/>
                 </widget>
             </column>
-            <column name="columns" order="110">
-                <widget type="select" fieldname="columns" required="true" translate="true">
-                    <values title="one-columns">12</values>
-                    <values title="two-columns">6</values>
-                    <values title="three-columns">4</values>
-                    <values title="four-columns">3</values>
-                </widget>
+            <column name="width" numcolumns="2" order="110">
+                <widget type="number" fieldname="columns" min="2" max="12" required="true"/>
             </column>
-            <column name="sort" order="120">
-                <widget type="number" min="0" decimal="0" fieldname="sort" />
+            <column name="sort" numcolumns="2" order="120">
+                <widget type="number" min="0" decimal="0" fieldname="sort"/>
             </column>
         </group>
     </columns>

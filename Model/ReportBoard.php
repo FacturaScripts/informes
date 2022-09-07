@@ -21,6 +21,7 @@ namespace FacturaScripts\Plugins\Informes\Model;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Model\Base\ModelClass;
+use FacturaScripts\Core\Model\Base\ModelCore;
 use FacturaScripts\Core\Model\Base\ModelTrait;
 
 /**
@@ -30,18 +31,27 @@ class ReportBoard extends ModelClass
 {
     use ModelTrait;
 
+    /** @var string */
+    public $creationdate;
+
     /** @var int */
     public $id;
 
     /** @var string */
     public $name;
 
+    public function clear()
+    {
+        parent::clear();
+        $this->creationdate = date(ModelCore::DATETIME_STYLE);
+    }
+
     public function getLines(): array
     {
         $lines = new ReportBoardLine();
         $where = [new DataBaseWhere('idreportboard', $this->id)];
-        $order = ['sort' => 'ASC'];
-        return $lines->all($where, $order, 0, 0);
+        $orderBy = ['sort' => 'ASC'];
+        return $lines->all($where, $orderBy, 0, 0);
     }
 
     public static function primaryColumn(): string

@@ -32,11 +32,7 @@ use FacturaScripts\Dinamic\Model\Report;
 class EditReport extends EditController
 {
 
-    /**
-     * 
-     * @return AreaChart
-     */
-    public function getChart()
+    public function getChart(): AreaChart
     {
         foreach ($this->views as $view) {
             return new AreaChart($view->model);
@@ -45,19 +41,11 @@ class EditReport extends EditController
         return new AreaChart(new Report());
     }
 
-    /**
-     * 
-     * @return string
-     */
-    public function getModelClassName()
+    public function getModelClassName(): string
     {
         return 'Report';
     }
 
-    /**
-     * 
-     * @return array
-     */
     public function getPageData(): array
     {
         $data = parent::getPageData();
@@ -73,30 +61,23 @@ class EditReport extends EditController
         $this->setTabsPosition('bottom');
         $this->addHtmlView('chart', 'Master/htmlChart', 'Report', 'chart');
 
-        /// disable print button
+        // disable print button
         $this->setSettings($this->getMainViewName(), 'btnPrint', false);
     }
 
     /**
-     * 
-     * @param string   $viewName
+     * @param string $viewName
      * @param BaseView $view
      */
     protected function loadData($viewName, $view)
     {
-        switch ($viewName) {
-            default:
-                parent::loadData($viewName, $view);
-                $this->loadWidgetValues($viewName);
-                break;
+        if ($viewName === $this->getMainViewName()) {
+            parent::loadData($viewName, $view);
+            $this->loadWidgetValues($viewName);
         }
     }
 
-    /**
-     * 
-     * @param string $viewName
-     */
-    protected function loadWidgetValues($viewName)
+    protected function loadWidgetValues(string $viewName)
     {
         $columnTable = $this->views[$viewName]->columnForField('table');
         if ($columnTable && $columnTable->widget->getType() === 'select') {

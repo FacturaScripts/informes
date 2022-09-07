@@ -2,14 +2,16 @@
 
 {% set lines = fsc.getLines() %}
 {% if lines is empty %}
-        <div class="h5">{{ i18n.trans('empty-reports-lines') }}</div>
+    <div class="alert alert-info">{{ i18n.trans('empty-report-board') }}</div>
 {% else %}
+    <div class="card shadow">
         <div class="form-row">
-                {% for line in lines %}
-                        {% set report = line.getReport() %}
-                        <div class="col-md-{{ line.columns }}">
-                                {{ fsc.getChart(report).render() | raw }}
-                        </div>
-                {% endfor %}
+            {% for line in lines %}
+                {% set report = line.getReport() %}
+                <div class="col-md-{{ line.columns }}">
+                    {{ fsc.getChart(report).render() | raw }}
+                </div>
+            {% endfor %}
         </div>
+    </div>
 {% endif %}
