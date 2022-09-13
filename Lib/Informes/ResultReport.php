@@ -22,17 +22,17 @@ namespace FacturaScripts\Plugins\Informes\Lib\Informes;
 use FacturaScripts\Core\Base\DataBase;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Base\ToolBox;
+use FacturaScripts\Dinamic\Model\Agente;
 use FacturaScripts\Dinamic\Model\Asiento;
 use FacturaScripts\Dinamic\Model\Cuenta;
 use FacturaScripts\Dinamic\Model\Ejercicio;
+use FacturaScripts\Dinamic\Model\FacturaCliente;
 use FacturaScripts\Dinamic\Model\Familia;
+use FacturaScripts\Dinamic\Model\FormaPago;
 use FacturaScripts\Dinamic\Model\Producto;
+use FacturaScripts\Dinamic\Model\Serie;
 use FacturaScripts\Dinamic\Model\Subcuenta;
 use FacturaScripts\Dinamic\Model\Variante;
-use FacturaScripts\Dinamic\Model\FacturaCliente;
-use FacturaScripts\Dinamic\Model\Serie;
-use FacturaScripts\Dinamic\Model\Agente;
-use FacturaScripts\Dinamic\Model\FormaPago;
 
 /**
  * @author Daniel Fernández Giménez <hola@danielfg.es>
@@ -392,15 +392,19 @@ class ResultReport
     {
         foreach ($ventas['agentes'] as $codagente => $agentes) {
             if ($codagente === 'SIN_AGENTE') {
-                //$ventas['descripciones'][$codagente] = ToolBox::i18n()->trans('no-agent');
                 $ventas['agentes'][$codagente]['descripcion'] = ToolBox::i18n()->trans('no-agent');
                 continue;
             }
 
+            // buscamos el agente en la base de datos para asignar el nombre
             $agente = new Agente();
-            $agente->loadFromCode($codagente);
-            //$ventas['descripciones'][$codagente] = $agente->nombre;
-            $ventas['agentes'][$codagente]['descripcion'] = $agente->nombre;
+            if ($agente->loadFromCode($codagente)) {
+                $ventas['agentes'][$codagente]['descripcion'] = $agente->nombre;
+                continue;
+            }
+
+            // no lo hemos encontrado, pero por lo menos ponemos el código
+            $ventas['agentes'][$codagente]['descripcion'] = $codagente;
         }
 
         return $ventas;
@@ -430,9 +434,12 @@ class ResultReport
     {
         foreach ($ventas['pagos'] as $codpago => $pagos) {
             $pago = new FormaPago();
-            $pago->loadFromCode($codpago);
-            $ventas['pagos'][$codpago]['descripcion'] = $pago->descripcion;
-            //$ventas['descripciones'][$codpago] = $pago->descripcion;
+            if ($pago->loadFromCode($codpago)) {
+                $ventas['pagos'][$codpago]['descripcion'] = $pago->descripcion;
+                continue;
+            }
+
+            $ventas['pagos'][$codpago]['descripcion'] = $codpago;
         }
 
         return $ventas;
@@ -447,7 +454,6 @@ class ResultReport
     protected static function setDescriptionSubaccount(array $gastos, array $arraycuenta, string $codejercicio): array
     {
         foreach ($arraycuenta as $codsubcuenta => $arraysubcuenta) {
-            $gastos['descripciones'][$codsubcuenta] = '-';
             $subcuenta = new Subcuenta();
             $where = [
                 new DataBaseWhere('codsubcuenta', $codsubcuenta),
@@ -455,7 +461,10 @@ class ResultReport
             ];
             if ($subcuenta->loadFromCode('', $where)) {
                 $gastos['descripciones'][$codsubcuenta] = $codsubcuenta . ' - ' . $subcuenta->descripcion;
+                continue;
             }
+
+            $gastos['descripciones'][$codsubcuenta] = '-';
         }
 
         return $gastos;
@@ -465,9 +474,12 @@ class ResultReport
     {
         foreach ($ventas['series'] as $codserie => $series) {
             $serie = new Serie();
-            $serie->loadFromCode($codserie);
-            //$ventas['descripciones'][$codserie] = $serie->descripcion;
-            $ventas['series'][$codserie]['descripcion'] = $serie->descripcion;
+            if ($serie->loadFromCode($codserie)) {
+                $ventas['series'][$codserie]['descripcion'] = $serie->descripcion;
+                continue;
+            }
+
+            $ventas['series'][$codserie]['descripcion'] = $codserie;
         }
 
         return $ventas;

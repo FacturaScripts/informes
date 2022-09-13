@@ -35,7 +35,7 @@ class ReportResult extends Controller
 {
     private $logLevels = ['critical', 'error', 'info', 'notice', 'warning'];
 
-    public function getPageData()
+    public function getPageData(): array
     {
         $data = parent::getPageData();
         $data["menu"] = "reports";
@@ -70,15 +70,19 @@ class ReportResult extends Controller
             case 'load-account':
                 $this->loadAccount();
                 break;
+
             case 'load-family':
                 $this->loadFamily();
                 break;
+
             case 'load-purchases':
                 $this->loadPurchases();
                 break;
+
             case 'load-sales':
                 $this->loadSales();
                 break;
+
             case 'load-summary':
                 $this->loadSummary();
                 break;
