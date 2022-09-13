@@ -29,10 +29,6 @@ use FacturaScripts\Plugins\Informes\Model\Report;
  */
 class EditReportBoard extends EditController
 {
-    public function getChart(Report $report): AreaChart
-    {
-        return new AreaChart($report);
-    }
 
     public function getLines(): array
     {
