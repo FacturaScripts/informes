@@ -24,7 +24,6 @@ use FacturaScripts\Dinamic\Model\Empresa;
 
 class Init extends InitClass
 {
-
     public function init()
     {
         // nada
