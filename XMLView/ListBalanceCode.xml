@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * This file is part of Informes plugin for FacturaScripts
+ * Copyright (C) 2017-2022 Carlos Garcia Gomez <carlos@facturascripts.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Carlos García Gómez <carlos@facturascripts.com>
+-->
+<view>
+    <columns>
+        <column name="code" order="100">
+            <widget type="text" fieldname="codbalance" onclick="EditBalance"/>
+        </column>
+        <column name="nature" order="110">
+            <widget type="text" fieldname="nature"/>
+        </column>
+        <column name="sub-type" order="120">
+            <widget type="select" fieldname="subtype" translate="true">
+                <values title="abbreviated">abbreviated</values>
+                <values title="normal">normal</values>
+                <values title="pymes">pymes</values>
+            </widget>
+        </column>
+        <column name="level1" order="130">
+            <widget type="text" fieldname="level1"/>
+        </column>
+        <column name="description" order="140">
+            <widget type="textarea" fieldname="description1"/>
+        </column>
+        <column name="level2" order="150">
+            <widget type="text" fieldname="level2"/>
+        </column>
+        <column name="description2" order="160">
+            <widget type="textarea" fieldname="description2"/>
+        </column>
+        <column name="level3" order="170">
+            <widget type="text" fieldname="level3"/>
+        </column>
+        <column name="description3" display="none" order="180">
+            <widget type="textarea" fieldname="description3"/>
+        </column>
+        <column name="level4" order="190">
+            <widget type="text" fieldname="level4"/>
+        </column>
+    </columns>
+    <rows>
+        <row type="status">
+            <option color="success" title="asset" fieldname="nature">A</option>
+            <option color="info" title="liabilities" fieldname="nature">P</option>
+            <option color="danger" title="profit-and-loss" fieldname="nature">PG</option>
+            <option color="warning" title="income-and-expenses" fieldname="nature">IG</option>
+        </row>
+    </rows>
+</view>

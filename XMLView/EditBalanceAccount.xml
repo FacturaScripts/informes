@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- * This file is part of FacturaScripts
- * Copyright (C) 2017-2020 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * This file is part of Informes plugin for FacturaScripts
+ * Copyright (C) 2017-2022 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -16,8 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
- * @author Carlos García Gómez              <carlos@facturascripts.com>
- * @author Luis Miguel Pérez PC REDNET S.L. <luismi@pcrednet.com>
+ * @author Carlos García Gómez <carlos@facturascripts.com>
 -->
 <view>
     <columns>
@@ -25,14 +24,14 @@
             <column name="code" display="none" numcolumns="2" order="100">
                 <widget type="text" fieldname="id" onclick="EditBalance" readonly="true"/>
             </column>
-            <column name="cod-balance" display="none" numcolumns="2" order="110">
-                <widget type="text" fieldname="codbalance" />
+            <column name="balance-code" display="none" numcolumns="2" order="110">
+                <widget type="text" fieldname="idbalance"/>
             </column>
-            <column name="account-code" numcolumns="3" order="120">
-                <widget type="text" fieldname="codcuenta" icon="fas fa-hashtag" required="true" />
+            <column name="account-code" numcolumns="2" order="120">
+                <widget type="text" fieldname="codcuenta" icon="fas fa-hashtag" required="true"/>
             </column>
             <column name="description" order="130">
-                <widget type="text" fieldname="desccuenta" />
+                <widget type="text" fieldname="desccuenta" readonly="true"/>
             </column>
         </group>
     </columns>

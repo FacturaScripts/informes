@@ -19,50 +19,43 @@
 
 namespace FacturaScripts\Plugins\Informes\Model;
 
+use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Model\Base\ModelClass;
 use FacturaScripts\Core\Model\Base\ModelTrait;
+use FacturaScripts\Dinamic\Model\Cuenta;
 
 /**
- * Abbreviated detail of a balance.
- *
  * @author Carlos García Gómez <carlos@facturascripts.com>
  */
-class BalanceCuentaA extends ModelClass
+class BalanceAccount extends ModelClass
 {
     use ModelTrait;
 
-    /**
-     * Balance code.
-     *
-     * @var string
-     */
-    public $codbalance;
-
-    /**
-     * Account code.
-     *
-     * @var string
-     */
+    /** @var string */
     public $codcuenta;
 
-    /**
-     * Description of the account.
-     *
-     * @var string
-     */
+    /** @var string */
     public $desccuenta;
 
-    /**
-     * Primary key.
-     *
-     * @var int
-     */
+    /** @var int */
     public $id;
+
+    /** @var int */
+    public $idbalance;
+
+    public function getCuenta(): Cuenta
+    {
+        $cuenta = new Cuenta();
+        $where = [new DataBaseWhere('codcuenta', $this->codcuenta)];
+        $orderBy = ['codejercicio' => 'DESC'];
+        $cuenta->loadFromCode('', $where, $orderBy);
+        return $cuenta;
+    }
 
     public function install(): string
     {
         // needed dependency
-        new Balance();
+        new BalanceCode();
 
         return parent::install();
     }
@@ -74,11 +67,15 @@ class BalanceCuentaA extends ModelClass
 
     public static function tableName(): string
     {
-        return 'balancescuentasabreviadas';
+        return 'balance_accounts';
     }
 
     public function test(): bool
     {
+        if (empty($this->desccuenta)) {
+            $this->desccuenta = $this->getCuenta()->descripcion;
+        }
+
         $this->desccuenta = $this->toolBox()->utils()->noHtml($this->desccuenta);
         return parent::test();
     }

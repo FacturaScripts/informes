@@ -23,118 +23,72 @@ use FacturaScripts\Core\Model\Base\ModelClass;
 use FacturaScripts\Core\Model\Base\ModelTrait;
 
 /**
- * Defines which accounts must be used to generate the different accounting reports.
- *
  * @author Carlos García Gómez <carlos@facturascripts.com>
  */
-class Balance extends ModelClass
+class BalanceCode extends ModelClass
 {
     use ModelTrait;
 
-    /**
-     * Primary key.
-     *
-     * @var string
-     */
+    /** @var string */
     public $codbalance;
 
-    /**
-     * Description 4 of the balance.
-     *
-     * @var string
-     */
-    public $descripcion4ba;
+    /** @var string */
+    public $description1;
 
-    /**
-     * Description 4 of the balance.
-     *
-     * @var string
-     */
-    public $descripcion4;
+    /** @var string */
+    public $description2;
 
-    /**
-     * Level 4 of the balance.
-     *
-     * @var string
-     */
-    public $nivel4;
+    /** @var string */
+    public $description3;
 
-    /**
-     * Description 3 of the balance.
-     *
-     * @var string
-     */
-    public $descripcion3;
+    /** @var string */
+    public $description4;
 
-    /**
-     * Order 3 of the balance.
-     *
-     * @var string
-     */
-    public $orden3;
+    /** @var int */
+    public $id;
 
-    /**
-     * Level 2 of the balance.
-     *
-     * @var string
-     */
-    public $nivel3;
+    /** @var string */
+    public $level1;
 
-    /**
-     * Description 2 of the balance.
-     *
-     * @var string
-     */
-    public $descripcion2;
+    /** @var int */
+    public $level2;
 
-    /**
-     * Level 2 of the balance.
-     *
-     * @var int
-     */
-    public $nivel2;
+    /** @var string */
+    public $level3;
 
-    /**
-     * Description 1 of the balance.
-     *
-     * @var string
-     */
-    public $descripcion1;
+    /** @var string */
+    public $level4;
 
-    /**
-     * Level 1 of the balance.
-     *
-     * @var string
-     */
-    public $nivel1;
+    /** @var string */
+    public $nature;
 
-    /**
-     * Nature of the balance.
-     *
-     * @var string
-     */
-    public $naturaleza;
+    /** @var string */
+    public $subtype;
 
     public static function primaryColumn(): string
     {
-        return 'codbalance';
+        return 'id';
     }
 
     public static function tableName(): string
     {
-        return 'balances';
+        return 'balance_codes';
     }
 
     public function test(): bool
     {
         // escapamos el html
         $this->codbalance = self::toolBox()::utils()::noHtml($this->codbalance);
-        $this->descripcion1 = self::toolBox()::utils()::noHtml($this->descripcion1);
-        $this->descripcion2 = self::toolBox()::utils()::noHtml($this->descripcion2);
-        $this->descripcion3 = self::toolBox()::utils()::noHtml($this->descripcion3);
-        $this->descripcion4 = self::toolBox()::utils()::noHtml($this->descripcion4);
-        $this->descripcion4ba = self::toolBox()::utils()::noHtml($this->descripcion4ba);
-        $this->naturaleza = self::toolBox()::utils()::noHtml($this->naturaleza);
+        $this->description1 = self::toolBox()::utils()::noHtml($this->description1);
+        $this->description2 = self::toolBox()::utils()::noHtml($this->description2);
+        $this->description3 = self::toolBox()::utils()::noHtml($this->description3);
+        $this->description4 = self::toolBox()::utils()::noHtml($this->description4);
+        $this->level1 = self::toolBox()::utils()::noHtml($this->level1);
+        $this->level2 = self::toolBox()::utils()::noHtml($this->level2);
+        $this->level3 = self::toolBox()::utils()::noHtml($this->level3);
+        $this->level4 = self::toolBox()::utils()::noHtml($this->level4);
+        $this->nature = self::toolBox()::utils()::noHtml($this->nature);
+        $this->subtype = self::toolBox()::utils()::noHtml($this->subtype);
 
         // comprobamos que tenga un código válido
         if (empty($this->codbalance) || 1 !== preg_match('/^[A-Z0-9_\+\.\-]{1,15}$/i', $this->codbalance)) {

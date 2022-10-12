@@ -140,29 +140,34 @@ class ListReportAccounting extends ListController
      *
      * @param string $viewName
      */
-    protected function createViewsPreferences(string $viewName = 'ListBalance')
+    protected function createViewsPreferences(string $viewName = 'ListBalanceCode')
     {
-        $this->addView($viewName, 'Balance', 'preferences', 'fas fa-cogs');
-        $this->addOrderBy($viewName, ['codbalance'], 'code');
-        $this->addOrderBy($viewName, ['descripcion1'], 'description-1');
-        $this->addOrderBy($viewName, ['descripcion2'], 'description-2');
-        $this->addOrderBy($viewName, ['descripcion3'], 'description-3');
-        $this->addOrderBy($viewName, ['descripcion4'], 'description-4');
-        $this->addOrderBy($viewName, ['descripcion4ba'], 'description-4ba');
-
+        $this->addView($viewName, 'BalanceCode', 'balance-codes', 'fas fa-cogs');
+        $this->addOrderBy($viewName, ['subtype', 'codbalance'], 'code', 1);
+        $this->addOrderBy($viewName, ['description1'], 'description-1');
+        $this->addOrderBy($viewName, ['description2'], 'description-2');
+        $this->addOrderBy($viewName, ['description3'], 'description-3');
+        $this->addOrderBy($viewName, ['description4'], 'description-4');
         $this->addSearchFields($viewName, [
-            'codbalance', 'naturaleza', 'descripcion1', 'descripcion2',
-            'descripcion3', 'descripcion4', 'descripcion4ba'
+            'codbalance', 'nature', 'description1', 'description2', 'description3', 'description4'
         ]);
 
+        // añadimos filtro de nature
         $i18n = $this->toolBox()->i18n();
-        $this->addFilterSelect($viewName, 'type', 'type', 'naturaleza', [
+        $this->addFilterSelect($viewName, 'nature', 'nature', 'nature', [
             ['code' => '', 'description' => '------'],
             ['code' => 'A', 'description' => $i18n->trans('asset')],
             ['code' => 'P', 'description' => $i18n->trans('liabilities')],
             ['code' => 'PG', 'description' => $i18n->trans('profit-and-loss')],
             ['code' => 'IG', 'description' => $i18n->trans('income-and-expenses')]
         ]);
+
+        // añadimos filtro de subtype
+        $subTypes = $this->codeModel->all('balance_codes', 'subtype', 'subtype');
+        foreach ($subTypes as $subtype) {
+            $subtype->description = $i18n->trans($subtype->description);
+        }
+        $this->addFilterSelect($viewName, 'subtype', 'sub-type', 'subtype', $subTypes);
     }
 
     /**

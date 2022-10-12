@@ -27,7 +27,7 @@ use FacturaScripts\Test\Traits\LogErrorsTrait;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Description of BalanceCuenta
+ * Description of BalanceAccount
  *
  * @author Daniel Ferández Giménez <hola@danielfg.es>
  */

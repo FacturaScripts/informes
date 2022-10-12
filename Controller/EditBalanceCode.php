@@ -27,21 +27,20 @@ use FacturaScripts\Core\Lib\ExtendedController\EditController;
  * Controller to edit a single item from the Balance model
  *
  * @author Carlos García Gómez  <carlos@facturascripts.com>
- * @author PC REDNET S.L.       <luismi@pcrednet.com>
  */
-class EditBalance extends EditController
+class EditBalanceCode extends EditController
 {
     public function getModelClassName(): string
     {
-        return 'Balance';
+        return 'BalanceCode';
     }
 
     public function getPageData(): array
     {
         $data = parent::getPageData();
         $data['menu'] = 'reports';
-        $data['title'] = 'accounting-balance';
-        $data['icon'] = 'fas fa-clipboard';
+        $data['title'] = 'balance-code';
+        $data['icon'] = 'fas fa-cogs';
         return $data;
     }
 
@@ -53,11 +52,8 @@ class EditBalance extends EditController
         parent::createViews();
         $this->setTabsPosition('bottom');
 
-        $this->addEditListView('EditBalanceCuentaA', 'BalanceCuentaA', 'balance-account-abreviated', 'fas fa-clipboard-list');
-        $this->views['EditBalanceCuentaA']->setInLine(true);
-
-        $this->addEditListView('EditBalanceCuenta', 'BalanceCuenta', 'balance-account', 'fas fa-book');
-        $this->views['EditBalanceCuenta']->setInLine(true);
+        $this->addEditListView('EditBalanceAccount', 'BalanceAccount', 'accounts', 'fas fa-book');
+        $this->views['EditBalanceAccount']->setInLine(true);
     }
 
     /**
@@ -69,15 +65,15 @@ class EditBalance extends EditController
     protected function loadData($viewName, $view)
     {
         switch ($viewName) {
-            case 'EditBalanceCuenta':
-            case 'EditBalanceCuentaA':
-                $code = $this->getViewModelValue($this->getMainViewName(), 'codbalance');
-                $where = [new DataBaseWhere('codbalance', $code)];
+            case 'EditBalanceAccount':
+                $id = $this->getViewModelValue($this->getMainViewName(), 'id');
+                $where = [new DataBaseWhere('idbalance', $id)];
                 $view->loadData('', $where, ['id' => 'DESC']);
                 break;
 
             default:
                 parent::loadData($viewName, $view);
+                break;
         }
     }
 }

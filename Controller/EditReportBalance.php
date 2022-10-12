@@ -63,22 +63,20 @@ class EditReportBalance extends EditReportAccounting
             $this->views[$this->getMainViewName()]->disableColumn('company');
         }
 
-        $this->createViewsBalances();
+        $this->createViewsBalanceCodes();
         $this->setTabsPosition('bottom');
     }
 
-    protected function createViewsBalances(string $viewName = 'ListBalance')
+    protected function createViewsBalanceCodes(string $viewName = 'ListBalanceCode')
     {
-        $this->addListView($viewName, 'Balance', 'preferences');
+        $this->addListView($viewName, 'BalanceCode', 'balance-codes');
         $this->views[$viewName]->addOrderBy(['codbalance'], 'code');
-        $this->views[$viewName]->addOrderBy(['descripcion1'], 'description-1');
-        $this->views[$viewName]->addOrderBy(['descripcion2'], 'description-2');
-        $this->views[$viewName]->addOrderBy(['descripcion3'], 'description-3');
-        $this->views[$viewName]->addOrderBy(['descripcion4'], 'description-4');
-        $this->views[$viewName]->addOrderBy(['descripcion4ba'], 'description-4ba');
+        $this->views[$viewName]->addOrderBy(['description1'], 'description-1');
+        $this->views[$viewName]->addOrderBy(['description2'], 'description-2');
+        $this->views[$viewName]->addOrderBy(['description3'], 'description-3');
+        $this->views[$viewName]->addOrderBy(['description4'], 'description-4');
         $this->views[$viewName]->addSearchFields([
-            'codbalance', 'naturaleza', 'descripcion1', 'descripcion2',
-            'descripcion3', 'descripcion4', 'descripcion4ba'
+            'codbalance', 'nature', 'description1', 'description2', 'description3', 'description4'
         ]);
 
         // disable column
@@ -257,15 +255,22 @@ class EditReportBalance extends EditReportAccounting
         switch ($this->getModel()->type) {
             case 'balance-sheet':
                 return [
-                    new DataBaseWhere('naturaleza', 'A'),
-                    new DataBaseWhere('naturaleza', 'P', '=', 'OR')
+                    new DataBaseWhere('subtype', $this->getModel()->subtype),
+                    new DataBaseWhere('nature', 'A'),
+                    new DataBaseWhere('nature', 'P', '=', 'OR')
                 ];
 
             case 'profit-and-loss':
-                return [new DataBaseWhere('naturaleza', 'PG')];
+                return [
+                    new DataBaseWhere('subtype', $this->getModel()->subtype),
+                    new DataBaseWhere('nature', 'PG')
+                ];
 
             case 'income-and-expenses':
-                return [new DataBaseWhere('naturaleza', 'IG')];
+                return [
+                    new DataBaseWhere('subtype', $this->getModel()->subtype),
+                    new DataBaseWhere('nature', 'IG')
+                ];
         }
 
         return [];
@@ -281,14 +286,13 @@ class EditReportBalance extends EditReportAccounting
     {
         $mainViewName = $this->getMainViewName();
         switch ($viewName) {
-            case 'ListBalance':
+            case 'ListBalanceCode':
                 $where = $this->getPreferencesWhere();
                 $view->loadData('', $where);
                 break;
 
             case $mainViewName:
                 parent::loadData($viewName, $view);
-                $this->loadWidgetValues($view);
                 if (false === $view->model->exists()) {
                     break;
                 }
@@ -300,24 +304,6 @@ class EditReportBalance extends EditReportAccounting
                     'label' => 'find-problems'
                 ]);
                 break;
-        }
-    }
-
-    /**
-     * Load values into special widget columns
-     *
-     * @param BaseView $view
-     */
-    protected function loadWidgetValues(BaseView $view)
-    {
-        $columnType = $view->columnForField('type');
-        if ($columnType && $columnType->widget->getType() === 'select') {
-            $columnType->widget->setValuesFromArray(ReportBalance::typeList());
-        }
-
-        $columnFormat = $view->columnForField('subtype');
-        if ($columnFormat && $columnFormat->widget->getType() === 'select') {
-            $columnFormat->widget->setValuesFromArray(ReportBalance::subtypeList());
         }
     }
 }
