@@ -148,6 +148,11 @@ class Init extends InitClass
         }
 
         $db->commit();
+
+        // eliminamos las tablas balances, balancescuentas y balancescuentasabreviadas
+        $db->exec('DROP TABLE balancescuentas;');
+        $db->exec('DROP TABLE balancescuentasabreviadas;');
+        $db->exec('DROP TABLE balances;');
     }
 
     private function migrateOldBalanceAccounts(BalanceCode $balanceCode, DataBase $db, string $tableName): bool
