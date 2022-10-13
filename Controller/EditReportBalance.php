@@ -21,17 +21,16 @@ namespace FacturaScripts\Plugins\Informes\Controller;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Lib\ExtendedController\BaseView;
+use FacturaScripts\Core\Lib\ExtendedController\EditController;
 use FacturaScripts\Core\Model\Subcuenta;
-use FacturaScripts\Dinamic\Lib\Accounting\BalanceSheet;
-use FacturaScripts\Dinamic\Lib\Accounting\IncomeAndExpenditure;
-use FacturaScripts\Dinamic\Lib\Accounting\ProfitAndLoss;
-use FacturaScripts\Dinamic\Model\Balance;
-use FacturaScripts\Dinamic\Model\BalanceCuenta;
-use FacturaScripts\Dinamic\Model\BalanceCuentaA;
 use FacturaScripts\Dinamic\Model\Cuenta;
 use FacturaScripts\Dinamic\Model\Ejercicio;
-use FacturaScripts\Dinamic\Model\ReportBalance;
-use FacturaScripts\Plugins\Informes\Lib\ExtendedController\EditReportAccounting;
+use FacturaScripts\Plugins\Informes\Lib\Accounting\BalanceSheet;
+use FacturaScripts\Plugins\Informes\Lib\Accounting\IncomeAndExpenditure;
+use FacturaScripts\Plugins\Informes\Lib\Accounting\ProfitAndLoss;
+use FacturaScripts\Plugins\Informes\Model\BalanceAccount;
+use FacturaScripts\Plugins\Informes\Model\BalanceCode;
+use FacturaScripts\Plugins\Informes\Model\ReportBalance;
 
 /**
  * Description of EditReportBalance
@@ -39,7 +38,7 @@ use FacturaScripts\Plugins\Informes\Lib\ExtendedController\EditReportAccounting;
  * @author Carlos Garcia Gomez  <carlos@facturascripts.com>
  * @author Jose Antonio Cuello  <yopli2000@gmail.com>
  */
-class EditReportBalance extends EditReportAccounting
+class EditReportBalance extends EditController
 {
     public function getModelClassName(): string
     {
@@ -96,6 +95,34 @@ class EditReportBalance extends EditReportAccounting
         }
 
         parent::execAfterAction($action);
+    }
+
+    protected function exportAction()
+    {
+        $model = $this->getModel();
+        $format = $this->request->get('option', 'PDF');
+        $pages = $this->generateReport($model, $format);
+        if (empty($pages)) {
+            $this->toolBox()->i18nLog()->warning('no-data');
+            return;
+        }
+
+        $this->setTemplate(false);
+        $view = $this->views[$this->getMainViewName()];
+        $this->exportManager->newDoc($format, $model->name);
+        $this->exportManager->addModelPage($view->model, $view->getColumns(), $this->toolBox()->i18n()->trans('accounting-reports'));
+
+        foreach ($pages as $data) {
+            $headers = empty($data) ? [] : array_keys($data[0]);
+            $options = [$headers[1] => ['display' => 'right']];
+
+            if (isset($headers[2])) {
+                $options[$headers[2]] = ['display' => 'right'];
+            }
+            $this->exportManager->addTablePage($headers, $data, $options);
+        }
+
+        $this->exportManager->show($this->response);
     }
 
     protected function findBadAccounts()
@@ -163,11 +190,10 @@ class EditReportBalance extends EditReportAccounting
                 continue;
             }
 
-            // si el balance es de tipo abreviado, buscamos la relación en BalanceCuentaA
-            $balanceCuenta = $this->getModel()->subtype === ReportBalance::SUBTYPE_ABBREVIATED ?
-                new BalanceCuentaA() : new BalanceCuenta();
+            // comprobamos si la cuenta existe en el balance
+            $balanceCuenta = new BalanceAccount();
             $whereBalance = [
-                new DataBaseWhere('codbalance', implode(',', $this->getBalanceCodes()), 'IN'),
+                new DataBaseWhere('idbalance', implode(',', $this->getBalanceCodes()), 'IN'),
                 new DataBaseWhere('codcuenta', $cuenta->codcuenta)
             ];
             if ($balanceCuenta->loadFromCode('', $whereBalance)) {
@@ -177,7 +203,7 @@ class EditReportBalance extends EditReportAccounting
             // comprobamos el padre
             if ($cuenta->parent_codcuenta) {
                 $wherePadre = [
-                    new DataBaseWhere('codbalance', implode(',', $this->getBalanceCodes()), 'IN'),
+                    new DataBaseWhere('idbalance', implode(',', $this->getBalanceCodes()), 'IN'),
                     new DataBaseWhere('codcuenta', $cuenta->parent_codcuenta)
                 ];
                 if ($balanceCuenta->loadFromCode('', $wherePadre)) {
@@ -186,7 +212,7 @@ class EditReportBalance extends EditReportAccounting
             }
             if (strlen($cuenta->codcuenta) > 1) {
                 $wherePadre = [
-                    new DataBaseWhere('codbalance', implode(',', $this->getBalanceCodes()), 'IN'),
+                    new DataBaseWhere('idbalance', implode(',', $this->getBalanceCodes()), 'IN'),
                     new DataBaseWhere('codcuenta', substr($cuenta->codcuenta, 0, -1))
                 ];
                 if ($balanceCuenta->loadFromCode('', $wherePadre)) {
@@ -199,15 +225,7 @@ class EditReportBalance extends EditReportAccounting
         }
     }
 
-    /**
-     * Generate Balance Amounts data for report
-     *
-     * @param ReportBalance $model
-     * @param string $format
-     *
-     * @return array
-     */
-    protected function generateReport($model, $format): array
+    protected function generateReport(ReportBalance $model, string $format): array
     {
         $params = [
             'channel' => $model->channel,
@@ -218,20 +236,17 @@ class EditReportBalance extends EditReportAccounting
         ];
 
         switch ($model->type) {
-            case ReportBalance::TYPE_SHEET:
+            case 'balance-sheet':
                 $balanceAmount = new BalanceSheet();
-                $balanceAmount->setExerciseFromDate($model->idcompany, $model->startdate);
-                return $balanceAmount->generate($model->startdate, $model->enddate, $params);
+                return $balanceAmount->generate($model->idcompany, $model->startdate, $model->enddate, $params);
 
-            case ReportBalance::TYPE_PROFIT:
+            case 'profit-and-loss':
                 $profitAndLoss = new ProfitAndLoss();
-                $profitAndLoss->setExerciseFromDate($model->idcompany, $model->startdate);
-                return $profitAndLoss->generate($model->startdate, $model->enddate, $params);
+                return $profitAndLoss->generate($model->idcompany, $model->startdate, $model->enddate, $params);
 
-            case ReportBalance::TYPE_INCOME:
+            case 'income-and-expenses':
                 $incomeAndExpenditure = new IncomeAndExpenditure();
-                $incomeAndExpenditure->setExerciseFromDate($model->idcompany, $model->startdate);
-                return $incomeAndExpenditure->generate($model->startdate, $model->enddate, $params);
+                return $incomeAndExpenditure->generate($model->idcompany, $model->startdate, $model->enddate, $params);
         }
 
         return [];
@@ -241,10 +256,10 @@ class EditReportBalance extends EditReportAccounting
     {
         $codes = [];
 
-        $balanceModel = new Balance();
+        $balanceModel = new BalanceCode();
         $where = $this->getPreferencesWhere();
         foreach ($balanceModel->all($where, ['codbalance' => 'ASC'], 0, 0) as $balance) {
-            $codes[] = $balance->codbalance;
+            $codes[] = $balance->id;
         }
 
         return $codes;

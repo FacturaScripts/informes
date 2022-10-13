@@ -19,8 +19,8 @@
 
 namespace FacturaScripts\Plugins\Informes\Model;
 
+use FacturaScripts\Core\Model\Base\ModelClass;
 use FacturaScripts\Core\Model\Base\ModelTrait;
-use FacturaScripts\Core\Model\Base\ReportAccounting;
 
 /**
  * Model for ledger report
@@ -28,42 +28,94 @@ use FacturaScripts\Core\Model\Base\ReportAccounting;
  * @author Jose Antonio Cuello <yopli2000@gmail.com>
  * @author Carlos García Gómez <carlos@facturascripts.com>
  */
-class ReportLedger extends ReportAccounting
+class ReportLedger extends ModelClass
 {
     use ModelTrait;
 
-    /**
-     * @var string
-     */
+    /** @var int */
+    public $channel;
+
+    /** @var string */
     public $endcodsubaccount;
 
-    /**
-     * @var int
-     */
+    /** @var string */
+    public $enddate;
+
+    /** @var int */
     public $endentry;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     public $groupingtype;
 
-    /**
-     * @var string
-     */
+    /** @var int */
+    public $id;
+
+    /** @var int */
+    public $idcompany;
+
+    /** @var string */
+    public $name;
+
+    /** @var string */
     public $startcodsubaccount;
 
-    /**
-     * @var int
-     */
+    /** @var string */
+    public $startdate;
+
+    /** @var int */
     public $startentry;
 
-    /**
-     * Returns the name of the table that uses this model.
-     *
-     * @return string
-     */
+    public function clear()
+    {
+        parent::clear();
+        $this->enddate = date('31-12-Y');
+        $this->idcompany = $this->toolBox()->appSettings()->get('default', 'idempresa');
+        $this->startdate = date('01-01-Y');
+    }
+
+    public static function primaryColumn(): string
+    {
+        return 'id';
+    }
+
+    public function primaryDescriptionColumn(): string
+    {
+        return 'name';
+    }
+
     public static function tableName(): string
     {
-        return 'reportsledger';
+        return 'reports_ledger';
+    }
+
+    public function test(): bool
+    {
+        $this->name = $this->toolBox()->utils()->noHtml($this->name);
+
+        if (empty($this->idcompany)) {
+            $this->toolBox()->i18nLog()->warning(
+                'field-can-not-be-null',
+                ['%fieldName%' => 'idempresa', '%tableName%' => static::tableName()]
+            );
+            return false;
+        }
+
+        if (strtotime($this->startdate) > strtotime($this->enddate)) {
+            $params = ['%endDate%' => $this->startdate, '%startDate%' => $this->enddate];
+            $this->toolBox()->i18nLog()->warning('start-date-later-end-date', $params);
+            return false;
+        }
+
+        if (strtotime($this->startdate) < 1) {
+            $this->toolBox()->i18nLog()->warning('date-invalid');
+            return false;
+        }
+
+        return parent::test();
+    }
+
+    public function url(string $type = 'auto', string $list = 'List'): string
+    {
+        return parent::url($type, 'ListReportAccounting?activetab=' . $list);
     }
 }

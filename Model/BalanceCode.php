@@ -50,7 +50,7 @@ class BalanceCode extends ModelClass
     /** @var string */
     public $level1;
 
-    /** @var int */
+    /** @var string */
     public $level2;
 
     /** @var string */

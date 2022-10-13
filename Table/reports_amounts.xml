@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Document   : reportsamounts.xml
+    Document   : reports_amounts.xml
     Author     : Jose Antonio Cuello
     Description:
         Structure for the amounts and balance reports table.
@@ -60,11 +60,11 @@
         <default>false</default>
     </column>
     <constraint>
-        <name>reportsamounts_pkey</name>
+        <name>reports_amounts_pkey</name>
         <type>PRIMARY KEY (id)</type>
     </constraint>
     <constraint>
-        <name>ca_reportsamounts_empresas</name>
+        <name>ca_reports_amounts_empresas</name>
         <type>FOREIGN KEY (idcompany) REFERENCES empresas (idempresa) ON DELETE CASCADE ON UPDATE CASCADE</type>
     </constraint>
 </table>

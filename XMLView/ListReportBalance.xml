@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- * This file is part of FacturaScripts
+ * This file is part of Informes plugin for FacturaScripts
  * Copyright (C) 2020-2022 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -28,10 +28,18 @@
             <widget type="text" fieldname="name"/>
         </column>
         <column name="type" order="120">
-            <widget type="select" fieldname="type"/>
+            <widget type="select" fieldname="type" translate="true">
+                <values title="balance-sheet">balance-sheet</values>
+                <values title="profit-and-loss">profit-and-loss</values>
+                <values title="income-and-expenses">income-and-expenses</values>
+            </widget>
         </column>
         <column name="sub-type" display="none" order="130">
-            <widget type="select" fieldname="subtype"/>
+            <widget type="select" fieldname="subtype" translate="true">
+                <values title="abbreviated">abbreviated</values>
+                <values title="normal">normal</values>
+                <values title="pymes">pymes</values>
+            </widget>
         </column>
         <column name="company" display="none" order="140">
             <widget type="select" fieldname="idcompany">

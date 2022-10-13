@@ -24,6 +24,7 @@ use FacturaScripts\Core\Base\InitClass;
 use FacturaScripts\Dinamic\Model\Empresa;
 use FacturaScripts\Plugins\Informes\Model\BalanceAccount;
 use FacturaScripts\Plugins\Informes\Model\BalanceCode;
+use ParseCsv\Csv;
 
 class Init extends InitClass
 {
@@ -37,8 +38,55 @@ class Init extends InitClass
         // inicializamos empresa para que aplique los cambios en la tabla
         new Empresa();
 
-        // migramos los balances antiguos
+        // migramos los datos antiguos
         $this->migrateOldBalances();
+        $this->migrateOldReports();
+    }
+
+    private function copyBalancePymes(DataBase $db): bool
+    {
+        // abrimos el csv balance_pymes.csv
+        $file = FS_FOLDER . '/Plugins/Informes/Data/Other/balance_pymes.csv';
+        if (false === file_exists($file)) {
+            return false;
+        }
+
+        $csv = new Csv();
+        $csv->auto($file);
+        if (empty($csv->data)) {
+            return false;
+        }
+
+        foreach ($csv->data as $row) {
+            $balanceCode = new BalanceCode();
+            $balanceCode->codbalance = $row['codbalance'];
+            $balanceCode->description1 = $row['description1'];
+            $balanceCode->description2 = $row['description2'];
+            $balanceCode->description3 = $row['description3'];
+            $balanceCode->description4 = $row['description4'];
+            $balanceCode->level1 = $row['level1'];
+            $balanceCode->level2 = $row['level2'];
+            $balanceCode->level3 = $row['level3'];
+            $balanceCode->level4 = $row['level4'];
+            $balanceCode->nature = $row['nature'];
+            $balanceCode->subtype = 'pymes';
+            if (false === $balanceCode->save()) {
+                return false;
+            }
+
+            // copiamos las cuentas
+            $accounts = explode(',', $row['accounts']);
+            foreach ($accounts as $account) {
+                $balanceAccount = new BalanceAccount();
+                $balanceAccount->idbalance = $balanceCode->id;
+                $balanceAccount->codcuenta = trim($account);
+                if (false === $balanceAccount->save()) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     private function migrateOldBalances(): void
@@ -87,10 +135,16 @@ class Init extends InitClass
                 return;
             }
 
+            // copiamos las cuentas
             if (false === $this->migrateOldBalanceAccounts($balanceAbr, $db, 'balancescuentasabreviadas')) {
                 $db->rollback();
                 return;
             }
+        }
+
+        if (false === $this->copyBalancePymes($db)) {
+            $db->rollback();
+            return;
         }
 
         $db->commit();
@@ -113,5 +167,27 @@ class Init extends InitClass
         }
 
         return true;
+    }
+
+    private function migrateOldReports(): void
+    {
+        $db = new DataBase();
+        $tables = [
+            'reportsamounts' => 'reports_amounts',
+            'reportsbalance' => 'reports_balance',
+            'reportsledger' => 'reports_ledger',
+        ];
+        foreach ($tables as $before => $after) {
+            if (false === $db->tableExists($before) || $db->tableExists($after)) {
+                continue;
+            }
+
+            // renombramos la tabla
+            $sql = 'ALTER TABLE ' . $before . ' RENAME TO ' . $after . ';';
+            if (false === $db->exec($sql)) {
+                $this->toolBox()->i18nLog()->warning('rename-table-error');
+                return;
+            }
+        }
     }
 }

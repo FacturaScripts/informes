@@ -19,9 +19,9 @@
 
 namespace FacturaScripts\Plugins\Informes\Controller;
 
-use FacturaScripts\Dinamic\Lib\Accounting\BalanceAmounts;
-use FacturaScripts\Dinamic\Model\ReportAmount;
-use FacturaScripts\Plugins\Informes\Lib\ExtendedController\EditReportAccounting;
+use FacturaScripts\Core\Lib\ExtendedController\EditController;
+use FacturaScripts\Plugins\Informes\Lib\Accounting\BalanceAmounts;
+use FacturaScripts\Plugins\Informes\Model\ReportAmount;
 
 /**
  * Description of EditReportAmount
@@ -29,7 +29,7 @@ use FacturaScripts\Plugins\Informes\Lib\ExtendedController\EditReportAccounting;
  * @author Carlos Garcia Gomez  <carlos@facturascripts.com>
  * @author Jose Antonio Cuello  <yopli2000@gmail.com>
  */
-class EditReportAmount extends EditReportAccounting
+class EditReportAmount extends EditController
 {
     public function getModelClassName(): string
     {
@@ -55,33 +55,46 @@ class EditReportAmount extends EditReportAccounting
         }
     }
 
-    /**
-     * Generate Balance Amounts data for report
-     *
-     * @param ReportAmount $model
-     * @param string $format
-     *
-     * @return array
-     */
-    protected function generateReport($model, $format)
+    protected function exportAction()
     {
-        $params = [
-            'channel' => $model->channel,
-            'format' => $format,
-            'idcompany' => $model->idcompany,
-            'ignoreclosure' => $model->ignoreclosure,
-            'ignoreregularization' => $model->ignoreregularization,
-            'level' => $model->level,
-            'subaccount-from' => $model->startcodsubaccount,
-            'subaccount-to' => $model->endcodsubaccount
-        ];
-
-        $balanceAmount = new BalanceAmounts();
-        if ($balanceAmount->setExerciseFromDate($model->idcompany, $model->startdate)) {
-            return $balanceAmount->generate($model->startdate, $model->enddate, $params);
+        $model = $this->getModel();
+        $format = $this->request->get('option', 'PDF');
+        $pages = $this->generateReport($model, $format);
+        if (empty($pages)) {
+            $this->toolBox()->i18nLog()->warning('no-data');
+            return;
         }
 
-        self::toolBox()::i18nLog()->warning('exercise-not-found');
-        return [];
+        $this->setTemplate(false);
+        $view = $this->views[$this->getMainViewName()];
+        $this->exportManager->newDoc($format, $model->name);
+        $this->exportManager->addModelPage($view->model, $view->getColumns(), $this->toolBox()->i18n()->trans('accounting-reports'));
+
+        foreach ($pages as $data) {
+            $headers = empty($data) ? [] : array_keys($data[0]);
+            $this->exportManager->addTablePage($headers, $data);
+        }
+
+        $this->exportManager->show($this->response);
+    }
+
+    protected function generateReport(ReportAmount $model, string $format): array
+    {
+        $balanceAmount = new BalanceAmounts();
+        return $balanceAmount->generate(
+            $model->idcompany,
+            $model->startdate,
+            $model->enddate,
+            [
+                'channel' => $model->channel,
+                'format' => $format,
+                'idcompany' => $model->idcompany,
+                'ignoreclosure' => $model->ignoreclosure,
+                'ignoreregularization' => $model->ignoreregularization,
+                'level' => $model->level,
+                'subaccount-from' => $model->startcodsubaccount,
+                'subaccount-to' => $model->endcodsubaccount
+            ]
+        );
     }
 }

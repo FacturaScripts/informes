@@ -19,9 +19,9 @@
 
 namespace FacturaScripts\Plugins\Informes\Controller;
 
-use FacturaScripts\Dinamic\Lib\Accounting\Ledger;
-use FacturaScripts\Dinamic\Model\ReportLedger;
-use FacturaScripts\Plugins\Informes\Lib\ExtendedController\EditReportAccounting;
+use FacturaScripts\Core\Lib\ExtendedController\EditController;
+use FacturaScripts\Plugins\Informes\Lib\Accounting\Ledger;
+use FacturaScripts\Plugins\Informes\Model\ReportLedger;
 
 /**
  * Description of EditReportLedger
@@ -29,7 +29,7 @@ use FacturaScripts\Plugins\Informes\Lib\ExtendedController\EditReportAccounting;
  * @author Carlos Garcia Gomez  <carlos@facturascripts.com>
  * @author Jose Antonio Cuello  <yopli2000@gmail.com>
  */
-class EditReportLedger extends EditReportAccounting
+class EditReportLedger extends EditController
 {
     public function getModelClassName(): string
     {
@@ -55,32 +55,46 @@ class EditReportLedger extends EditReportAccounting
         }
     }
 
-    /**
-     * Generate Ledger data for report
-     *
-     * @param ReportLedger $model
-     * @param string $format
-     *
-     * @return array
-     */
-    protected function generateReport($model, $format)
+    protected function exportAction()
     {
-        $params = [
-            'channel' => $model->channel,
-            'entry-from' => $model->startentry,
-            'entry-to' => $model->endentry,
-            'format' => $format,
-            'grouped' => $model->groupingtype,
-            'idcompany' => $model->idcompany,
-            'subaccount-from' => $model->startcodsubaccount,
-            'subaccount-to' => $model->endcodsubaccount
-        ];
-
-        $ledger = new Ledger();
-        if (false === $ledger->setExerciseFromDate($model->idcompany, $model->startdate)) {
-            $this->toolBox()->i18nLog()->warning('accounting-exercise-not-found');
-            return [];
+        $model = $this->getModel();
+        $format = $this->request->get('option', 'PDF');
+        $pages = $this->generateReport($model, $format);
+        if (empty($pages)) {
+            $this->toolBox()->i18nLog()->warning('no-data');
+            return;
         }
-        return $ledger->generate($model->startdate, $model->enddate, $params);
+
+        $this->setTemplate(false);
+        $view = $this->views[$this->getMainViewName()];
+        $this->exportManager->newDoc($format, $model->name);
+        $this->exportManager->addModelPage($view->model, $view->getColumns(), $this->toolBox()->i18n()->trans('accounting-reports'));
+
+        foreach ($pages as $data) {
+            $headers = empty($data) ? [] : array_keys($data[0]);
+            $this->exportManager->addTablePage($headers, $data);
+        }
+
+        $this->exportManager->show($this->response);
+    }
+
+    protected function generateReport(ReportLedger $model, string $format): array
+    {
+        $ledger = new Ledger();
+        return $ledger->generate(
+            $model->idcompany,
+            $model->startdate,
+            $model->enddate,
+            [
+                'channel' => $model->channel,
+                'entry-from' => $model->startentry,
+                'entry-to' => $model->endentry,
+                'format' => $format,
+                'grouped' => $model->groupingtype,
+                'idcompany' => $model->idcompany,
+                'subaccount-from' => $model->startcodsubaccount,
+                'subaccount-to' => $model->endcodsubaccount
+            ]
+        );
     }
 }

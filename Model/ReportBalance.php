@@ -19,15 +19,16 @@
 
 namespace FacturaScripts\Plugins\Informes\Model;
 
+use FacturaScripts\Core\Model\Base\ModelClass;
 use FacturaScripts\Core\Model\Base\ModelTrait;
-use FacturaScripts\Core\Model\Base\ReportAccounting;
 
 /**
  * Model for balances reports
  *
+ * @author Carlos García Gómez <carlos@facturascripts.com>
  * @author Jose Antonio Cuello <yopli2000@gmail.com>
  */
-class ReportBalance extends ReportAccounting
+class ReportBalance extends ModelClass
 {
     use ModelTrait;
 
@@ -37,49 +38,85 @@ class ReportBalance extends ReportAccounting
     const SUBTYPE_ABBREVIATED = 'abbreviated';
     const SUBTYPE_NORMAL = 'normal';
 
-    /**
-     * Indicate if you want to make a comparison with the previous year.
-     *
-     * @var bool
-     */
+    /** @var int */
+    public $channel;
+
+    /** @var bool */
     public $comparative;
 
-    /**
-     * @var string
-     */
+    /** @var string */
+    public $enddate;
+
+    /** @var int */
+    public $id;
+
+    /** @var int */
+    public $idcompany;
+
+    /** @var string */
+    public $name;
+
+    /** @var string */
+    public $startdate;
+
+    /** @var string */
     public $type;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public $subtype;
 
-    /**
-     * Reset the values of all model properties.
-     */
     public function clear()
     {
         parent::clear();
         $this->comparative = true;
+        $this->enddate = date('31-12-Y');
+        $this->idcompany = $this->toolBox()->appSettings()->get('default', 'idempresa');
         $this->type = self::TYPE_SHEET;
+        $this->startdate = date('01-01-Y');
         $this->subtype = self::SUBTYPE_ABBREVIATED;
     }
 
-    /**
-     * Returns the name of the class of the model.
-     *
-     * @return string
-     */
-    public static function tableName(): string
+    public static function primaryColumn(): string
     {
-        return 'reportsbalance';
+        return 'id';
     }
 
-    /**
-     * Return the list of balances.
-     *
-     * @return array
-     */
+    public function primaryDescriptionColumn(): string
+    {
+        return 'name';
+    }
+
+    public static function tableName(): string
+    {
+        return 'reports_balance';
+    }
+
+    public function test(): bool
+    {
+        $this->name = $this->toolBox()->utils()->noHtml($this->name);
+
+        if (empty($this->idcompany)) {
+            $this->toolBox()->i18nLog()->warning(
+                'field-can-not-be-null',
+                ['%fieldName%' => 'idempresa', '%tableName%' => static::tableName()]
+            );
+            return false;
+        }
+
+        if (strtotime($this->startdate) > strtotime($this->enddate)) {
+            $params = ['%endDate%' => $this->startdate, '%startDate%' => $this->enddate];
+            $this->toolBox()->i18nLog()->warning('start-date-later-end-date', $params);
+            return false;
+        }
+
+        if (strtotime($this->startdate) < 1) {
+            $this->toolBox()->i18nLog()->warning('date-invalid');
+            return false;
+        }
+
+        return parent::test();
+    }
+
     public static function typeList(): array
     {
         $i18n = self::toolBox()->i18n();
@@ -90,11 +127,6 @@ class ReportBalance extends ReportAccounting
         ];
     }
 
-    /**
-     * Returns the list of available balance types.
-     *
-     * @return array
-     */
     public static function subtypeList(): array
     {
         $i18n = self::toolBox()->i18n();
@@ -102,5 +134,10 @@ class ReportBalance extends ReportAccounting
             ['value' => self::SUBTYPE_ABBREVIATED, 'title' => $i18n->trans(self::SUBTYPE_ABBREVIATED)],
             ['value' => self::SUBTYPE_NORMAL, 'title' => $i18n->trans(self::SUBTYPE_NORMAL)]
         ];
+    }
+
+    public function url(string $type = 'auto', string $list = 'List'): string
+    {
+        return parent::url($type, 'ListReportAccounting?activetab=' . $list);
     }
 }

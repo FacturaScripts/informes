@@ -44,12 +44,7 @@ class ListReportAccounting extends ListController
         return $data;
     }
 
-    /**
-     * Add to indicated view a filter select with company list
-     *
-     * @param string $viewName
-     */
-    private function addCommonFilter(string $viewName)
+    private function addCommonFilters(string $viewName)
     {
         // si hay más de una empresa, añadimos un filtro para seleccionarla
         if ($this->empresa->count() > 1) {
@@ -91,7 +86,7 @@ class ListReportAccounting extends ListController
         $this->addOrderBy($viewName, ['name'], 'name');
         $this->addOrderBy($viewName, ['idcompany', 'name'], 'company');
         $this->addSearchFields($viewName, ['name']);
-        $this->addCommonFilter($viewName);
+        $this->addCommonFilters($viewName);
         $this->addGenerateButton($viewName);
 
         // desactivamos el botón de imprimir
@@ -109,8 +104,7 @@ class ListReportAccounting extends ListController
         $this->addOrderBy($viewName, ['name'], 'name');
         $this->addOrderBy($viewName, ['idcompany', 'name'], 'company');
         $this->addSearchFields($viewName, ['name']);
-        $this->addCommonFilter($viewName);
-        $this->loadWidgetValues($viewName);
+        $this->addCommonFilters($viewName);
         $this->addGenerateButton($viewName);
 
         // desactivamos el botón de imprimir
@@ -128,7 +122,7 @@ class ListReportAccounting extends ListController
         $this->addOrderBy($viewName, ['name'], 'name');
         $this->addOrderBy($viewName, ['idcompany', 'name'], 'company');
         $this->addSearchFields($viewName, ['name']);
-        $this->addCommonFilter($viewName);
+        $this->addCommonFilters($viewName);
         $this->addGenerateButton($viewName);
 
         // desactivamos el botón de imprimir
@@ -247,24 +241,6 @@ class ListReportAccounting extends ListController
                 $balance->type = $type;
                 $total += $balance->save() ? 1 : 0;
             }
-        }
-    }
-
-    /**
-     * Load values into special widget columns
-     *
-     * @param string $viewName
-     */
-    protected function loadWidgetValues(string $viewName)
-    {
-        $columnType = $this->views[$viewName]->columnForField('type');
-        if ($columnType && $columnType->widget->getType() === 'select') {
-            $columnType->widget->setValuesFromArray(ReportBalance::typeList());
-        }
-
-        $columnFormat = $this->views[$viewName]->columnForField('subtype');
-        if ($columnFormat && $columnFormat->widget->getType() === 'select') {
-            $columnFormat->widget->setValuesFromArray(ReportBalance::subtypeList());
         }
     }
 }

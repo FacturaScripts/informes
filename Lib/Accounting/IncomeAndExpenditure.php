@@ -19,29 +19,40 @@
 
 namespace FacturaScripts\Plugins\Informes\Lib\Accounting;
 
+use FacturaScripts\Core\Base\DataBase;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
-use FacturaScripts\Core\Lib\Accounting\AccountingBase;
+use FacturaScripts\Core\Base\ToolBox;
 use FacturaScripts\Core\Model\Asiento;
-use FacturaScripts\Dinamic\Model\Balance;
-use FacturaScripts\Dinamic\Model\BalanceCuenta;
-use FacturaScripts\Dinamic\Model\BalanceCuentaA;
 use FacturaScripts\Dinamic\Model\Ejercicio;
 use FacturaScripts\Dinamic\Model\Partida;
+use FacturaScripts\Plugins\Informes\Model\BalanceAccount;
+use FacturaScripts\Plugins\Informes\Model\BalanceCode;
 
 /**
  * Description of IncomeAndExpenditure
  *
- * @author Carlos García Gómez  <carlos@facturascripts.com>
+ * @author Carlos García Gómez           <carlos@facturascripts.com>
  * @author Jose Antonio Cuello Principal <yopli2000@gmail.com>
  */
-class IncomeAndExpenditure extends AccountingBase
+class IncomeAndExpenditure
 {
+    /** @var DataBase */
+    protected $dataBase;
+
+    /** @var string */
+    protected $dateFrom;
 
     /** @var string */
     protected $dateFromPrev;
 
     /** @var string */
+    protected $dateTo;
+
+    /** @var string */
     protected $dateToPrev;
+
+    /** @var Ejercicio */
+    protected $exercise;
 
     /** @var Ejercicio */
     protected $exercisePrev;
@@ -51,25 +62,20 @@ class IncomeAndExpenditure extends AccountingBase
 
     public function __construct()
     {
-        parent::__construct();
+        $this->dataBase = new DataBase();
 
         // needed dependencies
         new Partida();
-        new BalanceCuenta();
-        new BalanceCuentaA();
     }
 
-    /**
-     * Generate the data results.
-     *
-     * @param string $dateFrom
-     * @param string $dateTo
-     * @param array $params
-     *
-     * @return array
-     */
-    public function generate(string $dateFrom, string $dateTo, array $params = []): array
+    public function generate(int $idcompany, string $dateFrom, string $dateTo, array $params = []): array
     {
+        $this->exercise = new Ejercicio();
+        $this->exercise->idempresa = $idcompany;
+        if (false === $this->exercise->loadFromDate($dateFrom, true, false)) {
+            return [];
+        }
+
         $this->dateFrom = $dateFrom;
         $this->dateTo = $dateTo;
         $this->dateFromPrev = $this->addToDate($dateFrom, '-1 year');
@@ -96,28 +102,33 @@ class IncomeAndExpenditure extends AccountingBase
         return $return;
     }
 
+    protected function addToDate(string $date, string $add): string
+    {
+        return date('d-m-Y', strtotime($add, strtotime($date)));
+    }
+
     /**
      * @param array $rows
-     * @param Balance[] $balances
+     * @param BalanceCode[] $balances
      * @param string $code1
-     * @param array $amouns1
+     * @param array $amounts1
      * @param string $code2
-     * @param array $amouns2
+     * @param array $amounts2
      */
-    protected function addTotalsRow(&$rows, $balances, $code1, $amouns1, $code2, $amouns2)
+    protected function addTotalsRow(array &$rows, array $balances, string $code1, array $amounts1, string $code2, array $amounts2): void
     {
         $rows[] = ['descripcion' => '', $code1 => '', $code2 => ''];
 
         $levels = [];
         $total1 = $total2 = 0.00;
         foreach ($balances as $bal) {
-            if (isset($levels[$bal->nivel1])) {
+            if (isset($levels[$bal->level1])) {
                 continue;
             }
 
-            $levels[$bal->nivel1] = $bal->nivel1;
-            $total1 += $amouns1[$bal->nivel1];
-            $total2 += $amouns2[$bal->nivel1] ?? 0.00;
+            $levels[$bal->level1] = $bal->level1;
+            $total1 += $amounts1[$bal->level1];
+            $total2 += $amounts2[$bal->level1] ?? 0.00;
         }
 
         $rows[] = [
@@ -127,48 +138,34 @@ class IncomeAndExpenditure extends AccountingBase
         ];
     }
 
-    /**
-     * @param string $value
-     * @param string $type
-     * @param bool $bold
-     *
-     * @return string
-     */
-    protected function formatValue($value, $type = 'money', $bold = false): string
+    protected function formatValue(string $value, string $type = 'money', bool $bold = false): string
     {
         $prefix = $bold ? '<b>' : '';
         $suffix = $bold ? '</b>' : '';
         switch ($type) {
             case 'money':
                 if ($this->format === 'PDF') {
-                    return $prefix . $this->toolBox()->coins()->format($value, FS_NF0, '') . $suffix;
+                    return $prefix . ToolBox::coins()->format($value, FS_NF0, '') . $suffix;
                 }
                 return number_format($value, FS_NF0, '.', '');
 
             default:
                 if ($this->format === 'PDF') {
-                    return $prefix . $this->toolBox()->utils()->fixHtml($value) . $suffix;
+                    return $prefix . ToolBox::utils()->fixHtml($value) . $suffix;
                 }
-                return $this->toolBox()->utils()->fixHtml($value) ?? '';
+                return ToolBox::utils()->fixHtml($value) ?? '';
         }
     }
 
-    /**
-     * @param Balance $balance
-     * @param string $codejercicio
-     * @param array $params
-     *
-     * @return float
-     */
-    protected function getAmounts($balance, $codejercicio, $params): float
+    protected function getAmounts(BalanceCode $balance, string $codejercicio, array $params): float
     {
         $total = 0.00;
         if ($codejercicio === '-') {
             return $total;
         }
 
-        $balAccount = $params['subtype'] === 'normal' ? new BalanceCuenta() : new BalanceCuentaA();
-        $where = [new DataBaseWhere('codbalance', $balance->codbalance)];
+        $balAccount = new BalanceAccount();
+        $where = [new DataBaseWhere('idbalance', $balance->id)];
         foreach ($balAccount->all($where, [], 0, 0) as $model) {
             $sql = "SELECT SUM(partidas.debe) AS debe, SUM(partidas.haber) AS haber"
                 . " FROM partidas"
@@ -204,7 +201,7 @@ class IncomeAndExpenditure extends AccountingBase
                 . ',' . $this->dataBase->var2str(Asiento::OPERATION_CLOSING) . '))';
 
             foreach ($this->dataBase->select($sql) as $row) {
-                $total += $balance->naturaleza === 'A' ?
+                $total += $balance->nature === 'A' ?
                     (float)$row['debe'] - (float)$row['haber'] :
                     (float)$row['haber'] - (float)$row['debe'];
             }
@@ -213,25 +210,19 @@ class IncomeAndExpenditure extends AccountingBase
         return $total;
     }
 
-    /**
-     * @param string $nature
-     * @param array $params
-     *
-     * @return array
-     */
-    protected function getData($nature = 'A', $params = []): array
+    protected function getData(string $nature = 'A', array $params = []): array
     {
         $rows = [];
         $code1 = $this->exercise->codejercicio;
         $code2 = $this->exercisePrev->codejercicio ?? '-';
 
         // get balance codes
-        $balance = new Balance();
+        $balance = new BalanceCode();
         $where = [
-            new DataBaseWhere('naturaleza', $nature),
-            new DataBaseWhere('nivel1', '', '!=')
+            new DataBaseWhere('nature', $nature),
+            new DataBaseWhere('level1', '', '!=')
         ];
-        $order = ['nivel1' => 'ASC', 'nivel2' => 'ASC', 'nivel3' => 'ASC', 'nivel4' => 'ASC'];
+        $order = ['level1' => 'ASC', 'level2' => 'ASC', 'level3' => 'ASC', 'level4' => 'ASC'];
         $balances = $balance->all($where, $order, 0, 0);
 
         // get amounts
@@ -245,44 +236,44 @@ class IncomeAndExpenditure extends AccountingBase
         }
 
         // add to table
-        $nivel1 = $nivel2 = $nivel3 = $nivel4 = '';
+        $level1 = $level2 = $level3 = $level4 = '';
         foreach ($balances as $bal) {
-            if ($bal->nivel1 != $nivel1 && !empty($bal->nivel1)) {
-                $nivel1 = $bal->nivel1;
+            if ($bal->level1 != $level1 && !empty($bal->level1)) {
+                $level1 = $bal->level1;
                 $rows[] = ['descripcion' => '', $code1 => '', $code2 => ''];
                 $rows[] = [
-                    'descripcion' => $this->formatValue($bal->descripcion1, 'text', true),
-                    $code1 => $this->formatValue($amountsNE1[$bal->nivel1], 'money', true),
-                    $code2 => $this->formatValue($amountsNE2[$bal->nivel1], 'money', true)
+                    'descripcion' => $this->formatValue($bal->description1, 'text', true),
+                    $code1 => $this->formatValue($amountsNE1[$bal->level1], 'money', true),
+                    $code2 => $this->formatValue($amountsNE2[$bal->level1], 'money', true)
                 ];
             }
 
-            if ($bal->nivel2 != $nivel2 && !empty($bal->nivel2)) {
-                $nivel2 = $bal->nivel2;
+            if ($bal->level2 != $level2 && !empty($bal->level2)) {
+                $level2 = $bal->level2;
                 $rows[] = [
-                    'descripcion' => '  ' . $bal->descripcion2,
-                    $code1 => $this->formatValue($amountsNE1[$bal->nivel1 . '-' . $bal->nivel2]),
-                    $code2 => $this->formatValue($amountsNE2[$bal->nivel1 . '-' . $bal->nivel2])
+                    'descripcion' => '  ' . $bal->description2,
+                    $code1 => $this->formatValue($amountsNE1[$bal->level1 . '-' . $bal->level2]),
+                    $code2 => $this->formatValue($amountsNE2[$bal->level1 . '-' . $bal->level2])
                 ];
             }
 
-            if ($bal->nivel3 != $nivel3 && !empty($bal->nivel3)) {
-                $nivel3 = $bal->nivel3;
+            if ($bal->level3 != $level3 && !empty($bal->level3)) {
+                $level3 = $bal->level3;
                 $rows[] = [
-                    'descripcion' => '    ' . $bal->descripcion3,
-                    $code1 => $this->formatValue($amountsNE1[$bal->nivel1 . '-' . $bal->nivel2 . '-' . $bal->nivel3]),
-                    $code2 => $this->formatValue($amountsNE2[$bal->nivel1 . '-' . $bal->nivel2 . '-' . $bal->nivel3])
+                    'descripcion' => '    ' . $bal->description3,
+                    $code1 => $this->formatValue($amountsNE1[$bal->level1 . '-' . $bal->level2 . '-' . $bal->level3]),
+                    $code2 => $this->formatValue($amountsNE2[$bal->level1 . '-' . $bal->level2 . '-' . $bal->level3])
                 ];
             }
 
-            if ($bal->nivel4 != $nivel4 && !empty($bal->nivel4)) {
-                $nivel4 = $bal->nivel4;
+            if ($bal->level4 != $level4 && !empty($bal->level4)) {
+                $level4 = $bal->level4;
                 if (empty($amountsE1[$bal->codbalance]) && empty($amountsE2[$bal->codbalance])) {
                     continue;
                 }
 
                 $rows[] = [
-                    'descripcion' => '      ' . $bal->descripcion4,
+                    'descripcion' => '      ' . $bal->description4,
                     $code1 => $this->formatValue($amountsE1[$bal->codbalance]),
                     $code2 => $this->formatValue($amountsE2[$bal->codbalance])
                 ];
@@ -293,33 +284,26 @@ class IncomeAndExpenditure extends AccountingBase
         return $rows;
     }
 
-    /**
-     * @param array $amounts
-     * @param array $amountsN
-     * @param Balance $balance
-     * @param string $codejercicio
-     * @param array $params
-     */
-    protected function sumAmounts(&$amounts, &$amountsN, $balance, $codejercicio, $params)
+    protected function sumAmounts(array &$amounts, array &$amountsN, BalanceCode $balance, string $codejercicio, array $params): void
     {
         $amounts[$balance->codbalance] = $total = $this->getAmounts($balance, $codejercicio, $params);
 
-        if (isset($amountsN[$balance->nivel1])) {
-            $amountsN[$balance->nivel1] += $total;
+        if (isset($amountsN[$balance->level1])) {
+            $amountsN[$balance->level1] += $total;
         } else {
-            $amountsN[$balance->nivel1] = $total;
+            $amountsN[$balance->level1] = $total;
         }
 
-        if (isset($amountsN[$balance->nivel1 . '-' . $balance->nivel2])) {
-            $amountsN[$balance->nivel1 . '-' . $balance->nivel2] += $total;
+        if (isset($amountsN[$balance->level1 . '-' . $balance->level2])) {
+            $amountsN[$balance->level1 . '-' . $balance->level2] += $total;
         } else {
-            $amountsN[$balance->nivel1 . '-' . $balance->nivel2] = $total;
+            $amountsN[$balance->level1 . '-' . $balance->level2] = $total;
         }
 
-        if (isset($amountsN[$balance->nivel1 . '-' . $balance->nivel2 . '-' . $balance->nivel3])) {
-            $amountsN[$balance->nivel1 . '-' . $balance->nivel2 . '-' . $balance->nivel3] += $total;
+        if (isset($amountsN[$balance->level1 . '-' . $balance->level2 . '-' . $balance->level3])) {
+            $amountsN[$balance->level1 . '-' . $balance->level2 . '-' . $balance->level3] += $total;
         } else {
-            $amountsN[$balance->nivel1 . '-' . $balance->nivel2 . '-' . $balance->nivel3] = $total;
+            $amountsN[$balance->level1 . '-' . $balance->level2 . '-' . $balance->level3] = $total;
         }
     }
 }

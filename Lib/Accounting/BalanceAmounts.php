@@ -19,10 +19,12 @@
 
 namespace FacturaScripts\Plugins\Informes\Lib\Accounting;
 
+use FacturaScripts\Core\Base\DataBase;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
-use FacturaScripts\Core\Lib\Accounting\AccountingBase;
+use FacturaScripts\Core\Base\ToolBox;
 use FacturaScripts\Dinamic\Model\Asiento;
 use FacturaScripts\Dinamic\Model\Cuenta;
+use FacturaScripts\Dinamic\Model\Ejercicio;
 use FacturaScripts\Dinamic\Model\Partida;
 use FacturaScripts\Dinamic\Model\Subcuenta;
 
@@ -32,37 +34,42 @@ use FacturaScripts\Dinamic\Model\Subcuenta;
  * @author Carlos García Gómez  <carlos@facturascripts.com>
  * @author nazca                <comercial@nazcanetworks.com>
  */
-class BalanceAmounts extends AccountingBase
+class BalanceAmounts
 {
+    /** @var DataBase */
+    protected $dataBase;
+
+    /** @var string */
+    protected $dateFrom;
+
+    /** @var string */
+    protected $dateTo;
+
+    /** @var Ejercicio */
+    protected $exercise;
 
     /** @var string */
     protected $format;
 
-    /**
-     * BalanceAmounts constructor.
-     */
     public function __construct()
     {
-        parent::__construct();
+        $this->dataBase = new DataBase();
 
         // needed dependencies
         new Partida();
     }
 
-    /**
-     * Generate the balance amounts between two dates.
-     *
-     * @param string $dateFrom
-     * @param string $dateTo
-     * @param array $params
-     *
-     * @return array
-     */
-    public function generate(string $dateFrom, string $dateTo, array $params = []): array
+    public function generate(int $idcompany, string $dateFrom, string $dateTo, array $params = []): array
     {
+        $this->exercise = new Ejercicio();
+        $this->exercise->idempresa = $idcompany;
+        if (false === $this->exercise->loadFromDate($dateFrom, true, false)) {
+            return [];
+        }
+
         $this->dateFrom = $dateFrom;
         $this->dateTo = $dateTo;
-        $this->format = $params['format'];
+        $this->format = $params['format'] ?? 'pdf';
         $level = (int)$params['level'] ?? 0;
 
         // get accounts
@@ -125,12 +132,13 @@ class BalanceAmounts extends AccountingBase
      * @param array $amounts
      * @param float $debe
      * @param float $haber
+     * @param int $max
      */
-    protected function combineData(&$selAccount, &$accounts, &$amounts, &$debe, &$haber, $max = 7)
+    protected function combineData(Cuenta &$selAccount, array &$accounts, array &$amounts, float &$debe, float &$haber, int $max = 7): void
     {
         $max--;
         if ($max < 0) {
-            $this->toolBox()->log()->error('account loop on ' . $selAccount->codcuenta);
+            ToolBox::log()->error('account loop on ' . $selAccount->codcuenta);
             return;
         }
 
@@ -148,11 +156,7 @@ class BalanceAmounts extends AccountingBase
         }
     }
 
-    /**
-     * @param array $amounts
-     * @param array $totals
-     */
-    protected function combineTotals(&$amounts, &$totals)
+    protected function combineTotals(array &$amounts, array &$totals): void
     {
         $debe = $haber = 0.00;
         foreach ($amounts as $row) {
@@ -166,38 +170,25 @@ class BalanceAmounts extends AccountingBase
         $totals[0]['saldo'] = $this->formatValue($saldo);
     }
 
-    /**
-     * @param string $value
-     * @param string $type
-     * @param bool $bold
-     *
-     * @return string
-     */
-    protected function formatValue($value, $type = 'money', $bold = false)
+    protected function formatValue(string $value, string $type = 'money', bool $bold = false): string
     {
         $prefix = $bold ? '<b>' : '';
         $suffix = $bold ? '</b>' : '';
         switch ($type) {
             case 'money':
                 if ($this->format === 'PDF') {
-                    return $prefix . $this->toolBox()->coins()->format($value, FS_NF0, '') . $suffix;
+                    return $prefix . ToolBox::coins()->format($value, FS_NF0, '') . $suffix;
                 }
                 return number_format($value, FS_NF0, '.', '');
 
             default:
                 if ($this->format === 'PDF') {
-                    return $prefix . $this->toolBox()->utils()->fixHtml($value) . $suffix;
+                    return $prefix . ToolBox::utils()->fixHtml($value) . $suffix;
                 }
-                return $this->toolBox()->utils()->fixHtml($value);
+                return ToolBox::utils()->fixHtml($value);
         }
     }
 
-    /**
-     * Return the appropriate data from database.
-     *
-     * @param array $params
-     * @return array
-     */
     protected function getData(array $params = []): array
     {
         if (false === $this->dataBase->tableExists('partidas')) {
@@ -237,11 +228,6 @@ class BalanceAmounts extends AccountingBase
         return $where;
     }
 
-    /**
-     * @param array $params
-     *
-     * @return string
-     */
     protected function getDataWhere(array $params = []): string
     {
         $where = 'asientos.codejercicio = ' . $this->dataBase->var2str($this->exercise->codejercicio)
@@ -305,7 +291,7 @@ class BalanceAmounts extends AccountingBase
      *
      * @return array
      */
-    protected function processAmountLine($subaccounts, $amount): array
+    protected function processAmountLine(array $subaccounts, array $amount): array
     {
         $debe = (float)$amount['debe'];
         $haber = (float)$amount['haber'];
