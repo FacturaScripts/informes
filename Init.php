@@ -43,16 +43,11 @@ class Init extends InitClass
         $this->migrateOldReports();
     }
 
-    private function copyBalancePymes(DataBase $db): bool
+    private function copyBalancePymes(): bool
     {
         // abrimos el csv balance_pymes.csv
-        $file = FS_FOLDER . '/Plugins/Informes/Data/Other/balance_pymes.csv';
-        if (false === file_exists($file)) {
-            return false;
-        }
-
         $csv = new Csv();
-        $csv->auto($file);
+        $csv->auto(FS_FOLDER . '/Plugins/Informes/Data/Other/balance_pymes.csv');
         if (empty($csv->data)) {
             return false;
         }
@@ -96,10 +91,17 @@ class Init extends InitClass
             return;
         }
 
+        // inicializamos los modelos para que se creen las tablas
+        new BalanceCode();
+        new BalanceAccount();
+
         $db->beginTransaction();
 
-        $sql = 'SELECT * FROM balances;';
-        foreach ($db->select($sql) as $row) {
+        // eliminamos datos de las tablas
+        $db->exec('DELETE FROM balance_accounts;');
+        $db->exec('DELETE FROM balance_codes;');
+
+        foreach ($db->select('SELECT * FROM balances;') as $row) {
             // copiamos el balance normal
             $balance = new BalanceCode();
             $balance->codbalance = $row['codbalance'];
@@ -142,7 +144,7 @@ class Init extends InitClass
             }
         }
 
-        if (false === $this->copyBalancePymes($db)) {
+        if (false === $this->copyBalancePymes()) {
             $db->rollback();
             return;
         }
