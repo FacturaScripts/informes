@@ -85,7 +85,7 @@ class ProfitAndLoss
         $where = [
             new DataBaseWhere('fechainicio', $this->dateFromPrev, '<='),
             new DataBaseWhere('fechafin', $this->dateToPrev, '>='),
-            new DataBaseWhere('idempresa', $this->exercise->idempresa)
+            new DataBaseWhere('idempresa', $idcompany)
         ];
         $this->exercisePrev->loadFromCode('', $where);
         $this->format = $params['format'];
@@ -221,6 +221,7 @@ class ProfitAndLoss
         $balance = new BalanceCode();
         $where = [
             new DataBaseWhere('nature', $nature),
+            new DataBaseWhere('subtype', $params['subtype'] ?? 'normal'),
             new DataBaseWhere('level1', '', '!=')
         ];
         $order = ['level1' => 'ASC', 'level2' => 'ASC', 'level3' => 'ASC', 'level4' => 'ASC'];
