@@ -20,7 +20,7 @@
 namespace FacturaScripts\Plugins\Informes\Controller;
 
 use FacturaScripts\Core\Lib\ExtendedController\EditController;
-use FacturaScripts\Plugins\Informes\Lib\Accounting\Ledger;
+use FacturaScripts\Dinamic\Lib\Accounting\Ledger;
 use FacturaScripts\Plugins\Informes\Model\ReportLedger;
 
 /**
