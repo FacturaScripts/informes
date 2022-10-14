@@ -88,12 +88,12 @@ class ProfitAndLoss
             new DataBaseWhere('idempresa', $idcompany)
         ];
         $this->exercisePrev->loadFromCode('', $where);
-        $this->format = $params['format'];
+        $this->format = $params['format'] ?? 'pdf';
 
         $return = [$this->getData('PG', $params)];
 
         // Si se ha elegido sin comparativo, eliminamos los datos del comparativo
-        if ($params['comparative'] == false) {
+        if (!($params['comparative'] ?? false)) {
             $code2 = $this->exercisePrev->codejercicio ?? '-';
             foreach ($return[0] as $key => $value) {
                 unset($return[0][$key][$code2]);
