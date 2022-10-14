@@ -224,7 +224,7 @@ class ProfitAndLoss
             new DataBaseWhere('subtype', $params['subtype'] ?? 'normal'),
             new DataBaseWhere('level1', '', '!=')
         ];
-        $order = ['level1' => 'ASC', 'level2' => 'ASC', 'level3' => 'ASC', 'level4' => 'ASC'];
+        $order = ['level1 * 1' => 'ASC', 'level2 * 1' => 'ASC', 'level3 * 1' => 'ASC', 'level4 * 1' => 'ASC'];
         $balances = $balance->all($where, $order, 0, 0);
 
         // get amounts

@@ -57,7 +57,7 @@ class EditReportBalance extends EditController
     protected function createViews()
     {
         parent::createViews();
-        // disable company column if there is only one company
+        // ocultamos la columna empresa si solo hay una
         if ($this->empresa->count() < 2) {
             $this->views[$this->getMainViewName()]->disableColumn('company');
         }
@@ -75,13 +75,14 @@ class EditReportBalance extends EditController
         $this->views[$viewName]->addOrderBy(['description3'], 'description-3');
         $this->views[$viewName]->addOrderBy(['description4'], 'description-4');
         $this->views[$viewName]->addSearchFields([
-            'codbalance', 'nature', 'description1', 'description2', 'description3', 'description4'
+            'codbalance', 'description1', 'description2', 'description3', 'description4'
         ]);
 
-        // disable column
+        // ocultamos las columnas nature y sub-type
         $this->views[$viewName]->disableColumn('nature');
+        $this->views[$viewName]->disableColumn('sub-type');
 
-        // disable buttons
+        // desactivamos los botones
         $this->setSettings($viewName, 'btnDelete', false);
         $this->setSettings($viewName, 'btnNew', false);
         $this->setSettings($viewName, 'checkBoxes', false);
