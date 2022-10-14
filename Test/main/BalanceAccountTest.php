@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of FacturaScripts
+ * This file is part of Informes plugin for FacturaScripts
  * Copyright (C) 2022 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,8 +21,8 @@ namespace FacturaScripts\Test\Core\Model;
 
 use FacturaScripts\Core\Base\DataBase;
 use FacturaScripts\Core\Base\ToolBox;
-use FacturaScripts\Core\Model\Balance;
-use FacturaScripts\Core\Model\BalanceCuenta;
+use FacturaScripts\Plugins\Informes\Model\BalanceAccount;
+use FacturaScripts\Plugins\Informes\Model\BalanceCode;
 use FacturaScripts\Test\Traits\LogErrorsTrait;
 use PHPUnit\Framework\TestCase;
 
@@ -31,14 +31,13 @@ use PHPUnit\Framework\TestCase;
  *
  * @author Daniel Ferández Giménez <hola@danielfg.es>
  */
-final class BalanceCuentaTest extends TestCase
+final class BalanceAccountTest extends TestCase
 {
-
     use LogErrorsTrait;
 
     public static function setUpBeforeClass(): void
     {
-        $accountBalance = new BalanceCuenta();
+        $accountBalance = new BalanceAccount();
         $database = new DataBase();
         $database->updateSequence($accountBalance::tableName(), $accountBalance->getModelFields());
     }
@@ -46,14 +45,14 @@ final class BalanceCuentaTest extends TestCase
     public function testCreate()
     {
         // creamos un balance
-        $balance = new Balance();
+        $balance = new BalanceCode();
         $balance->codbalance = 'TEST';
-        $balance->naturaleza = 'TEST NATURALEZA';
+        $balance->nature = 'TEST NATURALEZA';
         $this->assertTrue($balance->save(), 'balance-cant-save');
 
         // creamos un balance de cuenta para el balance anterior
-        $accountBalance = new BalanceCuenta();
-        $accountBalance->codbalance = $balance->codbalance;
+        $accountBalance = new BalanceAccount();
+        $accountBalance->idbalance = $balance->id;
         $accountBalance->codcuenta = 'TEST';
         $accountBalance->desccuenta = 'TEST DESCRIPTION';
         $this->assertTrue($accountBalance->save(), 'account-balance-cant-save');
@@ -68,7 +67,7 @@ final class BalanceCuentaTest extends TestCase
     public function testAccountBalanceNoBalance()
     {
         // creamos un balance de cuenta sin balance
-        $accountBalance = new BalanceCuenta();
+        $accountBalance = new BalanceAccount();
         $accountBalance->codcuenta = 'TEST';
         $accountBalance->desccuenta = 'TEST DESCRIPTION';
 
@@ -79,14 +78,14 @@ final class BalanceCuentaTest extends TestCase
     public function testHtmlOnFields()
     {
         // creamos un balance
-        $balance = new Balance();
+        $balance = new BalanceCode();
         $balance->codbalance = 'TEST';
-        $balance->naturaleza = 'TEST NATURALEZA';
+        $balance->nature = 'TEST';
         $this->assertTrue($balance->save(), 'balance-cant-save');
 
         // creamos un balance de cuenta con html en los campos
-        $accountBalance = new BalanceCuenta();
-        $accountBalance->codbalance = $balance->codbalance;
+        $accountBalance = new BalanceAccount();
+        $accountBalance->idbalance = $balance->id;
         $accountBalance->codcuenta = 'TEST';
         $accountBalance->desccuenta = '<b>Test Html</b>';
         $this->assertTrue($accountBalance->save(), 'account-balance-cant-save');
@@ -103,14 +102,14 @@ final class BalanceCuentaTest extends TestCase
     public function testDeleteCascade()
     {
         // creamos un balance
-        $balance = new Balance();
+        $balance = new BalanceCode();
         $balance->codbalance = 'TEST';
-        $balance->naturaleza = 'TEST NATURALEZA';
+        $balance->nature = 'TEST';
         $this->assertTrue($balance->save(), 'balance-cant-save');
 
         // creamos un balance de cuenta
-        $accountBalance = new BalanceCuenta();
-        $accountBalance->codbalance = $balance->codbalance;
+        $accountBalance = new BalanceAccount();
+        $accountBalance->idbalance = $balance->id;
         $accountBalance->codcuenta = 'TEST';
         $accountBalance->desccuenta = 'TEST DESCRIPTION';
         $this->assertTrue($accountBalance->save(), 'account-balance-cant-save');

@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of FacturaScripts
+ * This file is part of Informes plugin for FacturaScripts
  * Copyright (C) 2022 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,18 +19,18 @@
 
 namespace FacturaScripts\Test\Core\Model;
 
-use FacturaScripts\Core\Model\Balance;
+use FacturaScripts\Plugins\Informes\Model\BalanceCode;
 use PHPUnit\Framework\TestCase;
 
-final class BalanceTest extends TestCase
+final class BalanceCodeTest extends TestCase
 {
     public function testCreate()
     {
         // creamos un balance
-        $balance = new Balance();
+        $balance = new BalanceCode();
         $balance->codbalance = 'test';
-        $balance->descripcion1 = 'test';
-        $balance->naturaleza = 'A';
+        $balance->description1 = 'test';
+        $balance->nature = 'A';
         $this->assertTrue($balance->save(), 'cant-save-balance');
 
         // eliminamos
@@ -39,33 +39,31 @@ final class BalanceTest extends TestCase
 
     public function testCantCreateEmpty()
     {
-        $balance = new Balance();
+        $balance = new BalanceCode();
         $this->assertFalse($balance->save(), 'cant-save-balance');
     }
 
     public function testHtmlOnFields()
     {
-        $balance = new Balance();
+        $balance = new BalanceCode();
         $balance->codbalance = '<test>';
-        $balance->descripcion1 = '<test>';
-        $balance->descripcion2 = '<test>';
-        $balance->descripcion3 = '<test>';
-        $balance->descripcion4 = '<test>';
-        $balance->descripcion4ba = '<test>';
-        $balance->naturaleza = '<test>';
+        $balance->description1 = '<test>';
+        $balance->description2 = '<test>';
+        $balance->description3 = '<test>';
+        $balance->description4 = '<test>';
+        $balance->nature = '<test>';
         $this->assertFalse($balance->save(), 'cant-save-balance-with-html');
 
-        // cambiamos el codigo a un codigo válido
+        // cambiamos el código a un código válido
         $balance->codbalance = 'test';
         $this->assertTrue($balance->save(), 'cant-save-balance-2');
 
         // comprobamos que el html se ha escapado
-        $this->assertEquals('&lt;test&gt;', $balance->descripcion1);
-        $this->assertEquals('&lt;test&gt;', $balance->descripcion2);
-        $this->assertEquals('&lt;test&gt;', $balance->descripcion3);
-        $this->assertEquals('&lt;test&gt;', $balance->descripcion4);
-        $this->assertEquals('&lt;test&gt;', $balance->descripcion4ba);
-        $this->assertEquals('&lt;test&gt;', $balance->naturaleza);
+        $this->assertEquals('&lt;test&gt;', $balance->description1);
+        $this->assertEquals('&lt;test&gt;', $balance->description2);
+        $this->assertEquals('&lt;test&gt;', $balance->description3);
+        $this->assertEquals('&lt;test&gt;', $balance->description4);
+        $this->assertEquals('&lt;test&gt;', $balance->nature);
 
         // eliminamos
         $this->assertTrue($balance->delete(), 'cant-delete-balance');
