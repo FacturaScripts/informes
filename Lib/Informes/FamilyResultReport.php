@@ -22,6 +22,7 @@ namespace FacturaScripts\Plugins\Informes\Lib\Informes;
 use FacturaScripts\Core\Base\ToolBox;
 
 /**
+ * @author Carlos Garcia Gomez      <carlos@facturascripts.com>
  * @author Daniel Fernández Giménez <hola@danielfg.es>
  */
 class FamilyResultReport extends ResultReport

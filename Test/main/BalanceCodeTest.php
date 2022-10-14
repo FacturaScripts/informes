@@ -31,6 +31,7 @@ final class BalanceCodeTest extends TestCase
         $balance->codbalance = 'test';
         $balance->description1 = 'test';
         $balance->nature = 'A';
+        $balance->subtype = 'test';
         $this->assertTrue($balance->save(), 'cant-save-balance');
 
         // eliminamos
@@ -52,6 +53,7 @@ final class BalanceCodeTest extends TestCase
         $balance->description3 = '<test>';
         $balance->description4 = '<test>';
         $balance->nature = '<test>';
+        $balance->subtype = 'test';
         $this->assertFalse($balance->save(), 'cant-save-balance-with-html');
 
         // cambiamos el código a un código válido

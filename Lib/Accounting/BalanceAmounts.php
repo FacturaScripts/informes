@@ -70,7 +70,7 @@ class BalanceAmounts
         $this->dateFrom = $dateFrom;
         $this->dateTo = $dateTo;
         $this->format = $params['format'] ?? 'pdf';
-        $level = (int)$params['level'] ?? 0;
+        $level = (int)($params['level'] ?? '0');
 
         // get accounts
         $cuenta = new Cuenta();
@@ -239,13 +239,13 @@ class BalanceAmounts
             $where .= ' AND asientos.canal = ' . $this->dataBase->var2str($channel);
         }
 
-        $ignoreRegularization = (bool)$params['ignoreregularization'] ?? false;
+        $ignoreRegularization = (bool)($params['ignoreregularization'] ?? false);
         if ($ignoreRegularization) {
             $where .= ' AND (asientos.operacion IS NULL OR asientos.operacion != '
                 . $this->dataBase->var2str(Asiento::OPERATION_REGULARIZATION) . ')';
         }
 
-        $ignoreClosure = (bool)$params['ignoreclosure'] ?? false;
+        $ignoreClosure = (bool)($params['ignoreclosure'] ?? false);
         if ($ignoreClosure) {
             $where .= ' AND (asientos.operacion IS NULL OR asientos.operacion != '
                 . $this->dataBase->var2str(Asiento::OPERATION_CLOSING) . ')';

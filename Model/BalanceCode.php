@@ -65,6 +65,13 @@ class BalanceCode extends ModelClass
     /** @var string */
     public $subtype;
 
+    public function clear()
+    {
+        parent::clear();
+        $this->nature = 'A';
+        $this->subtype = 'normal';
+    }
+
     public static function primaryColumn(): string
     {
         return 'id';

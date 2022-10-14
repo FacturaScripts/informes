@@ -29,6 +29,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Description of BalanceAccount
  *
+ * @author Carlos Garcia Gomez     <carlos@facturascripts.com>
  * @author Daniel Ferández Giménez <hola@danielfg.es>
  */
 final class BalanceAccountTest extends TestCase
@@ -37,9 +38,11 @@ final class BalanceAccountTest extends TestCase
 
     public static function setUpBeforeClass(): void
     {
-        $accountBalance = new BalanceAccount();
+        $balanceCode = new BalanceCode();
+        $balanceAccount = new BalanceAccount();
         $database = new DataBase();
-        $database->updateSequence($accountBalance::tableName(), $accountBalance->getModelFields());
+        $database->updateSequence($balanceCode::tableName(), $balanceCode->getModelFields());
+        $database->updateSequence($balanceAccount::tableName(), $balanceAccount->getModelFields());
     }
 
     public function testCreate()
@@ -48,6 +51,7 @@ final class BalanceAccountTest extends TestCase
         $balance = new BalanceCode();
         $balance->codbalance = 'TEST';
         $balance->nature = 'TEST NATURALEZA';
+        $balance->subtype = 'test';
         $this->assertTrue($balance->save(), 'balance-cant-save');
 
         // creamos un balance de cuenta para el balance anterior
@@ -81,6 +85,7 @@ final class BalanceAccountTest extends TestCase
         $balance = new BalanceCode();
         $balance->codbalance = 'TEST';
         $balance->nature = 'TEST';
+        $balance->subtype = 'test';
         $this->assertTrue($balance->save(), 'balance-cant-save');
 
         // creamos un balance de cuenta con html en los campos
@@ -105,6 +110,7 @@ final class BalanceAccountTest extends TestCase
         $balance = new BalanceCode();
         $balance->codbalance = 'TEST';
         $balance->nature = 'TEST';
+        $balance->subtype = 'test';
         $this->assertTrue($balance->save(), 'balance-cant-save');
 
         // creamos un balance de cuenta
