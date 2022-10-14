@@ -1,1196 +1,1196 @@
-﻿codcuenta;desccuenta;id;idbalance
-2901;Deterioro del valor de desarrollo;1188;339
-2900;Deterioro de valor de investigación;1189;339
-2801;Amortización acumulada de desarrollo;1190;339
-201;Desarrollo;1191;339
-200;Investigación;1192;339
-290;;1193;340
-280;;1194;340
-20;Inmovilizaciones intangibles;1195;340
-2902;Deterioro de valor de concesiones administrativas;1196;341
-2802;Amortización acumulada de concesiones administrativas;1197;341
-202;Concesiones administrativas;1198;341
-2903;Deterioro de valor de propiedad industrial;1199;343
-2803;Amortización acumulada de propiedad industrial;1200;343
-203;Propiedad industrial;1201;343
-204;Fondo de comercio;1202;345
-2906;Deterioro de valor de aplicaciones informáticas;1203;347
-2806;Amortización acumulada de aplicaciones informáticas;1204;347
-206;Aplicaciones informáticas;1205;347
-2905;Deterioro de valor de derechos de traspaso;1206;349
-2805;Amortización acumulada de derechos de traspaso;1207;349
-209;Anticipos para inmovilizaciones intangibles;1208;349
-205;Derechos de traspaso;1209;349
-2911;Deterioro de valor de construcciones;1210;351
-2910;Deterioro de valor de terrenos y bienes naturales;1211;351
-2811;Amortización acumulada de construcciones;1212;351
-211;Construcciones;1213;351
-210;Terrenos y bienes naturales;1214;351
-291;;1215;352
-281;;1216;352
-23;Inmovilizaciones materiales en curso;1217;352
-21;Inmovilizaciones materiales;1218;352
-2919;Deterioro de valor de otro inmovilizado material;1219;353
-2918;Deterioro de valor de elementos de transporte;1220;353
-2917;Deterioro de valor de equipos para procesos de información;1221;353
-2916;Deterioro de valor de mobiliario;1222;353
-2915;Deterioro de valor de otras instalaciones;1223;353
-2914;Deterioro de valor de utillaje;1224;353
-2913;Deterioro de valor de maquinaria;1225;353
-2912;Deterioro de valor de instalaciones técnicas;1226;353
-2819;Amortización acumulada de otro inmovilizado material;1227;353
-2818;Amortización acumulada de elementos de transporte;1228;353
-2817;Amortización acumulada de equipos para procesos de información;1229;353
-2816;Amortización acumulada de mobiliario;1230;353
-2815;Amortización acumulada de otras instalaciones;1231;353
-2814;Amortización acumulada de utillaje;1232;353
-2813;Amortización acumulada de maquinaria;1233;353
-2812;Amortización acumulada de instalaciones técnicas;1234;353
-219;Otro inmovilizado material;1235;353
-218;Elementos de transporte;1236;353
-217;Equipos para procesos de información;1237;353
-216;Mobiliario;1238;353
-215;Otras instalaciones;1239;353
-214;Utillaje;1240;353
-213;Maquinaria;1241;353
-212;Instalaciones técnicas;1242;353
-23;Inmovilizaciones materiales en curso;1243;355
-2920;Deterioro de valor de los terrenos y bienes naturales;1244;357
-220;Inversiones en terrenos y bienes naturales;1245;357
-292;;1246;358
-282;Amortización acumulada de las inversiones inmobiliarias;1247;358
-22;Inversiones inmobiliarias;1248;358
-2921;Deterioro de valor de construcciones;1249;359
-282;Amortización acumulada de las inversiones inmobiliarias;1250;359
-221;Inversiones en construcciones;1251;359
-293;;1252;361
-2494;Desembolsos pendientes sobre participaciones a largo plazo en empresas asociadas.;1253;361
-2493;Desembolsos pendientes sobre participaciones a largo plazo en empresas del grupo.;1254;361
-2404;Participaciones a largo plazo en empresas asociadas;1255;361
-2403;Participaciones a largo plazo en empresas del grupo;1256;361
-2954;Deterioro de valor de créditos a largo plazo a empresas asociadas;1257;362
-2953;Deterioro de valor de créditos a largo plazo a empresas del grupo;1258;362
-2944;Deterioro de valor de valores representativos de deuda a largo plazo de empresas asociadas;1259;362
-2943;Deterioro de valor de valores representativos de deuda a largo plazo de empresas del grupo;1260;362
-293;;1261;362
-2494;Desembolsos pendientes sobre participaciones a largo plazo en empresas asociadas.;1262;362
-2493;Desembolsos pendientes sobre participaciones a largo plazo en empresas del grupo.;1263;362
-2424;Créditos a largo plazo a empresas asociadas;1264;362
-2423;Créditos a largo plazo a empresas del grupo;1265;362
-2414;Valores representativos de deuda a largo plazo de empresas asociadas;1266;362
-2413;Valores representativos de deuda a largo plazo de empresas del grupo;1267;362
-2404;Participaciones a largo plazo en empresas asociadas;1268;362
-2403;Participaciones a largo plazo en empresas del grupo;1269;362
-2954;Deterioro de valor de créditos a largo plazo a empresas asociadas;1270;363
-2953;Deterioro de valor de créditos a largo plazo a empresas del grupo;1271;363
-2424;Créditos a largo plazo a empresas asociadas;1272;363
-2423;Créditos a largo plazo a empresas del grupo;1273;363
-2944;Deterioro de valor de valores representativos de deuda a largo plazo de empresas asociadas;1274;365
-2943;Deterioro de valor de valores representativos de deuda a largo plazo de empresas del grupo;1275;365
-2414;Valores representativos de deuda a largo plazo de empresas asociadas;1276;365
-2413;Valores representativos de deuda a largo plazo de empresas del grupo;1277;365
-259;Desembolsos pendientes sobre participaciones en el patrimonio neto a largo plazo;1278;371
-250;Inversiones financieras a largo plazo en instrumentos de patrimonio;1279;371
-2495;Desembolsos pendientes sobre participaciones a largo plazo en otras partes vinculadas;1280;371
-2405;Participaciones a largo plazo en otras partes vinculadas;1281;371
-298;Deterioro de valor de créditos a largo plazo;1282;372
-297;Deterioro de valor de valores representativos de deuda a largo plazo;1283;372
-2955;Deterioro de valor de créditos a largo plazo a otras partes vinculadas;1284;372
-2945;Deterioro de valor de valores representativos de deuda a largo plazo de otras partes vinculadas;1285;372
-26;Fianzas y depositos constituidos a largo plazo;1286;372
-259;Desembolsos pendientes sobre participaciones en el patrimonio neto a largo plazo;1287;372
-258;Imposiciones a largo plazo;1288;372
-257;Derechos de reembolso derivados de contratos de seguro relativos a retribuciones a largo plazo al personal;1289;372
-255;;1290;372
-254;Créditos a largo plazo al personal;1291;372
-253;Créditos a largo plazo por enajenación de inmovilizado;1292;372
-252;Créditos a largo plazo;1293;372
-251;Valores representativos de deuda a largo plazo;1294;372
-250;Inversiones financieras a largo plazo en instrumentos de patrimonio;1295;372
-2495;Desembolsos pendientes sobre participaciones a largo plazo en otras partes vinculadas;1296;372
-2425;Créditos a largo plazo a otras partes vinculadas;1297;372
-2415;Valores representativos de deuda a largo plazo de otras partes vinculadas;1298;372
-2405;Participaciones a largo plazo en otras partes vinculadas;1299;372
-298;Deterioro de valor de créditos a largo plazo;1300;373
-2955;Deterioro de valor de créditos a largo plazo a otras partes vinculadas;1301;373
-254;Créditos a largo plazo al personal;1302;373
-253;Créditos a largo plazo por enajenación de inmovilizado;1303;373
-252;Créditos a largo plazo;1304;373
-2425;Créditos a largo plazo a otras partes vinculadas;1305;373
-297;Deterioro de valor de valores representativos de deuda a largo plazo;1306;375
-2945;Deterioro de valor de valores representativos de deuda a largo plazo de otras partes vinculadas;1307;375
-251;Valores representativos de deuda a largo plazo;1308;375
-2415;Valores representativos de deuda a largo plazo de otras partes vinculadas;1309;375
-255;;1310;377
-26;Fianzas y depositos constituidos a largo plazo;1311;379
-258;Imposiciones a largo plazo;1312;379
-474;;1313;381
-474;;1314;382
-599;;1315;383
-584;Otros activos;1316;383
-583;"Existencias, deudores comerciales y otras cuentas a cobrar";1317;383
-582;Inversiones financieras;1318;383
-581;Inversiones con personas y entidades vinculadas;1319;383
-580;Inmovilizado;1320;383
-599;;1321;384
-584;Otros activos;1322;384
-583;"Existencias, deudores comerciales y otras cuentas a cobrar";1323;384
-582;Inversiones financieras;1324;384
-581;Inversiones con personas y entidades vinculadas;1325;384
-580;Inmovilizado;1326;384
-390;Deterioro de valor de las mercaderías;1327;385
-30;Comerciales;1328;385
-407;Anticipos a proveedores;1329;386
-39;Deterioro de valor de las existencias;1330;386
-36;"Subproductos, residuos y materiales recuperados";1331;386
-35;Productos terminados;1332;386
-34;Productos semiterminados;1333;386
-33;Productos en curso;1334;386
-32;Otros aprovisionamientos;1335;386
-31;Materias primas;1336;386
-30;Comerciales;1337;386
-392;Deterioro de valor de otros aprovisionamientos;1338;387
-391;Deterioro de valor de las materias primas;1339;387
-32;Otros aprovisionamientos;1340;387
-31;Materias primas;1341;387
-394;Deterioro de valor de los productos semiterminados;1342;389
-393;Deterioro de valor de los productos en curso;1343;389
-34;Productos semiterminados;1344;389
-33;Productos en curso;1345;389
-395;Deterioro de valor de los productos terminados;1346;391
-35;Productos terminados;1347;391
-396;"Deterioro de valor de los subproductos, residuos y materiales recuperados";1348;393
-36;"Subproductos, residuos y materiales recuperados";1349;393
-407;Anticipos a proveedores;1350;395
-4935;Deterioro de valor de créditos por operaciones comerciales con otras partes vinculadas;1351;397
-490;Deterioro de valor de créditos por operaciones comerciales;1352;397
-437;Envases y embalajes a devolver por clientes;1353;397
-436;Clientes de dudoso cobro;1354;397
-435;"Clientes, otras partes vinculadas";1355;397
-432;"Clientes, operaciones de factoring";1356;397
-431;;1357;397
-430;Clientes;1358;397
-493;;1359;398
-490;Deterioro de valor de créditos por operaciones comerciales;1360;398
-437;Envases y embalajes a devolver por clientes;1361;398
-436;Clientes de dudoso cobro;1362;398
-435;"Clientes, otras partes vinculadas";1363;398
-434;"Clientes, empresas asociadas";1364;398
-433;;1365;398
-432;"Clientes, operaciones de factoring";1366;398
-431;;1367;398
-430;Clientes;1368;398
-4934;Deterioro de valor de créditos por operaciones comerciales con empresas asociadas;1369;399
-4933;Deterioro de valor de créditos por operaciones comerciales con empresas del grupo;1370;399
-434;"Clientes, empresas asociadas";1371;399
-433;;1372;399
-5580;Socios por desembolsos exigidos sobre acciones o participaciones ordinarias;1373;400
-5533;"Socios, cuenta de escisión";1374;401
-5531;"Socios, cuenta de fusión";1375;401
-44;Deudores varios;1376;401
-5533;"Socios, cuenta de escisión";1377;402
-5531;"Socios, cuenta de fusión";1378;402
-544;Créditos a corto plazo al personal;1379;402
-472;"Hacienda pública, iva soportado";1380;402
-471;"Organismos de la seguridad social, deudores";1381;402
-470;;1382;402
-460;Anticipos de remuneraciones;1383;402
-44;Deudores varios;1384;402
-544;Créditos a corto plazo al personal;1385;403
-460;Anticipos de remuneraciones;1386;403
-4709;"Hacienda pública, deudora por devolución de impuestos";1387;405
-472;"Hacienda pública, iva soportado";1388;407
-471;"Organismos de la seguridad social, deudores";1389;407
-4708;"Hacienda pública, deudora por subvenciones concedidas";1390;407
-4700;"Hacienda pública, deudora por iva";1391;407
-5585;Socios por desembolsos exigidos sobre acciones o participaciones consideradas como pasivos financieros;1392;409
-5580;Socios por desembolsos exigidos sobre acciones o participaciones ordinarias;1393;409
-593;;1394;411
-5394;Desembolsos pendientes sobre participaciones a corto plazo en empresas asociadas.;1395;411
-5393;Desembolsos pendientes sobre participaciones a corto plazo en empresas del grupo.;1396;411
-5304;"Participaciones a corto plazo, en empresas asociadas";1397;411
-5303;"Participaciones a corto plazo, en empresas del grupo";1398;411
-5954;Deterioro de valor de créditos a corto plazo a empresas asociadas;1399;412
-5953;Deterioro de valor de créditos a corto plazo a empresas del grupo;1400;412
-5944;Deterioro de valor de valores representativos de deuda a corto plazo de empresas asociadas;1401;412
-5943;Deterioro de valor de valores representativos de deuda a corto plazo de empresas del grupo;1402;412
-593;;1403;412
-5394;Desembolsos pendientes sobre participaciones a corto plazo en empresas asociadas.;1404;412
-5393;Desembolsos pendientes sobre participaciones a corto plazo en empresas del grupo.;1405;412
-5354;Dividendo a cobrar de empresas asociadas;1406;412
-5353;Dividendo a cobrar de empresas de grupo;1407;412
-5344;Intereses a corto plazo de créditos a empresas asociadas;1408;412
-5343;Intereses a corto plazo de créditos a empresas del grupo;1409;412
-5334;Intereses a corto plazo de valores representativos de deuda de empresas asociadas;1410;412
-5333;Intereses a corto plazo de valores representativos de deuda de empresas del grupo;1411;412
-5324;Créditos a corto plazo a empresas asociadas;1412;412
-5323;Créditos a corto plazo a empresas del grupo;1413;412
-5314;Valores representativos de deuda a corto plazo de empresas asociadas;1414;412
-5313;Valores representativos de deuda a corto plazo de empresas del grupo;1415;412
-5304;"Participaciones a corto plazo, en empresas asociadas";1416;412
-5303;"Participaciones a corto plazo, en empresas del grupo";1417;412
-5954;Deterioro de valor de créditos a corto plazo a empresas asociadas;1418;413
-5953;Deterioro de valor de créditos a corto plazo a empresas del grupo;1419;413
-5344;Intereses a corto plazo de créditos a empresas asociadas;1420;413
-5343;Intereses a corto plazo de créditos a empresas del grupo;1421;413
-5324;Créditos a corto plazo a empresas asociadas;1422;413
-5323;Créditos a corto plazo a empresas del grupo;1423;413
-5944;Deterioro de valor de valores representativos de deuda a corto plazo de empresas asociadas;1424;415
-5943;Deterioro de valor de valores representativos de deuda a corto plazo de empresas del grupo;1425;415
-5334;Intereses a corto plazo de valores representativos de deuda de empresas asociadas;1426;415
-5333;Intereses a corto plazo de valores representativos de deuda de empresas del grupo;1427;415
-5314;Valores representativos de deuda a corto plazo de empresas asociadas;1428;415
-5313;Valores representativos de deuda a corto plazo de empresas del grupo;1429;415
-5524;Cuenta corriente con empresas asociadas;1430;419
-5523;Cuenta corriente con empresas del grupo;1431;419
-5354;Dividendo a cobrar de empresas asociadas;1432;419
-5353;Dividendo a cobrar de empresas de grupo;1433;419
-549;Desembolsos pendientes sobre participaciones en el patrimonio neto a corto plazo;1434;421
-540;Inversiones financieras a corto plazo en instrumentos de patrimonio;1435;421
-5395;Desembolsos pendientes sobre participaciones a corto plazo en otras partes vinculadas;1436;421
-5305;"Participaciones a corto plazo, en otras partes vinculadas";1437;421
-598;Deterioro de valor de créditos a corto plazo;1438;422
-597;Deterioro de valor de valores representativos de deuda a corto plazo;1439;422
-5955;Deterioro de valor de créditos a corto plazo a otras partes vinculadas;1440;422
-5945;Deterioro de valor de valores representativos de deuda a corto plazo de otras partes vinculadas;1441;422
-566;Depósitos constituidos a corto plazo;1442;422
-565;Fianzas constituidas a corto plazo;1443;422
-5593;"Activos por derivados financieros a corto plazo, instrumentos de cobertura";1444;422
-5590;"Activos por derivados financieros a corto plazo, cartera de negociación";1445;422
-549;Desembolsos pendientes sobre participaciones en el patrimonio neto a corto plazo;1446;422
-548;Imposiciones a corto plazo;1447;422
-547;Intereses a corto plazo de créditos;1448;422
-546;Intereses a corto plazo de valores representativos de deudas;1449;422
-545;Dividendo a cobrar;1450;422
-543;Créditos a corto plazo por enajenación de inmovilizado;1451;422
-542;Créditos a corto plazo;1452;422
-541;Valores representativos de deuda a corto plazo;1453;422
-540;Inversiones financieras a corto plazo en instrumentos de patrimonio;1454;422
-5395;Desembolsos pendientes sobre participaciones a corto plazo en otras partes vinculadas;1455;422
-5355;Dividendo a cobrar de otras partes vinculadas;1456;422
-5345;Intereses a corto plazo de créditos a otras partes vinculadas;1457;422
-5335;Intereses a corto plazo de valores representativos de deuda de otras partes vinculadas;1458;422
-5325;Créditos a corto plazo a otras partes vinculadas;1459;422
-5315;Valores representativos de deuda a corto plazo de otras partes vinculadas;1460;422
-5305;"Participaciones a corto plazo, en otras partes vinculadas";1461;422
-598;Deterioro de valor de créditos a corto plazo;1462;423
-5955;Deterioro de valor de créditos a corto plazo a otras partes vinculadas;1463;423
-547;Intereses a corto plazo de créditos;1464;423
-543;Créditos a corto plazo por enajenación de inmovilizado;1465;423
-542;Créditos a corto plazo;1466;423
-5345;Intereses a corto plazo de créditos a otras partes vinculadas;1467;423
-5325;Créditos a corto plazo a otras partes vinculadas;1468;423
-597;Deterioro de valor de valores representativos de deuda a corto plazo;1469;425
-5945;Deterioro de valor de valores representativos de deuda a corto plazo de otras partes vinculadas;1470;425
-546;Intereses a corto plazo de valores representativos de deudas;1471;425
-541;Valores representativos de deuda a corto plazo;1472;425
-5335;Intereses a corto plazo de valores representativos de deuda de otras partes vinculadas;1473;425
-5315;Valores representativos de deuda a corto plazo de otras partes vinculadas;1474;425
-5593;"Activos por derivados financieros a corto plazo, instrumentos de cobertura";1475;427
-5590;"Activos por derivados financieros a corto plazo, cartera de negociación";1476;427
-566;Depósitos constituidos a corto plazo;1477;429
-565;Fianzas constituidas a corto plazo;1478;429
-550;Titular de la explotación;1479;429
-548;Imposiciones a corto plazo;1480;429
-545;Dividendo a cobrar;1481;429
-5355;Dividendo a cobrar de otras partes vinculadas;1482;429
-567;Intereses pagados por anticipado;1483;431
-480;Gastos anticipados;1484;431
-567;Intereses pagados por anticipado;1485;432
-480;Gastos anticipados;1486;432
-575;"Bancos e instituciones de crédito, cuentas de ahorro, moneda extranjera";1487;433
-574;"Bancos e instituciones de crédito, cuentas de ahorro, euros";1488;433
-573;"Bancos e instituciones de crédito c/c vista, moneda extranjera";1489;433
-572;"Bancos e instituciones de crédito c/c vista, euros";1490;433
-571;"Caja, moneda extranjera";1491;433
-570;"Caja, euros";1492;433
-57;Tesorería;1493;434
-576;Inversiones a corto plazo de gran liquidez;1494;435
-992;"Recuperación de ajustes valorativos negativos previos, empresas asociadas";1495;437
-991;"Recuperación de ajustes valorativos negativos previos, empresas del grupo";1496;437
-900;Beneficios en activos financieros disponibles para la venta;1497;437
-89;Gastos de participaciones en empresas del grupo o asociadas con ajustes valorativos positivos previos;1498;437
-800;Pérdidas en activos financieros disponibles para la venta;1499;437
-992;"Recuperación de ajustes valorativos negativos previos, empresas asociadas";1500;438
-991;"Recuperación de ajustes valorativos negativos previos, empresas del grupo";1501;438
-900;Beneficios en activos financieros disponibles para la venta;1502;438
-89;Gastos de participaciones en empresas del grupo o asociadas con ajustes valorativos positivos previos;1503;438
-800;Pérdidas en activos financieros disponibles para la venta;1504;438
-910;Beneficios por coberturas de flujos de efectivo;1505;441
-811;Pérdidas por coberturas de inversiones netas en un negocio en el extranjero;1506;441
-810;Pérdidas por coberturas de flujos de efectivo;1507;441
-910;Beneficios por coberturas de flujos de efectivo;1508;442
-810;Pérdidas por coberturas de flujos de efectivo;1509;442
-94;"Ingresos por subvenciones, donaciones y legados";1510;443
-94;"Ingresos por subvenciones, donaciones y legados";1511;444
-95;Ingresos por ganancias actuariales y ajustes en los activos por retribuciones a largo plazo de prestacion definida;1512;445
-85;Gastos por pérdidas actuariales y ajustes en los activos por retribuciones a largo plazo de prestación definida;1513;445
-95;Ingresos por ganancias actuariales y ajustes en los activos por retribuciones a largo plazo de prestacion definida;1514;446
-85;Gastos por pérdidas actuariales y ajustes en los activos por retribuciones a largo plazo de prestación definida;1515;446
-838;Ajustes positivos en la imposición sobre beneficios;1516;447
-835;Ingresos fiscales por deducciones y bonificaciones;1517;447
-834;Ingresos fiscales por diferencias permanentes;1518;447
-833;Ajustes negativos en la imposición sobre beneficios;1519;447
-8300;Impuesto corriente;1520;447
-838;Ajustes positivos en la imposición sobre beneficios;1521;448
-835;Ingresos fiscales por deducciones y bonificaciones;1522;448
-834;Ingresos fiscales por diferencias permanentes;1523;448
-833;Ajustes negativos en la imposición sobre beneficios;1524;448
-8300;Impuesto corriente;1525;448
-837;Transferencia de deducciones y bonificaciones;1526;449
-836;Transferencia de diferencias permanentes;1527;449
-8301;Impuesto diferido;1528;449
-837;Transferencia de deducciones y bonificaciones;1529;450
-836;Transferencia de diferencias permanentes;1530;450
-8301;Impuesto diferido;1531;450
-994;"Transferencia por deterioro de ajustes valorativos negativos previos, empresas asociadas";1532;451
-993;"Transferencia por deterioro de ajustes valorativos negativos previos, empresas del grupo";1533;451
-902;Transferencia de pérdidas de activos financieros disponibles para la venta;1534;451
-802;Transferencia de beneficios en activos financieros disponibles para la venta;1535;451
-994;"Transferencia por deterioro de ajustes valorativos negativos previos, empresas asociadas";1536;452
-993;"Transferencia por deterioro de ajustes valorativos negativos previos, empresas del grupo";1537;452
-902;Transferencia de pérdidas de activos financieros disponibles para la venta;1538;452
-802;Transferencia de beneficios en activos financieros disponibles para la venta;1539;452
-912;Transferencia de pérdidas por coberturas de flujos de efectivo;1540;455
-813;Transferencia de beneficios por coberturas de inversiones netas en un negocio en el extranjero;1541;455
-812;Transferencia de beneficios por coberturas de flujos de efectivo;1542;455
-912;Transferencia de pérdidas por coberturas de flujos de efectivo;1543;456
-812;Transferencia de beneficios por coberturas de flujos de efectivo;1544;456
-84;"Transferencias de subvenciones, donaciones y legados";1545;457
-84;"Transferencias de subvenciones, donaciones y legados";1546;458
-102;Capital;1547;461
-101;Fondo social;1548;461
-100;Capital social;1549;461
-102;Capital;1550;462
-101;Fondo social;1551;462
-100;Capital social;1552;462
-1040;"Socios por aportaciones no dinerarias pendientes, capital social";1553;463
-1030;"Socios por desembolsos no exigidos, capital social";1554;463
-1040;"Socios por aportaciones no dinerarias pendientes, capital social";1555;464
-1030;"Socios por desembolsos no exigidos, capital social";1556;464
-110;Prima de emisión o asunción;1557;465
-110;Prima de emisión o asunción;1558;466
-1141;Reservas estatutarias;1559;467
-112;Reserva legal;1560;467
-119;Diferencias por ajuste del capital a euros;1561;468
-115;Reservas por pérdidas y ganancias actuariales y otros ajustes;1562;468
-114;;1563;468
-113;Reservas voluntarias;1564;468
-112;Reserva legal;1565;468
-119;Diferencias por ajuste del capital a euros;1566;469
-115;Reservas por pérdidas y ganancias actuariales y otros ajustes;1567;469
-1144;Reservas por acciones propias aceptadas en garantía;1568;469
-1143;Reserva por fondo de comercio;1569;469
-1142;Reserva por capital amortizado;1570;469
-1140;Reservas para acciones o participaciones de la sociedad dominante;1571;469
-113;Reservas voluntarias;1572;469
-109;Acciones o participaciones propias para reducción de capital;1573;471
-108;Acciones o participaciones propias en situaciones especiales;1574;471
-109;Acciones o participaciones propias para reducción de capital;1575;472
-108;Acciones o participaciones propias en situaciones especiales;1576;472
-111;;1577;473
-111;;1578;474
-120;Remanente;1579;475
-121;Resultados negativos de ejercicios anteriores;1580;476
-120;Remanente;1581;476
-121;Resultados negativos de ejercicios anteriores;1582;477
-118;Aportaciones de socios o propietarios;1583;479
-118;Aportaciones de socios o propietarios;1584;480
-129;Resultado del ejercicio;1585;481
-129;Resultado del ejercicio;1586;482
-557;Dividendo activo a cuenta;1587;483
-557;Dividendo activo a cuenta;1588;484
-136;"Ajustes por valoración en activos no corrientes y grupos enajenables de elementos, mantenidos para la venta";1589;485
-133;Ajustes por valoración en activos financieros disponibles para la venta;1590;485
-137;;1591;486
-1340;Cobertura de flujos de efectivo;1592;486
-133;Ajustes por valoración en activos financieros disponibles para la venta;1593;486
-1341;Cobertura de una inversión neta en un negocio en el extranjero;1594;487
-1340;Cobertura de flujos de efectivo;1595;487
-137;;1596;489
-135;Diferencias de conversión;1597;489
-132;"Otras subvenciones, donaciones y legados";1598;491
-131;Donaciones y legados de capital;1599;491
-130;Subvenciones oficiales de capital;1600;491
-132;"Otras subvenciones, donaciones y legados";1601;492
-131;Donaciones y legados de capital;1602;492
-130;Subvenciones oficiales de capital;1603;492
-140;Provisión por retribuciones a largo plazo al personal;1604;493
-14;Provisiones;1605;494
-145;Provisión para actuaciones medioambientales;1606;495
-146;Provisión para reestructuraciones;1607;497
-147;Provisión por transacciones con pagos basados en instrumentos de patrimonio;1608;499
-143;"Provisión por desmantelamiento, retiro o rehabilitación del inmovilizado";1609;499
-142;Provisión para otras responsabilidades;1610;499
-141;Provisión para impuestos;1611;499
-179;Deudas representadas en otros valores negociables;1612;501
-178;Obligaciones y bonos convertibles;1613;501
-177;Obligaciones y bonos;1614;501
-170;Deudas a largo plazo con entidades de crédito;1615;502
-1605;Deudas a largo plazo con otras entidades de crédito vinculadas;1616;502
-170;Deudas a largo plazo con entidades de crédito;1617;503
-1605;Deudas a largo plazo con otras entidades de crédito vinculadas;1618;503
-174;Acreedores por arrendamiento financiero a largo plazo;1619;504
-1625;"Acreedores por arrendamiento financiero a largo plazo, otras partes vinculadas.";1620;504
-174;Acreedores por arrendamiento financiero a largo plazo;1621;505
-1625;"Acreedores por arrendamiento financiero a largo plazo, otras partes vinculadas.";1622;505
-189;Garantías financieras a largo plazo;1623;506
-185;Depósitos recibidos a largo plazo;1624;506
-180;Fianzas recibidas a largo plazo;1625;506
-179;Deudas representadas en otros valores negociables;1626;506
-178;Obligaciones y bonos convertibles;1627;506
-177;Obligaciones y bonos;1628;506
-176;;1629;506
-175;Efectos a pagar a largo plazo;1630;506
-173;Proveedores de inmovilizado a largo plazo;1631;506
-172;"Deudas a largo plazo transformables en subvenciones, donaciones y legados";1632;506
-171;Deudas a largo plazo;1633;506
-1635;"Otras deudas a largo plazo, con otras partes vinculadas";1634;506
-1615;"Proveedores de inmovilizado a largo plazo, otras partes vinculadas";1635;506
-176;;1636;507
-189;Garantías financieras a largo plazo;1637;509
-185;Depósitos recibidos a largo plazo;1638;509
-180;Fianzas recibidas a largo plazo;1639;509
-175;Efectos a pagar a largo plazo;1640;509
-173;Proveedores de inmovilizado a largo plazo;1641;509
-172;"Deudas a largo plazo transformables en subvenciones, donaciones y legados";1642;509
-171;Deudas a largo plazo;1643;509
-1635;"Otras deudas a largo plazo, con otras partes vinculadas";1644;509
-1615;"Proveedores de inmovilizado a largo plazo, otras partes vinculadas";1645;509
-150;Acciones o participaciones a largo plazo consideradas como pasivos financieros;1646;509
-1634;"Otras deudas a largo plazo, empresas asociadas";1647;511
-1633;"Otras deudas a largo plazo, empresas del grupo";1648;511
-1624;"Acreedores por arrendamiento financiero a largo plazo, empresas asociadas";1649;511
-1623;"Acreedores por arrendamiento financiero a largo plazo, empresas de grupo";1650;511
-1614;"Proveedores de inmovilizado a largo plazo, empresas asociadas";1651;511
-1613;"Proveedores de inmovilizado a largo plazo, empresas del grupo";1652;511
-1604;"Deudas a largo plazo con entidades de crédito, empresas asociadas";1653;511
-1603;"Deudas a largo plazo con entidades de crédito, empresas del grupo";1654;511
-1634;"Otras deudas a largo plazo, empresas asociadas";1655;512
-1633;"Otras deudas a largo plazo, empresas del grupo";1656;512
-1624;"Acreedores por arrendamiento financiero a largo plazo, empresas asociadas";1657;512
-1623;"Acreedores por arrendamiento financiero a largo plazo, empresas de grupo";1658;512
-1614;"Proveedores de inmovilizado a largo plazo, empresas asociadas";1659;512
-1613;"Proveedores de inmovilizado a largo plazo, empresas del grupo";1660;512
-1604;"Deudas a largo plazo con entidades de crédito, empresas asociadas";1661;512
-1603;"Deudas a largo plazo con entidades de crédito, empresas del grupo";1662;512
-479;Pasivos por diferencias temporarias imponibles;1663;513
-479;Pasivos por diferencias temporarias imponibles;1664;514
-181;Anticipos recibidos por ventas o prestaciones de servicios a largo plazo;1665;515
-181;Anticipos recibidos por ventas o prestaciones de servicios a largo plazo;1666;516
-589;Otros pasivos;1667;517
-588;Acreedores comerciales y otras cuentas a pagar;1668;517
-587;Deudas con personas y entidades vinculadas;1669;517
-586;Deudas con características especiales;1670;517
-585;Provisiones;1671;517
-589;Otros pasivos;1672;518
-588;Acreedores comerciales y otras cuentas a pagar;1673;518
-587;Deudas con personas y entidades vinculadas;1674;518
-586;Deudas con características especiales;1675;518
-585;Provisiones;1676;518
-529;;1677;519
-499;;1678;519
-529;;1679;520
-499;;1680;520
-506;Intereses a corto plazo de empréstitos y otras emisiones análogas;1681;521
-505;Deudas representadas en otros valores negociables a corto plazo;1682;521
-501;Obligaciones y bonos convertibles a corto plazo;1683;521
-500;Obligaciones y bonos a corto plazo;1684;521
-527;Intereses a corto plazo de deudas con entidades de crédito;1685;522
-520;;1686;522
-5105;Deudas a corto plazo con otras entidades de crédito vinculadas;1687;522
-527;Intereses a corto plazo de deudas con entidades de crédito;1688;523
-520;;1689;523
-5105;Deudas a corto plazo con otras entidades de crédito vinculadas;1690;523
-524;Acreedores por arrendamiento financiero a corto plazo;1691;524
-5125;"Acreedores por arrendamiento financiero a corto plazo, otras partes vinculadas";1692;524
-524;Acreedores por arrendamiento financiero a corto plazo;1693;525
-5125;"Acreedores por arrendamiento financiero a corto plazo, otras partes vinculadas";1694;525
-569;Garantías financieras a corto plazo;1695;526
-561;Depósitos recibidos a corto plazo;1696;526
-560;Fianzas recibidas a corto plazo;1697;526
-5598;"Pasivos por derivados financieros a corto plazo, instrumentos de cobertura";1698;526
-5595;"Pasivos por derivados financieros a corto plazo, cartera de negociación";1699;526
-5566;Desembolsos exigidos sobre participaciones de otras empresas;1700;526
-5565;"Desembolsos exigidos sobre participaciones, otras partes vinculadas";1701;526
-555;Partidas pendientes de aplicación;1702;526
-5532;Socios de sociedad escindida;1703;526
-5530;Socios de sociedad disuelta;1704;526
-5525;Cuenta corriente con otras partes vinculadas;1705;526
-551;Cuenta corriente con socios y administradores;1706;526
-528;Intereses a corto plazo de deudas;1707;526
-526;Dividendo activo a pagar;1708;526
-525;Efectos a pagar a corto plazo;1709;526
-523;Proveedores de inmovilizado a corto plazo;1710;526
-522;"Deudas a corto plazo transformables en subvenciones, donaciones y legados";1711;526
-521;Deudas a corto plazo;1712;526
-5145;"Intereses a corto plazo de deudas, otras partes vinculadas";1713;526
-5135;Otras deudas a corto plazo con otras partes vinculadas;1714;526
-5115;"Proveedores de inmovilizado a corto plazo, otras partes vinculadas";1715;526
-509;;1716;526
-506;Intereses a corto plazo de empréstitos y otras emisiones análogas;1717;526
-505;Deudas representadas en otros valores negociables a corto plazo;1718;526
-501;Obligaciones y bonos convertibles a corto plazo;1719;526
-500;Obligaciones y bonos a corto plazo;1720;526
-194;Capital emitido pendiente de inscripción;1721;526
-192;Suscriptores de acciones;1722;526
-190;Acciones o participaciones emitidas;1723;526
-1044;"Socios por aportaciones no dinerarias pendientes, capital pendiente de inscripción";1724;526
-1034;"Socios por desembolsos no exigidos, capital pendiente de inscripción";1725;526
-5598;"Pasivos por derivados financieros a corto plazo, instrumentos de cobertura";1726;527
-5595;"Pasivos por derivados financieros a corto plazo, cartera de negociación";1727;527
-569;Garantías financieras a corto plazo;1728;529
-561;Depósitos recibidos a corto plazo;1729;529
-560;Fianzas recibidas a corto plazo;1730;529
-5566;Desembolsos exigidos sobre participaciones de otras empresas;1731;529
-5565;"Desembolsos exigidos sobre participaciones, otras partes vinculadas";1732;529
-555;Partidas pendientes de aplicación;1733;529
-5532;Socios de sociedad escindida;1734;529
-5530;Socios de sociedad disuelta;1735;529
-5525;Cuenta corriente con otras partes vinculadas;1736;529
-551;Cuenta corriente con socios y administradores;1737;529
-528;Intereses a corto plazo de deudas;1738;529
-526;Dividendo activo a pagar;1739;529
-525;Efectos a pagar a corto plazo;1740;529
-523;Proveedores de inmovilizado a corto plazo;1741;529
-522;"Deudas a corto plazo transformables en subvenciones, donaciones y legados";1742;529
-521;Deudas a corto plazo;1743;529
-5145;"Intereses a corto plazo de deudas, otras partes vinculadas";1744;529
-5135;Otras deudas a corto plazo con otras partes vinculadas;1745;529
-5115;"Proveedores de inmovilizado a corto plazo, otras partes vinculadas";1746;529
-509;;1747;529
-194;Capital emitido pendiente de inscripción;1748;529
-192;Suscriptores de acciones;1749;529
-190;Acciones o participaciones emitidas;1750;529
-1044;"Socios por aportaciones no dinerarias pendientes, capital pendiente de inscripción";1751;529
-1034;"Socios por desembolsos no exigidos, capital pendiente de inscripción";1752;529
-5564;"Desembolsos exigidos sobre participaciones, empresas asociadas";1753;531
-5563;"Desembolsos exigidos sobre participaciones, empresas del grupo";1754;531
-5144;"Intereses a corto plazo de deudas, empresas asociadas";1755;531
-5143;"Intereses a corto plazo de deudas, empresas del grupo";1756;531
-5134;Otras deudas a corto plazo con empresas asociadas;1757;531
-5133;Otras deudas a corto plazo con empresas del grupo;1758;531
-5124;"Acreedores por arrendamiento financiero a corto plazo, empresas asociadas";1759;531
-5123;"Acreedores por arrendamiento financiero a corto plazo, empresas del grupo";1760;531
-5114;"Proveedores de inmovilizado a corto plazo, empresas asociadas";1761;531
-5113;"Proveedores de inmovilizado a corto plazo, empresas del grupo";1762;531
-5104;"Deudas a corto plazo con entidades de crédito, empresas asociadas";1763;531
-5103;"Deudas a corto plazo con entidades de crédito, empresas del grupo";1764;531
-5564;"Desembolsos exigidos sobre participaciones, empresas asociadas";1765;532
-5563;"Desembolsos exigidos sobre participaciones, empresas del grupo";1766;532
-5524;Cuenta corriente con empresas asociadas;1767;532
-5523;Cuenta corriente con empresas del grupo;1768;532
-5144;"Intereses a corto plazo de deudas, empresas asociadas";1769;532
-5143;"Intereses a corto plazo de deudas, empresas del grupo";1770;532
-5134;Otras deudas a corto plazo con empresas asociadas;1771;532
-5133;Otras deudas a corto plazo con empresas del grupo;1772;532
-5124;"Acreedores por arrendamiento financiero a corto plazo, empresas asociadas";1773;532
-5123;"Acreedores por arrendamiento financiero a corto plazo, empresas del grupo";1774;532
-5114;"Proveedores de inmovilizado a corto plazo, empresas asociadas";1775;532
-5113;"Proveedores de inmovilizado a corto plazo, empresas del grupo";1776;532
-5104;"Deudas a corto plazo con entidades de crédito, empresas asociadas";1777;532
-5103;"Deudas a corto plazo con entidades de crédito, empresas del grupo";1778;532
-406;Envases y embalajes a devolver a proveedores;1779;533
-405;"Proveedores, otras partes vinculadas";1780;533
-401;"Proveedores, efectos comerciales a pagar";1781;533
-400;Proveedores;1782;533
-406;Envases y embalajes a devolver a proveedores;1783;534
-405;"Proveedores, otras partes vinculadas";1784;534
-404;"Proveedores, empresas asociadas";1785;534
-403;;1786;534
-401;"Proveedores, efectos comerciales a pagar";1787;534
-400;Proveedores;1788;534
-404;"Proveedores, empresas asociadas";1789;535
-403;;1790;535
-477;"Hacienda pública, iva repercutido";1791;536
-476;"Organismos de la seguridad social, acreedores";1792;536
-475;;1793;536
-466;Remuneraciones mediante sistemas de aportación definida pendientes de pago;1794;536
-465;Remuneraciones pendientes de pago;1795;536
-438;Anticipos de clientes;1796;536
-41;Acreedores varios;1797;536
-41;Acreedores varios;1798;537
-466;Remuneraciones mediante sistemas de aportación definida pendientes de pago;1799;539
-465;Remuneraciones pendientes de pago;1800;539
-4752;"Hacienda pública, acreedora por impuesto sobre sociedades";1801;541
-477;"Hacienda pública, iva repercutido";1802;543
-476;"Organismos de la seguridad social, acreedores";1803;543
-4758;"Hacienda pública, acreedora por subvenciones a reintegrar";1804;543
-4751;"Hacienda pública, acreedora por retenciones practicadas";1805;543
-4750;"Hacienda pública, acreedora por iva";1806;543
-438;Anticipos de clientes;1807;545
-568;Intereses cobrados por anticipado;1808;547
-485;Ingresos anticipados;1809;547
-568;Intereses cobrados por anticipado;1810;548
-485;Ingresos anticipados;1811;548
-709;;1812;549
-708;;1813;549
-706;;1814;549
-704;Ventas de envases y embalajes;1815;549
-703;Ventas de subproductos y residuos;1816;549
-702;Ventas de productos semiterminados;1817;549
-701;Ventas de productos terminados;1818;549
-700;Ventas de mercaderías;1819;549
-709;;1820;550
-708;;1821;550
-706;;1822;550
-705;Prestaciones de servicios;1823;550
-704;Ventas de envases y embalajes;1824;550
-703;Ventas de subproductos y residuos;1825;550
-702;Ventas de productos semiterminados;1826;550
-701;Ventas de productos terminados;1827;550
-700;Ventas de mercaderías;1828;550
-705;Prestaciones de servicios;1829;551
-7956;Exceso de provisión para reestructuraciones;1830;553
-7955;Exceso de provisión para actuaciones medioambientales;1831;553
-7952;Exceso de provisión para otras responsabilidades;1832;553
-7951;Exceso de provisión para impuestos;1833;553
-7956;Exceso de provisión para reestructuraciones;1834;554
-7955;Exceso de provisión para actuaciones medioambientales;1835;554
-7952;Exceso de provisión para otras responsabilidades;1836;554
-7951;Exceso de provisión para impuestos;1837;554
-792;Reversión del deterioro de las inversiones inmobiliarias;1838;555
-791;Reversión del deterioro del inmovilizado material;1839;555
-790;Reversión del deterioro del inmovilizado intangible;1840;555
-692;Pérdidas por deterioro de las inversiones inmobiliarias;1841;555
-691;Pérdidas por deterioro del inmovilizado material;1842;555
-690;Pérdidas por deterioro del inmovilizado intangible;1843;555
-792;Reversión del deterioro de las inversiones inmobiliarias;1844;556
-791;Reversión del deterioro del inmovilizado material;1845;556
-790;Reversión del deterioro del inmovilizado intangible;1846;556
-772;Beneficios procedentes de las inversiones inmobiliarias;1847;556
-771;Beneficios procedentes del inmovilizado material;1848;556
-770;Beneficios procedentes del inmovilizado intangible;1849;556
-692;Pérdidas por deterioro de las inversiones inmobiliarias;1850;556
-691;Pérdidas por deterioro del inmovilizado material;1851;556
-690;Pérdidas por deterioro del inmovilizado intangible;1852;556
-672;Pérdidas procedentes de las inversiones inmobiliarias;1853;556
-671;Pérdidas procedentes del inmovilizado material;1854;556
-670;Pérdidas procedentes del inmovilizado intangible;1855;556
-772;Beneficios procedentes de las inversiones inmobiliarias;1856;557
-771;Beneficios procedentes del inmovilizado material;1857;557
-770;Beneficios procedentes del inmovilizado intangible;1858;557
-672;Pérdidas procedentes de las inversiones inmobiliarias;1859;557
-671;Pérdidas procedentes del inmovilizado material;1860;557
-670;Pérdidas procedentes del inmovilizado intangible;1861;557
-7601;"Ingresos de participaciones en instrumentos de patrimonio, empresas asociadas";1862;559
-7600;"Ingresos de participaciones en instrumentos de patrimonio, empresas del grupo";1863;559
-769;Otros ingresos financieros;1864;560
-767;Ingresos de activos afectos y de derechos de reembolso relativos a retribuciones a largo plazo;1865;560
-762;;1866;560
-761;;1867;560
-760;;1868;560
-7603;"Ingresos de participaciones en instrumentos de patrimonio, otras empresas";1869;561
-7602;"Ingresos de participaciones en instrumentos de patrimonio, otras partes vinculadas";1870;561
-76211;"Ingresos de créditos a corto plazo, empresas asociadas";1871;563
-76210;"Ingresos de créditos a corto plazo, empresas del grupo";1872;563
-76201;"Ingresos de créditos a largo plazo, empresas asociadas";1873;563
-76200;"Ingresos de créditos a largo plazo, empresas del grupo";1874;563
-7611;"Ingresos de valores representativos de deuda, empresas asociadas";1875;563
-7610;"Ingresos de valores representativos de deuda, empresas del grupo";1876;563
-769;Otros ingresos financieros;1877;565
-767;Ingresos de activos afectos y de derechos de reembolso relativos a retribuciones a largo plazo;1878;565
-76213;"Ingresos de créditos a corto plazo, otras empresas";1879;565
-76212;"Ingresos de créditos a corto plazo, otras partes vinculadas";1880;565
-76203;"Ingresos de créditos a largo plazo, otras empresas";1881;565
-76202;"Ingresos de créditos a largo plazo, otras partes vinculadas";1882;565
-7613;"Ingresos de valores representativos de deuda, otras empresas";1883;565
-7612;"Ingresos de valores representativos de deuda, otras partes vinculadas";1884;565
-6655;Intereses por operaciones de factoring con entidades de crédito asociadas;1885;567
-6654;Intereses por operaciones de factoring con entidades de crédito del grupo;1886;567
-6651;Intereses por descuento de efectos en entidades de crédito asociadas;1887;567
-6650;Intereses por descuento de efectos en entidades de crédito del grupo;1888;567
-6641;"Dividendos de pasivos, empresas asociadas";1889;567
-6640;"Dividendos de pasivos, empresas del grupo";1890;567
-6621;"Intereses de deudas, empresas asociadas";1891;567
-6620;"Intereses de deudas, empresas del grupo";1892;567
-6616;"Intereses de obligaciones y bonos a corto plazo, empresas asociadas";1893;567
-6615;"Intereses de obligaciones y bonos a corto plazo, empresas del grupo";1894;567
-6611;"Intereses de obligaciones y bonos a largo plazo, empresas asociadas";1895;567
-6610;"Intereses de obligaciones y bonos a largo plazo, empresas del grupo";1896;567
-669;Otros gastos financieros;1897;568
-665;;1898;568
-664;;1899;568
-662;;1900;568
-661;;1901;568
-660;Gastos financieros por actualización de provisiones;1902;568
-669;Otros gastos financieros;1903;569
-6657;Intereses por operaciones de factoring con otras entidades de crédito;1904;569
-6656;Intereses por operaciones de factoring con otras entidades de crédito vinculadas;1905;569
-6653;Intereses por descuento de efectos en otras entidades de crédito;1906;569
-6652;Intereses por descuento de efectos en otras entidades de crédito vinculadas;1907;569
-6643;"Dividendos de pasivos, otras empresas";1908;569
-6642;"Dividendos de pasivos, otras partes vinculadas";1909;569
-6624;"Intereses de deudas, otras empresas";1910;569
-6623;Intereses de deudas con entidades de crédito;1911;569
-6622;"Intereses de deudas, otras partes vinculadas";1912;569
-6618;"Intereses de obligaciones y bonos a corto plazo, otras empresas";1913;569
-6617;"Intereses de obligaciones y bonos a corto plazo, otras partes vinculadas";1914;569
-6613;"Intereses de obligaciones y bonos a largo plazo, otras empresas";1915;569
-6612;"Intereses de obligaciones y bonos a largo plazo, otras partes vinculadas";1916;569
-660;Gastos financieros por actualización de provisiones;1917;571
-7633;Beneficios de instrumentos de cobertura;1918;573
-7631;Beneficios de designados por la empresa;1919;573
-7630;Beneficios de cartera de negociación;1920;573
-6633;Pérdidas de instrumentos de cobertura;1921;573
-6631;Pérdidas de designados por la empresa;1922;573
-6630;Pérdidas de cartera de negociación;1923;573
-763;;1924;574
-663;;1925;574
-7632;Beneficios de disponibles para la venta;1926;575
-6632;Pérdidas de disponibles para la venta;1927;575
-768;Diferencias positivas de cambio;1928;577
-668;Diferencias negativas de cambio;1929;577
-768;Diferencias positivas de cambio;1930;578
-799;;1931;579
-798;;1932;579
-797;;1933;579
-796;;1934;579
-699;;1935;579
-698;;1936;579
-697;;1937;579
-696;;1938;579
-799;;1939;580
-798;;1940;580
-797;;1941;580
-796;;1942;580
-775;Beneficios por operaciones con obligaciones propias;1943;580
-773;;1944;580
-766;;1945;580
-699;;1946;580
-698;;1947;580
-697;;1948;580
-696;;1949;580
-675;Pérdidas por operaciones con obligaciones propias;1950;580
-668;Diferencias negativas de cambio;1951;580
-667;;1952;580
-666;;1953;580
-775;Beneficios por operaciones con obligaciones propias;1954;581
-773;;1955;581
-766;;1956;581
-675;Pérdidas por operaciones con obligaciones propias;1957;581
-673;;1958;581
-667;;1959;581
-666;;1960;581
-638;Ajustes positivos en la imposición sobre beneficios;1961;583
-633;Ajustes negativos en la imposición sobre beneficios;1962;583
-6301;Impuesto diferido;1963;583
-6300;Impuesto corriente;1964;583
-638;Ajustes positivos en la imposición sobre beneficios;1965;584
-633;Ajustes negativos en la imposición sobre beneficios;1966;584
-6301;Impuesto diferido;1967;584
-6300;Impuesto corriente;1968;584
-7930;Reversión del deterioro de productos terminados y en curso de fabricación;1969;585
-71;Variación de existencias;1970;585
-6930;Pérdidas por deterioro de productos terminados y en curso de fabricación;1971;585
-7930;Reversión del deterioro de productos terminados y en curso de fabricación;1972;586
-71;Variación de existencias;1973;586
-6930;Pérdidas por deterioro de productos terminados y en curso de fabricación;1974;586
-73;Trabajos realizados para la empresa;1975;587
-73;Trabajos realizados para la empresa;1976;588
-610;Variación de existencias de mercaderías;1977;589
-6090;Rappels por compras de mercaderías;1978;589
-6080;Devoluciones de compras de mercaderías;1979;589
-6060;Descuentos sobre compras por pronto pago de mercaderías;1980;589
-600;Compras de mercaderías;1981;589
-7933;Reversión del deterioro de otros aprovisionamientos;1982;590
-7932;Reversión del deterioro de materias primas;1983;590
-7931;Reversión del deterioro de mercaderías;1984;590
-6933;Pérdidas por deterioro de otros aprovisionamientos;1985;590
-6932;Pérdidas por deterioro de materias primas;1986;590
-6931;Pérdidas por deterioro de mercaderías;1987;590
-61;Variación de existencias;1988;590
-609;;1989;590
-608;;1990;590
-607;Trabajos realizados por otras empresas;1991;590
-606;;1992;590
-602;Compras de otros aprovisionamientos;1993;590
-601;Compras de materias primas;1994;590
-600;Compras de mercaderías;1995;590
-612;Variación de existencias de otros aprovisionamientos;1996;591
-611;Variación de existencias de materias primas;1997;591
-6092;Rappels por compras de otros aprovisionamientos;1998;591
-6091;Rappels por compras de materias primas;1999;591
-6082;Devoluciones de compras de otros aprovisionamientos;2000;591
-6081;Devoluciones de compras de materias primas;2001;591
-6062;Descuentos sobre compras por pronto pago de otros aprovisionamientos;2002;591
-6061;Descuentos sobre compras por pronto pago de materias primas;2003;591
-602;Compras de otros aprovisionamientos;2004;591
-601;Compras de materias primas;2005;591
-607;Trabajos realizados por otras empresas;2006;593
-7933;Reversión del deterioro de otros aprovisionamientos;2007;595
-7932;Reversión del deterioro de materias primas;2008;595
-7931;Reversión del deterioro de mercaderías;2009;595
-6933;Pérdidas por deterioro de otros aprovisionamientos;2010;595
-6932;Pérdidas por deterioro de materias primas;2011;595
-6931;Pérdidas por deterioro de mercaderías;2012;595
-75;Otros ingresos de gestión;2013;597
-75;Otros ingresos de gestión;2014;598
-747;"Otras subvenciones, donaciones y legados transferidos al resultado del ejercicio";2015;598
-740;"Subvenciones, donaciones y legados a la explotación";2016;598
-747;"Otras subvenciones, donaciones y legados transferidos al resultado del ejercicio";2017;599
-740;"Subvenciones, donaciones y legados a la explotación";2018;599
-6450;Retribuciones al personal liquidados con instrumentos de patrimonio;2019;601
-641;Indemnizaciones;2020;601
-640;Sueldos y salarios;2021;601
-64;Gastos de personal;2022;602
-649;Otros gastos sociales;2023;603
-643;Retribuciones a largo plazo mediante sistemas de aportación definida;2024;603
-642;Seguridad social a cargo de la empresa;2025;603
-7957;Exceso de provisión por transacciones con pagos basados en instrumentos de patrimonio;2026;605
-7950;Exceso de provisión por retribuciones al personal;2027;605
-6457;Retribuciones al personal liquidados en efectivo basado en instrumentos de patrimonio;2028;605
-644;;2029;605
-62;Servicios exteriores;2030;607
-7954;;2031;608
-794;Reversión del deterioro de créditos por operaciones comerciales;2032;608
-695;;2033;608
-694;Pérdidas por deterioro de créditos por operaciones comerciales;2034;608
-65;Otros gastos de gestión;2035;608
-639;;2036;608
-636;Devolución de impuestos;2037;608
-634;;2038;608
-631;Otros tributos;2039;608
-62;Servicios exteriores;2040;608
-639;;2041;609
-636;Devolución de impuestos;2042;609
-634;;2043;609
-631;Otros tributos;2044;609
-7954;;2045;611
-794;Reversión del deterioro de créditos por operaciones comerciales;2046;611
-695;;2047;611
-694;Pérdidas por deterioro de créditos por operaciones comerciales;2048;611
-650;Pérdidas de créditos comerciales incobrables;2049;611
-659;Otras pérdidas en gestión corriente;2050;613
-651;;2051;613
-68;Dotaciones para amortizaciones;2052;615
-68;Dotaciones para amortizaciones;2053;616
-746;"Subvenciones, donaciones y legados de capital transferidos al resultado del ejercicio";2054;617
-746;"Subvenciones, donaciones y legados de capital transferidos al resultado del ejercicio";2055;618
-20;Inmovilizaciones intangibles;2056;621
-280;;2057;621
-290;;2058;621
-21;Inmovilizaciones materiales;2059;622
-281;;2060;622
-291;;2061;622
-23;Inmovilizaciones materiales en curso;2062;622
-22;Inversiones inmobiliarias;2063;623
-282;Amortización acumulada de las inversiones inmobiliarias;2064;623
-292;;2065;623
-2403;Participaciones a largo plazo en empresas del grupo;2066;624
-2404;Participaciones a largo plazo en empresas asociadas;2067;624
-2413;Valores representativos de deuda a largo plazo de empresas del grupo;2068;624
-2414;Valores representativos de deuda a largo plazo de empresas asociadas;2069;624
-2423;Créditos a largo plazo a empresas del grupo;2070;624
-2424;Créditos a largo plazo a empresas asociadas;2071;624
-2493;Desembolsos pendientes sobre participaciones a largo plazo en empresas del grupo.;2072;624
-2494;Desembolsos pendientes sobre participaciones a largo plazo en empresas asociadas.;2073;624
-2933;Deterioro de valor de participaciones a largo plazo en empresas del grupo;2074;624
-2934;Deterioro de valor de participaciones a largo plazo en empresas asociadas;2075;624
-2943;Deterioro de valor de valores representativos de deuda a largo plazo de empresas del grupo;2076;624
-2944;Deterioro de valor de valores representativos de deuda a largo plazo de empresas asociadas;2077;624
-2953;Deterioro de valor de créditos a largo plazo a empresas del grupo;2078;624
-2954;Deterioro de valor de créditos a largo plazo a empresas asociadas;2079;624
-2405;Participaciones a largo plazo en otras partes vinculadas;2080;625
-2415;Valores representativos de deuda a largo plazo de otras partes vinculadas;2081;625
-2425;Créditos a largo plazo a otras partes vinculadas;2082;625
-2495;Desembolsos pendientes sobre participaciones a largo plazo en otras partes vinculadas;2083;625
-250;Inversiones financieras a largo plazo en instrumentos de patrimonio;2084;625
-251;Valores representativos de deuda a largo plazo;2085;625
-252;Créditos a largo plazo;2086;625
-253;Créditos a largo plazo por enajenación de inmovilizado;2087;625
-254;Créditos a largo plazo al personal;2088;625
-255;;2089;625
-258;Imposiciones a largo plazo;2090;625
-259;Desembolsos pendientes sobre participaciones en el patrimonio neto a largo plazo;2091;625
-26;Fianzas y depositos constituidos a largo plazo;2092;625
-2935;;2093;625
-2945;Deterioro de valor de valores representativos de deuda a largo plazo de otras partes vinculadas;2094;625
-2955;Deterioro de valor de créditos a largo plazo a otras partes vinculadas;2095;625
-296;;2096;625
-297;Deterioro de valor de valores representativos de deuda a largo plazo;2097;625
-298;Deterioro de valor de créditos a largo plazo;2098;625
-474;;2099;626
-"";;2100;627
-30;Comerciales;2101;628
-31;Materias primas;2102;628
-32;Otros aprovisionamientos;2103;628
-33;Productos en curso;2104;628
-34;Productos semiterminados;2105;628
-35;Productos terminados;2106;628
-36;"Subproductos, residuos y materiales recuperados";2107;628
-39;Deterioro de valor de las existencias;2108;628
-407;Anticipos a proveedores;2109;628
-430;Clientes;2110;629
-431;;2111;629
-432;"Clientes, operaciones de factoring";2112;629
-433;;2113;629
-434;"Clientes, empresas asociadas";2114;629
-435;"Clientes, otras partes vinculadas";2115;629
-436;Clientes de dudoso cobro;2116;629
-437;Envases y embalajes a devolver por clientes;2117;629
-490;Deterioro de valor de créditos por operaciones comerciales;2118;629
-493;;2119;629
-5580;Socios por desembolsos exigidos sobre acciones o participaciones ordinarias;2120;630
-44;Deudores varios;2121;631
-460;Anticipos de remuneraciones;2122;631
-470;;2123;631
-471;"Organismos de la seguridad social, deudores";2124;631
-472;"Hacienda pública, iva soportado";2125;631
-544;Créditos a corto plazo al personal;2126;631
-5303;"Participaciones a corto plazo, en empresas del grupo";2127;632
-5304;"Participaciones a corto plazo, en empresas asociadas";2128;632
-5313;Valores representativos de deuda a corto plazo de empresas del grupo;2129;632
-5314;Valores representativos de deuda a corto plazo de empresas asociadas;2130;632
-5323;Créditos a corto plazo a empresas del grupo;2131;632
-5324;Créditos a corto plazo a empresas asociadas;2132;632
-5333;Intereses a corto plazo de valores representativos de deuda de empresas del grupo;2133;632
-5334;Intereses a corto plazo de valores representativos de deuda de empresas asociadas;2134;632
-5343;Intereses a corto plazo de créditos a empresas del grupo;2135;632
-5344;Intereses a corto plazo de créditos a empresas asociadas;2136;632
-5353;Dividendo a cobrar de empresas de grupo;2137;632
-5354;Dividendo a cobrar de empresas asociadas;2138;632
-5393;Desembolsos pendientes sobre participaciones a corto plazo en empresas del grupo.;2139;632
-5394;Desembolsos pendientes sobre participaciones a corto plazo en empresas asociadas.;2140;632
-5523;Cuenta corriente con empresas del grupo;2141;632
-5524;Cuenta corriente con empresas asociadas;2142;632
-5933;Deterioro de valor de participaciones a corto plazo en empresas del grupo;2143;632
-5934;Deterioro de valor de participaciones a corto plazo en empresas asociadas;2144;632
-5943;Deterioro de valor de valores representativos de deuda a corto plazo de empresas del grupo;2145;632
-5944;Deterioro de valor de valores representativos de deuda a corto plazo de empresas asociadas;2146;632
-5953;Deterioro de valor de créditos a corto plazo a empresas del grupo;2147;632
-5954;Deterioro de valor de créditos a corto plazo a empresas asociadas;2148;632
-5305;"Participaciones a corto plazo, en otras partes vinculadas";2149;633
-5315;Valores representativos de deuda a corto plazo de otras partes vinculadas;2150;633
-5325;Créditos a corto plazo a otras partes vinculadas;2151;633
-5335;Intereses a corto plazo de valores representativos de deuda de otras partes vinculadas;2152;633
-5345;Intereses a corto plazo de créditos a otras partes vinculadas;2153;633
-5355;Dividendo a cobrar de otras partes vinculadas;2154;633
-5395;Desembolsos pendientes sobre participaciones a corto plazo en otras partes vinculadas;2155;633
-540;Inversiones financieras a corto plazo en instrumentos de patrimonio;2156;633
-541;Valores representativos de deuda a corto plazo;2157;633
-542;Créditos a corto plazo;2158;633
-543;Créditos a corto plazo por enajenación de inmovilizado;2159;633
-545;Dividendo a cobrar;2160;633
-546;Intereses a corto plazo de valores representativos de deudas;2161;633
-547;Intereses a corto plazo de créditos;2162;633
-548;Imposiciones a corto plazo;2163;633
-549;Desembolsos pendientes sobre participaciones en el patrimonio neto a corto plazo;2164;633
-551;Cuenta corriente con socios y administradores;2165;633
-5525;Cuenta corriente con otras partes vinculadas;2166;633
-5590;"Activos por derivados financieros a corto plazo, cartera de negociación";2167;633
-565;Fianzas constituidas a corto plazo;2168;633
-566;Depósitos constituidos a corto plazo;2169;633
-5935;;2170;633
-5945;Deterioro de valor de valores representativos de deuda a corto plazo de otras partes vinculadas;2171;633
-5955;Deterioro de valor de créditos a corto plazo a otras partes vinculadas;2172;633
-596;;2173;633
-597;Deterioro de valor de valores representativos de deuda a corto plazo;2174;633
-598;Deterioro de valor de créditos a corto plazo;2175;633
-480;Gastos anticipados;2176;634
-567;Intereses pagados por anticipado;2177;634
-57;Tesorería;2178;635
-100;Capital social;2179;636
-101;Fondo social;2180;636
-102;Capital;2181;636
-1030;"Socios por desembolsos no exigidos, capital social";2182;637
-1040;"Socios por aportaciones no dinerarias pendientes, capital social";2183;637
-110;Prima de emisión o asunción;2184;638
-112;Reserva legal;2185;639
-113;Reservas voluntarias;2186;639
-114;;2187;639
-119;Diferencias por ajuste del capital a euros;2188;639
-108;Acciones o participaciones propias en situaciones especiales;2189;640
-109;Acciones o participaciones propias para reducción de capital;2190;640
-120;Remanente;2191;641
-121;Resultados negativos de ejercicios anteriores;2192;641
-118;Aportaciones de socios o propietarios;2193;642
-129;Resultado del ejercicio;2194;643
-557;Dividendo activo a cuenta;2195;644
-"";;2196;645
-130;Subvenciones oficiales de capital;2197;646
-131;Donaciones y legados de capital;2198;646
-132;"Otras subvenciones, donaciones y legados";2199;646
-14;Provisiones;2200;647
-1605;Deudas a largo plazo con otras entidades de crédito vinculadas;2201;648
-170;Deudas a largo plazo con entidades de crédito;2202;648
-1625174;;2203;649
-1615;"Proveedores de inmovilizado a largo plazo, otras partes vinculadas";2204;650
-1635;"Otras deudas a largo plazo, con otras partes vinculadas";2205;650
-171;Deudas a largo plazo;2206;650
-172;"Deudas a largo plazo transformables en subvenciones, donaciones y legados";2207;650
-173;Proveedores de inmovilizado a largo plazo;2208;650
-175;Efectos a pagar a largo plazo;2209;650
-176;;2210;650
-177;Obligaciones y bonos;2211;650
-179;Deudas representadas en otros valores negociables;2212;650
-180;Fianzas recibidas a largo plazo;2213;650
-185;Depósitos recibidos a largo plazo;2214;650
-1603;"Deudas a largo plazo con entidades de crédito, empresas del grupo";2215;651
-1604;"Deudas a largo plazo con entidades de crédito, empresas asociadas";2216;651
-1613;"Proveedores de inmovilizado a largo plazo, empresas del grupo";2217;651
-1614;"Proveedores de inmovilizado a largo plazo, empresas asociadas";2218;651
-1623;"Acreedores por arrendamiento financiero a largo plazo, empresas de grupo";2219;651
-1624;"Acreedores por arrendamiento financiero a largo plazo, empresas asociadas";2220;651
-1633;"Otras deudas a largo plazo, empresas del grupo";2221;651
-1634;"Otras deudas a largo plazo, empresas asociadas";2222;651
-479;Pasivos por diferencias temporarias imponibles;2223;652
-181;Anticipos recibidos por ventas o prestaciones de servicios a largo plazo;2224;653
-"";;2225;654
-"";;2226;655
-499;;2227;656
-529;;2228;656
-5105;Deudas a corto plazo con otras entidades de crédito vinculadas;2229;657
-520;;2230;657
-527;Intereses a corto plazo de deudas con entidades de crédito;2231;657
-5125;"Acreedores por arrendamiento financiero a corto plazo, otras partes vinculadas";2232;658
-524;Acreedores por arrendamiento financiero a corto plazo;2233;658
-1034;"Socios por desembolsos no exigidos, capital pendiente de inscripción";2234;659
-1044;"Socios por aportaciones no dinerarias pendientes, capital pendiente de inscripción";2235;659
-190;Acciones o participaciones emitidas;2236;659
-192;Suscriptores de acciones;2237;659
-194;Capital emitido pendiente de inscripción;2238;659
-500;Obligaciones y bonos a corto plazo;2239;659
-505;Deudas representadas en otros valores negociables a corto plazo;2240;659
-506;Intereses a corto plazo de empréstitos y otras emisiones análogas;2241;659
-509;;2242;659
-5115;"Proveedores de inmovilizado a corto plazo, otras partes vinculadas";2243;659
-5135;Otras deudas a corto plazo con otras partes vinculadas;2244;659
-5145;"Intereses a corto plazo de deudas, otras partes vinculadas";2245;659
-521;Deudas a corto plazo;2246;659
-522;"Deudas a corto plazo transformables en subvenciones, donaciones y legados";2247;659
-523;Proveedores de inmovilizado a corto plazo;2248;659
-525;Efectos a pagar a corto plazo;2249;659
-526;Dividendo activo a pagar;2250;659
-528;Intereses a corto plazo de deudas;2251;659
-551;Cuenta corriente con socios y administradores;2252;659
-5525;Cuenta corriente con otras partes vinculadas;2253;659
-555;Partidas pendientes de aplicación;2254;659
-5565;"Desembolsos exigidos sobre participaciones, otras partes vinculadas";2255;659
-5566;Desembolsos exigidos sobre participaciones de otras empresas;2256;659
-5595;"Pasivos por derivados financieros a corto plazo, cartera de negociación";2257;659
-560;Fianzas recibidas a corto plazo;2258;659
-561;Depósitos recibidos a corto plazo;2259;659
-5103;"Deudas a corto plazo con entidades de crédito, empresas del grupo";2260;660
-5104;"Deudas a corto plazo con entidades de crédito, empresas asociadas";2261;660
-5113;"Proveedores de inmovilizado a corto plazo, empresas del grupo";2262;660
-5114;"Proveedores de inmovilizado a corto plazo, empresas asociadas";2263;660
-5123;"Acreedores por arrendamiento financiero a corto plazo, empresas del grupo";2264;660
-5124;"Acreedores por arrendamiento financiero a corto plazo, empresas asociadas";2265;660
-5133;Otras deudas a corto plazo con empresas del grupo;2266;660
-5134;Otras deudas a corto plazo con empresas asociadas;2267;660
-5143;"Intereses a corto plazo de deudas, empresas del grupo";2268;660
-5144;"Intereses a corto plazo de deudas, empresas asociadas";2269;660
-5523;Cuenta corriente con empresas del grupo;2270;660
-5524;Cuenta corriente con empresas asociadas;2271;660
-5563;"Desembolsos exigidos sobre participaciones, empresas del grupo";2272;660
-5564;"Desembolsos exigidos sobre participaciones, empresas asociadas";2273;660
-400;Proveedores;2274;661
-401;"Proveedores, efectos comerciales a pagar";2275;661
-403;;2276;661
-404;"Proveedores, empresas asociadas";2277;661
-405;"Proveedores, otras partes vinculadas";2278;661
-406;Envases y embalajes a devolver a proveedores;2279;661
-41;Acreedores varios;2280;662
-438;Anticipos de clientes;2281;662
-465;Remuneraciones pendientes de pago;2282;662
-475;;2283;662
-476;"Organismos de la seguridad social, acreedores";2284;662
-477;"Hacienda pública, iva repercutido";2285;662
-485;Ingresos anticipados;2286;663
-568;Intereses cobrados por anticipado;2287;663
-502;Acciones o participaciones a corto plazo consideradas como pasivos financieros;2288;664
-507;Dividendos de acciones o participaciones consideradas como pasivos financieros;2289;664
-700;Ventas de mercaderías;2290;665
-701;Ventas de productos terminados;2291;665
-702;Ventas de productos semiterminados;2292;665
-703;Ventas de subproductos y residuos;2293;665
-704;Ventas de envases y embalajes;2294;665
-705;Prestaciones de servicios;2295;665
-706;;2296;665
-708;;2297;665
-709;;2298;665
-6930;Pérdidas por deterioro de productos terminados y en curso de fabricación;2299;666
-71;Variación de existencias;2300;666
-7930;Reversión del deterioro de productos terminados y en curso de fabricación;2301;666
-73;Trabajos realizados para la empresa;2302;667
-600;Compras de mercaderías;2303;668
-601;Compras de materias primas;2304;668
-602;Compras de otros aprovisionamientos;2305;668
-606;;2306;668
-607;Trabajos realizados por otras empresas;2307;668
-608;;2308;668
-609;;2309;668
-61;Variación de existencias;2310;668
-6931;Pérdidas por deterioro de mercaderías;2311;668
-6932;Pérdidas por deterioro de materias primas;2312;668
-6933;Pérdidas por deterioro de otros aprovisionamientos;2313;668
-7931;Reversión del deterioro de mercaderías;2314;668
-7932;Reversión del deterioro de materias primas;2315;668
-7933;Reversión del deterioro de otros aprovisionamientos;2316;668
-740;"Subvenciones, donaciones y legados a la explotación";2317;669
-747;"Otras subvenciones, donaciones y legados transferidos al resultado del ejercicio";2318;669
-75;Otros ingresos de gestión;2319;669
-64;Gastos de personal;2320;670
-62;Servicios exteriores;2321;671
-631;Otros tributos;2322;671
-634;;2323;671
-636;Devolución de impuestos;2324;671
-639;;2325;671
-65;Otros gastos de gestión;2326;671
-694;Pérdidas por deterioro de créditos por operaciones comerciales;2327;671
-695;;2328;671
-794;Reversión del deterioro de créditos por operaciones comerciales;2329;671
-7954;;2330;671
-68;Dotaciones para amortizaciones;2331;672
-746;"Subvenciones, donaciones y legados de capital transferidos al resultado del ejercicio";2332;673
-7951;Exceso de provisión para impuestos;2333;674
-7952;Exceso de provisión para otras responsabilidades;2334;674
-7955;Exceso de provisión para actuaciones medioambientales;2335;674
-670;Pérdidas procedentes del inmovilizado intangible;2336;675
-671;Pérdidas procedentes del inmovilizado material;2337;675
-672;Pérdidas procedentes de las inversiones inmobiliarias;2338;675
-690;Pérdidas por deterioro del inmovilizado intangible;2339;675
-691;Pérdidas por deterioro del inmovilizado material;2340;675
-692;Pérdidas por deterioro de las inversiones inmobiliarias;2341;675
-770;Beneficios procedentes del inmovilizado intangible;2342;675
-771;Beneficios procedentes del inmovilizado material;2343;675
-772;Beneficios procedentes de las inversiones inmobiliarias;2344;675
-790;Reversión del deterioro del inmovilizado intangible;2345;675
-791;Reversión del deterioro del inmovilizado material;2346;675
-792;Reversión del deterioro de las inversiones inmobiliarias;2347;675
-678;Gastos excepcionales;2348;676
-778;Ingresos excepcionales;2349;676
-746;"Subvenciones, donaciones y legados de capital transferidos al resultado del ejercicio";2350;677
-760;;2351;678
-761;;2352;678
-762;;2353;678
-769;Otros ingresos financieros;2354;678
-660;Gastos financieros por actualización de provisiones;2355;679
-661;;2356;679
-662;;2357;679
-665;;2358;679
-669;Otros gastos financieros;2359;679
-663;;2360;680
-763;;2361;680
-668;Diferencias negativas de cambio;2362;681
-768;Diferencias positivas de cambio;2363;681
-666;;2364;682
-667;;2365;682
-673;;2366;682
-675;Pérdidas por operaciones con obligaciones propias;2367;682
-696;;2368;682
-697;;2369;682
-698;;2370;682
-699;;2371;682
-766;;2372;682
-773;;2373;682
-775;Beneficios por operaciones con obligaciones propias;2374;682
-796;;2375;682
-797;;2376;682
-798;;2377;682
-799;;2378;682
-6300;Impuesto corriente;2379;683
-6301;Impuesto diferido;2380;683
-633;Ajustes negativos en la imposición sobre beneficios;2381;683
-638;Ajustes positivos en la imposición sobre beneficios;2382;683
+codcuenta;idbalance
+2901;339
+2900;339
+2801;339
+201;339
+200;339
+290;340
+280;340
+20;340
+2902;341
+2802;341
+202;341
+2903;343
+2803;343
+203;343
+204;345
+2906;347
+2806;347
+206;347
+2905;349
+2805;349
+209;349
+205;349
+2911;351
+2910;351
+2811;351
+211;351
+210;351
+291;352
+281;352
+23;352
+21;352
+2919;353
+2918;353
+2917;353
+2916;353
+2915;353
+2914;353
+2913;353
+2912;353
+2819;353
+2818;353
+2817;353
+2816;353
+2815;353
+2814;353
+2813;353
+2812;353
+219;353
+218;353
+217;353
+216;353
+215;353
+214;353
+213;353
+212;353
+23;355
+2920;357
+220;357
+292;358
+282;358
+22;358
+2921;359
+282;359
+221;359
+293;361
+2494;361
+2493;361
+2404;361
+2403;361
+2954;362
+2953;362
+2944;362
+2943;362
+293;362
+2494;362
+2493;362
+2424;362
+2423;362
+2414;362
+2413;362
+2404;362
+2403;362
+2954;363
+2953;363
+2424;363
+2423;363
+2944;365
+2943;365
+2414;365
+2413;365
+259;371
+250;371
+2495;371
+2405;371
+298;372
+297;372
+2955;372
+2945;372
+26;372
+259;372
+258;372
+257;372
+255;372
+254;372
+253;372
+252;372
+251;372
+250;372
+2495;372
+2425;372
+2415;372
+2405;372
+298;373
+2955;373
+254;373
+253;373
+252;373
+2425;373
+297;375
+2945;375
+251;375
+2415;375
+255;377
+26;379
+258;379
+474;381
+474;382
+599;383
+584;383
+583;383
+582;383
+581;383
+580;383
+599;384
+584;384
+583;384
+582;384
+581;384
+580;384
+390;385
+30;385
+407;386
+39;386
+36;386
+35;386
+34;386
+33;386
+32;386
+31;386
+30;386
+392;387
+391;387
+32;387
+31;387
+394;389
+393;389
+34;389
+33;389
+395;391
+35;391
+396;393
+36;393
+407;395
+4935;397
+490;397
+437;397
+436;397
+435;397
+432;397
+431;397
+430;397
+493;398
+490;398
+437;398
+436;398
+435;398
+434;398
+433;398
+432;398
+431;398
+430;398
+4934;399
+4933;399
+434;399
+433;399
+5580;400
+5533;401
+5531;401
+44;401
+5533;402
+5531;402
+544;402
+472;402
+471;402
+470;402
+460;402
+44;402
+544;403
+460;403
+4709;405
+472;407
+471;407
+4708;407
+4700;407
+5585;409
+5580;409
+593;411
+5394;411
+5393;411
+5304;411
+5303;411
+5954;412
+5953;412
+5944;412
+5943;412
+593;412
+5394;412
+5393;412
+5354;412
+5353;412
+5344;412
+5343;412
+5334;412
+5333;412
+5324;412
+5323;412
+5314;412
+5313;412
+5304;412
+5303;412
+5954;413
+5953;413
+5344;413
+5343;413
+5324;413
+5323;413
+5944;415
+5943;415
+5334;415
+5333;415
+5314;415
+5313;415
+5524;419
+5523;419
+5354;419
+5353;419
+549;421
+540;421
+5395;421
+5305;421
+598;422
+597;422
+5955;422
+5945;422
+566;422
+565;422
+5593;422
+5590;422
+549;422
+548;422
+547;422
+546;422
+545;422
+543;422
+542;422
+541;422
+540;422
+5395;422
+5355;422
+5345;422
+5335;422
+5325;422
+5315;422
+5305;422
+598;423
+5955;423
+547;423
+543;423
+542;423
+5345;423
+5325;423
+597;425
+5945;425
+546;425
+541;425
+5335;425
+5315;425
+5593;427
+5590;427
+566;429
+565;429
+550;429
+548;429
+545;429
+5355;429
+567;431
+480;431
+567;432
+480;432
+575;433
+574;433
+573;433
+572;433
+571;433
+570;433
+57;434
+576;435
+992;437
+991;437
+900;437
+89;437
+800;437
+992;438
+991;438
+900;438
+89;438
+800;438
+910;441
+811;441
+810;441
+910;442
+810;442
+94;443
+94;444
+95;445
+85;445
+95;446
+85;446
+838;447
+835;447
+834;447
+833;447
+8300;447
+838;448
+835;448
+834;448
+833;448
+8300;448
+837;449
+836;449
+8301;449
+837;450
+836;450
+8301;450
+994;451
+993;451
+902;451
+802;451
+994;452
+993;452
+902;452
+802;452
+912;455
+813;455
+812;455
+912;456
+812;456
+84;457
+84;458
+102;461
+101;461
+100;461
+102;462
+101;462
+100;462
+1040;463
+1030;463
+1040;464
+1030;464
+110;465
+110;466
+1141;467
+112;467
+119;468
+115;468
+114;468
+113;468
+112;468
+119;469
+115;469
+1144;469
+1143;469
+1142;469
+1140;469
+113;469
+109;471
+108;471
+109;472
+108;472
+111;473
+111;474
+120;475
+121;476
+120;476
+121;477
+118;479
+118;480
+129;481
+129;482
+557;483
+557;484
+136;485
+133;485
+137;486
+1340;486
+133;486
+1341;487
+1340;487
+137;489
+135;489
+132;491
+131;491
+130;491
+132;492
+131;492
+130;492
+140;493
+14;494
+145;495
+146;497
+147;499
+143;499
+142;499
+141;499
+179;501
+178;501
+177;501
+170;502
+1605;502
+170;503
+1605;503
+174;504
+1625;504
+174;505
+1625;505
+189;506
+185;506
+180;506
+179;506
+178;506
+177;506
+176;506
+175;506
+173;506
+172;506
+171;506
+1635;506
+1615;506
+176;507
+189;509
+185;509
+180;509
+175;509
+173;509
+172;509
+171;509
+1635;509
+1615;509
+150;509
+1634;511
+1633;511
+1624;511
+1623;511
+1614;511
+1613;511
+1604;511
+1603;511
+1634;512
+1633;512
+1624;512
+1623;512
+1614;512
+1613;512
+1604;512
+1603;512
+479;513
+479;514
+181;515
+181;516
+589;517
+588;517
+587;517
+586;517
+585;517
+589;518
+588;518
+587;518
+586;518
+585;518
+529;519
+499;519
+529;520
+499;520
+506;521
+505;521
+501;521
+500;521
+527;522
+520;522
+5105;522
+527;523
+520;523
+5105;523
+524;524
+5125;524
+524;525
+5125;525
+569;526
+561;526
+560;526
+5598;526
+5595;526
+5566;526
+5565;526
+555;526
+5532;526
+5530;526
+5525;526
+551;526
+528;526
+526;526
+525;526
+523;526
+522;526
+521;526
+5145;526
+5135;526
+5115;526
+509;526
+506;526
+505;526
+501;526
+500;526
+194;526
+192;526
+190;526
+1044;526
+1034;526
+5598;527
+5595;527
+569;529
+561;529
+560;529
+5566;529
+5565;529
+555;529
+5532;529
+5530;529
+5525;529
+551;529
+528;529
+526;529
+525;529
+523;529
+522;529
+521;529
+5145;529
+5135;529
+5115;529
+509;529
+194;529
+192;529
+190;529
+1044;529
+1034;529
+5564;531
+5563;531
+5144;531
+5143;531
+5134;531
+5133;531
+5124;531
+5123;531
+5114;531
+5113;531
+5104;531
+5103;531
+5564;532
+5563;532
+5524;532
+5523;532
+5144;532
+5143;532
+5134;532
+5133;532
+5124;532
+5123;532
+5114;532
+5113;532
+5104;532
+5103;532
+406;533
+405;533
+401;533
+400;533
+406;534
+405;534
+404;534
+403;534
+401;534
+400;534
+404;535
+403;535
+477;536
+476;536
+475;536
+466;536
+465;536
+438;536
+41;536
+41;537
+466;539
+465;539
+4752;541
+477;543
+476;543
+4758;543
+4751;543
+4750;543
+438;545
+568;547
+485;547
+568;548
+485;548
+709;549
+708;549
+706;549
+704;549
+703;549
+702;549
+701;549
+700;549
+709;550
+708;550
+706;550
+705;550
+704;550
+703;550
+702;550
+701;550
+700;550
+705;551
+7956;553
+7955;553
+7952;553
+7951;553
+7956;554
+7955;554
+7952;554
+7951;554
+792;555
+791;555
+790;555
+692;555
+691;555
+690;555
+792;556
+791;556
+790;556
+772;556
+771;556
+770;556
+692;556
+691;556
+690;556
+672;556
+671;556
+670;556
+772;557
+771;557
+770;557
+672;557
+671;557
+670;557
+7601;559
+7600;559
+769;560
+767;560
+762;560
+761;560
+760;560
+7603;561
+7602;561
+76211;563
+76210;563
+76201;563
+76200;563
+7611;563
+7610;563
+769;565
+767;565
+76213;565
+76212;565
+76203;565
+76202;565
+7613;565
+7612;565
+6655;567
+6654;567
+6651;567
+6650;567
+6641;567
+6640;567
+6621;567
+6620;567
+6616;567
+6615;567
+6611;567
+6610;567
+669;568
+665;568
+664;568
+662;568
+661;568
+660;568
+669;569
+6657;569
+6656;569
+6653;569
+6652;569
+6643;569
+6642;569
+6624;569
+6623;569
+6622;569
+6618;569
+6617;569
+6613;569
+6612;569
+660;571
+7633;573
+7631;573
+7630;573
+6633;573
+6631;573
+6630;573
+763;574
+663;574
+7632;575
+6632;575
+768;577
+668;577
+768;578
+799;579
+798;579
+797;579
+796;579
+699;579
+698;579
+697;579
+696;579
+799;580
+798;580
+797;580
+796;580
+775;580
+773;580
+766;580
+699;580
+698;580
+697;580
+696;580
+675;580
+668;580
+667;580
+666;580
+775;581
+773;581
+766;581
+675;581
+673;581
+667;581
+666;581
+638;583
+633;583
+6301;583
+6300;583
+638;584
+633;584
+6301;584
+6300;584
+7930;585
+71;585
+6930;585
+7930;586
+71;586
+6930;586
+73;587
+73;588
+610;589
+6090;589
+6080;589
+6060;589
+600;589
+7933;590
+7932;590
+7931;590
+6933;590
+6932;590
+6931;590
+61;590
+609;590
+608;590
+607;590
+606;590
+602;590
+601;590
+600;590
+612;591
+611;591
+6092;591
+6091;591
+6082;591
+6081;591
+6062;591
+6061;591
+602;591
+601;591
+607;593
+7933;595
+7932;595
+7931;595
+6933;595
+6932;595
+6931;595
+75;597
+75;598
+747;598
+740;598
+747;599
+740;599
+6450;601
+641;601
+640;601
+64;602
+649;603
+643;603
+642;603
+7957;605
+7950;605
+6457;605
+644;605
+62;607
+7954;608
+794;608
+695;608
+694;608
+65;608
+639;608
+636;608
+634;608
+631;608
+62;608
+639;609
+636;609
+634;609
+631;609
+7954;611
+794;611
+695;611
+694;611
+650;611
+659;613
+651;613
+68;615
+68;616
+746;617
+746;618
+20;621
+280;621
+290;621
+21;622
+281;622
+291;622
+23;622
+22;623
+282;623
+292;623
+2403;624
+2404;624
+2413;624
+2414;624
+2423;624
+2424;624
+2493;624
+2494;624
+2933;624
+2934;624
+2943;624
+2944;624
+2953;624
+2954;624
+2405;625
+2415;625
+2425;625
+2495;625
+250;625
+251;625
+252;625
+253;625
+254;625
+255;625
+258;625
+259;625
+26;625
+2935;625
+2945;625
+2955;625
+296;625
+297;625
+298;625
+474;626
+;627
+30;628
+31;628
+32;628
+33;628
+34;628
+35;628
+36;628
+39;628
+407;628
+430;629
+431;629
+432;629
+433;629
+434;629
+435;629
+436;629
+437;629
+490;629
+493;629
+5580;630
+44;631
+460;631
+470;631
+471;631
+472;631
+544;631
+5303;632
+5304;632
+5313;632
+5314;632
+5323;632
+5324;632
+5333;632
+5334;632
+5343;632
+5344;632
+5353;632
+5354;632
+5393;632
+5394;632
+5523;632
+5524;632
+5933;632
+5934;632
+5943;632
+5944;632
+5953;632
+5954;632
+5305;633
+5315;633
+5325;633
+5335;633
+5345;633
+5355;633
+5395;633
+540;633
+541;633
+542;633
+543;633
+545;633
+546;633
+547;633
+548;633
+549;633
+551;633
+5525;633
+5590;633
+565;633
+566;633
+5935;633
+5945;633
+5955;633
+596;633
+597;633
+598;633
+480;634
+567;634
+57;635
+100;636
+101;636
+102;636
+1030;637
+1040;637
+110;638
+112;639
+113;639
+114;639
+119;639
+108;640
+109;640
+120;641
+121;641
+118;642
+129;643
+557;644
+;645
+130;646
+131;646
+132;646
+14;647
+1605;648
+170;648
+1625174;649
+1615;650
+1635;650
+171;650
+172;650
+173;650
+175;650
+176;650
+177;650
+179;650
+180;650
+185;650
+1603;651
+1604;651
+1613;651
+1614;651
+1623;651
+1624;651
+1633;651
+1634;651
+479;652
+181;653
+;654
+;655
+499;656
+529;656
+5105;657
+520;657
+527;657
+5125;658
+524;658
+1034;659
+1044;659
+190;659
+192;659
+194;659
+500;659
+505;659
+506;659
+509;659
+5115;659
+5135;659
+5145;659
+521;659
+522;659
+523;659
+525;659
+526;659
+528;659
+551;659
+5525;659
+555;659
+5565;659
+5566;659
+5595;659
+560;659
+561;659
+5103;660
+5104;660
+5113;660
+5114;660
+5123;660
+5124;660
+5133;660
+5134;660
+5143;660
+5144;660
+5523;660
+5524;660
+5563;660
+5564;660
+400;661
+401;661
+403;661
+404;661
+405;661
+406;661
+41;662
+438;662
+465;662
+475;662
+476;662
+477;662
+485;663
+568;663
+502;664
+507;664
+700;665
+701;665
+702;665
+703;665
+704;665
+705;665
+706;665
+708;665
+709;665
+6930;666
+71;666
+7930;666
+73;667
+600;668
+601;668
+602;668
+606;668
+607;668
+608;668
+609;668
+61;668
+6931;668
+6932;668
+6933;668
+7931;668
+7932;668
+7933;668
+740;669
+747;669
+75;669
+64;670
+62;671
+631;671
+634;671
+636;671
+639;671
+65;671
+694;671
+695;671
+794;671
+7954;671
+68;672
+746;673
+7951;674
+7952;674
+7955;674
+670;675
+671;675
+672;675
+690;675
+691;675
+692;675
+770;675
+771;675
+772;675
+790;675
+791;675
+792;675
+678;676
+778;676
+746;677
+760;678
+761;678
+762;678
+769;678
+660;679
+661;679
+662;679
+665;679
+669;679
+663;680
+763;680
+668;681
+768;681
+666;682
+667;682
+673;682
+675;682
+696;682
+697;682
+698;682
+699;682
+766;682
+773;682
+775;682
+796;682
+797;682
+798;682
+799;682
+6300;683
+6301;683
+633;683
+638;683
