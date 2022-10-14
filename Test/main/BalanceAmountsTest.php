@@ -17,7 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace FacturaScripts\Test\Core\Model;
+namespace FacturaScripts\Test\Plugins;
 
 use FacturaScripts\Dinamic\Model\Asiento;
 use FacturaScripts\Plugins\Informes\Lib\Accounting\BalanceAmounts;
