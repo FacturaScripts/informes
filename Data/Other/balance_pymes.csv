@@ -1,0 +1,64 @@
+codbalance;nature;level1;description1;level2;description2;level3;description3;level4;description4;accounts
+A-A-I;A;A;A) ACTIVO NO CORRIENTE;I;I. Inmovilizado intangible.;;;;;20, 280, 290
+A-A-II;A;A;A) ACTIVO NO CORRIENTE;II;II. Inmovilizado material.;;;;;21, 281, 291, 23
+A-A-III;A;A;A) ACTIVO NO CORRIENTE;III;III. Inversiones inmobiliarias.;;;;;22, 282, 292
+A-A-IV;A;A;A) ACTIVO NO CORRIENTE;IV;IV. Inversiones en empresas del grupo y asociadas a largo plazo.;;;;;2403, 2404, 2413, 2414, 2423, 2424, 2493, 2494, 2933, 2934, 2943, 2944, 2953, 2954
+A-A-V;A;A;A) ACTIVO NO CORRIENTE;V;V. Inversiones financieras a largo plazo.;;;;;2405, 2415, 2425, 2495, 250, 251, 252, 253, 254, 255, 258, 259, 26, 2935, 2945, 2955, 296, 297, 298
+A-A-VI;A;A;A) ACTIVO NO CORRIENTE;VI;VI. Activos por Impuesto diferido.;;;;;474
+A-A-VII;A;A;A) ACTIVO NO CORRIENTE;VII;VII. Deudores comerciales no corrientes;;;;;
+A-B-I;A;B;B) ACTIVO CORRIENTE;I;I. Existencias.;;;;;30, 31, 32, 33, 34, 35, 36, 39, 407
+A-B-II-1;A;B;B) ACTIVO CORRIENTE;II;II. Deudores comerciales y otras cuentas a cobrar.;1;1. Clientes por ventas y prestaciones de servicios.;;;430, 431, 432, 433, 434, 435, 436, 437, 490, 493
+A-B-II-2;A;B;B) ACTIVO CORRIENTE;II;II. Deudores comerciales y otras cuentas a cobrar.;2;2. Accionistas (socios) por desembolsos exigidos.;;;5580
+A-B-II-3;A;B;B) ACTIVO CORRIENTE;II;II. Deudores comerciales y otras cuentas a cobrar.;3;3. Otros deudores.;;;44, 460, 470, 471, 472, 544
+A-B-III;A;B;B) ACTIVO CORRIENTE;III;III. Inversiones en empresas del grupo y asociadas a corto plazo.;;;;;5303, 5304, 5313, 5314, 5323, 5324, 5333 ,5334, 5343, 5344, 5353, 5354, 5393, 5394, 5523, 5524, 5933, 5934, 5943, 5944, 5953, 5954
+A-B-IV;A;B;B) ACTIVO CORRIENTE;IV;IV. Inversiones financieras a corto plazo.;;;;;5305, 5315, 5325, 5335, 5345, 5355, 5395, 540, 541, 542, 543, 545, 546, 547, 548, 549, 551, 5525, 5590, 565, 566, 5935, 5945, 5955, 596, 597, 598
+A-B-V;A;B;B) ACTIVO CORRIENTE;V;V. Periodificaciones a corto plazo.;;;;;480, 567
+A-B-VI;A;B;B) ACTIVO CORRIENTE;VI;VI. Efectivo y otros activos líquidos equivalentes.;;;;;57
+P-A-1-I-1;P;A;A) PATRIMONIO NETO;A-1;A-1) Fondos propios.;I;I. Capital.;1;1. Capital escriturado.;100, 101, 102
+P-A-1-I-2;P;A;A) PATRIMONIO NETO;A-1;A-1) Fondos propios.;I;I. Capital.;2;2. (Capital no exigido).;1030, 1040
+P-A-1-II;P;A;A) PATRIMONIO NETO;A-1;A-1) Fondos propios.;II;II. Prima de emisión.;;;110
+P-A-1-III;P;A;A) PATRIMONIO NETO;A-1;A-1) Fondos propios.;III;III. Reservas.;;;112, 113, 114, 119
+P-A-1-IV;P;A;A) PATRIMONIO NETO;A-1;A-1) Fondos propios.;IV;IV. (Acciones y participaciones en patrimonio propias).;;;108, 109
+P-A-1-V;P;A;A) PATRIMONIO NETO;A-1;A-1) Fondos propios.;V;V. Resultados de ejercicios anteriores.;;;120, 121
+P-A-1-VI;P;A;A) PATRIMONIO NETO;A-1;A-1) Fondos propios.;VI;VI. Otras aportaciones de socios.;;;118
+P-A-1-VII;P;A;A) PATRIMONIO NETO;A-1;A-1) Fondos propios.;VII;VII. Resultado del ejercicio.;;;129
+P-A-1-VIII;P;A;A) PATRIMONIO NETO;A-1;A-1) Fondos propios.;VIII;VIII. (Dividendo a cuenta).;;;557
+P-A-2;P;A;A) PATRIMONIO NETO;A-2;A-2) Ajustes en patrimonio neto;;;;;
+P-A-3;P;A;A) PATRIMONIO NETO;A-3;A-3) Subvenciones, donaciones y legados recibidos;;;;;130, 131, 132
+P-B-I;P;B;B) PASIVO NO CORRIENTE;I;I. Provisiones a largo plazo.;;;;;14
+P-B-II-1;P;B;B) PASIVO NO CORRIENTE;II;II. Deudas a largo plazo.;1;1. Deudas con entidades de crédito.;;;1605, 170
+P-B-II-2;P;B;B) PASIVO NO CORRIENTE;II;II. Deudas a largo plazo.;2;2. Acreedores por arrendamiento financiero;;;1625174
+P-B-II-3;P;B;B) PASIVO NO CORRIENTE;II;II. Deudas a largo plazo.;3;3. Otras deudas a largo plazo.;;;1615, 1635, 171, 172, 173, 175, 176, 177, 179, 180, 185
+P-B-III;P;B;B) PASIVO NO CORRIENTE;III;III. Deudas con empresas del grupo y asociadas a largo plazo.;;;;;1603, 1604, 1613, 1614, 1623, 1624, 1633, 1634
+P-B-IV;P;B;B) PASIVO NO CORRIENTE;IV;IV. Pasivos por impuesto diferido;;;;;479
+P-B-V;P;B;B) PASIVO NO CORRIENTE;V;V. Periodificaciones a largo plazo;;;;;181
+P-B-VI;P;B;B) PASIVO NO CORRIENTE;VI;VI. Acreedores comerciales no corrientes;;;;;
+P-B-VII;P;B;B) PASIVO NO CORRIENTE;VII;VII. Deuda con características especiales a largo plazo;;;;;
+P-C-I;P;C;C) PASIVO CORRIENTE;I;I. Provisiones a corto plazo.;;;;;499, 529
+P-C-II-1;P;C;C) PASIVO CORRIENTE;II;II. Deudas a corto plazo.;1;1. Deudas con entidades de crédito.;;;5105, 520, 527
+P-C-II-2;P;C;C) PASIVO CORRIENTE;II;II. Deudas a corto plazo.;2;2. Acreedores por arrendamiento financiero;;;5125, 524
+P-C-II-3;P;C;C) PASIVO CORRIENTE;II;II. Deudas a corto plazo.;3;3. Otras deudas a corto plazo.;;;1034, 1044, 190, 192, 194, 500, 505, 506, 509, 5115, 5135, 5145, 521, 522, 523, 525, 526, 528, 551, 5525, 555, 5565, 5566, 5595, 560, 561
+P-C-III;P;C;C) PASIVO CORRIENTE;III;III. Deudas con empresas del grupo y asociadas a corto plazo.;;;;;5103, 5104, 5113, 5114, 5123, 5124, 5133, 5134, 5143, 5144, 5523, 5524, 5563, 5564
+P-C-IV-1;P;C;C) PASIVO CORRIENTE;IV;IV. Acreedores comerciales y otras cuentas a pagar.;1;1. Proveedores.;;;400, 401, 403, 404, 405, 406
+P-C-IV-2;P;C;C) PASIVO CORRIENTE;IV;IV. Acreedores comerciales y otras cuentas a pagar.;2;2. Otros acreedores.;;;41, 438, 465, 475, 476, 477
+P-C-V;P;C;C) PASIVO CORRIENTE;V;V. Periodificaciones a corto plazo.;;;;;485, 568
+P-C-VI;P;C;C) PASIVO CORRIENTE;VI;VI. Deuda con características especiales a corto plazo;;;;;502, 507
+PG-C-A-1;PG;C;C) RESULTADO ANTES DE IMPUESTOS;A;A) RESULTADO DE EXPLOTACIÓN;1;1. Importe neto de la cifra de negocios;;;700, 701, 702, 703, 704, 705, 706, 708, 709
+PG-C-A-2;PG;C;C) RESULTADO ANTES DE IMPUESTOS;A;A) RESULTADO DE EXPLOTACIÓN;2;2. Variación de existencias de productos terminados y en curso de fabricación;;;6930, 71, 7930
+PG-C-A-3;PG;C;C) RESULTADO ANTES DE IMPUESTOS;A;A) RESULTADO DE EXPLOTACIÓN;3;3. Trabajos realizados por la empresa para su activo;;;73
+PG-C-A-4;PG;C;C) RESULTADO ANTES DE IMPUESTOS;A;A) RESULTADO DE EXPLOTACIÓN;4;4. Aprovisionamientos;;;600, 601, 602, 606, 607, 608, 609, 61, 6931, 6932, 6933,  7931, 7932, 7933
+PG-C-A-5;PG;C;C) RESULTADO ANTES DE IMPUESTOS;A;A) RESULTADO DE EXPLOTACIÓN;5;5. Otros ingresos de explotación;;;740, 747, 75
+PG-C-A-6;PG;C;C) RESULTADO ANTES DE IMPUESTOS;A;A) RESULTADO DE EXPLOTACIÓN;6;6. Gastos de personal;;;64
+PG-C-A-7;PG;C;C) RESULTADO ANTES DE IMPUESTOS;A;A) RESULTADO DE EXPLOTACIÓN;7;7. Otros gastos de explotación;;;62, 631, 634, 636, 639, 65, 694, 695, 794, 7954
+PG-C-A-8;PG;C;C) RESULTADO ANTES DE IMPUESTOS;A;A) RESULTADO DE EXPLOTACIÓN;8;8. Amortización del inmovilizado;;;68
+PG-C-A-9;PG;C;C) RESULTADO ANTES DE IMPUESTOS;A;A) RESULTADO DE EXPLOTACIÓN;9;9. Imputación de subvenciones de inmovilizado no financiero y otras;;;746
+PG-C-A-10;PG;C;C) RESULTADO ANTES DE IMPUESTOS;A;A) RESULTADO DE EXPLOTACIÓN;10;10. Excesos de provisiones;;;7951, 7952, 7955
+PG-C-A-11;PG;C;C) RESULTADO ANTES DE IMPUESTOS;A;A) RESULTADO DE EXPLOTACIÓN;11;11. Deterioro y resultado por enajenaciones del inmovilizado;;;670, 671, 672, 690, 691, 692, 770, 771, 772, 790, 791, 792
+PG-C-A-12;PG;C;C) RESULTADO ANTES DE IMPUESTOS;A;A) RESULTADO DE EXPLOTACIÓN;12;12. Otros resultados;;;678, 778
+PG-C-B-13-A;PG;C;C) RESULTADO ANTES DE IMPUESTOS;B;B) RESULTADO FINANCIERO;13;13. Ingresos financieros;a;a) Imputación de subvenciones, donaciones y legados de carácter financiero;746
+PG-C-B-13-B;PG;C;C) RESULTADO ANTES DE IMPUESTOS;B;B) RESULTADO FINANCIERO;13;13. Ingresos financieros;b;b) Otros ingresos financieros;760, 761, 762, 769
+PG-C-B-14;PG;C;C) RESULTADO ANTES DE IMPUESTOS;B;B) RESULTADO FINANCIERO;14;14. Gastos financieros;;;660, 661, 662, 665, 669
+PG-C-B-15;PG;C;C) RESULTADO ANTES DE IMPUESTOS;B;B) RESULTADO FINANCIERO;15;15. Variación de valor razonable en instrumentos financieros;;;663, 763
+PG-C-B-16;PG;C;C) RESULTADO ANTES DE IMPUESTOS;B;B) RESULTADO FINANCIERO;16;16. Diferencias de cambio;;;668, 768
+PG-C-B-17;PG;C;C) RESULTADO ANTES DE IMPUESTOS;B;B) RESULTADO FINANCIERO;17;17. Deterioro y resultado por enajenaciones de instrumentos financieros;;;666, 667, 673, 675, 696, 697, 698, 699, 766, 773, 775, 796, 797, 798, 799
+PG-D-18;PG;D;D) RESULTADO DEL EJERCICIO;18;18. Impuestos sobre beneficios;;;;;6300, 6301, 633, 638

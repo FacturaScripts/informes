@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : balance_accounts.xml
+    Author     : Carlos Garcia Gomez
+    Description:
+        Structure for the balance_accounts table.
+-->
+<table>
+    <column>
+        <name>codcuenta</name>
+        <type>character varying(10)</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>desccuenta</name>
+        <type>character varying(255)</type>
+    </column>
+    <column>
+        <name>id</name>
+        <type>serial</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>idbalance</name>
+        <type>integer</type>
+        <null>NO</null>
+    </column>
+    <constraint>
+        <name>balancescuentas_pkey</name>
+        <type>PRIMARY KEY (id)</type>
+    </constraint>
+    <constraint>
+        <name>ca_balance_accounts</name>
+        <type>FOREIGN KEY (idbalance) REFERENCES balance_codes (id) ON DELETE CASCADE ON UPDATE CASCADE</type>
+    </constraint>
+</table>

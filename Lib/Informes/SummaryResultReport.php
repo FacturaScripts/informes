@@ -31,104 +31,6 @@ class SummaryResultReport extends ResultReport
         'families' => [],
     );
 
-    protected static function charts_build()
-    {
-        /**
-         * CHARTS
-         * *****************************************************************
-         */
-        for ($mes = 1; $mes <= 12; $mes++) {
-            self::$charts['totales']['ventas'][$mes - 1] = self::$ventas[self::$year]['total_mes'][$mes];
-            self::$charts['totales']['gastos'][$mes - 1] = self::$gastos[self::$year]['total_mes'][$mes];
-            self::$charts['totales']['resultado'][$mes - 1] = self::$resultado[self::$year]['total_mes'][$mes];
-        }
-
-        self::$charts['families']['table'] = '';
-        arsort(self::$ventas[self::$year]['porc_fam']);
-        foreach (self::$ventas[self::$year]['porc_fam'] as $codfamilia => $porc) {
-            $totalaux = round(self::$ventas[self::$year]['total_fam'][$codfamilia], FS_NF0);
-            $fam_desc = ToolBox::i18n()->trans('no-family');
-            if ($codfamilia != 'SIN_FAMILIA' && isset(self::$ventas[self::$year]['descripciones'][$codfamilia])) {
-                $fam_desc = self::$ventas[self::$year]['descripciones'][$codfamilia];
-            }
-
-            $color = '#' . self::randomColor();
-            self::$charts['families']['codfamilia'][] = $codfamilia;
-            self::$charts['families']['labels'][] = $fam_desc;
-            self::$charts['families']['porc'][] = $porc;
-            self::$charts['families']['colors'][] = $color;
-            self::$charts['families']['totales'][] = $totalaux;
-
-            self::$charts['families']['table'] .= ''
-                . '<tr>'
-                . '<td class="align-middle"><span style="color: ' . $color . '"><i class="fas fa-square"></i></span></td>'
-                . '<td>' . $fam_desc . '</td>'
-                . '<td class="porc align-middle">' . $porc . ' %</td>'
-                . '<td class="total align-middle">' . ToolBox::coins()::format($totalaux) . '</td>'
-                . '</tr>';
-        }
-
-        self::$charts['series']['table'] = '';
-        arsort(self::$ventas[self::$year]['porc_ser']);
-        foreach (self::$ventas[self::$year]['porc_ser'] as $codserie => $porc) {
-            $color = '#' . self::randomColor();
-            $totalaux = round(self::$ventas[self::$year]['total_ser'][$codserie], FS_NF0);
-            self::$charts['series']['codserie'][] = $codserie;
-            self::$charts['series']['labels'][] = self::$ventas[self::$year]['series'][$codserie]['descripcion'];
-            self::$charts['series']['porc'][] = $porc;
-            self::$charts['series']['colors'][] = $color;
-            self::$charts['series']['totales'][] = $totalaux;
-
-            self::$charts['series']['table'] .= ''
-                . '<tr>'
-                . '<td class="align-middle"><span style="color: ' . $color . '"><i class="fas fa-square"></i></span></td>'
-                . '<td>' . self::$ventas[self::$year]['series'][$codserie]['descripcion'] . '</td>'
-                . '<td class="porc align-middle">' . $porc . ' %</td>'
-                . '<td class="total align-middle">' . ToolBox::coins()::format($totalaux) . '</td>'
-                . '</tr>';
-        }
-
-        self::$charts['pagos']['table'] = '';
-        arsort(self::$ventas[self::$year]['porc_pag']);
-        foreach (self::$ventas[self::$year]['porc_pag'] as $codpago => $porc) {
-            $color = '#' . self::randomColor();
-            $totalaux = round(self::$ventas[self::$year]['total_pag'][$codpago], FS_NF0);
-            self::$charts['pagos']['codpago'][] = $codpago;
-            self::$charts['pagos']['labels'][] = self::$ventas[self::$year]['pagos'][$codpago]['descripcion'];
-            self::$charts['pagos']['porc'][] = $porc;
-            self::$charts['pagos']['colors'][] = $color;
-            self::$charts['pagos']['totales'][] = $totalaux;
-
-            self::$charts['pagos']['table'] .= ''
-                . '<tr>'
-                . '<td class="align-middle"><span style="color: ' . $color . '"><i class="fas fa-square"></i></span></td>'
-                . '<td>' . self::$ventas[self::$year]['pagos'][$codpago]['descripcion'] . '</td>'
-                . '<td class="porc align-middle">' . $porc . ' %</td>'
-                . '<td class="total align-middle">' . ToolBox::coins()::format($totalaux) . '</td>'
-                . '</tr>';
-        }
-
-        self::$charts['agentes']['table'] = '';
-        arsort(self::$ventas[self::$year]['porc_age']);
-        foreach (self::$ventas[self::$year]['porc_age'] as $codagente => $porc) {
-            $color = '#' . self::randomColor();
-            $totalaux = round(self::$ventas[self::$year]['total_age'][$codagente], FS_NF0);
-            self::$charts['agentes']['codagente'][] = $codagente;
-            self::$charts['agentes']['labels'][] = self::$ventas[self::$year]['agentes'][$codagente]['descripcion'];
-            self::$charts['agentes']['porc'][] = $porc;
-            self::$charts['agentes']['colors'][] = $color;
-            self::$charts['agentes']['totales'][] = $totalaux;
-
-            self::$charts['agentes']['table'] .= ''
-                . '<tr>'
-                . '<td class="align-middle"><span style="color: ' . $color . '"><i class="fas fa-square"></i></span></td>'
-                . '<td>' . self::$ventas[self::$year]['agentes'][$codagente]['descripcion'] . '</td>'
-                . '<td class="porc align-middle">' . $porc . ' %</td>'
-                . '<td class="total align-middle">' . ToolBox::coins()::format($totalaux) . '</td>'
-                . '</tr>';
-        }
-    }
-
     public static function render(array $formData): string
     {
         self::apply($formData);
@@ -245,5 +147,103 @@ class SummaryResultReport extends ResultReport
             . '</table>'
             . '</div>';
         return $html;
+    }
+
+    protected static function charts_build()
+    {
+        /**
+         * CHARTS
+         * *****************************************************************
+         */
+        for ($mes = 1; $mes <= 12; $mes++) {
+            self::$charts['totales']['ventas'][$mes - 1] = self::$ventas[self::$year]['total_mes'][$mes];
+            self::$charts['totales']['gastos'][$mes - 1] = self::$gastos[self::$year]['total_mes'][$mes];
+            self::$charts['totales']['resultado'][$mes - 1] = self::$resultado[self::$year]['total_mes'][$mes];
+        }
+
+        self::$charts['families']['table'] = '';
+        arsort(self::$ventas[self::$year]['porc_fam']);
+        foreach (self::$ventas[self::$year]['porc_fam'] as $codfamilia => $porc) {
+            $totalaux = round(self::$ventas[self::$year]['total_fam'][$codfamilia], FS_NF0);
+            $fam_desc = ToolBox::i18n()->trans('no-family');
+            if ($codfamilia != 'SIN_FAMILIA' && isset(self::$ventas[self::$year]['descripciones'][$codfamilia])) {
+                $fam_desc = self::$ventas[self::$year]['descripciones'][$codfamilia];
+            }
+
+            $color = '#' . self::randomColor();
+            self::$charts['families']['codfamilia'][] = $codfamilia;
+            self::$charts['families']['labels'][] = $fam_desc;
+            self::$charts['families']['porc'][] = $porc;
+            self::$charts['families']['colors'][] = $color;
+            self::$charts['families']['totales'][] = $totalaux;
+
+            self::$charts['families']['table'] .= ''
+                . '<tr>'
+                . '<td class="align-middle"><span style="color: ' . $color . '"><i class="fas fa-square"></i></span></td>'
+                . '<td>' . $fam_desc . '</td>'
+                . '<td class="porc align-middle">' . $porc . ' %</td>'
+                . '<td class="total align-middle">' . ToolBox::coins()::format($totalaux) . '</td>'
+                . '</tr>';
+        }
+
+        self::$charts['series']['table'] = '';
+        arsort(self::$ventas[self::$year]['porc_ser']);
+        foreach (self::$ventas[self::$year]['porc_ser'] as $codserie => $porc) {
+            $color = '#' . self::randomColor();
+            $totalaux = round(self::$ventas[self::$year]['total_ser'][$codserie], FS_NF0);
+            self::$charts['series']['codserie'][] = $codserie;
+            self::$charts['series']['labels'][] = self::$ventas[self::$year]['series'][$codserie]['descripcion'];
+            self::$charts['series']['porc'][] = $porc;
+            self::$charts['series']['colors'][] = $color;
+            self::$charts['series']['totales'][] = $totalaux;
+
+            self::$charts['series']['table'] .= ''
+                . '<tr>'
+                . '<td class="align-middle"><span style="color: ' . $color . '"><i class="fas fa-square"></i></span></td>'
+                . '<td>' . self::$ventas[self::$year]['series'][$codserie]['descripcion'] . '</td>'
+                . '<td class="porc align-middle">' . $porc . ' %</td>'
+                . '<td class="total align-middle">' . ToolBox::coins()::format($totalaux) . '</td>'
+                . '</tr>';
+        }
+
+        self::$charts['pagos']['table'] = '';
+        arsort(self::$ventas[self::$year]['porc_pag']);
+        foreach (self::$ventas[self::$year]['porc_pag'] as $codpago => $porc) {
+            $color = '#' . self::randomColor();
+            $totalaux = round(self::$ventas[self::$year]['total_pag'][$codpago], FS_NF0);
+            self::$charts['pagos']['codpago'][] = $codpago;
+            self::$charts['pagos']['labels'][] = self::$ventas[self::$year]['pagos'][$codpago]['descripcion'];
+            self::$charts['pagos']['porc'][] = $porc;
+            self::$charts['pagos']['colors'][] = $color;
+            self::$charts['pagos']['totales'][] = $totalaux;
+
+            self::$charts['pagos']['table'] .= ''
+                . '<tr>'
+                . '<td class="align-middle"><span style="color: ' . $color . '"><i class="fas fa-square"></i></span></td>'
+                . '<td>' . self::$ventas[self::$year]['pagos'][$codpago]['descripcion'] . '</td>'
+                . '<td class="porc align-middle">' . $porc . ' %</td>'
+                . '<td class="total align-middle">' . ToolBox::coins()::format($totalaux) . '</td>'
+                . '</tr>';
+        }
+
+        self::$charts['agentes']['table'] = '';
+        arsort(self::$ventas[self::$year]['porc_age']);
+        foreach (self::$ventas[self::$year]['porc_age'] as $codagente => $porc) {
+            $color = '#' . self::randomColor();
+            $totalaux = round(self::$ventas[self::$year]['total_age'][$codagente], FS_NF0);
+            self::$charts['agentes']['codagente'][] = $codagente;
+            self::$charts['agentes']['labels'][] = self::$ventas[self::$year]['agentes'][$codagente]['descripcion'];
+            self::$charts['agentes']['porc'][] = $porc;
+            self::$charts['agentes']['colors'][] = $color;
+            self::$charts['agentes']['totales'][] = $totalaux;
+
+            self::$charts['agentes']['table'] .= ''
+                . '<tr>'
+                . '<td class="align-middle"><span style="color: ' . $color . '"><i class="fas fa-square"></i></span></td>'
+                . '<td>' . self::$ventas[self::$year]['agentes'][$codagente]['descripcion'] . '</td>'
+                . '<td class="porc align-middle">' . $porc . ' %</td>'
+                . '<td class="total align-middle">' . ToolBox::coins()::format($totalaux) . '</td>'
+                . '</tr>';
+        }
     }
 }

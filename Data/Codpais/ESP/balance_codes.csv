@@ -1,0 +1,346 @@
+codbalance;description1;description2;description3;description4;id;level1;level2;level3;level4;nature;subtype
+A-A--I-1;A) ACTIVO NO CORRIENTE;;I. Inmovilizado intangible.;1. Desarrollo.;339;A;0;I;1;A;normal
+A-A--I-1;A) ACTIVO NO CORRIENTE;;I. Inmovilizado intangible.;1. Desarrollo.;340;A;0;I;1;A;abbreviated
+A-A--I-2;A) ACTIVO NO CORRIENTE;;I. Inmovilizado intangible.;2. Concesiones.;341;A;0;I;2;A;normal
+A-A--I-2;A) ACTIVO NO CORRIENTE;;I. Inmovilizado intangible.;2. Concesiones.;342;A;0;I;2;A;abbreviated
+A-A--I-3;A) ACTIVO NO CORRIENTE;;I. Inmovilizado intangible.;3. Patentes, licencias, marcas y similares.;343;A;0;I;3;A;normal
+A-A--I-3;A) ACTIVO NO CORRIENTE;;I. Inmovilizado intangible.;3. Patentes, licencias, marcas y similares.;344;A;0;I;3;A;abbreviated
+A-A--I-4;A) ACTIVO NO CORRIENTE;;I. Inmovilizado intangible.;4. Fondo de comercio.;345;A;0;I;4;A;normal
+A-A--I-4;A) ACTIVO NO CORRIENTE;;I. Inmovilizado intangible.;4. Fondo de comercio.;346;A;0;I;4;A;abbreviated
+A-A--I-5;A) ACTIVO NO CORRIENTE;;I. Inmovilizado intangible.;5. Aplicaciones informáticas.;347;A;0;I;5;A;normal
+A-A--I-5;A) ACTIVO NO CORRIENTE;;I. Inmovilizado intangible.;5. Aplicaciones informáticas.;348;A;0;I;5;A;abbreviated
+A-A--I-6;A) ACTIVO NO CORRIENTE;;I. Inmovilizado intangible.;6. Otro inmovilizado intangible.;349;A;0;I;6;A;normal
+A-A--I-6;A) ACTIVO NO CORRIENTE;;I. Inmovilizado intangible.;6. Otro inmovilizado intangible.;350;A;0;I;6;A;abbreviated
+A-A--II-1;A) ACTIVO NO CORRIENTE;;II. Inmovilizado material.;1. Terrenos y construcciones.;351;A;0;II;1;A;normal
+A-A--II-1;A) ACTIVO NO CORRIENTE;;II. Inmovilizado material.;1. Terrenos y construcciones.;352;A;0;II;1;A;abbreviated
+A-A--II-2;A) ACTIVO NO CORRIENTE;;II. Inmovilizado material.;2. Instalaciones técnicas, y otro inmovilizado material.;353;A;0;II;2;A;normal
+A-A--II-2;A) ACTIVO NO CORRIENTE;;II. Inmovilizado material.;2. Instalaciones técnicas, y otro inmovilizado material.;354;A;0;II;2;A;abbreviated
+A-A--II-3;A) ACTIVO NO CORRIENTE;;II. Inmovilizado material.;3. Inmovilizado en curso y anticipos.;355;A;0;II;3;A;normal
+A-A--II-3;A) ACTIVO NO CORRIENTE;;II. Inmovilizado material.;3. Inmovilizado en curso y anticipos.;356;A;0;II;3;A;abbreviated
+A-A--III-1;A) ACTIVO NO CORRIENTE;;III. Inversiones inmobiliarias.;1. Terrenos.;357;A;0;III;1;A;normal
+A-A--III-1;A) ACTIVO NO CORRIENTE;;III. Inversiones inmobiliarias.;1. Terrenos.;358;A;0;III;1;A;abbreviated
+A-A--III-2;A) ACTIVO NO CORRIENTE;;III. Inversiones inmobiliarias.;2. Construcciones.;359;A;0;III;2;A;normal
+A-A--III-2;A) ACTIVO NO CORRIENTE;;III. Inversiones inmobiliarias.;2. Construcciones.;360;A;0;III;2;A;abbreviated
+A-A--IV-1;A) ACTIVO NO CORRIENTE;;IV. Inversiones en empresas del grupo y asociadas a largo plazo;1. Instrumentos de patrimonio.;361;A;0;IV;1;A;normal
+A-A--IV-1;A) ACTIVO NO CORRIENTE;;IV. Inversiones en empresas del grupo y asociadas a largo plazo;1. Instrumentos de patrimonio.;362;A;0;IV;1;A;abbreviated
+A-A--IV-2;A) ACTIVO NO CORRIENTE;;IV. Inversiones en empresas del grupo y asociadas a largo plazo;2. Créditos a empresas.;363;A;0;IV;2;A;normal
+A-A--IV-2;A) ACTIVO NO CORRIENTE;;IV. Inversiones en empresas del grupo y asociadas a largo plazo;2. Créditos a empresas.;364;A;0;IV;2;A;abbreviated
+A-A--IV-3;A) ACTIVO NO CORRIENTE;;IV. Inversiones en empresas del grupo y asociadas a largo plazo;3. Valores representativos de deuda.;365;A;0;IV;3;A;normal
+A-A--IV-3;A) ACTIVO NO CORRIENTE;;IV. Inversiones en empresas del grupo y asociadas a largo plazo;3. Valores representativos de deuda.;366;A;0;IV;3;A;abbreviated
+A-A--IV-4;A) ACTIVO NO CORRIENTE;;IV. Inversiones en empresas del grupo y asociadas a largo plazo;4. Derivados.;367;A;0;IV;4;A;normal
+A-A--IV-4;A) ACTIVO NO CORRIENTE;;IV. Inversiones en empresas del grupo y asociadas a largo plazo;4. Derivados.;368;A;0;IV;4;A;abbreviated
+A-A--IV-5;A) ACTIVO NO CORRIENTE;;IV. Inversiones en empresas del grupo y asociadas a largo plazo;5. Otros activos financieros.;369;A;0;IV;5;A;normal
+A-A--IV-5;A) ACTIVO NO CORRIENTE;;IV. Inversiones en empresas del grupo y asociadas a largo plazo;5. Otros activos financieros.;370;A;0;IV;5;A;abbreviated
+A-A--V-1;A) ACTIVO NO CORRIENTE;;V. Inversiones financieras a largo plazo.;1. Instrumentos de patrimonio.;371;A;0;V;1;A;normal
+A-A--V-1;A) ACTIVO NO CORRIENTE;;V. Inversiones financieras a largo plazo.;1. Instrumentos de patrimonio.;372;A;0;V;1;A;abbreviated
+A-A--V-2;A) ACTIVO NO CORRIENTE;;V. Inversiones financieras a largo plazo.;2. Créditos a terceros;373;A;0;V;2;A;normal
+A-A--V-2;A) ACTIVO NO CORRIENTE;;V. Inversiones financieras a largo plazo.;2. Créditos a terceros;374;A;0;V;2;A;abbreviated
+A-A--V-3;A) ACTIVO NO CORRIENTE;;V. Inversiones financieras a largo plazo.;3. Valores representativos de deuda;375;A;0;V;3;A;normal
+A-A--V-3;A) ACTIVO NO CORRIENTE;;V. Inversiones financieras a largo plazo.;3. Valores representativos de deuda;376;A;0;V;3;A;abbreviated
+A-A--V-4;A) ACTIVO NO CORRIENTE;;V. Inversiones financieras a largo plazo.;4. Derivados.;377;A;0;V;4;A;normal
+A-A--V-4;A) ACTIVO NO CORRIENTE;;V. Inversiones financieras a largo plazo.;4. Derivados.;378;A;0;V;4;A;abbreviated
+A-A--V-5;A) ACTIVO NO CORRIENTE;;V. Inversiones financieras a largo plazo.;5. Otros activos financieros.;379;A;0;V;5;A;normal
+A-A--V-5;A) ACTIVO NO CORRIENTE;;V. Inversiones financieras a largo plazo.;5. Otros activos financieros.;380;A;0;V;5;A;abbreviated
+A-A--VI-;A) ACTIVO NO CORRIENTE;;VI. Activos por impuesto diferido.;;381;A;0;VI;;A;normal
+A-A--VI-;A) ACTIVO NO CORRIENTE;;VI. Activos por impuesto diferido.;;382;A;0;VI;;A;abbreviated
+A-B--I-;B) ACTIVO CORRIENTE;;I. Activos no corrientes mantenidos para la venta.;;383;B;0;I;;A;normal
+A-B--I-;B) ACTIVO CORRIENTE;;I. Activos no corrientes mantenidos para la venta.;;384;B;0;I;;A;abbreviated
+A-B--II-1;B) ACTIVO CORRIENTE;;II. Existencias.;1. Comerciales.;385;B;0;II;1;A;normal
+A-B--II-1;B) ACTIVO CORRIENTE;;II. Existencias.;1. Comerciales.;386;B;0;II;1;A;abbreviated
+A-B--II-2;B) ACTIVO CORRIENTE;;II. Existencias.;2. Materias primas y otros aprovisionamientos.;387;B;0;II;2;A;normal
+A-B--II-2;B) ACTIVO CORRIENTE;;II. Existencias.;2. Materias primas y otros aprovisionamientos.;388;B;0;II;2;A;abbreviated
+A-B--II-3;B) ACTIVO CORRIENTE;;II. Existencias.;3. Productos en curso.;389;B;0;II;3;A;normal
+A-B--II-3;B) ACTIVO CORRIENTE;;II. Existencias.;3. Productos en curso.;390;B;0;II;3;A;abbreviated
+A-B--II-4;B) ACTIVO CORRIENTE;;II. Existencias.;4. Productos terminados.;391;B;0;II;4;A;normal
+A-B--II-4;B) ACTIVO CORRIENTE;;II. Existencias.;4. Productos terminados.;392;B;0;II;4;A;abbreviated
+A-B--II-5;B) ACTIVO CORRIENTE;;II. Existencias.;5. Subproductos, residuos y materiales recuperados.;393;B;0;II;5;A;normal
+A-B--II-5;B) ACTIVO CORRIENTE;;II. Existencias.;5. Subproductos, residuos y materiales recuperados.;394;B;0;II;5;A;abbreviated
+A-B--II-6;B) ACTIVO CORRIENTE;;II. Existencias.;6. Anticipos a proveedores;395;B;0;II;6;A;normal
+A-B--II-6;B) ACTIVO CORRIENTE;;II. Existencias.;6. Anticipos a proveedores;396;B;0;II;6;A;abbreviated
+A-B--III-1;B) ACTIVO CORRIENTE;;III. Deudores comerciales y otras cuentas a cobrar.;1. Clientes por ventas y prestaciones de servicios.;397;B;0;III;1;A;normal
+A-B--III-1;B) ACTIVO CORRIENTE;;III. Deudores comerciales y otras cuentas a cobrar.;1. Clientes por ventas y prestaciones de servicios.;398;B;0;III;1;A;abbreviated
+A-B--III-2;B) ACTIVO CORRIENTE;;III. Deudores comerciales y otras cuentas a cobrar.;2. Clientes, empresas del grupo y asociadas.;399;B;0;III;2;A;normal
+A-B--III-2;B) ACTIVO CORRIENTE;;III. Deudores comerciales y otras cuentas a cobrar.;2. Clientes, empresas del grupo y asociadas.;400;B;0;III;2;A;abbreviated
+A-B--III-3;B) ACTIVO CORRIENTE;;III. Deudores comerciales y otras cuentas a cobrar.;3. Deudores varios.;401;B;0;III;3;A;normal
+A-B--III-3;B) ACTIVO CORRIENTE;;III. Deudores comerciales y otras cuentas a cobrar.;3. Deudores varios.;402;B;0;III;3;A;abbreviated
+A-B--III-4;B) ACTIVO CORRIENTE;;III. Deudores comerciales y otras cuentas a cobrar.;4. Personal.;403;B;0;III;4;A;normal
+A-B--III-4;B) ACTIVO CORRIENTE;;III. Deudores comerciales y otras cuentas a cobrar.;4. Personal.;404;B;0;III;4;A;abbreviated
+A-B--III-5;B) ACTIVO CORRIENTE;;III. Deudores comerciales y otras cuentas a cobrar.;5. Activos por impuesto corriente.;405;B;0;III;5;A;normal
+A-B--III-5;B) ACTIVO CORRIENTE;;III. Deudores comerciales y otras cuentas a cobrar.;5. Activos por impuesto corriente.;406;B;0;III;5;A;abbreviated
+A-B--III-6;B) ACTIVO CORRIENTE;;III. Deudores comerciales y otras cuentas a cobrar.;6. Otros créditos con las Administraciones Públicas.;407;B;0;III;6;A;normal
+A-B--III-6;B) ACTIVO CORRIENTE;;III. Deudores comerciales y otras cuentas a cobrar.;6. Otros créditos con las Administraciones Públicas.;408;B;0;III;6;A;abbreviated
+A-B--III-7;B) ACTIVO CORRIENTE;;III. Deudores comerciales y otras cuentas a cobrar.;7. Accionistas (socios) por desembolsos exigidos;409;B;0;III;7;A;normal
+A-B--III-7;B) ACTIVO CORRIENTE;;III. Deudores comerciales y otras cuentas a cobrar.;7. Accionistas (socios) por desembolsos exigidos;410;B;0;III;7;A;abbreviated
+A-B--IV-1;B) ACTIVO CORRIENTE;;IV. Inversiones en empresas del grupo y asociadas a corto plazo;1. Instrumentos de patrimonio.;411;B;0;IV;1;A;normal
+A-B--IV-1;B) ACTIVO CORRIENTE;;IV. Inversiones en empresas del grupo y asociadas a corto plazo;1. Instrumentos de patrimonio.;412;B;0;IV;1;A;abbreviated
+A-B--IV-2;B) ACTIVO CORRIENTE;;IV. Inversiones en empresas del grupo y asociadas a corto plazo;2. Créditos a empresas.;413;B;0;IV;2;A;normal
+A-B--IV-2;B) ACTIVO CORRIENTE;;IV. Inversiones en empresas del grupo y asociadas a corto plazo;2. Créditos a empresas.;414;B;0;IV;2;A;abbreviated
+A-B--IV-3;B) ACTIVO CORRIENTE;;IV. Inversiones en empresas del grupo y asociadas a corto plazo;3. Valores representativos de deuda.;415;B;0;IV;3;A;normal
+A-B--IV-3;B) ACTIVO CORRIENTE;;IV. Inversiones en empresas del grupo y asociadas a corto plazo;3. Valores representativos de deuda.;416;B;0;IV;3;A;abbreviated
+A-B--IV-4;B) ACTIVO CORRIENTE;;IV. Inversiones en empresas del grupo y asociadas a corto plazo;4. Derivados.;417;B;0;IV;4;A;normal
+A-B--IV-4;B) ACTIVO CORRIENTE;;IV. Inversiones en empresas del grupo y asociadas a corto plazo;4. Derivados.;418;B;0;IV;4;A;abbreviated
+A-B--IV-5;B) ACTIVO CORRIENTE;;IV. Inversiones en empresas del grupo y asociadas a corto plazo;5. Otros activos financieros.;419;B;0;IV;5;A;normal
+A-B--IV-5;B) ACTIVO CORRIENTE;;IV. Inversiones en empresas del grupo y asociadas a corto plazo;5. Otros activos financieros.;420;B;0;IV;5;A;abbreviated
+A-B--V-1;B) ACTIVO CORRIENTE;;V. Inversiones financieras a corto plazo.;1. Instrumentos de patrimonio.;421;B;0;V;1;A;normal
+A-B--V-1;B) ACTIVO CORRIENTE;;V. Inversiones financieras a corto plazo.;1. Instrumentos de patrimonio.;422;B;0;V;1;A;abbreviated
+A-B--V-2;B) ACTIVO CORRIENTE;;V. Inversiones financieras a corto plazo.;2. Créditos a empresas;423;B;0;V;2;A;normal
+A-B--V-2;B) ACTIVO CORRIENTE;;V. Inversiones financieras a corto plazo.;2. Créditos a empresas;424;B;0;V;2;A;abbreviated
+A-B--V-3;B) ACTIVO CORRIENTE;;V. Inversiones financieras a corto plazo.;3. Valores representativos de deuda.;425;B;0;V;3;A;normal
+A-B--V-3;B) ACTIVO CORRIENTE;;V. Inversiones financieras a corto plazo.;3. Valores representativos de deuda.;426;B;0;V;3;A;abbreviated
+A-B--V-4;B) ACTIVO CORRIENTE;;V. Inversiones financieras a corto plazo.;4. Derivados.;427;B;0;V;4;A;normal
+A-B--V-4;B) ACTIVO CORRIENTE;;V. Inversiones financieras a corto plazo.;4. Derivados.;428;B;0;V;4;A;abbreviated
+A-B--V-5;B) ACTIVO CORRIENTE;;V. Inversiones financieras a corto plazo.;5. Otros activos financieros.;429;B;0;V;5;A;normal
+A-B--V-5;B) ACTIVO CORRIENTE;;V. Inversiones financieras a corto plazo.;5. Otros activos financieros.;430;B;0;V;5;A;abbreviated
+A-B--VI-;B) ACTIVO CORRIENTE;;VI. Periodificaciones a corto plazo.;;431;B;0;VI;;A;normal
+A-B--VI-;B) ACTIVO CORRIENTE;;VI. Periodificaciones a corto plazo.;;432;B;0;VI;;A;abbreviated
+A-B--VII-1;B) ACTIVO CORRIENTE;;VII. Efectivo y otros activos líquidos equivalentes.;1. Tesorería.;433;B;0;VII;1;A;normal
+A-B--VII-1;B) ACTIVO CORRIENTE;;VII. Efectivo y otros activos líquidos equivalentes.;1. Tesorería.;434;B;0;VII;1;A;abbreviated
+A-B--VII-2;B) ACTIVO CORRIENTE;;VII. Efectivo y otros activos líquidos equivalentes.;2. Otros activos líquidos equivalentes.;435;B;0;VII;2;A;normal
+A-B--VII-2;B) ACTIVO CORRIENTE;;VII. Efectivo y otros activos líquidos equivalentes.;2. Otros activos líquidos equivalentes.;436;B;0;VII;2;A;abbreviated
+IG-A--I-1;Ingresos y gastos imputados directamente al patrimonio neto;;I. Por valoración instrumentos financieros.;1. Activos financieros disponibles para la venta.;437;A;0;I;1;IG;normal
+IG-A--I-1;Ingresos y gastos imputados directamente al patrimonio neto;;I. Por valoración instrumentos financieros.;1. Activos financieros disponibles para la venta.;438;A;0;I;1;IG;abbreviated
+IG-A--I-2;Ingresos y gastos imputados directamente al patrimonio neto;;I. Por valoración instrumentos financieros.;2. Otros ingresos/gastos.;439;A;0;I;2;IG;normal
+IG-A--I-2;Ingresos y gastos imputados directamente al patrimonio neto;;I. Por valoración instrumentos financieros.;2. Otros ingresos/gastos.;440;A;0;I;2;IG;abbreviated
+IG-A--II-;Ingresos y gastos imputados directamente al patrimonio neto;;II. Por coberturas de flujos de efectivo.;;441;A;0;II;;IG;normal
+IG-A--II-;Ingresos y gastos imputados directamente al patrimonio neto;;II. Por coberturas de flujos de efectivo.;;442;A;0;II;;IG;abbreviated
+IG-A--III-;Ingresos y gastos imputados directamente al patrimonio neto;;III. Subvenciones, donaciones y legados recibidos.;;443;A;0;III;;IG;normal
+IG-A--III-;Ingresos y gastos imputados directamente al patrimonio neto;;III. Subvenciones, donaciones y legados recibidos.;;444;A;0;III;;IG;abbreviated
+IG-A--IV-;Ingresos y gastos imputados directamente al patrimonio neto;;IV. Por ganancias y pérdidas actuariales y otros ajustes.;;445;A;0;IV;;IG;normal
+IG-A--IV-;Ingresos y gastos imputados directamente al patrimonio neto;;IV. Por ganancias y pérdidas actuariales y otros ajustes.;;446;A;0;IV;;IG;abbreviated
+IG-A--V-;Ingresos y gastos imputados directamente al patrimonio neto;;V. Efecto impositivo.;;447;A;0;V;;IG;normal
+IG-A--V-;Ingresos y gastos imputados directamente al patrimonio neto;;V. Efecto impositivo.;;448;A;0;V;;IG;abbreviated
+IG-B--IX-;Transferencias a la cuenta de pérdidas y ganancias;;IX. Efecto impositivo.;;449;B;0;IX;;IG;normal
+IG-B--IX-;Transferencias a la cuenta de pérdidas y ganancias;;IX. Efecto impositivo.;;450;B;0;IX;;IG;abbreviated
+IG-B--VI-1;Transferencias a la cuenta de pérdidas y ganancias;;VI. Por valoración de instrumentos financieros.;1.Activos financieros disponibles para la venta.;451;B;0;VI;1;IG;normal
+IG-B--VI-1;Transferencias a la cuenta de pérdidas y ganancias;;VI. Por valoración de instrumentos financieros.;1.Activos financieros disponibles para la venta.;452;B;0;VI;1;IG;abbreviated
+IG-B--VI-2;Transferencias a la cuenta de pérdidas y ganancias;;VI. Por valoración de instrumentos financieros.;2. Otros ingresos/gastos.;453;B;0;VI;2;IG;normal
+IG-B--VI-2;Transferencias a la cuenta de pérdidas y ganancias;;VI. Por valoración de instrumentos financieros.;2. Otros ingresos/gastos.;454;B;0;VI;2;IG;abbreviated
+IG-B--VII-;Transferencias a la cuenta de pérdidas y ganancias;;VII. Por coberturas de flujos de efectivo.;;455;B;0;VII;;IG;normal
+IG-B--VII-;Transferencias a la cuenta de pérdidas y ganancias;;VII. Por coberturas de flujos de efectivo.;;456;B;0;VII;;IG;abbreviated
+IG-B--VIII-;Transferencias a la cuenta de pérdidas y ganancias;;VIII. Subvenciones, donaciones y legados recibidos.;;457;B;0;VIII;;IG;normal
+IG-B--VIII-;Transferencias a la cuenta de pérdidas y ganancias;;VIII. Subvenciones, donaciones y legados recibidos.;;458;B;0;VIII;;IG;abbreviated
+P---VII-2;;;VII. Efectivo y otros activos líquidos equivalentes.;2. Otros activos líquidos equivalentes.;459;;0;VII;2;P;normal
+P---VII-2;;;VII. Efectivo y otros activos líquidos equivalentes.;2. Otros activos líquidos equivalentes.;460;;0;VII;2;P;abbreviated
+P-A-1-I-1;A) PATRIMONIO NETO;A-1) Fondos propios.;I. Capital.;1. Capital escriturado.;461;A;1;I;1;P;normal
+P-A-1-I-1;A) PATRIMONIO NETO;A-1) Fondos propios.;I. Capital.;1. Capital escriturado.;462;A;1;I;1;P;abbreviated
+P-A-1-I-2;A) PATRIMONIO NETO;A-1) Fondos propios.;I. Capital.;2. (Capital no exigido).;463;A;1;I;2;P;normal
+P-A-1-I-2;A) PATRIMONIO NETO;A-1) Fondos propios.;I. Capital.;2. (Capital no exigido).;464;A;1;I;2;P;abbreviated
+P-A-1-II-;A) PATRIMONIO NETO;A-1) Fondos propios.;II. Prima de emisión.;;465;A;1;II;;P;normal
+P-A-1-II-;A) PATRIMONIO NETO;A-1) Fondos propios.;II. Prima de emisión.;;466;A;1;II;;P;abbreviated
+P-A-1-III-1;A) PATRIMONIO NETO;A-1) Fondos propios.;III. Reservas.;1. Legal y estatutarias.;467;A;1;III;1;P;normal
+P-A-1-III-1;A) PATRIMONIO NETO;A-1) Fondos propios.;III. Reservas.;1. Legal y estatutarias.;468;A;1;III;1;P;abbreviated
+P-A-1-III-2;A) PATRIMONIO NETO;A-1) Fondos propios.;III. Reservas.;2. Otras reservas.;469;A;1;III;2;P;normal
+P-A-1-III-2;A) PATRIMONIO NETO;A-1) Fondos propios.;III. Reservas.;2. Otras reservas.;470;A;1;III;2;P;abbreviated
+P-A-1-IV-;A) PATRIMONIO NETO;A-1) Fondos propios.;IV. (Acciones y participaciones en patrimonio propias).;;471;A;1;IV;;P;normal
+P-A-1-IV-;A) PATRIMONIO NETO;A-1) Fondos propios.;IV. (Acciones y participaciones en patrimonio propias).;;472;A;1;IV;;P;abbreviated
+P-A-1-IX-;A) PATRIMONIO NETO;A-1) Fondos propios.;IX. Otros instrumentos de patrimonio neto.;;473;A;1;IX;;P;normal
+P-A-1-IX-;A) PATRIMONIO NETO;A-1) Fondos propios.;IX. Otros instrumentos de patrimonio neto.;;474;A;1;IX;;P;abbreviated
+P-A-1-V-1;A) PATRIMONIO NETO;A-1) Fondos propios.;V. Resultados de ejercicios anteriores.;1. Remanente.;475;A;1;V;1;P;normal
+P-A-1-V-1;A) PATRIMONIO NETO;A-1) Fondos propios.;V. Resultados de ejercicios anteriores.;1. Remanente.;476;A;1;V;1;P;abbreviated
+P-A-1-V-2;A) PATRIMONIO NETO;A-1) Fondos propios.;V. Resultados de ejercicios anteriores.;2. (Resultados negativos de ejercicios anteriores).;477;A;1;V;2;P;normal
+P-A-1-V-2;A) PATRIMONIO NETO;A-1) Fondos propios.;V. Resultados de ejercicios anteriores.;2. (Resultados negativos de ejercicios anteriores).;478;A;1;V;2;P;abbreviated
+P-A-1-VI-;A) PATRIMONIO NETO;A-1) Fondos propios.;VI. Otras aportaciones de socios.;;479;A;1;VI;;P;normal
+P-A-1-VI-;A) PATRIMONIO NETO;A-1) Fondos propios.;VI. Otras aportaciones de socios.;;480;A;1;VI;;P;abbreviated
+P-A-1-VII-;A) PATRIMONIO NETO;A-1) Fondos propios.;VII. Resultado del ejercicio.;;481;A;1;VII;;P;normal
+P-A-1-VII-;A) PATRIMONIO NETO;A-1) Fondos propios.;VII. Resultado del ejercicio.;;482;A;1;VII;;P;abbreviated
+P-A-1-VIII-;A) PATRIMONIO NETO;A-1) Fondos propios.;VIII. (Dividendo a cuenta).;;483;A;1;VIII;;P;normal
+P-A-1-VIII-;A) PATRIMONIO NETO;A-1) Fondos propios.;VIII. (Dividendo a cuenta).;;484;A;1;VIII;;P;abbreviated
+P-A-2-I-;A) PATRIMONIO NETO;A-2) Ajustes por cambios de valor.;I. Activos financieros disponibles para la venta;;485;A;2;I;;P;normal
+P-A-2-I-;A) PATRIMONIO NETO;A-2) Ajustes por cambios de valor.;I. Activos financieros disponibles para la venta;;486;A;2;I;;P;abbreviated
+P-A-2-II-;A) PATRIMONIO NETO;A-2) Ajustes por cambios de valor.;II. Operaciones de cobertura.;;487;A;2;II;;P;normal
+P-A-2-II-;A) PATRIMONIO NETO;A-2) Ajustes por cambios de valor.;II. Operaciones de cobertura.;;488;A;2;II;;P;abbreviated
+P-A-2-III-;A) PATRIMONIO NETO;A-2) Ajustes por cambios de valor.;III. Otros.;;489;A;2;III;;P;normal
+P-A-2-III-;A) PATRIMONIO NETO;A-2) Ajustes por cambios de valor.;III. Otros.;;490;A;2;III;;P;abbreviated
+P-A-3--;A) PATRIMONIO NETO;A-3) Subvenciones, donaciones y legados recibidos.;;;491;A;3;;;P;normal
+P-A-3--;A) PATRIMONIO NETO;A-3) Subvenciones, donaciones y legados recibidos.;;;492;A;3;;;P;abbreviated
+P-B--I-1;B) PASIVO NO CORRIENTE;;I. Provisiones a largo plazo.;1. Obligaciones por prestaciones a largo plazo al personal.;493;B;0;I;1;P;normal
+P-B--I-1;B) PASIVO NO CORRIENTE;;I. Provisiones a largo plazo.;1. Obligaciones por prestaciones a largo plazo al personal.;494;B;0;I;1;P;abbreviated
+P-B--I-2;B) PASIVO NO CORRIENTE;;I. Provisiones a largo plazo.;2. Actuaciones medioambientales.;495;B;0;I;2;P;normal
+P-B--I-2;B) PASIVO NO CORRIENTE;;I. Provisiones a largo plazo.;2. Actuaciones medioambientales.;496;B;0;I;2;P;abbreviated
+P-B--I-3;B) PASIVO NO CORRIENTE;;I. Provisiones a largo plazo.;3. Provisiones por reestructuración.;497;B;0;I;3;P;normal
+P-B--I-3;B) PASIVO NO CORRIENTE;;I. Provisiones a largo plazo.;3. Provisiones por reestructuración.;498;B;0;I;3;P;abbreviated
+P-B--I-4;B) PASIVO NO CORRIENTE;;I. Provisiones a largo plazo.;4. Otras provisiones.;499;B;0;I;4;P;normal
+P-B--I-4;B) PASIVO NO CORRIENTE;;I. Provisiones a largo plazo.;4. Otras provisiones.;500;B;0;I;4;P;abbreviated
+P-B--II-1;B) PASIVO NO CORRIENTE;;II. Deudas a largo plazo.;1. Obligaciones y otros valores negociables.;501;B;0;II;1;P;normal
+P-B--II-1;B) PASIVO NO CORRIENTE;;II. Deudas a largo plazo.;1. Obligaciones y otros valores negociables.;502;B;0;II;1;P;abbreviated
+P-B--II-2;B) PASIVO NO CORRIENTE;;II. Deudas a largo plazo.;2. Deudas con entidades de crédito.;503;B;0;II;2;P;normal
+P-B--II-2;B) PASIVO NO CORRIENTE;;II. Deudas a largo plazo.;2. Deudas con entidades de crédito.;504;B;0;II;2;P;abbreviated
+P-B--II-3;B) PASIVO NO CORRIENTE;;II. Deudas a largo plazo.;3. Acreedores por arrendamiento financiero.;505;B;0;II;3;P;normal
+P-B--II-3;B) PASIVO NO CORRIENTE;;II. Deudas a largo plazo.;3. Acreedores por arrendamiento financiero.;506;B;0;II;3;P;abbreviated
+P-B--II-4;B) PASIVO NO CORRIENTE;;II. Deudas a largo plazo.;4. Derivados.;507;B;0;II;4;P;normal
+P-B--II-4;B) PASIVO NO CORRIENTE;;II. Deudas a largo plazo.;4. Derivados.;508;B;0;II;4;P;abbreviated
+P-B--II-5;B) PASIVO NO CORRIENTE;;II. Deudas a largo plazo.;5. Otros pasivos financieros.;509;B;0;II;5;P;normal
+P-B--II-5;B) PASIVO NO CORRIENTE;;II. Deudas a largo plazo.;5. Otros pasivos financieros.;510;B;0;II;5;P;abbreviated
+P-B--III-;B) PASIVO NO CORRIENTE;;III. Deudas con empresas del grupo y asociadas a largo plazo.;;511;B;0;III;;P;normal
+P-B--III-;B) PASIVO NO CORRIENTE;;III. Deudas con empresas del grupo y asociadas a largo plazo.;;512;B;0;III;;P;abbreviated
+P-B--IV-;B) PASIVO NO CORRIENTE;;IV. Pasivos por impuesto diferido.;;513;B;0;IV;;P;normal
+P-B--IV-;B) PASIVO NO CORRIENTE;;IV. Pasivos por impuesto diferido.;;514;B;0;IV;;P;abbreviated
+P-B--V-;B) PASIVO NO CORRIENTE;;V. Periodificaciones a largo plazo.;;515;B;0;V;;P;normal
+P-B--V-;B) PASIVO NO CORRIENTE;;V. Periodificaciones a largo plazo.;;516;B;0;V;;P;abbreviated
+P-C--I-;C) PASIVO CORRIENTE;;I. Pasivos vinculados con activos no corrientes mantenidos para la venta;;517;C;0;I;;P;normal
+P-C--I-;C) PASIVO CORRIENTE;;I. Pasivos vinculados con activos no corrientes mantenidos para la venta;;518;C;0;I;;P;abbreviated
+P-C--II-;C) PASIVO CORRIENTE;;II. Provisiones a corto plazo.;;519;C;0;II;;P;normal
+P-C--II-;C) PASIVO CORRIENTE;;II. Provisiones a corto plazo.;;520;C;0;II;;P;abbreviated
+P-C--III-1;C) PASIVO CORRIENTE;;III. Deudas a corto plazo.;1. Obligaciones y otros valores negociables.;521;C;0;III;1;P;normal
+P-C--III-1;C) PASIVO CORRIENTE;;III. Deudas a corto plazo.;1. Obligaciones y otros valores negociables.;522;C;0;III;1;P;abbreviated
+P-C--III-2;C) PASIVO CORRIENTE;;III. Deudas a corto plazo.;2. Deudas con entidades de crédito.;523;C;0;III;2;P;normal
+P-C--III-2;C) PASIVO CORRIENTE;;III. Deudas a corto plazo.;2. Deudas con entidades de crédito.;524;C;0;III;2;P;abbreviated
+P-C--III-3;C) PASIVO CORRIENTE;;III. Deudas a corto plazo.;3. Acreedores por arrendamiento financiero.;525;C;0;III;3;P;normal
+P-C--III-3;C) PASIVO CORRIENTE;;III. Deudas a corto plazo.;3. Acreedores por arrendamiento financiero.;526;C;0;III;3;P;abbreviated
+P-C--III-4;C) PASIVO CORRIENTE;;III. Deudas a corto plazo.;4. Derivados.;527;C;0;III;4;P;normal
+P-C--III-4;C) PASIVO CORRIENTE;;III. Deudas a corto plazo.;4. Derivados.;528;C;0;III;4;P;abbreviated
+P-C--III-5;C) PASIVO CORRIENTE;;III. Deudas a corto plazo.;5. Otros pasivos financieros.;529;C;0;III;5;P;normal
+P-C--III-5;C) PASIVO CORRIENTE;;III. Deudas a corto plazo.;5. Otros pasivos financieros.;530;C;0;III;5;P;abbreviated
+P-C--IV-;C) PASIVO CORRIENTE;;IV. Deudas con empresas del grupo y asociadas a corto plazo.;;531;C;0;IV;;P;normal
+P-C--IV-;C) PASIVO CORRIENTE;;IV. Deudas con empresas del grupo y asociadas a corto plazo.;;532;C;0;IV;;P;abbreviated
+P-C--V-1;C) PASIVO CORRIENTE;;V. Acreedores comerciales y otras cuentas a pagar.;1. Proveedores;533;C;0;V;1;P;normal
+P-C--V-1;C) PASIVO CORRIENTE;;V. Acreedores comerciales y otras cuentas a pagar.;1. Proveedores;534;C;0;V;1;P;abbreviated
+P-C--V-2;C) PASIVO CORRIENTE;;V. Acreedores comerciales y otras cuentas a pagar.;2. Proveedores, empresas del grupo y asociadas.;535;C;0;V;2;P;normal
+P-C--V-2;C) PASIVO CORRIENTE;;V. Acreedores comerciales y otras cuentas a pagar.;2. Proveedores, empresas del grupo y asociadas.;536;C;0;V;2;P;abbreviated
+P-C--V-3;C) PASIVO CORRIENTE;;V. Acreedores comerciales y otras cuentas a pagar.;3. Acreedores varios.;537;C;0;V;3;P;normal
+P-C--V-3;C) PASIVO CORRIENTE;;V. Acreedores comerciales y otras cuentas a pagar.;3. Acreedores varios.;538;C;0;V;3;P;abbreviated
+P-C--V-4;C) PASIVO CORRIENTE;;V. Acreedores comerciales y otras cuentas a pagar.;4. Personal (remuneraciones pendientes de pago).;539;C;0;V;4;P;normal
+P-C--V-4;C) PASIVO CORRIENTE;;V. Acreedores comerciales y otras cuentas a pagar.;4. Personal (remuneraciones pendientes de pago).;540;C;0;V;4;P;abbreviated
+P-C--V-5;C) PASIVO CORRIENTE;;V. Acreedores comerciales y otras cuentas a pagar.;5. Pasivos por impuesto corriente.;541;C;0;V;5;P;normal
+P-C--V-5;C) PASIVO CORRIENTE;;V. Acreedores comerciales y otras cuentas a pagar.;5. Pasivos por impuesto corriente.;542;C;0;V;5;P;abbreviated
+P-C--V-6;C) PASIVO CORRIENTE;;V. Acreedores comerciales y otras cuentas a pagar.;6. Otras deudas con las Administraciones Públicas.;543;C;0;V;6;P;normal
+P-C--V-6;C) PASIVO CORRIENTE;;V. Acreedores comerciales y otras cuentas a pagar.;6. Otras deudas con las Administraciones Públicas.;544;C;0;V;6;P;abbreviated
+P-C--V-7;C) PASIVO CORRIENTE;;V. Acreedores comerciales y otras cuentas a pagar.;7. Anticipos de clientes.;545;C;0;V;7;P;normal
+P-C--V-7;C) PASIVO CORRIENTE;;V. Acreedores comerciales y otras cuentas a pagar.;7. Anticipos de clientes.;546;C;0;V;7;P;abbreviated
+P-C--VI-;C) PASIVO CORRIENTE;;VI. Periodificaciones a corto plazo.;;547;C;0;VI;;P;normal
+P-C--VI-;C) PASIVO CORRIENTE;;VI. Periodificaciones a corto plazo.;;548;C;0;VI;;P;abbreviated
+PG-A-1-a-;A) OPERACIONES CONTINUADAS;1. Importe neto de la cifra de negocios.;a) Ventas;;549;A;1;a;;PG;normal
+PG-A-1-a-;A) OPERACIONES CONTINUADAS;1. Importe neto de la cifra de negocios.;a) Ventas;;550;A;1;a;;PG;abbreviated
+PG-A-1-b-;A) OPERACIONES CONTINUADAS;1. Importe neto de la cifra de negocios.;b) Prestaciones de servicios;;551;A;1;b;;PG;normal
+PG-A-1-b-;A) OPERACIONES CONTINUADAS;1. Importe neto de la cifra de negocios.;b) Prestaciones de servicios;;552;A;1;b;;PG;abbreviated
+PG-A-10--;A) OPERACIONES CONTINUADAS;10. Excesos de provisiones;;;553;A;10;;;PG;normal
+PG-A-10--;A) OPERACIONES CONTINUADAS;10. Excesos de provisiones;;;554;A;10;;;PG;abbreviated
+PG-A-11-a-;A) OPERACIONES CONTINUADAS;11. Deterioro y resultado por enajenaciones del inmovilizado;a) Deterioros y pérdidas;;555;A;11;a;;PG;normal
+PG-A-11-a-;A) OPERACIONES CONTINUADAS;11. Deterioro y resultado por enajenaciones del inmovilizado;a) Deterioros y pérdidas;;556;A;11;a;;PG;abbreviated
+PG-A-11-b-;A) OPERACIONES CONTINUADAS;11. Deterioro y resultado por enajenaciones del inmovilizado;b) Resultados por enajenaciones y otras;;557;A;11;b;;PG;normal
+PG-A-11-b-;A) OPERACIONES CONTINUADAS;11. Deterioro y resultado por enajenaciones del inmovilizado;b) Resultados por enajenaciones y otras;;558;A;11;b;;PG;abbreviated
+PG-A-12-a-1;A) OPERACIONES CONTINUADAS;12. Ingresos financieros;a) De participaciones en instrumentos de patrimonio;a1) En empresas del grupo y asociadas;559;A;12;a;1;PG;normal
+PG-A-12-a-1;A) OPERACIONES CONTINUADAS;12. Ingresos financieros;a) De participaciones en instrumentos de patrimonio;a1) En empresas del grupo y asociadas;560;A;12;a;1;PG;abbreviated
+PG-A-12-a-2;A) OPERACIONES CONTINUADAS;12. Ingresos financieros;a) De participaciones en instrumentos de patrimonio;a2) En empresas terceros;561;A;12;a;2;PG;normal
+PG-A-12-a-2;A) OPERACIONES CONTINUADAS;12. Ingresos financieros;a) De participaciones en instrumentos de patrimonio;a2) En empresas terceros;562;A;12;a;2;PG;abbreviated
+PG-A-12-b-1;A) OPERACIONES CONTINUADAS;12. Ingresos financieros;b) De valores negociables y otros instrumentos financieros;b1) De empresas del grupo y asociadas;563;A;12;b;1;PG;normal
+PG-A-12-b-1;A) OPERACIONES CONTINUADAS;12. Ingresos financieros;b) De valores negociables y otros instrumentos financieros;b1) De empresas del grupo y asociadas;564;A;12;b;1;PG;abbreviated
+PG-A-12-b-2;A) OPERACIONES CONTINUADAS;12. Ingresos financieros;b) De valores negociables y otros instrumentos financieros;b2) De terceros;565;A;12;b;2;PG;normal
+PG-A-12-b-2;A) OPERACIONES CONTINUADAS;12. Ingresos financieros;b) De valores negociables y otros instrumentos financieros;b2) De terceros;566;A;12;b;2;PG;abbreviated
+PG-A-13-a-;A) OPERACIONES CONTINUADAS;13. Gastos financieros;a) Por deudas con empresas del grupo y asociadas;;567;A;13;a;;PG;normal
+PG-A-13-a-;A) OPERACIONES CONTINUADAS;13. Gastos financieros;a) Por deudas con empresas del grupo y asociadas;;568;A;13;a;;PG;abbreviated
+PG-A-13-b-;A) OPERACIONES CONTINUADAS;13. Gastos financieros;b) Por deudas con terceros;;569;A;13;b;;PG;normal
+PG-A-13-b-;A) OPERACIONES CONTINUADAS;13. Gastos financieros;b) Por deudas con terceros;;570;A;13;b;;PG;abbreviated
+PG-A-13-c-;A) OPERACIONES CONTINUADAS;13. Gastos financieros;c) Por actualización de provisiones;;571;A;13;c;;PG;normal
+PG-A-13-c-;A) OPERACIONES CONTINUADAS;13. Gastos financieros;c) Por actualización de provisiones;;572;A;13;c;;PG;abbreviated
+PG-A-14-a-;A) OPERACIONES CONTINUADAS;14. Variación de valor razonable en instrumentos financieros;a) Cartera de negociación y otros;;573;A;14;a;;PG;normal
+PG-A-14-a-;A) OPERACIONES CONTINUADAS;14. Variación de valor razonable en instrumentos financieros;a) Cartera de negociación y otros;;574;A;14;a;;PG;abbreviated
+PG-A-14-b-;A) OPERACIONES CONTINUADAS;14. Variación de valor razonable en instrumentos financieros;b) Imputación al resultado del ejercicio por activos fros. disponibles para la venta;;575;A;14;b;;PG;normal
+PG-A-14-b-;A) OPERACIONES CONTINUADAS;14. Variación de valor razonable en instrumentos financieros;b) Imputación al resultado del ejercicio por activos fros. disponibles para la venta;;576;A;14;b;;PG;abbreviated
+PG-A-15--;A) OPERACIONES CONTINUADAS;15. Diferencias de cambio;;;577;A;15;;;PG;normal
+PG-A-15--;A) OPERACIONES CONTINUADAS;15. Diferencias de cambio;;;578;A;15;;;PG;abbreviated
+PG-A-16-a-;A) OPERACIONES CONTINUADAS;16. Deterioro y resultado por enajenaciones de instrumentos financieros;a) Deterioros y pérdidas;;579;A;16;a;;PG;normal
+PG-A-16-a-;A) OPERACIONES CONTINUADAS;16. Deterioro y resultado por enajenaciones de instrumentos financieros;a) Deterioros y pérdidas;;580;A;16;a;;PG;abbreviated
+PG-A-16-b-;A) OPERACIONES CONTINUADAS;16. Deterioro y resultado por enajenaciones de instrumentos financieros;b) Resultados por enajenaciones y otras;;581;A;16;b;;PG;normal
+PG-A-16-b-;A) OPERACIONES CONTINUADAS;16. Deterioro y resultado por enajenaciones de instrumentos financieros;b) Resultados por enajenaciones y otras;;582;A;16;b;;PG;abbreviated
+PG-A-17--;A) OPERACIONES CONTINUADAS;17. Impuesto sobre beneficios;;;583;A;17;;;PG;normal
+PG-A-17--;A) OPERACIONES CONTINUADAS;17. Impuesto sobre beneficios;;;584;A;17;;;PG;abbreviated
+PG-A-2--;A) OPERACIONES CONTINUADAS;2. Variación de existencias de productos terminados y en curso de fabricación;;;585;A;2;;;PG;normal
+PG-A-2--;A) OPERACIONES CONTINUADAS;2. Variación de existencias de productos terminados y en curso de fabricación;;;586;A;2;;;PG;abbreviated
+PG-A-3--;A) OPERACIONES CONTINUADAS;3. Trabajos realizados por la empresa para su activo;;;587;A;3;;;PG;normal
+PG-A-3--;A) OPERACIONES CONTINUADAS;3. Trabajos realizados por la empresa para su activo;;;588;A;3;;;PG;abbreviated
+PG-A-4-a-;A) OPERACIONES CONTINUADAS;4. Aprovisionamientos;a) Consumo de mercaderías;;589;A;4;a;;PG;normal
+PG-A-4-a-;A) OPERACIONES CONTINUADAS;4. Aprovisionamientos;a) Consumo de mercaderías;;590;A;4;a;;PG;abbreviated
+PG-A-4-b-;A) OPERACIONES CONTINUADAS;4. Aprovisionamientos;b) Consumo de materias primas y otras materias consumibles;;591;A;4;b;;PG;normal
+PG-A-4-b-;A) OPERACIONES CONTINUADAS;4. Aprovisionamientos;b) Consumo de materias primas y otras materias consumibles;;592;A;4;b;;PG;abbreviated
+PG-A-4-c-;A) OPERACIONES CONTINUADAS;4. Aprovisionamientos;c) Trabajos realizados por otras empresas;;593;A;4;c;;PG;normal
+PG-A-4-c-;A) OPERACIONES CONTINUADAS;4. Aprovisionamientos;c) Trabajos realizados por otras empresas;;594;A;4;c;;PG;abbreviated
+PG-A-4-d-;A) OPERACIONES CONTINUADAS;4. Aprovisionamientos;d) Deterioro de mercaderias , materias primas y otros aprovisioamientos;;595;A;4;d;;PG;normal
+PG-A-4-d-;A) OPERACIONES CONTINUADAS;4. Aprovisionamientos;d) Deterioro de mercaderias , materias primas y otros aprovisioamientos;;596;A;4;d;;PG;abbreviated
+PG-A-5-a-;A) OPERACIONES CONTINUADAS;5. Otros ingresos de explotación;a) Ingresos accesorios y otros de gestión corriente;;597;A;5;a;;PG;normal
+PG-A-5-a-;A) OPERACIONES CONTINUADAS;5. Otros ingresos de explotación;a) Ingresos accesorios y otros de gestión corriente;;598;A;5;a;;PG;abbreviated
+PG-A-5-b-;A) OPERACIONES CONTINUADAS;5. Otros ingresos de explotación;b) Subvenciones de explotación incorporadas al resultado del ejercicio;;599;A;5;b;;PG;normal
+PG-A-5-b-;A) OPERACIONES CONTINUADAS;5. Otros ingresos de explotación;b) Subvenciones de explotación incorporadas al resultado del ejercicio;;600;A;5;b;;PG;abbreviated
+PG-A-6-a-;A) OPERACIONES CONTINUADAS;6. Gastos de personal;a) Sueldos , salarios y asimilados;;601;A;6;a;;PG;normal
+PG-A-6-a-;A) OPERACIONES CONTINUADAS;6. Gastos de personal;a) Sueldos , salarios y asimilados;;602;A;6;a;;PG;abbreviated
+PG-A-6-b-;A) OPERACIONES CONTINUADAS;6. Gastos de personal;b) Cargas sociales;;603;A;6;b;;PG;normal
+PG-A-6-b-;A) OPERACIONES CONTINUADAS;6. Gastos de personal;b) Cargas sociales;;604;A;6;b;;PG;abbreviated
+PG-A-6-c-;A) OPERACIONES CONTINUADAS;6. Gastos de personal;c) Provisiones;;605;A;6;c;;PG;normal
+PG-A-6-c-;A) OPERACIONES CONTINUADAS;6. Gastos de personal;c) Provisiones;;606;A;6;c;;PG;abbreviated
+PG-A-7-a-;A) OPERACIONES CONTINUADAS;7. Otros gastos de explotación;a) Servicios exteriores;;607;A;7;a;;PG;normal
+PG-A-7-a-;A) OPERACIONES CONTINUADAS;7. Otros gastos de explotación;a) Servicios exteriores;;608;A;7;a;;PG;abbreviated
+PG-A-7-b-;A) OPERACIONES CONTINUADAS;7. Otros gastos de explotación;b) Tributos;;609;A;7;b;;PG;normal
+PG-A-7-b-;A) OPERACIONES CONTINUADAS;7. Otros gastos de explotación;b) Tributos;;610;A;7;b;;PG;abbreviated
+PG-A-7-c-;A) OPERACIONES CONTINUADAS;7. Otros gastos de explotación;c) Pérdidas , deterioro y variación de provisiones por operaciones comerciales;;611;A;7;c;;PG;normal
+PG-A-7-c-;A) OPERACIONES CONTINUADAS;7. Otros gastos de explotación;c) Pérdidas , deterioro y variación de provisiones por operaciones comerciales;;612;A;7;c;;PG;abbreviated
+PG-A-7-d-;A) OPERACIONES CONTINUADAS;7. Otros gastos de explotación;d) Otros gastos de gestión corriente;;613;A;7;d;;PG;normal
+PG-A-7-d-;A) OPERACIONES CONTINUADAS;7. Otros gastos de explotación;d) Otros gastos de gestión corriente;;614;A;7;d;;PG;abbreviated
+PG-A-8--;A) OPERACIONES CONTINUADAS;8. Amortización del inmovilizado;;;615;A;8;;;PG;normal
+PG-A-8--;A) OPERACIONES CONTINUADAS;8. Amortización del inmovilizado;;;616;A;8;;;PG;abbreviated
+PG-A-9--;A) OPERACIONES CONTINUADAS;9. Imputación de subvenciones de inmovilizado no financiero y otras;;;617;A;9;;;PG;normal
+PG-A-9--;A) OPERACIONES CONTINUADAS;9. Imputación de subvenciones de inmovilizado no financiero y otras;;;618;A;9;;;PG;abbreviated
+PG-B-18--;B) OPERACIONES INTERRUMPIDAS;18. Resultado del ejercicio procedente de operaciones interrumpidas neto de impuestos;;;619;B;18;;;PG;normal
+PG-B-18--;B) OPERACIONES INTERRUMPIDAS;18. Resultado del ejercicio procedente de operaciones interrumpidas neto de impuestos;;;620;B;18;;;PG;abbreviated
+A-A-I;A) ACTIVO NO CORRIENTE;I. Inmovilizado intangible.;;;621;A;I;;;A;pymes
+A-A-II;A) ACTIVO NO CORRIENTE;II. Inmovilizado material.;;;622;A;II;;;A;pymes
+A-A-III;A) ACTIVO NO CORRIENTE;III. Inversiones inmobiliarias.;;;623;A;III;;;A;pymes
+A-A-IV;A) ACTIVO NO CORRIENTE;IV. Inversiones en empresas del grupo y asociadas a largo plazo.;;;624;A;IV;;;A;pymes
+A-A-V;A) ACTIVO NO CORRIENTE;V. Inversiones financieras a largo plazo.;;;625;A;V;;;A;pymes
+A-A-VI;A) ACTIVO NO CORRIENTE;VI. Activos por Impuesto diferido.;;;626;A;VI;;;A;pymes
+A-A-VII;A) ACTIVO NO CORRIENTE;VII. Deudores comerciales no corrientes;;;627;A;VII;;;A;pymes
+A-B-I;B) ACTIVO CORRIENTE;I. Existencias.;;;628;B;I;;;A;pymes
+A-B-II-1;B) ACTIVO CORRIENTE;II. Deudores comerciales y otras cuentas a cobrar.;1. Clientes por ventas y prestaciones de servicios.;;629;B;II;1;;A;pymes
+A-B-II-2;B) ACTIVO CORRIENTE;II. Deudores comerciales y otras cuentas a cobrar.;2. Accionistas (socios) por desembolsos exigidos.;;630;B;II;2;;A;pymes
+A-B-II-3;B) ACTIVO CORRIENTE;II. Deudores comerciales y otras cuentas a cobrar.;3. Otros deudores.;;631;B;II;3;;A;pymes
+A-B-III;B) ACTIVO CORRIENTE;III. Inversiones en empresas del grupo y asociadas a corto plazo.;;;632;B;III;;;A;pymes
+A-B-IV;B) ACTIVO CORRIENTE;IV. Inversiones financieras a corto plazo.;;;633;B;IV;;;A;pymes
+A-B-V;B) ACTIVO CORRIENTE;V. Periodificaciones a corto plazo.;;;634;B;V;;;A;pymes
+A-B-VI;B) ACTIVO CORRIENTE;VI. Efectivo y otros activos líquidos equivalentes.;;;635;B;VI;;;A;pymes
+P-A-1-I-1;A) PATRIMONIO NETO;A-1) Fondos propios.;I. Capital.;1. Capital escriturado.;636;A;A-1;I;1;P;pymes
+P-A-1-I-2;A) PATRIMONIO NETO;A-1) Fondos propios.;I. Capital.;2. (Capital no exigido).;637;A;A-1;I;2;P;pymes
+P-A-1-II;A) PATRIMONIO NETO;A-1) Fondos propios.;II. Prima de emisión.;;638;A;A-1;II;;P;pymes
+P-A-1-III;A) PATRIMONIO NETO;A-1) Fondos propios.;III. Reservas.;;639;A;A-1;III;;P;pymes
+P-A-1-IV;A) PATRIMONIO NETO;A-1) Fondos propios.;IV. (Acciones y participaciones en patrimonio propias).;;640;A;A-1;IV;;P;pymes
+P-A-1-V;A) PATRIMONIO NETO;A-1) Fondos propios.;V. Resultados de ejercicios anteriores.;;641;A;A-1;V;;P;pymes
+P-A-1-VI;A) PATRIMONIO NETO;A-1) Fondos propios.;VI. Otras aportaciones de socios.;;642;A;A-1;VI;;P;pymes
+P-A-1-VII;A) PATRIMONIO NETO;A-1) Fondos propios.;VII. Resultado del ejercicio.;;643;A;A-1;VII;;P;pymes
+P-A-1-VIII;A) PATRIMONIO NETO;A-1) Fondos propios.;VIII. (Dividendo a cuenta).;;644;A;A-1;VIII;;P;pymes
+P-A-2;A) PATRIMONIO NETO;A-2) Ajustes en patrimonio neto;;;645;A;A-2;;;P;pymes
+P-A-3;A) PATRIMONIO NETO;A-3) Subvenciones, donaciones y legados recibidos;;;646;A;A-3;;;P;pymes
+P-B-I;B) PASIVO NO CORRIENTE;I. Provisiones a largo plazo.;;;647;B;I;;;P;pymes
+P-B-II-1;B) PASIVO NO CORRIENTE;II. Deudas a largo plazo.;1. Deudas con entidades de crédito.;;648;B;II;1;;P;pymes
+P-B-II-2;B) PASIVO NO CORRIENTE;II. Deudas a largo plazo.;2. Acreedores por arrendamiento financiero;;649;B;II;2;;P;pymes
+P-B-II-3;B) PASIVO NO CORRIENTE;II. Deudas a largo plazo.;3. Otras deudas a largo plazo.;;650;B;II;3;;P;pymes
+P-B-III;B) PASIVO NO CORRIENTE;III. Deudas con empresas del grupo y asociadas a largo plazo.;;;651;B;III;;;P;pymes
+P-B-IV;B) PASIVO NO CORRIENTE;IV. Pasivos por impuesto diferido;;;652;B;IV;;;P;pymes
+P-B-V;B) PASIVO NO CORRIENTE;V. Periodificaciones a largo plazo;;;653;B;V;;;P;pymes
+P-B-VI;B) PASIVO NO CORRIENTE;VI. Acreedores comerciales no corrientes;;;654;B;VI;;;P;pymes
+P-B-VII;B) PASIVO NO CORRIENTE;VII. Deuda con características especiales a largo plazo;;;655;B;VII;;;P;pymes
+P-C-I;C) PASIVO CORRIENTE;I. Provisiones a corto plazo.;;;656;C;I;;;P;pymes
+P-C-II-1;C) PASIVO CORRIENTE;II. Deudas a corto plazo.;1. Deudas con entidades de crédito.;;657;C;II;1;;P;pymes
+P-C-II-2;C) PASIVO CORRIENTE;II. Deudas a corto plazo.;2. Acreedores por arrendamiento financiero;;658;C;II;2;;P;pymes
+P-C-II-3;C) PASIVO CORRIENTE;II. Deudas a corto plazo.;3. Otras deudas a corto plazo.;;659;C;II;3;;P;pymes
+P-C-III;C) PASIVO CORRIENTE;III. Deudas con empresas del grupo y asociadas a corto plazo.;;;660;C;III;;;P;pymes
+P-C-IV-1;C) PASIVO CORRIENTE;IV. Acreedores comerciales y otras cuentas a pagar.;1. Proveedores.;;661;C;IV;1;;P;pymes
+P-C-IV-2;C) PASIVO CORRIENTE;IV. Acreedores comerciales y otras cuentas a pagar.;2. Otros acreedores.;;662;C;IV;2;;P;pymes
+P-C-V;C) PASIVO CORRIENTE;V. Periodificaciones a corto plazo.;;;663;C;V;;;P;pymes
+P-C-VI;C) PASIVO CORRIENTE;VI. Deuda con características especiales a corto plazo;;;664;C;VI;;;P;pymes
+PG-C-A-1;C) RESULTADO ANTES DE IMPUESTOS;A) RESULTADO DE EXPLOTACIÓN;1. Importe neto de la cifra de negocios;;665;C;A;1;;PG;pymes
+PG-C-A-2;C) RESULTADO ANTES DE IMPUESTOS;A) RESULTADO DE EXPLOTACIÓN;2. Variación de existencias de productos terminados y en curso de fabricación;;666;C;A;2;;PG;pymes
+PG-C-A-3;C) RESULTADO ANTES DE IMPUESTOS;A) RESULTADO DE EXPLOTACIÓN;3. Trabajos realizados por la empresa para su activo;;667;C;A;3;;PG;pymes
+PG-C-A-4;C) RESULTADO ANTES DE IMPUESTOS;A) RESULTADO DE EXPLOTACIÓN;4. Aprovisionamientos;;668;C;A;4;;PG;pymes
+PG-C-A-5;C) RESULTADO ANTES DE IMPUESTOS;A) RESULTADO DE EXPLOTACIÓN;5. Otros ingresos de explotación;;669;C;A;5;;PG;pymes
+PG-C-A-6;C) RESULTADO ANTES DE IMPUESTOS;A) RESULTADO DE EXPLOTACIÓN;6. Gastos de personal;;670;C;A;6;;PG;pymes
+PG-C-A-7;C) RESULTADO ANTES DE IMPUESTOS;A) RESULTADO DE EXPLOTACIÓN;7. Otros gastos de explotación;;671;C;A;7;;PG;pymes
+PG-C-A-8;C) RESULTADO ANTES DE IMPUESTOS;A) RESULTADO DE EXPLOTACIÓN;8. Amortización del inmovilizado;;672;C;A;8;;PG;pymes
+PG-C-A-9;C) RESULTADO ANTES DE IMPUESTOS;A) RESULTADO DE EXPLOTACIÓN;9. Imputación de subvenciones de inmovilizado no financiero y otras;;673;C;A;9;;PG;pymes
+PG-C-A-10;C) RESULTADO ANTES DE IMPUESTOS;A) RESULTADO DE EXPLOTACIÓN;10. Excesos de provisiones;;674;C;A;10;;PG;pymes
+PG-C-A-11;C) RESULTADO ANTES DE IMPUESTOS;A) RESULTADO DE EXPLOTACIÓN;11. Deterioro y resultado por enajenaciones del inmovilizado;;675;C;A;11;;PG;pymes
+PG-C-A-12;C) RESULTADO ANTES DE IMPUESTOS;A) RESULTADO DE EXPLOTACIÓN;12. Otros resultados;;676;C;A;12;;PG;pymes
+PG-C-B-13-A;C) RESULTADO ANTES DE IMPUESTOS;B) RESULTADO FINANCIERO;13. Ingresos financieros;a) Imputación de subvenciones, donaciones y legados de carácter financiero;677;C;B;13;a;PG;pymes
+PG-C-B-13-B;C) RESULTADO ANTES DE IMPUESTOS;B) RESULTADO FINANCIERO;13. Ingresos financieros;b) Otros ingresos financieros;678;C;B;13;b;PG;pymes
+PG-C-B-14;C) RESULTADO ANTES DE IMPUESTOS;B) RESULTADO FINANCIERO;14. Gastos financieros;;679;C;B;14;;PG;pymes
+PG-C-B-15;C) RESULTADO ANTES DE IMPUESTOS;B) RESULTADO FINANCIERO;15. Variación de valor razonable en instrumentos financieros;;680;C;B;15;;PG;pymes
+PG-C-B-16;C) RESULTADO ANTES DE IMPUESTOS;B) RESULTADO FINANCIERO;16. Diferencias de cambio;;681;C;B;16;;PG;pymes
+PG-C-B-17;C) RESULTADO ANTES DE IMPUESTOS;B) RESULTADO FINANCIERO;17. Deterioro y resultado por enajenaciones de instrumentos financieros;;682;C;B;17;;PG;pymes
+PG-D-18;D) RESULTADO DEL EJERCICIO;18. Impuestos sobre beneficios;;;683;D;18;;;PG;pymes

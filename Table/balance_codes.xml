@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : balance_codes.xml
+    Author     : Carlos Garcia Gomez
+    Description:
+        Structure for the balance_codes table.
+-->
+<table>
+    <column>
+        <name>codbalance</name>
+        <type>character varying(15)</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>description1</name>
+        <type>character varying(255)</type>
+    </column>
+    <column>
+        <name>description2</name>
+        <type>character varying(255)</type>
+    </column>
+    <column>
+        <name>description3</name>
+        <type>character varying(255)</type>
+    </column>
+    <column>
+        <name>description4</name>
+        <type>character varying(255)</type>
+    </column>
+    <column>
+        <name>id</name>
+        <type>serial</type>
+    </column>
+    <column>
+        <name>level1</name>
+        <type>character varying(5)</type>
+    </column>
+    <column>
+        <name>level2</name>
+        <type>character varying(5)</type>
+    </column>
+    <column>
+        <name>level3</name>
+        <type>character varying(5)</type>
+    </column>
+    <column>
+        <name>level4</name>
+        <type>character varying(5)</type>
+    </column>
+    <column>
+        <name>nature</name>
+        <type>character varying(15)</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>subtype</name>
+        <type>character varying(15)</type>
+        <null>NO</null>
+    </column>
+    <constraint>
+        <name>balance_codes_pkey</name>
+        <type>PRIMARY KEY (id)</type>
+    </constraint>
+    <constraint>
+        <name>uniq_balance_codes</name>
+        <type>UNIQUE (codbalance,subtype)</type>
+    </constraint>
+</table>
