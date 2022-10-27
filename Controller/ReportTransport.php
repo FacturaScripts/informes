@@ -1,0 +1,202 @@
+<?php
+/**
+ * This file is part of Informes plugin for FacturaScripts
+ * Copyright (C) 2022 Carlos Garcia Gomez <carlos@facturascripts.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+namespace FacturaScripts\Plugins\Informes\Controller;
+
+use FacturaScripts\Core\Base\Controller;
+use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
+use FacturaScripts\Dinamic\Lib\ExportManager;
+use FacturaScripts\Dinamic\Model\CodeModel;
+use FacturaScripts\Dinamic\Model\User;
+
+/**
+ * @author Daniel Fernández Giménez <hola@danielfg.es>
+ */
+class ReportTransport extends Controller
+{
+
+    /** string */
+    public $codalmacen;
+
+    /** string */
+    public $codtrans;
+
+    /** string */
+    public $date;
+
+    /** string */
+    public $format;
+
+    /** string */
+    public $modelname;
+
+    public function getFormatExport(): array
+    {
+        return [
+            'PDF' => strtoupper($this->toolBox()->i18n()->trans('pdf')),
+            'CSV' => strtoupper($this->toolBox()->i18n()->trans('csv')),
+            'XLS' => strtoupper($this->toolBox()->i18n()->trans('xls'))
+        ];
+    }
+
+    public function getModelType(): array
+    {
+        return [
+            'AlbaranCliente' => $this->toolBox()->i18n()->trans('customer-delivery-note'),
+            'FacturaCliente' => $this->toolBox()->i18n()->trans('customer-invoice')
+        ];
+    }
+
+    public function getPageData()
+    {
+        $data = parent::getPageData();
+        $data["menu"] = "reports";
+        $data["title"] = "report-transport";
+        $data["icon"] = "fas fa-truck-loading";
+        return $data;
+    }
+
+    public function getSelectValues($table, $code, $description, $empty = false): array
+    {
+        $values = $empty ? ['' => '------'] : [];
+        foreach (CodeModel::all($table, $code, $description, $empty) as $row) {
+            $values[$row->code] = $row->description;
+        }
+        return $values;
+    }
+
+    public function privateCore(&$response, $user, $permissions)
+    {
+        parent::privateCore($response, $user, $permissions);
+        if ('export' === $this->request->request->get('action', '')) {
+            $this->exportAction();
+        }
+    }
+
+    protected function exportAction()
+    {
+        if (false === $this->validateFormToken()) {
+            return;
+        }
+
+        $data = $this->getReportData();
+        if (empty($data)) {
+            $this->toolBox()->i18nLog()->warning('no-data');
+            return;
+        }
+
+        $this->setTemplate(false);
+        $this->processLayout($data);
+    }
+
+    protected function getDocs(): array
+    {
+        $modelclass = '\\FacturaScripts\\Dinamic\\Model\\' . $this->modelname;
+        if (false === class_exists($modelclass)) {
+            return [];
+        }
+
+        $model = new $modelclass();
+        $where = [new DataBaseWhere('fecha', date('Y-m-d', strtotime($this->date)))];
+
+        if (false === empty($this->codtrans)) {
+            $where[] = new DataBaseWhere('codtrans', $this->codtrans);
+        }
+
+        if (false === empty($this->codalmacen)) {
+            $where[] = new DataBaseWhere('codalmacen', $this->codalmacen);
+        }
+
+        return $model->all($where, [], 0, 0);
+    }
+
+    protected function getReportData(): array
+    {
+        $this->codalmacen = $this->request->request->get('codalmacen', '');
+        $this->codtrans = $this->request->request->get('codtrans', '');
+        $this->date = $this->request->request->get('date', '');
+        $this->format = $this->request->request->get('format', '');
+        $this->modelname = $this->request->request->get('modelname', '');
+
+        if (empty($this->date) || empty($this->modelname)
+            || false === array_key_exists($this->modelname, $this->getModelType())
+            || false === array_key_exists($this->format, $this->getFormatExport())) {
+            return [];
+        }
+
+        $docs = $this->getDocs();
+        if (empty($docs)) {
+            return [];
+        }
+
+        $data = [];
+        foreach ($docs as $doc) {
+            foreach ($doc->getLines() as $line) {
+                if (isset($data[$line->referencia])) {
+                    $data[$line->referencia]['cantidad'] += $line->cantidad;
+                    if (false === strpos($doc->codigo, $data[$line->referencia]['codigo'])) {
+                        $data[$line->referencia]['codigo'] .= ', ' . $doc->codigo;
+                    }
+                    continue;
+                }
+
+                $data[$line->referencia] = [
+                    'cantidad' => $line->cantidad,
+                    'referencia' => $line->referencia,
+                    'codigo' => $doc->codigo,
+                    'descripcion' => $line->descripcion
+                ];
+            }
+        }
+
+        return $data;
+    }
+
+    protected function processLayout(array &$lines)
+    {
+        $i18n = $this->toolBox()->i18n();
+        $nameFile = $i18n->trans('carriers') . ' ' . $i18n->trans($this->modelname);
+        $userDate = date(User::DATE_STYLE, strtotime($this->date));
+
+        $exportManager = new ExportManager();
+        $exportManager->setOrientation('landscape');
+        $exportManager->newDoc($this->format, $nameFile . ' ' . $userDate);
+
+        // add information table
+        $exportManager->addTablePage([$i18n->trans('report'), $i18n->trans('date')], [
+            [
+                $i18n->trans('report') => $nameFile,
+                $i18n->trans('date') => date($userDate),
+            ]
+        ]);
+
+        $options = [
+            'codigo' => ['display' => 'left'],
+            'referencia' => ['display' => 'left'],
+            'cantidad' => ['display' => 'right'],
+            'descripcion' => ['display' => 'left']
+        ];
+
+        // add lines table
+        $headers = empty($lines) ? [] : array_keys(end($lines));
+        $exportManager->addTablePage($headers, $lines, $options);
+
+        $exportManager->show($this->response);
+    }
+}
