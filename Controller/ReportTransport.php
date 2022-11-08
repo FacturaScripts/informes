@@ -30,7 +30,6 @@ use FacturaScripts\Dinamic\Model\User;
  */
 class ReportTransport extends Controller
 {
-
     /** string */
     public $codalmacen;
 
@@ -58,12 +57,12 @@ class ReportTransport extends Controller
     public function getModelType(): array
     {
         return [
-            'AlbaranCliente' => $this->toolBox()->i18n()->trans('customer-delivery-note'),
-            'FacturaCliente' => $this->toolBox()->i18n()->trans('customer-invoice')
+            'AlbaranCliente' => $this->toolBox()->i18n()->trans('customer-delivery-notes'),
+            'FacturaCliente' => $this->toolBox()->i18n()->trans('customer-invoices')
         ];
     }
 
-    public function getPageData()
+    public function getPageData(): array
     {
         $data = parent::getPageData();
         $data["menu"] = "reports";
@@ -84,6 +83,8 @@ class ReportTransport extends Controller
     public function privateCore(&$response, $user, $permissions)
     {
         parent::privateCore($response, $user, $permissions);
+        $this->date = $this->request->get('date', date('Y-m-d'));
+
         if ('export' === $this->request->request->get('action', '')) {
             $this->exportAction();
         }

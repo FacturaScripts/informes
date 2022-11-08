@@ -34,7 +34,8 @@
                         </div>
                         <div class="col-12 col-md">
                             <div class="form-group">
-                                {{ forms.simpleInput('date', 'date', fsc.date, 'date', i18n.trans('date')) }}
+                                <label class="mb-1" for="date">{{ i18n.trans('date') }}</label>
+                                <input type="date" id="date" name="date" value="{{ fsc.date }}" class="form-control" required>
                             </div>
                         </div>
                         <div class="col-12 col-md">
