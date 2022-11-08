@@ -1,0 +1,68 @@
+{#
+* Copyright (C) 2022 Carlos Garcia Gomez <carlos@facturascripts.com>
+* Author Daniel Fernández Giménez <hola@danielfg.es>
+#}
+
+{% extends "Master/MenuBghTemplate.html.twig" %}
+{% import 'Macro/Forms.html.twig' as forms %}
+
+{% block bodyHeaderOptions %}
+    {{ parent() }}
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+{% endblock %}
+
+{% block body %}
+    {{ parent() }}
+    <div class="container" style="margin-top: -70px;">
+        <form action="{{ fsc.url() }}" method="post">
+            <input type="hidden" name="action" value="export">
+            <input type="hidden" name="multireqtoken" value="{{ fsc.multiRequestProtection.newToken() }}"/>
+            <div class="card shadow">
+                <div class="card-body">
+                    <h1 class="h3 mb-4">
+                        <i class="{{ fsc.getPageData().icon }}"></i> {{ fsc.title }}
+                    </h1>
+                    <div class="form-row">
+                        <div class="col-12 col-md">
+                            <div class="form-group">
+                                {{ forms.simpleSelect('modelname', 'modelname', fsc.modelname,
+                                    fsc.getModelType(), i18n.trans('document')) }}
+                            </div>
+                        </div>
+                        <div class="col-12 col-md">
+                            <div class="form-group">
+                                {{ forms.simpleInput('date', 'date', fsc.date, 'date', i18n.trans('date')) }}
+                            </div>
+                        </div>
+                        <div class="col-12 col-md">
+                            <div class="form-group">
+                                {{ forms.simpleSelect('codalmacen', 'codalmacen', fsc.codalmacen,
+                                    fsc.getSelectValues('almacenes', 'codalmacen', 'nombre', true), i18n.trans('warehouse')) }}
+                            </div>
+                        </div>
+                        <div class="col-12 col-md">
+                            <div class="form-group">
+                                {{ forms.simpleSelect('codtrans', 'codtrans', fsc.codtrans,
+                                    fsc.getSelectValues('agenciastrans', 'codtrans', 'nombre', true), i18n.trans('carrier')) }}
+                            </div>
+                        </div>
+                        <div class="col-12 col-md">
+                            <div class="form-group">
+                                {{ forms.simpleSelect('format', 'format', fsc.format,
+                                    fsc.getFormatExport(), i18n.trans('format')) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer text-right">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-eye mr-2"></i>{{ i18n.trans('show') }}
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}
