@@ -21,9 +21,11 @@ namespace FacturaScripts\Plugins\Informes\Controller;
 
 use FacturaScripts\Core\App\AppSettings;
 use FacturaScripts\Core\Base\Controller;
+use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Base\ToolBox;
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\CodeModel;
+use FacturaScripts\Dinamic\Model\Contacto;
 use FacturaScripts\Dinamic\Model\Proveedor;
 
 /**
@@ -31,6 +33,7 @@ use FacturaScripts\Dinamic\Model\Proveedor;
  */
 class ReportBreakdown extends Controller
 {
+    public $billingAddress;
     public $cliente;
     public $codagente;
     public $codalmacen;
@@ -47,6 +50,17 @@ class ReportBreakdown extends Controller
     public $purchase_unidades;
     public $sale_minimo;
     public $sale_unidades;
+    public $shippingAddress;
+
+    public function getAddress($contacto): string
+    {
+        if (false === $contacto) {
+            return '';
+        }
+        $descripcion = empty($contacto->descripcion) ? '(' . $this->toolBox()->i18n()->trans('empty') . ') ' : '(' . $contacto->descripcion . ') ';
+        $descripcion .= empty($contacto->direccion) ? '' : $contacto->direccion;
+        return $descripcion;
+    }
 
     public function getPageData()
     {
@@ -72,6 +86,11 @@ class ReportBreakdown extends Controller
 
         $action = $this->request->get('action', '');
         switch ($action) {
+            case 'autocomplete-shipping-address':
+            case 'autocomplete-billing-address':
+                $this->autocompleteCustomerAddressAction();
+                break;
+
             case 'autocomplete-customer':
                 $this->autocompleteCustomerAction();
                 return;
@@ -101,6 +120,30 @@ class ReportBreakdown extends Controller
             $list[] = [
                 'key' => $this->toolBox()->utils()->fixHtml($value->code),
                 'value' => $this->toolBox()->utils()->fixHtml($value->description)
+            ];
+        }
+
+        if (empty($list)) {
+            $list[] = ['key' => null, 'value' => $this->toolBox()->i18n()->trans('no-data')];
+        }
+
+        $this->response->setContent(json_encode($list));
+    }
+
+    protected function autocompleteCustomerAddressAction()
+    {
+        $this->setTemplate(false);
+
+        $list = [];
+        $contactoModel = new Contacto();
+        $where = [
+            new DataBaseWhere('codcliente', $this->request->get('customer')),
+            new DataBaseWhere('direccion', $this->request->get('query'), 'LIKE')
+        ];
+        foreach ($contactoModel->all($where, ['apellidos' => 'ASC', 'nombre' => 'ASC'], 0, 0) as $contacto) {
+            $list[] = [
+                'key' => $this->toolBox()->utils()->fixHtml($contacto->idcontacto),
+                'value' => $this->toolBox()->utils()->fixHtml($this->getAddress($contacto))
             ];
         }
 
@@ -298,6 +341,14 @@ class ReportBreakdown extends Controller
         $sql = '';
         if ($this->cliente) {
             $sql .= " AND codcliente = " . $this->dataBase->var2str($this->cliente->codcliente);
+        }
+
+        if ($this->billingAddress) {
+            $sql .= " AND idcontactofact = " . $this->dataBase->var2str($this->billingAddress->idcontacto);
+        }
+
+        if ($this->shippingAddress) {
+            $sql .= " AND idcontactoenv = " . $this->dataBase->var2str($this->shippingAddress->idcontacto);
         }
 
         if ($this->codagente) {
@@ -629,6 +680,18 @@ class ReportBreakdown extends Controller
         if ($this->request->get('codcliente')) {
             $this->cliente = new Cliente();
             $this->cliente->loadFromCode($this->request->get('codcliente'));
+        }
+
+        $this->shippingAddress = FALSE;
+        if ($this->request->get('idcontactoenv')) {
+            $this->shippingAddress = new Contacto();
+            $this->shippingAddress->loadFromCode($this->request->get('idcontactoenv'));
+        }
+
+        $this->billingAddress = FALSE;
+        if ($this->request->get('idcontactofact')) {
+            $this->billingAddress = new Contacto();
+            $this->billingAddress->loadFromCode($this->request->get('idcontactofact'));
         }
 
         $this->proveedor = FALSE;
