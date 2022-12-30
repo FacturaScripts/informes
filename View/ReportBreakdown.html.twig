@@ -27,14 +27,14 @@
                     <div class="form-row">
                         <div class="col-12 col-md-3">
                             <div class="form-group">
-                                {{ i18n.trans('from-date') }}
-                                <input type="date" name="desde" class="form-control" value="{{ fsc.desde }}">
+                                <label class="mb-1">{{ i18n.trans('from-date') }}</label>
+                                <input type="date" name="desde" class="form-control" value="{{ fsc.desde }}"/>
                             </div>
                         </div>
                         <div class="col-12 col-md-3">
                             <div class="form-group">
-                                {{ i18n.trans('until-date') }}
-                                <input type="date" name="hasta" class="form-control" value="{{ fsc.hasta }}">
+                                <label class="mb-1">{{ i18n.trans('until-date') }}</label>
+                                <input type="date" name="hasta" class="form-control" value="{{ fsc.hasta }}"/>
                             </div>
                         </div>
                         <div class="col-12 col-md-3">
@@ -102,13 +102,13 @@
                                 </div>
                                 <div class="col-12 col-md-4">
                                     <div class="form-group">
-                                        {{ i18n.trans('province') }}
-                                        <select name="provincia" class="form-control" id="provincies"></select>
+                                        <label class="mb-1">{{ i18n.trans('province') }}</label>
+                                        <select name="provincia" class="form-control" id="provinces"></select>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-4">
                                     <div class="form-group">
-                                        {{ i18n.trans('minimum-amount') }}
+                                        <label class="mb-1">{{ i18n.trans('minimum-amount') }}</label>
                                         <input type="number" class="form-control" name="sale-minimo"
                                                placeholder="{{ i18n.trans('optional') }}"
                                                value="{{ fsc.sale_minimo }}">
@@ -116,7 +116,7 @@
                                 </div>
                                 <div class="col-12 col-md-4">
                                     <div class="form-group">
-                                        {{ i18n.trans('customer') }}
+                                        <label class="mb-1">{{ i18n.trans('customer') }}</label>
                                         <div class="input-group">
                                             <input type="text" class="form-control" id="customer"
                                                    placeholder="{{ i18n.trans('any-customer') }}"
@@ -133,7 +133,7 @@
                                 </div>
                                 <div class="col-12 col-md-4">
                                     <div class="form-group">
-                                        {{ i18n.trans('billing-address') }}
+                                        <label class="mb-1">{{ i18n.trans('billing-address') }}</label>
                                         <div class="input-group">
                                             <input type="text" class="form-control" id="billingAddress"
                                                    placeholder="{{ i18n.trans('any-address') }}"
@@ -150,7 +150,7 @@
                                 </div>
                                 <div class="col-12 col-md-4">
                                     <div class="form-group">
-                                        {{ i18n.trans('shipping-address') }}
+                                        <label class="mb-1">{{ i18n.trans('shipping-address') }}</label>
                                         <div class="input-group">
                                             <input type="text" class="form-control" id="shippingAddress"
                                                    placeholder="{{ i18n.trans('any-address') }}"
@@ -281,12 +281,12 @@
             $('#supplier, input[name="codproveedor"]').val('')
         }
 
-        function loadProvincies() {
+        function loadProvinces() {
             let formData = {};
-            formData["action"] = "get-provincies";
-            formData["codpais"] = $("#countries option:selected").val();
+            formData["action"] = "get-provinces";
+            formData["codpais"] = $("#codpais option:selected").val();
             formData["provincia"] = '{{ fsc.provincia }}';
-            $('#provincies').html('');
+            $('#provinces').html('');
 
             $.ajax({
                 method: "POST",
@@ -294,7 +294,7 @@
                 data: formData,
                 dataType: "json",
                 success: function (results) {
-                    $('#provincies').html(results);
+                    $('#provinces').html(results);
                 },
                 error: function (msg) {
                     alert(msg.status + " " + msg.responseText);
@@ -303,7 +303,7 @@
         }
 
         $(document).ready(function () {
-            loadProvincies();
+            loadProvinces();
 
             $(document).on('click', '#tabVentas', function () {
                 $('input[name="generar"]').val('informe_ventas');
@@ -313,8 +313,8 @@
                 $('input[name="generar"]').val('informe_compras');
             });
 
-            $('#countries').change(function () {
-                loadProvincies();
+            $('#codpais').change(function () {
+                loadProvinces();
             });
 
             $("#customer").autocomplete({

@@ -57,12 +57,12 @@ class ReportBreakdown extends Controller
         if (false === $contacto) {
             return '';
         }
-        $descripcion = empty($contacto->descripcion) ? '(' . $this->toolBox()->i18n()->trans('empty') . ') ' : '(' . $contacto->descripcion . ') ';
-        $descripcion .= empty($contacto->direccion) ? '' : $contacto->direccion;
-        return $descripcion;
+        $description = empty($contacto->descripcion) ? '(' . $this->toolBox()->i18n()->trans('empty') . ') ' : '(' . $contacto->descripcion . ') ';
+        $description .= empty($contacto->direccion) ? '' : $contacto->direccion;
+        return $description;
     }
 
-    public function getPageData()
+    public function getPageData(): array
     {
         $data = parent::getPageData();
         $data["menu"] = "reports";
@@ -99,7 +99,7 @@ class ReportBreakdown extends Controller
                 $this->autocompleteSupplierAction();
                 return;
 
-            case 'get-provincies':
+            case 'get-provinces':
                 $this->getProvincias();
                 return;
 
