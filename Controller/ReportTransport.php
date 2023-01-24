@@ -92,10 +92,6 @@ class ReportTransport extends Controller
 
     protected function exportAction()
     {
-        if (false === $this->validateFormToken()) {
-            return;
-        }
-
         $data = $this->getReportData();
         if (empty($data)) {
             $this->toolBox()->i18nLog()->warning('no-data');
@@ -159,9 +155,9 @@ class ReportTransport extends Controller
 
                 $data[$line->referencia] = [
                     'cantidad' => $line->cantidad,
-                    'referencia' => $line->referencia,
                     'codigo' => $doc->codigo,
-                    'descripcion' => $line->descripcion
+                    'descripcion' => $line->descripcion,
+                    'referencia' => $line->referencia
                 ];
             }
         }
@@ -192,10 +188,10 @@ class ReportTransport extends Controller
         // añadimos las líneas de la tabla
         $headers = empty($lines) ? [] : array_keys(end($lines));
         $options = [
-            'codigo' => ['display' => 'left'],
-            'referencia' => ['display' => 'left'],
             'cantidad' => ['display' => 'right'],
-            'descripcion' => ['display' => 'left']
+            'codigo' => ['display' => 'left'],
+            'descripcion' => ['display' => 'left'],
+            'referencia' => ['display' => 'left']
         ];
         $exportManager->addTablePage($headers, $lines, $options);
 
