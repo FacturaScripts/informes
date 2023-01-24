@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2023 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -21,9 +21,9 @@ namespace FacturaScripts\Plugins\Informes\Controller;
 
 use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
+use FacturaScripts\Core\Model\Base\ModelCore;
 use FacturaScripts\Dinamic\Lib\ExportManager;
 use FacturaScripts\Dinamic\Model\CodeModel;
-use FacturaScripts\Dinamic\Model\User;
 
 /**
  * @author Daniel Fernández Giménez <hola@danielfg.es>
@@ -108,12 +108,12 @@ class ReportTransport extends Controller
 
     protected function getDocs(): array
     {
-        $modelclass = '\\FacturaScripts\\Dinamic\\Model\\' . $this->modelname;
-        if (false === class_exists($modelclass)) {
+        $modelClass = '\\FacturaScripts\\Dinamic\\Model\\' . $this->modelname;
+        if (false === class_exists($modelClass)) {
             return [];
         }
 
-        $model = new $modelclass();
+        $model = new $modelClass();
         $where = [new DataBaseWhere('fecha', date('Y-m-d', strtotime($this->date)))];
 
         if (false === empty($this->codtrans)) {
@@ -173,30 +173,41 @@ class ReportTransport extends Controller
     {
         $i18n = $this->toolBox()->i18n();
         $nameFile = $i18n->trans('carriers') . ' ' . $i18n->trans($this->modelname);
-        $userDate = date(User::DATE_STYLE, strtotime($this->date));
+        $userDate = date(ModelCore::DATE_STYLE, strtotime($this->date));
 
         $exportManager = new ExportManager();
         $exportManager->setOrientation('landscape');
         $exportManager->newDoc($this->format, $nameFile . ' ' . $userDate);
 
-        // add information table
-        $exportManager->addTablePage([$i18n->trans('report'), $i18n->trans('date')], [
-            [
-                $i18n->trans('report') => $nameFile,
-                $i18n->trans('date') => date($userDate),
-            ]
-        ]);
+        // si el formato es PDF, añadimos la tabla de información primero
+        if ($this->format === 'PDF') {
+            $exportManager->addTablePage([$i18n->trans('report'), $i18n->trans('date')], [
+                [
+                    $i18n->trans('report') => $nameFile,
+                    $i18n->trans('date') => date($userDate),
+                ]
+            ]);
+        }
 
+        // añadimos las líneas de la tabla
+        $headers = empty($lines) ? [] : array_keys(end($lines));
         $options = [
             'codigo' => ['display' => 'left'],
             'referencia' => ['display' => 'left'],
             'cantidad' => ['display' => 'right'],
             'descripcion' => ['display' => 'left']
         ];
-
-        // add lines table
-        $headers = empty($lines) ? [] : array_keys(end($lines));
         $exportManager->addTablePage($headers, $lines, $options);
+
+        // si el formato no es PDF, añadimos la tabla de información al final
+        if ($this->format != 'PDF') {
+            $exportManager->addTablePage([$i18n->trans('report'), $i18n->trans('date')], [
+                [
+                    $i18n->trans('report') => $nameFile,
+                    $i18n->trans('date') => date($userDate),
+                ]
+            ]);
+        }
 
         $exportManager->show($this->response);
     }
