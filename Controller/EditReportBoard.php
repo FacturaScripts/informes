@@ -22,7 +22,6 @@ namespace FacturaScripts\Plugins\Informes\Controller;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Lib\ExtendedController\EditController;
 use FacturaScripts\Dinamic\Lib\ReportChart\AreaChart;
-use FacturaScripts\Plugins\Informes\Model\Report;
 
 /**
  * @author Daniel Fernández Giménez <hola@danielfg.es>
@@ -44,6 +43,7 @@ class EditReportBoard extends EditController
     public function getPageData(): array
     {
         $data = parent::getPageData();
+        $data['menu'] = 'reports';
         $data['title'] = 'reports-board';
         $data['icon'] = 'fas fa-chalkboard';
         return $data;
