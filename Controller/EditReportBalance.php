@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2017-2022 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2017-2023 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -66,7 +66,7 @@ class EditReportBalance extends EditController
         $this->setTabsPosition('bottom');
     }
 
-    protected function createViewsBalanceCodes(string $viewName = 'ListBalanceCode')
+    protected function createViewsBalanceCodes(string $viewName = 'ListBalanceCode'): void
     {
         $this->addListView($viewName, 'BalanceCode', 'balance-codes');
         $this->views[$viewName]->addOrderBy(['codbalance'], 'code');
@@ -126,7 +126,7 @@ class EditReportBalance extends EditController
         $this->exportManager->show($this->response);
     }
 
-    protected function findBadAccounts()
+    protected function findBadAccounts(): void
     {
         // cargamos el ejercicio para la fecha de inicio
         $exercise = new Ejercicio();
@@ -162,7 +162,7 @@ class EditReportBalance extends EditController
         }
     }
 
-    protected function findMissingAccounts()
+    protected function findMissingAccounts(): void
     {
         // cargamos el ejercicio para la fecha de inicio
         $exercise = new Ejercicio();
@@ -222,7 +222,10 @@ class EditReportBalance extends EditController
             }
 
             // si no existe la relación, avisamos
-            $this->toolBox()->i18nLog()->info('account-missing-in-balance', ['%codcuenta%' => $cuenta->codcuenta]);
+            $this->toolBox()->i18nLog()->info('account-missing-in-balance', [
+                '%codcuenta%' => $cuenta->codcuenta,
+                '%saldo%' => round($saldo, FS_NF0)
+            ]);
         }
     }
 
