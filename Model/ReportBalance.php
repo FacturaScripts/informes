@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2017-2022 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2017-2023 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -19,6 +19,7 @@
 
 namespace FacturaScripts\Plugins\Informes\Model;
 
+use FacturaScripts\Core\DataSrc\Empresas;
 use FacturaScripts\Core\Model\Base\ModelClass;
 use FacturaScripts\Core\Model\Base\ModelTrait;
 
@@ -37,6 +38,7 @@ class ReportBalance extends ModelClass
     const TYPE_INCOME = 'income-and-expenses';
     const SUBTYPE_ABBREVIATED = 'abbreviated';
     const SUBTYPE_NORMAL = 'normal';
+    const SUBTYPE_PYMES = 'pymes';
 
     /** @var int */
     public $channel;
@@ -73,7 +75,11 @@ class ReportBalance extends ModelClass
         $this->idcompany = $this->toolBox()->appSettings()->get('default', 'idempresa');
         $this->type = self::TYPE_SHEET;
         $this->startdate = date('01-01-Y');
-        $this->subtype = self::SUBTYPE_ABBREVIATED;
+
+        // si la empresa es persona física, el tipo de informe es abreviado, de lo contrario es PYMES
+        $this->subtype = Empresas::get($this->idcompany)->personafisica ?
+            self::SUBTYPE_ABBREVIATED :
+            self::SUBTYPE_PYMES;
     }
 
     public static function primaryColumn(): string
