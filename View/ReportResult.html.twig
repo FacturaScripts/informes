@@ -38,7 +38,7 @@
                 <div class="card border-primary shadow mt-4">
                     <div class="card-header bg-primary text-white d-flex flex-row">
                         <select class="form-control" id="selectYear">
-                            {{ fsc.loadYears()|raw }}
+                            {{ fsc.getYears() | raw }}
                         </select>
                         <div class="ml-2 mt-2" load-after="true" id="yearSpinner"></div>
                     </div>

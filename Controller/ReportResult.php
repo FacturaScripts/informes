@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2023 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -44,11 +44,11 @@ class ReportResult extends Controller
         return $data;
     }
 
-    public function loadYears(): string
+    public function getYears(): string
     {
         $html = '';
-        $modelEjerc = new Ejercicio();
-        foreach ($modelEjerc->all([], ['fechainicio' => 'desc'], 0, 0) as $row) {
+        $model = new Ejercicio();
+        foreach ($model->all([], ['fechainicio' => 'desc'], 0, 0) as $row) {
             $emp = new Empresa();
             $emp->loadFromCode($row->idempresa);
             $html .= '<option value="' . $row->codejercicio . '">'
