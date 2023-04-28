@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2017-2022 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2017-2023 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -72,15 +72,15 @@ class BalanceAmounts
         $this->format = $params['format'] ?? 'pdf';
         $level = (int)($params['level'] ?? '0');
 
-        // get accounts
+        // obtenemos las cuentas
         $cuenta = new Cuenta();
         $accounts = $cuenta->all($this->getAccountWhere($params), ['codcuenta' => 'ASC'], 0, 0);
 
-        // get subaccounts
+        // obtenemos las subcuentas
         $subcuenta = new Subcuenta();
         $subaccounts = $subcuenta->all($this->getSubAccountWhere($params), [], 0, 0);
 
-        // get amounts
+        // obtenemos los importes por subcuenta
         $amounts = $this->getData($params);
 
         $rows = [];
@@ -96,7 +96,7 @@ class BalanceAmounts
                 continue;
             }
 
-            // add account line
+            // añadimos la línea de la cuenta
             $bold = strlen($account->codcuenta) <= 1;
             $rows[] = [
                 'cuenta' => $this->formatValue($account->codcuenta, 'text', $bold),
@@ -110,11 +110,33 @@ class BalanceAmounts
                 continue;
             }
 
-            // add subaccount lines
+            // añadimos las líneas de las subcuentas y recalculamos debe y haber para comprobar que cuadran
+            $debe2 = $haber2 = 0.00;
             foreach ($amounts as $amount) {
                 if ($amount['idcuenta'] == $account->idcuenta) {
                     $rows[] = $this->processAmountLine($subaccounts, $amount);
+                    $debe2 += (float)$amount['debe'];
+                    $haber2 += (float)$amount['haber'];
                 }
+            }
+            if (empty($debe2) && empty($haber2)) {
+                continue;
+            }
+
+            // comprobamos que cuadran debe y haber
+            if (abs($debe - $debe2) >= 0.01) {
+                ToolBox::i18nLog()->error(
+                    'debit-not-match-account',
+                    ['%account%' => $account->codcuenta, '%debit%' => $debe, '%sum%' => $debe2]
+                );
+                return [];
+            }
+            if (abs($haber - $haber2) >= 0.01) {
+                ToolBox::i18nLog()->error(
+                    'credit-not-match-account',
+                    ['%account%' => $account->codcuenta, '%credit%' => $haber, '%sum%' => $haber2]
+                );
+                return [];
             }
         }
 
@@ -142,6 +164,7 @@ class BalanceAmounts
             return;
         }
 
+        // calculamos debe y haber de esta cuenta
         foreach ($amounts as $row) {
             if ($row['idcuenta'] == $selAccount->idcuenta) {
                 $debe += (float)$row['debe'];
@@ -149,6 +172,7 @@ class BalanceAmounts
             }
         }
 
+        // sumamos debe y haber de las cuentas hijas
         foreach ($accounts as $account) {
             if ($account->parent_idcuenta == $selAccount->idcuenta) {
                 $this->combineData($account, $accounts, $amounts, $debe, $haber, $max);
