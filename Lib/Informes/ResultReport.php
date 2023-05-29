@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2023 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -269,7 +269,7 @@ class ResultReport
                         . " LEFT JOIN asientos as asi ON par.idasiento = asi.idasiento"
                         . " where asi.fecha >= " . $dataBase->var2str($date['desde'])
                         . " AND asi.fecha <= " . $dataBase->var2str($date['hasta'])
-                        . " AND asi.codejercicio = " . $codejercicio
+                        . " AND asi.codejercicio = " . $dataBase->var2str($codejercicio)
                         . " AND codsubcuenta LIKE '6%'";
 
                     if ($asiento_regularizacion) {
@@ -685,7 +685,7 @@ class ResultReport
             . " LEFT JOIN facturascli as fc ON lfc.idfactura = fc.idfactura"
             . " where fc.fecha >= " . $dataBase->var2str($date['desde'])
             . " AND fc.fecha <= " . $dataBase->var2str($date['hasta'])
-            . " AND fc.codejercicio = " . $codejercicio
+            . " AND fc.codejercicio = " . $dataBase->var2str($codejercicio)
             . " group by lfc.referencia";
 
         // VENTAS: Recorremos lineasfacturascli y montamos arrays

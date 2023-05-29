@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2023 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -100,7 +100,9 @@ class SalesResultReport extends ResultReport
                 for ($x = 1; $x <= 12; $x++) {
                     $title = ToolBox::i18n()->trans(strtolower(date("F", mktime(0, 0, 0, $x, 10))));
                     $html .= '<td title="' . $title . '" class="month align-middle">';
-                    $html .= isset(self::$ventas[self::$year]['total_fam_mes'][$key][$x]) ? ToolBox::coins()::format(self::$ventas[self::$year]['total_fam_mes'][$key][$x]) : self::defaultMoney();
+                    $html .= isset(self::$ventas[self::$year]['total_fam_mes'][$key][$x]) ?
+                        ToolBox::coins()::format(self::$ventas[self::$year]['total_fam_mes'][$key][$x]) :
+                        self::defaultMoney();
                     $html .= '</td>';
                 }
 

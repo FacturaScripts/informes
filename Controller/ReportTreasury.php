@@ -55,12 +55,12 @@ class ReportTreasury extends Controller
         return $data;
     }
 
-    public function loadYears(): string
+    public function getYears(): string
     {
         $code = $this->request->get('code', '');
         $html = '';
-        $modelEjerc = new Ejercicio();
-        foreach ($modelEjerc->all([], ['fechainicio' => 'desc'], 0, 0) as $row) {
+        $model = new Ejercicio();
+        foreach ($model->all([], ['fechainicio' => 'desc'], 0, 0) as $row) {
             $emp = new Empresa();
             $emp->loadFromCode($row->idempresa);
             $selected = $code == $row->codejercicio ? 'selected' : '';

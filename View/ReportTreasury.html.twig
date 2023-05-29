@@ -29,7 +29,7 @@
     <div class="pb-5">
         <div class="h5 text-success text-center">{{ i18n.trans('exercise') }}</div>
         <select class="form-control ml-auto mr-auto" id="selectYear">
-            {{ fsc.loadYears()|raw }}
+            {{ fsc.getYears() | raw }}
         </select>
         <br/>
     </div>
