@@ -111,32 +111,10 @@ class BalanceAmounts
             }
 
             // añadimos las líneas de las subcuentas y recalculamos debe y haber para comprobar que cuadran
-            $debe2 = $haber2 = 0.00;
             foreach ($amounts as $amount) {
                 if ($amount['idcuenta'] == $account->idcuenta) {
                     $rows[] = $this->processAmountLine($subaccounts, $amount);
-                    $debe2 += (float)$amount['debe'];
-                    $haber2 += (float)$amount['haber'];
                 }
-            }
-            if (empty($debe2) && empty($haber2)) {
-                continue;
-            }
-
-            // comprobamos que cuadran debe y haber
-            if (abs($debe - $debe2) >= 0.01) {
-                ToolBox::i18nLog()->error(
-                    'debit-not-match-account',
-                    ['%account%' => $account->codcuenta, '%debit%' => $debe, '%sum%' => $debe2]
-                );
-                return [];
-            }
-            if (abs($haber - $haber2) >= 0.01) {
-                ToolBox::i18nLog()->error(
-                    'credit-not-match-account',
-                    ['%account%' => $account->codcuenta, '%credit%' => $haber, '%sum%' => $haber2]
-                );
-                return [];
             }
         }
 
