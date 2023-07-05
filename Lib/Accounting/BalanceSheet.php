@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2017-2022 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2017-2023 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -181,16 +181,6 @@ class BalanceSheet
                 . " WHERE asientos.codejercicio = " . $this->dataBase->var2str($codejercicio)
                 . " AND partidas.codsubcuenta LIKE '" . $model->codcuenta . "%'";
 
-            if ($model->codcuenta === '129') {
-                $sql = "SELECT SUM(partidas.debe) as debe, SUM(partidas.haber) as haber"
-                    . " FROM partidas"
-                    . " LEFT JOIN asientos ON partidas.idasiento = asientos.idasiento"
-                    . " LEFT JOIN subcuentas ON partidas.idsubcuenta = subcuentas.idsubcuenta"
-                    . " LEFT JOIN cuentas ON subcuentas.idcuenta = cuentas.idcuenta"
-                    . " WHERE asientos.codejercicio = " . $this->dataBase->var2str($codejercicio)
-                    . " AND (partidas.codsubcuenta LIKE '" . $model->codcuenta . "%' OR subcuentas.codcuenta LIKE '6%' OR subcuentas.codcuenta LIKE '7%')";
-            }
-
             if ($codejercicio === $this->exercise->codejercicio) {
                 $sql .= ' AND asientos.fecha BETWEEN ' . $this->dataBase->var2str($this->dateFrom)
                     . ' AND ' . $this->dataBase->var2str($this->dateTo);
@@ -212,6 +202,23 @@ class BalanceSheet
                 $total += $balance->nature === 'A' ?
                     (float)$row['debe'] - (float)$row['haber'] :
                     (float)$row['haber'] - (float)$row['debe'];
+            }
+
+            // para la cuenta 129 hacemos una consulta especial
+            if ($model->codcuenta === '129') {
+                $total = 0 - $total;
+                $sql2 = "SELECT SUM(partidas.debe) as debe, SUM(partidas.haber) as haber"
+                    . " FROM partidas"
+                    . " LEFT JOIN asientos ON partidas.idasiento = asientos.idasiento"
+                    . " LEFT JOIN subcuentas ON partidas.idsubcuenta = subcuentas.idsubcuenta"
+                    . " LEFT JOIN cuentas ON subcuentas.idcuenta = cuentas.idcuenta"
+                    . " WHERE asientos.codejercicio = " . $this->dataBase->var2str($codejercicio)
+                    . " AND (partidas.codsubcuenta LIKE '" . $model->codcuenta . "%' OR subcuentas.codcuenta LIKE '6%' OR subcuentas.codcuenta LIKE '7%')";
+                foreach ($this->dataBase->select($sql2) as $row) {
+                    $total += $balance->nature === 'A' ?
+                        (float)$row['debe'] - (float)$row['haber'] :
+                        (float)$row['haber'] - (float)$row['debe'];
+                }
             }
         }
 
