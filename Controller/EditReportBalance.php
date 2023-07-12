@@ -187,7 +187,7 @@ class EditReportBalance extends EditController
                 $saldo += $subcuenta->saldo;
             }
             // si el saldo es cero, no hacemos nada
-            if (empty($saldo)) {
+            if (abs($saldo) < 0.01) {
                 continue;
             }
 

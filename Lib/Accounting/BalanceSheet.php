@@ -256,6 +256,7 @@ class BalanceSheet
         foreach ($balances as $bal) {
             if ($bal->level1 != $level1 && !empty($bal->level1)) {
                 $level1 = $bal->level1;
+                $level2 = $level3 = $level4 = '';
                 $rows[] = ['descripcion' => '', $code1 => '', $code2 => ''];
                 $rows[] = [
                     'descripcion' => $this->formatValue($bal->description1, 'text', true),
@@ -266,6 +267,7 @@ class BalanceSheet
 
             if ($bal->level2 != $level2 && !empty($bal->level2)) {
                 $level2 = $bal->level2;
+                $level3 = $level4 = '';
                 $rows[] = [
                     'descripcion' => '  ' . $bal->description2,
                     $code1 => $this->formatValue($amountsNE1[$bal->level1 . '-' . $bal->level2]),
@@ -275,6 +277,7 @@ class BalanceSheet
 
             if ($bal->level3 != $level3 && !empty($bal->level3)) {
                 $level3 = $bal->level3;
+                $level4 = '';
                 $rows[] = [
                     'descripcion' => '    ' . $bal->description3,
                     $code1 => $this->formatValue($amountsNE1[$bal->level1 . '-' . $bal->level2 . '-' . $bal->level3]),
