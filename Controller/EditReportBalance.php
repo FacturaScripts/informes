@@ -48,9 +48,10 @@ class EditReportBalance extends EditController
     public function getPageData(): array
     {
         $data = parent::getPageData();
-        $data['menu'] = 'reports';
+        $data['menu'] = 'reports111';
         $data['title'] = 'balances';
         $data['icon'] = 'fas fa-book';
+        $data['showonmenu'] = true;
         return $data;
     }
 

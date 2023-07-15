@@ -61,6 +61,9 @@ class BalanceSheet
     /** @var string */
     protected $format;
 
+    /** @var array */
+    protected $accountTotals;
+
     public function __construct()
     {
         $this->dataBase = new DataBase();
@@ -120,7 +123,6 @@ class BalanceSheet
         $where = [new DataBaseWhere('idbalance', $balance->id)];
         foreach ($balAccount->all($where, [], 0, 0) as $model) {
             $total = $this->getAccountAmounts($balance, $model, $codejercicio, $params);
-
             // si no tiene saldo, no lo mostramos
             if (empty($total)) {
                 continue;
@@ -196,6 +198,7 @@ class BalanceSheet
 
     protected function getAccountAmounts(BalanceCode $balance, BalanceAccount $model, string $codejercicio, array $params): float
     {
+
         $total = 0.00;
         $sql = "SELECT SUM(partidas.debe) AS debe, SUM(partidas.haber) AS haber"
             . " FROM partidas"
@@ -242,7 +245,7 @@ class BalanceSheet
                     (float)$row['haber'] - (float)$row['debe'];
             }
         }
-
+        $this->accountTotals[$model->codcuenta] = $total;
         return $total;
     }
 

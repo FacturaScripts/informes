@@ -61,6 +61,9 @@ class ProfitAndLoss
     /** @var string */
     protected $format;
 
+    /** @var array */
+    protected $accountTotals;
+
     public function __construct()
     {
         $this->dataBase = new DataBase();
@@ -157,57 +160,82 @@ class ProfitAndLoss
                 return ToolBox::utils()->fixHtml($value) ?? '';
         }
     }
-
-    protected function getAmounts(BalanceCode $balance, string $codejercicio, array $params): float
-    {
-        $total = 0.00;
+    protected function addAccounts(array &$rows, BalanceCode $balance, string $codejercicio, array $params): void {
         if ($codejercicio === '-') {
-            return $total;
+            return;
         }
 
         $balAccount = new BalanceAccount();
         $where = [new DataBaseWhere('idbalance', $balance->id)];
         foreach ($balAccount->all($where, [], 0, 0) as $model) {
-            $sql = "SELECT SUM(partidas.debe) AS debe, SUM(partidas.haber) AS haber"
+            $total = $this->getAccountAmounts($balance, $model, $codejercicio, $params);
+
+            // si no tiene saldo, no lo mostramos
+            if (empty($total)) {
+                continue;
+            }
+
+            $key = $balance->codbalance . '-' . $model->codcuenta;
+            if (array_key_exists($key, $rows)) {
+                $rows[$key][$codejercicio] = $this->formatValue($total);
+                continue;
+            }
+
+            $rows[$key] = [
+                'descripcion' => '      ' . $model->codcuenta . '. ' . $model->desccuenta,
+                $codejercicio => $this->formatValue($total)
+            ];
+        }
+    }
+
+ protected function getAccountAmounts(BalanceCode $balance, BalanceAccount $model, string $codejercicio, array $params): float {
+        $total = 0.00;
+        $sql = "SELECT SUM(partidas.debe) AS debe, SUM(partidas.haber) AS haber"
                 . " FROM partidas"
                 . " LEFT JOIN asientos ON partidas.idasiento = asientos.idasiento"
                 . " WHERE asientos.codejercicio = " . $this->dataBase->var2str($codejercicio)
                 . " AND partidas.codsubcuenta LIKE '" . $model->codcuenta . "%'";
 
-            if ($model->codcuenta === '129') {
-                $sql = "SELECT SUM(partidas.debe) as debe, SUM(partidas.haber) as haber"
+        if ($codejercicio === $this->exercise->codejercicio) {
+            $sql .= ' AND asientos.fecha BETWEEN ' . $this->dataBase->var2str($this->dateFrom)
+                    . ' AND ' . $this->dataBase->var2str($this->dateTo);
+        } elseif ($codejercicio === $this->exercisePrev->codejercicio) {
+            $sql .= ' AND asientos.fecha BETWEEN ' . $this->dataBase->var2str($this->dateFromPrev)
+                    . ' AND ' . $this->dataBase->var2str($this->dateToPrev);
+        }
+
+        $channel = $params['channel'] ?? '';
+        if (!empty($channel)) {
+            $sql .= ' AND asientos.canal = ' . $this->dataBase->var2str($channel);
+        }
+
+        $sql .= ' AND (asientos.operacion IS NULL OR asientos.operacion NOT IN '
+                . '(' . $this->dataBase->var2str(Asiento::OPERATION_REGULARIZATION)
+                . ',' . $this->dataBase->var2str(Asiento::OPERATION_CLOSING) . '))';
+
+        foreach ($this->dataBase->select($sql) as $row) {
+            $total += $balance->nature === 'A' ?
+                    (float) $row['debe'] - (float) $row['haber'] :
+                    (float) $row['haber'] - (float) $row['debe'];
+        }
+
+        // para la cuenta 129 hacemos una consulta especial
+        if ($model->codcuenta === '129') {
+            $total = 0 - $total;
+            $sql2 = "SELECT SUM(partidas.debe) as debe, SUM(partidas.haber) as haber"
                     . " FROM partidas"
                     . " LEFT JOIN asientos ON partidas.idasiento = asientos.idasiento"
                     . " LEFT JOIN subcuentas ON partidas.idsubcuenta = subcuentas.idsubcuenta"
                     . " LEFT JOIN cuentas ON subcuentas.idcuenta = cuentas.idcuenta"
                     . " WHERE asientos.codejercicio = " . $this->dataBase->var2str($codejercicio)
                     . " AND (partidas.codsubcuenta LIKE '" . $model->codcuenta . "%' OR subcuentas.codcuenta LIKE '6%' OR subcuentas.codcuenta LIKE '7%')";
-            }
-
-            if ($codejercicio === $this->exercise->codejercicio) {
-                $sql .= ' AND asientos.fecha BETWEEN ' . $this->dataBase->var2str($this->dateFrom)
-                    . ' AND ' . $this->dataBase->var2str($this->dateTo);
-            } elseif ($codejercicio === $this->exercisePrev->codejercicio) {
-                $sql .= ' AND asientos.fecha BETWEEN ' . $this->dataBase->var2str($this->dateFromPrev)
-                    . ' AND ' . $this->dataBase->var2str($this->dateToPrev);
-            }
-
-            $channel = $params['channel'] ?? '';
-            if (!empty($channel)) {
-                $sql .= ' AND asientos.canal = ' . $this->dataBase->var2str($channel);
-            }
-
-            $sql .= ' AND (asientos.operacion IS NULL OR asientos.operacion NOT IN '
-                . '(' . $this->dataBase->var2str(Asiento::OPERATION_REGULARIZATION)
-                . ',' . $this->dataBase->var2str(Asiento::OPERATION_CLOSING) . '))';
-
-            foreach ($this->dataBase->select($sql) as $row) {
+            foreach ($this->dataBase->select($sql2) as $row) {
                 $total += $balance->nature === 'A' ?
-                    (float)$row['debe'] - (float)$row['haber'] :
-                    (float)$row['haber'] - (float)$row['debe'];
+                        (float) $row['debe'] - (float) $row['haber'] :
+                        (float) $row['haber'] - (float) $row['debe'];
             }
         }
-
+        $this->accountTotals[$model->codcuenta] = $total;
         return $total;
     }
 
@@ -280,6 +308,9 @@ class ProfitAndLoss
                     $code2 => $this->formatValue($amountsE2[$bal->codbalance])
                 ];
             }
+
+             $this->addAccounts($rows, $bal, $code1, $params);
+            $this->addAccounts($rows, $bal, $code2, $params);
         }
 
         $this->addTotalsRow($rows, $balances, $code1, $amountsNE1, $code2, $amountsNE2);
