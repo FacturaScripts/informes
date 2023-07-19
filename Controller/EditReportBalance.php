@@ -138,7 +138,8 @@ class EditReportBalance extends EditController
 
         // recorremos todas las cuentas
         $accountModel = new Cuenta();
-        foreach ($accountModel->all([], [], 0, 0) as $account) {
+        $accounts = $accountModel->all([], [], 0, 0);
+        foreach ($accounts as $account) {
             if (empty($account->parent_codcuenta)) {
                 continue;
             }
@@ -151,13 +152,34 @@ class EditReportBalance extends EditController
         }
 
         // recorremos todas las subcuentas del ejercicio
-        $subaccountModel = new Subcuenta();
+        $subAccountModel = new Subcuenta();
         $where = [new DataBaseWhere('codejercicio', $exercise->codejercicio)];
-        foreach ($subaccountModel->all($where, [], 0, 0) as $subaccount) {
+        foreach ($subAccountModel->all($where, [], 0, 0) as $subAccount) {
             // comprobamos que el campo codcuenta son los primeros caracteres del campo codsubcuenta
-            $len = strlen($subaccount->codcuenta);
-            if (substr($subaccount->codsubcuenta, 0, $len) !== $subaccount->codcuenta) {
-                $this->toolBox()->i18nLog()->warning('subaccount-bad-codcuenta', ['%codsubcuenta%' => $subaccount->codsubcuenta]);
+            $len = strlen($subAccount->codcuenta);
+            if (substr($subAccount->codsubcuenta, 0, $len) !== $subAccount->codcuenta) {
+                $this->toolBox()->i18nLog()->warning('subaccount-bad-codcuenta', ['%codsubcuenta%' => $subAccount->codsubcuenta]);
+                continue;
+            }
+
+            if (empty($subAccount->saldo)) {
+                continue;
+            }
+
+            // comprobamos si existe otra cuenta que sean los primeros caracteres del campo codsubcuenta
+            foreach ($accounts as $account) {
+                $len2 = strlen($account->codcuenta);
+                if ($len2 <= $len) {
+                    continue;
+                }
+
+                if (substr($subAccount->codsubcuenta, 0, $len2) === $account->codcuenta) {
+                    $this->toolBox()->i18nLog()->info('subaccount-alt-codcuenta', [
+                        '%codsubcuenta%' => $subAccount->codsubcuenta,
+                        '%codcuenta%' => $subAccount->codcuenta,
+                        '%alternative%' => $account->codcuenta
+                    ]);
+                }
             }
         }
     }
@@ -181,15 +203,17 @@ class EditReportBalance extends EditController
                 continue;
             }
 
-            // calculamos el saldo
-            $saldo = 0.0;
+            // calculamos el debe, el haber y el saldo de la cuenta
+            $debe = $haber = 0;
             foreach ($cuenta->getSubcuentas() as $subcuenta) {
-                $saldo += $subcuenta->saldo;
+                $debe += $subcuenta->debe;
+                $haber += $subcuenta->haber;
             }
-            // si el saldo es cero, no hacemos nada
-            if (abs($saldo) < 0.01) {
+            // si el debe y el haber es cero, no hacemos nada
+            if (abs($debe) < 0.01 && abs($haber) < 0.01) {
                 continue;
             }
+            $saldo = $debe - $haber;
 
             // comprobamos si la cuenta existe en el balance
             $balanceCuenta = new BalanceAccount();
@@ -206,15 +230,6 @@ class EditReportBalance extends EditController
                 $wherePadre = [
                     new DataBaseWhere('idbalance', implode(',', $this->getBalanceCodes()), 'IN'),
                     new DataBaseWhere('codcuenta', $cuenta->parent_codcuenta)
-                ];
-                if ($balanceCuenta->loadFromCode('', $wherePadre)) {
-                    continue;
-                }
-            }
-            if (strlen($cuenta->codcuenta) > 1) {
-                $wherePadre = [
-                    new DataBaseWhere('idbalance', implode(',', $this->getBalanceCodes()), 'IN'),
-                    new DataBaseWhere('codcuenta', substr($cuenta->codcuenta, 0, -1))
                 ];
                 if ($balanceCuenta->loadFromCode('', $wherePadre)) {
                     continue;

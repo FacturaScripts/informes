@@ -55,6 +55,7 @@
     "short-situation-results": "Résultats de la trésorerie à court terme",
     "social-security-pending-collection": "Sécurité sociale en attente de réception",
     "social-security-pending-payment": "Sécurité sociale en attente de paiement",
+    "subaccount-alt-codcuenta": "La subcuenta %codsubcuenta% pertenece a la cuenta %codcuenta% pero también podría pertenecer a la cuenta %alternative%. Considere modificarlo si lo cree necesario.",
     "tax-return-previous-quarters": "TVA remboursable au cours des trimestres précédents",
     "total-amortizations": "Total des amortissements",
     "total-pay-return-corporate-tax": "Total de l'impôt sur les sociétés à payer ou à rembourser",

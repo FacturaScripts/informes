@@ -51,10 +51,13 @@ class BalanceAccount extends ModelClass
         return $balanceCode;
     }
 
-    public function getCuenta(): Cuenta
+    public function getCuenta(?string $codejercicio = null): Cuenta
     {
         $cuenta = new Cuenta();
         $where = [new DataBaseWhere('codcuenta', $this->codcuenta)];
+        if ($codejercicio) {
+            $where[] = new DataBaseWhere('codejercicio', $codejercicio);
+        }
         $orderBy = ['codejercicio' => 'DESC'];
         $cuenta->loadFromCode('', $where, $orderBy);
         return $cuenta;

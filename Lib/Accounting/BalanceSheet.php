@@ -23,6 +23,7 @@ use FacturaScripts\Core\Base\DataBase;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Base\ToolBox;
 use FacturaScripts\Core\Model\Asiento;
+use FacturaScripts\Dinamic\Model\Cuenta;
 use FacturaScripts\Dinamic\Model\Ejercicio;
 use FacturaScripts\Dinamic\Model\Partida;
 use FacturaScripts\Plugins\Informes\Model\BalanceAccount;
@@ -200,8 +201,10 @@ class BalanceSheet
         $sql = "SELECT SUM(partidas.debe) AS debe, SUM(partidas.haber) AS haber"
             . " FROM partidas"
             . " LEFT JOIN asientos ON partidas.idasiento = asientos.idasiento"
-            . " WHERE asientos.codejercicio = " . $this->dataBase->var2str($codejercicio)
-            . " AND partidas.codsubcuenta LIKE '" . $model->codcuenta . "%'";
+            . " WHERE asientos.codejercicio = " . $this->dataBase->var2str($codejercicio);
+
+        $subAccounts = $this->getSubAccountCodes($model->getCuenta($codejercicio));
+        $sql .= " AND partidas.codsubcuenta IN (" . implode(',', $subAccounts) . ")";
 
         if ($codejercicio === $this->exercise->codejercicio) {
             $sql .= ' AND asientos.fecha BETWEEN ' . $this->dataBase->var2str($this->dateFrom)
@@ -236,6 +239,20 @@ class BalanceSheet
                 . " LEFT JOIN cuentas ON subcuentas.idcuenta = cuentas.idcuenta"
                 . " WHERE asientos.codejercicio = " . $this->dataBase->var2str($codejercicio)
                 . " AND (partidas.codsubcuenta LIKE '" . $model->codcuenta . "%' OR subcuentas.codcuenta LIKE '6%' OR subcuentas.codcuenta LIKE '7%')";
+
+            if ($codejercicio === $this->exercise->codejercicio) {
+                $sql2 .= ' AND asientos.fecha BETWEEN ' . $this->dataBase->var2str($this->dateFrom)
+                    . ' AND ' . $this->dataBase->var2str($this->dateTo);
+            } elseif ($codejercicio === $this->exercisePrev->codejercicio) {
+                $sql2 .= ' AND asientos.fecha BETWEEN ' . $this->dataBase->var2str($this->dateFromPrev)
+                    . ' AND ' . $this->dataBase->var2str($this->dateToPrev);
+            }
+
+            $sql2 .= ' AND (asientos.operacion IS NULL OR asientos.operacion NOT IN '
+                . '(' . $this->dataBase->var2str(Asiento::OPERATION_REGULARIZATION)
+                . ',' . $this->dataBase->var2str(Asiento::OPERATION_CLOSING)
+                . ',' . $this->dataBase->var2str(Asiento::OPERATION_OPENING) . '))';
+
             foreach ($this->dataBase->select($sql2) as $row) {
                 $total += $balance->nature === 'A' ?
                     (float)$row['debe'] - (float)$row['haber'] :
@@ -341,6 +358,26 @@ class BalanceSheet
 
         $this->addTotalsRow($rows, $balances, $code1, $amountsNE1, $code2, $amountsNE2);
         return $rows;
+    }
+
+    protected function getSubAccountCodes(Cuenta $account): array
+    {
+        if (false === $account->exists()) {
+            return [];
+        }
+
+        // añadimos las subcuentas
+        $list = [];
+        foreach ($account->getSubcuentas() as $subAccount) {
+            $list[] = $subAccount->codsubcuenta;
+        }
+
+        // añadimos las subcuentas de las cuentas hijas
+        foreach ($account->getChildren() as $child) {
+            $list = array_merge($list, $this->getSubAccountCodes($child));
+        }
+
+        return $list;
     }
 
     protected function sumAmounts(array &$amounts, array &$amountsN, BalanceCode $balance, string $codejercicio, array $params): void

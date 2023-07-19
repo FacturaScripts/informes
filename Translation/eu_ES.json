@@ -55,6 +55,7 @@
     "short-situation-results": "Epe laburreko diru-posizioaren emaitzak",
     "social-security-pending-collection": "Gizarte Segurantza kobratzeko zain",
     "social-security-pending-payment": "Gizarte Segurantza ordaintzeko zain",
+    "subaccount-alt-codcuenta": "La subcuenta %codsubcuenta% pertenece a la cuenta %codcuenta% pero también podría pertenecer a la cuenta %alternative%. Considere modificarlo si lo cree necesario.",
     "tax-return-previous-quarters": "Aurreko hiruhileko itzultzeko BEZa",
     "total-amortizations": "Amortizazio totala",
     "total-pay-return-corporate-tax": "Sozietateen gaineko zerga ordaintzeko edo itzultzeko totala",
