@@ -204,6 +204,10 @@ class BalanceSheet
             . " WHERE asientos.codejercicio = " . $this->dataBase->var2str($codejercicio);
 
         $subAccounts = $this->getSubAccountCodes($model->getCuenta($codejercicio));
+        if (empty($subAccounts)) {
+            return $total;
+        }
+
         $sql .= " AND partidas.codsubcuenta IN (" . implode(',', $subAccounts) . ")";
 
         if ($codejercicio === $this->exercise->codejercicio) {
