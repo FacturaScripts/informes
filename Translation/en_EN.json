@@ -55,6 +55,7 @@
     "short-situation-results": "Short-term cash position results",
     "social-security-pending-collection": "Social security pending collection",
     "social-security-pending-payment": "Social security pending payment",
+    "subaccount-alt-codcuenta": "La subcuenta %codsubcuenta% pertenece a la cuenta %codcuenta% pero también podría pertenecer a la cuenta %alternative%. Considere modificarlo si lo cree necesario.",
     "tax-return-previous-quarters": "VAT to return previous quarters",
     "total-amortizations": "Total amortizations",
     "total-pay-return-corporate-tax": "Total to pay or refund corporation tax",

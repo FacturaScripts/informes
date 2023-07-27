@@ -32,11 +32,13 @@ use FacturaScripts\Plugins\Informes\Model\BalanceCode;
  * Description of BalanceSheet
  *
  * @author Carlos García Gómez  <carlos@facturascripts.com>
- * @author Raul Jiménez         <comercial@nazcanetworks.com>
+ * @author Raul Jiménez         <raljopa@gmail.com>
  * @author Jose Antonio Cuello  <yopli2000@gmail.com>
  */
 class BalanceSheet
 {
+    protected $amounts = [];
+
     /** @var DataBase */
     protected $dataBase;
 
@@ -62,7 +64,7 @@ class BalanceSheet
     protected $format;
 
     /** @var array */
-    protected $accountTotals;
+    protected $accountTotals = [];
 
     public function __construct()
     {
@@ -122,7 +124,12 @@ class BalanceSheet
         $balAccount = new BalanceAccount();
         $where = [new DataBaseWhere('idbalance', $balance->id)];
         foreach ($balAccount->all($where, [], 0, 0) as $model) {
-            $total = $this->getAccountAmounts($balance, $model, $codejercicio, $params);
+            $key = $codejercicio . '-' . $model->codcuenta;
+            if (array_key_exists($key, $this->amounts)) {
+                $total = $this->amounts[$key];
+            } else {
+                $total = $this->getAccountAmounts($balance, $model, $codejercicio, $params);
+            }
             // si no tiene saldo, no lo mostramos
             if (empty($total)) {
                 continue;
@@ -198,6 +205,7 @@ class BalanceSheet
 
     protected function getAccountAmounts(BalanceCode $balance, BalanceAccount $model, string $codejercicio, array $params): float
     {
+        
 
         $total = 0.00;
         $sql = "SELECT SUM(partidas.debe) AS debe, SUM(partidas.haber) AS haber"
@@ -205,6 +213,16 @@ class BalanceSheet
             . " LEFT JOIN asientos ON partidas.idasiento = asientos.idasiento"
             . " WHERE asientos.codejercicio = " . $this->dataBase->var2str($codejercicio)
             . " AND partidas.codsubcuenta LIKE '" . $model->codcuenta . "%'";
+
+        if ($model->codcuenta === '129') {
+            $sql = "SELECT SUM(partidas.debe) as debe, SUM(partidas.haber) as haber"
+                . " FROM partidas"
+                . " LEFT JOIN asientos ON partidas.idasiento = asientos.idasiento"
+                . " LEFT JOIN subcuentas ON partidas.idsubcuenta = subcuentas.idsubcuenta"
+                . " LEFT JOIN cuentas ON subcuentas.idcuenta = cuentas.idcuenta"
+                . " WHERE asientos.codejercicio = " . $this->dataBase->var2str($codejercicio)
+                . " AND (partidas.codsubcuenta LIKE '" . $model->codcuenta . "%' OR subcuentas.codcuenta LIKE '6%' OR subcuentas.codcuenta LIKE '7%')";
+        }
 
         if ($codejercicio === $this->exercise->codejercicio) {
             $sql .= ' AND asientos.fecha BETWEEN ' . $this->dataBase->var2str($this->dateFrom)
@@ -228,24 +246,9 @@ class BalanceSheet
                 (float)$row['debe'] - (float)$row['haber'] :
                 (float)$row['haber'] - (float)$row['debe'];
         }
-
-        // para la cuenta 129 hacemos una consulta especial
-        if ($model->codcuenta === '129') {
-            $total = 0 - $total;
-            $sql2 = "SELECT SUM(partidas.debe) as debe, SUM(partidas.haber) as haber"
-                . " FROM partidas"
-                . " LEFT JOIN asientos ON partidas.idasiento = asientos.idasiento"
-                . " LEFT JOIN subcuentas ON partidas.idsubcuenta = subcuentas.idsubcuenta"
-                . " LEFT JOIN cuentas ON subcuentas.idcuenta = cuentas.idcuenta"
-                . " WHERE asientos.codejercicio = " . $this->dataBase->var2str($codejercicio)
-                . " AND (partidas.codsubcuenta LIKE '" . $model->codcuenta . "%' OR subcuentas.codcuenta LIKE '6%' OR subcuentas.codcuenta LIKE '7%')";
-            foreach ($this->dataBase->select($sql2) as $row) {
-                $total += $balance->nature === 'A' ?
-                    (float)$row['debe'] - (float)$row['haber'] :
-                    (float)$row['haber'] - (float)$row['debe'];
-            }
-        }
-        $this->accountTotals[$model->codcuenta] = $total;
+        $key = $codejercicio . '-' . $model->codcuenta;
+        $this->amounts[$key] = $total;
+       
         return $total;
     }
 
@@ -255,7 +258,7 @@ class BalanceSheet
         if ($codejercicio === '-') {
             return $total;
         }
-
+        
         $balAccount = new BalanceAccount();
         $where = [new DataBaseWhere('idbalance', $balance->id)];
         foreach ($balAccount->all($where, [], 0, 0) as $model) {

@@ -55,6 +55,7 @@
     "short-situation-results": "Resultados situación tesourería a curto prazo",
     "social-security-pending-collection": "Seguridade social pendente de cobro",
     "social-security-pending-payment": "Seguridade social pendente de pago",
+    "subaccount-alt-codcuenta": "La subcuenta %codsubcuenta% pertenece a la cuenta %codcuenta% pero también podría pertenecer a la cuenta %alternative%. Considere modificarlo si lo cree necesario.",
     "tax-return-previous-quarters": "IVE a devolver trimestres anteriores",
     "total-amortizations": "Total amortizacións",
     "total-pay-return-corporate-tax": "Total a pagar ou devolver imposto sociedades",

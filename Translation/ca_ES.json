@@ -55,6 +55,7 @@
     "short-situation-results": "Resultats situació tresoreria a curt termini",
     "social-security-pending-collection": "Seguretat social pendent de cobrament",
     "social-security-pending-payment": "Seguretat social pendent de pagament",
+    "subaccount-alt-codcuenta": "La subcuenta %codsubcuenta% pertenece a la cuenta %codcuenta% pero también podría pertenecer a la cuenta %alternative%. Considere modificarlo si lo cree necesario.",
     "tax-return-previous-quarters": "IVA a tornar trimestres anteriors",
     "total-amortizations": "Total amortitzacions",
     "total-pay-return-corporate-tax": "Total a pagar o tornar impost societats",
