@@ -37,6 +37,7 @@ use FacturaScripts\Plugins\Informes\Model\BalanceCode;
  */
 class BalanceSheet
 {
+    /** @var array */
     protected $amounts = [];
 
     /** @var DataBase */

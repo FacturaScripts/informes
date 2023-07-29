@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2017-2022 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2017-2023 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -37,6 +37,9 @@ use FacturaScripts\Plugins\Informes\Model\BalanceCode;
  */
 class ProfitAndLoss
 {
+    /** @var array */
+    protected $amounts = [];
+
     /** @var DataBase */
     protected $dataBase;
 
@@ -103,6 +106,35 @@ class ProfitAndLoss
         return $return;
     }
 
+    protected function addAccounts(array &$rows, BalanceCode $balance, string $codejercicio, array $params): void
+    {
+        if ($codejercicio === '-') {
+            return;
+        }
+
+        $balAccount = new BalanceAccount();
+        $where = [new DataBaseWhere('idbalance', $balance->id)];
+        foreach ($balAccount->all($where, [], 0, 0) as $model) {
+            $total = $this->getAccountAmounts($balance, $model, $codejercicio, $params);
+
+            // si no tiene saldo, no lo mostramos
+            if (empty($total)) {
+                continue;
+            }
+
+            $key = $balance->codbalance . '-' . $model->codcuenta;
+            if (array_key_exists($key, $rows)) {
+                $rows[$key][$codejercicio] = $this->formatValue($total);
+                continue;
+            }
+
+            $rows[$key] = [
+                'descripcion' => '      ' . $model->codcuenta . '. ' . $model->desccuenta,
+                $codejercicio => $this->formatValue($total)
+            ];
+        }
+    }
+
     protected function addToDate(string $date, string $add): string
     {
         return date('d-m-Y', strtotime($add, strtotime($date)));
@@ -158,6 +190,57 @@ class ProfitAndLoss
         }
     }
 
+    protected function getAccountAmounts(BalanceCode $balance, BalanceAccount $model, string $codejercicio, array $params): float
+    {
+        $key = $codejercicio . '-' . $model->codcuenta;
+        if (array_key_exists($key, $this->amounts)) {
+            return $this->amounts[$key];
+        }
+
+        $total = 0.00;
+        $sql = "SELECT SUM(partidas.debe) AS debe, SUM(partidas.haber) AS haber"
+            . " FROM partidas"
+            . " LEFT JOIN asientos ON partidas.idasiento = asientos.idasiento"
+            . " WHERE asientos.codejercicio = " . $this->dataBase->var2str($codejercicio)
+            . " AND partidas.codsubcuenta LIKE '" . $model->codcuenta . "%'";
+
+        if ($model->codcuenta === '129') {
+            $sql = "SELECT SUM(partidas.debe) as debe, SUM(partidas.haber) as haber"
+                . " FROM partidas"
+                . " LEFT JOIN asientos ON partidas.idasiento = asientos.idasiento"
+                . " LEFT JOIN subcuentas ON partidas.idsubcuenta = subcuentas.idsubcuenta"
+                . " LEFT JOIN cuentas ON subcuentas.idcuenta = cuentas.idcuenta"
+                . " WHERE asientos.codejercicio = " . $this->dataBase->var2str($codejercicio)
+                . " AND (partidas.codsubcuenta LIKE '" . $model->codcuenta . "%' OR subcuentas.codcuenta LIKE '6%' OR subcuentas.codcuenta LIKE '7%')";
+        }
+
+        if ($codejercicio === $this->exercise->codejercicio) {
+            $sql .= ' AND asientos.fecha BETWEEN ' . $this->dataBase->var2str($this->dateFrom)
+                . ' AND ' . $this->dataBase->var2str($this->dateTo);
+        } elseif ($codejercicio === $this->exercisePrev->codejercicio) {
+            $sql .= ' AND asientos.fecha BETWEEN ' . $this->dataBase->var2str($this->dateFromPrev)
+                . ' AND ' . $this->dataBase->var2str($this->dateToPrev);
+        }
+
+        $channel = $params['channel'] ?? '';
+        if (!empty($channel)) {
+            $sql .= ' AND asientos.canal = ' . $this->dataBase->var2str($channel);
+        }
+
+        $sql .= ' AND (asientos.operacion IS NULL OR asientos.operacion NOT IN '
+            . '(' . $this->dataBase->var2str(Asiento::OPERATION_REGULARIZATION)
+            . ',' . $this->dataBase->var2str(Asiento::OPERATION_CLOSING) . '))';
+
+        foreach ($this->dataBase->select($sql) as $row) {
+            $total += $balance->nature === 'A' ?
+                (float)$row['debe'] - (float)$row['haber'] :
+                (float)$row['haber'] - (float)$row['debe'];
+        }
+
+        $this->amounts[$key] = $total;
+        return $total;
+    }
+
     protected function getAmounts(BalanceCode $balance, string $codejercicio, array $params): float
     {
         $total = 0.00;
@@ -168,44 +251,7 @@ class ProfitAndLoss
         $balAccount = new BalanceAccount();
         $where = [new DataBaseWhere('idbalance', $balance->id)];
         foreach ($balAccount->all($where, [], 0, 0) as $model) {
-            $sql = "SELECT SUM(partidas.debe) AS debe, SUM(partidas.haber) AS haber"
-                . " FROM partidas"
-                . " LEFT JOIN asientos ON partidas.idasiento = asientos.idasiento"
-                . " WHERE asientos.codejercicio = " . $this->dataBase->var2str($codejercicio)
-                . " AND partidas.codsubcuenta LIKE '" . $model->codcuenta . "%'";
-
-            if ($model->codcuenta === '129') {
-                $sql = "SELECT SUM(partidas.debe) as debe, SUM(partidas.haber) as haber"
-                    . " FROM partidas"
-                    . " LEFT JOIN asientos ON partidas.idasiento = asientos.idasiento"
-                    . " LEFT JOIN subcuentas ON partidas.idsubcuenta = subcuentas.idsubcuenta"
-                    . " LEFT JOIN cuentas ON subcuentas.idcuenta = cuentas.idcuenta"
-                    . " WHERE asientos.codejercicio = " . $this->dataBase->var2str($codejercicio)
-                    . " AND (partidas.codsubcuenta LIKE '" . $model->codcuenta . "%' OR subcuentas.codcuenta LIKE '6%' OR subcuentas.codcuenta LIKE '7%')";
-            }
-
-            if ($codejercicio === $this->exercise->codejercicio) {
-                $sql .= ' AND asientos.fecha BETWEEN ' . $this->dataBase->var2str($this->dateFrom)
-                    . ' AND ' . $this->dataBase->var2str($this->dateTo);
-            } elseif ($codejercicio === $this->exercisePrev->codejercicio) {
-                $sql .= ' AND asientos.fecha BETWEEN ' . $this->dataBase->var2str($this->dateFromPrev)
-                    . ' AND ' . $this->dataBase->var2str($this->dateToPrev);
-            }
-
-            $channel = $params['channel'] ?? '';
-            if (!empty($channel)) {
-                $sql .= ' AND asientos.canal = ' . $this->dataBase->var2str($channel);
-            }
-
-            $sql .= ' AND (asientos.operacion IS NULL OR asientos.operacion NOT IN '
-                . '(' . $this->dataBase->var2str(Asiento::OPERATION_REGULARIZATION)
-                . ',' . $this->dataBase->var2str(Asiento::OPERATION_CLOSING) . '))';
-
-            foreach ($this->dataBase->select($sql) as $row) {
-                $total += $balance->nature === 'A' ?
-                    (float)$row['debe'] - (float)$row['haber'] :
-                    (float)$row['haber'] - (float)$row['debe'];
-            }
+            $total += $this->getAccountAmounts($balance, $model, $codejercicio, $params);
         }
 
         return $total;
@@ -242,6 +288,7 @@ class ProfitAndLoss
         foreach ($balances as $bal) {
             if ($bal->level1 != $level1 && !empty($bal->level1)) {
                 $level1 = $bal->level1;
+                $level2 = $level3 = $level4 = '';
                 $rows[] = ['descripcion' => '', $code1 => '', $code2 => ''];
                 $rows[] = [
                     'descripcion' => $this->formatValue($bal->description1, 'text', true),
@@ -252,6 +299,7 @@ class ProfitAndLoss
 
             if ($bal->level2 != $level2 && !empty($bal->level2)) {
                 $level2 = $bal->level2;
+                $level3 = $level4 = '';
                 $rows[] = [
                     'descripcion' => '  ' . $bal->description2,
                     $code1 => $this->formatValue($amountsNE1[$bal->level1 . '-' . $bal->level2]),
@@ -261,6 +309,7 @@ class ProfitAndLoss
 
             if ($bal->level3 != $level3 && !empty($bal->level3)) {
                 $level3 = $bal->level3;
+                $level4 = '';
                 $rows[] = [
                     'descripcion' => '    ' . $bal->description3,
                     $code1 => $this->formatValue($amountsNE1[$bal->level1 . '-' . $bal->level2 . '-' . $bal->level3]),
@@ -280,6 +329,9 @@ class ProfitAndLoss
                     $code2 => $this->formatValue($amountsE2[$bal->codbalance])
                 ];
             }
+
+            $this->addAccounts($rows, $bal, $code1, $params);
+            $this->addAccounts($rows, $bal, $code2, $params);
         }
 
         $this->addTotalsRow($rows, $balances, $code1, $amountsNE1, $code2, $amountsNE2);
