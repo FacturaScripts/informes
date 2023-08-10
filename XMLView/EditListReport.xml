@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
  * 'This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2023 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -32,10 +32,20 @@
                     <values source="reports" fieldcode="id" fieldtitle="name"/>
                 </widget>
             </column>
-            <column name="width" numcolumns="2" order="110">
-                <widget type="number" fieldname="columns" min="2" max="12" required="true"/>
+            <column name="type" order="110">
+                <widget type="select" fieldname="type" required="true">
+                    <values title="lines">area</values>
+                    <values title="bars">bar</values>
+                    <values title="pie">Pie</values>
+                </widget>
             </column>
-            <column name="sort" numcolumns="2" order="120">
+            <column name="width" numcolumns="2" order="120">
+                <widget type="number" fieldname="columns" min="2" max="12" step="0" required="true"/>
+            </column>
+            <column name="height" numcolumns="2" description="pixels" order="130">
+                <widget type="number" fieldname="height" min="100" step="0" required="true"/>
+            </column>
+            <column name="sort" numcolumns="2" order="140">
                 <widget type="number" min="0" decimal="0" fieldname="sort"/>
             </column>
         </group>

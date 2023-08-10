@@ -54,6 +54,7 @@
                 <widget type="select" fieldname="type" translate="true" required="true">
                     <values title="lines">area</values>
                     <values title="bars">bar</values>
+                    <values title="pie">pie</values>
                 </widget>
             </column>
             <column name="compared" numcolumns="3" order="110">
