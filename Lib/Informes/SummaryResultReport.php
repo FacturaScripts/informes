@@ -168,9 +168,9 @@ class SummaryResultReport extends ResultReport
          * *****************************************************************
          */
         for ($mes = 1; $mes <= 12; $mes++) {
-            self::$charts['totales']['ventas'][$mes - 1] = self::$ventas[self::$year]['total_mes'][$mes];
-            self::$charts['totales']['gastos'][$mes - 1] = self::$gastos[self::$year]['total_mes'][$mes];
-            self::$charts['totales']['resultado'][$mes - 1] = self::$resultado[self::$year]['total_mes'][$mes];
+            self::$charts['totales']['ventas'][$mes - 1] = round(self::$ventas[self::$year]['total_mes'][$mes], FS_NF0);
+            self::$charts['totales']['gastos'][$mes - 1] = round(self::$gastos[self::$year]['total_mes'][$mes], FS_NF0);
+            self::$charts['totales']['resultado'][$mes - 1] = round(self::$resultado[self::$year]['total_mes'][$mes], FS_NF0);
         }
 
         self::$charts['families']['table'] = '';
