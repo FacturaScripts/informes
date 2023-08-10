@@ -31,9 +31,7 @@ class FamilyResultReport extends ResultReport
     {
         self::apply($formData);
 
-        $html = ''
-            . '<table class="table table-hover mb-0">'
-            . '<tbody>';
+        $html = '';
 
         asort(self::$ventas[self::$year]['descripciones']);
         foreach (self::$ventas[self::$year]['descripciones'] as $key => $value) {
@@ -42,7 +40,7 @@ class FamilyResultReport extends ResultReport
             }
 
             $html .= ''
-                . '<tr>'
+                . '<tr class="subfamily">'
                 . '<td class="title">' . self::$ventas[self::$year]['descripciones'][$key] . '</td>'
                 . '<td class="porc text-right align-middle">';
 
@@ -72,10 +70,6 @@ class FamilyResultReport extends ResultReport
             $html .= ''
                 . '</tr>';
         }
-
-        $html .= ''
-            . '</tbody>'
-            . '</table>';
 
         return $html;
     }
