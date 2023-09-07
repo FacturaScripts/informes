@@ -21,14 +21,12 @@ namespace FacturaScripts\Plugins\Informes\Controller;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Lib\ExtendedController\EditController;
-use FacturaScripts\Dinamic\Lib\ReportChart\AreaChart;
 
 /**
  * @author Daniel Fernández Giménez <hola@danielfg.es>
  */
 class EditReportBoard extends EditController
 {
-
     public function getLines(): array
     {
         $model = $this->getModel();
@@ -59,15 +57,15 @@ class EditReportBoard extends EditController
 
         // añadimos las pestañas
         $this->createViewsBoard();
-        $this->createViewsReport();
+        $this->createViewsLines();
     }
 
-    protected function createViewsBoard(string $viewName = 'ReportBoard')
+    protected function createViewsBoard(string $viewName = 'ReportBoard'): void
     {
         $this->addHtmlView($viewName, $viewName, 'ReportBoard', 'reports-board', 'fas fa-chalkboard');
     }
 
-    protected function createViewsReport(string $viewName = 'EditListReport')
+    protected function createViewsLines(string $viewName = 'EditReportBoardLine'): void
     {
         $this->addEditListView($viewName, 'ReportBoardLine', 'charts', 'fas fa-chart-pie');
 
@@ -79,7 +77,7 @@ class EditReportBoard extends EditController
     {
         $mvn = $this->getMainViewName();
         switch ($viewName) {
-            case 'EditListReport':
+            case 'EditReportBoardLine':
                 $code = $this->getViewModelValue($mvn, 'id');
                 $where = [new DataBaseWhere('idreportboard', $code)];
                 $orderBy = ['sort' => 'ASC'];

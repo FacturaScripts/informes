@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2023 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -29,49 +29,32 @@ use FacturaScripts\Dinamic\Lib\ReportChart\AreaChart;
  */
 class Report extends Base\ModelClass
 {
-
     use Base\ModelTrait;
 
     const DEFAULT_TYPE = 'area';
 
-    /**
-     * @var int
-     */
+    /** @var int */
     public $compared;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     public $id;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public $name;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public $table;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public $type;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public $xcolumn;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public $xoperation;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public $ycolumn;
 
     public function clear()
@@ -83,7 +66,7 @@ class Report extends Base\ModelClass
     public function getChart()
     {
         $className = 'FacturaScripts\\Dinamic\\Lib\\ReportChart\\' . ucfirst($this->type) . 'Chart';
-        if (false === class_exists($className)) {
+        if (empty($this->type) || false === class_exists($className)) {
             return '';
         }
 

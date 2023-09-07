@@ -47,9 +47,6 @@ class ReportBoardLine extends ModelClass
     /** @var int */
     public $sort;
 
-    /** @var string */
-    public $type;
-
     public function clear()
     {
         parent::clear();
@@ -58,11 +55,17 @@ class ReportBoardLine extends ModelClass
         $this->sort = $this->count() + 1;
     }
 
+    public function getBoard(): ReportBoard
+    {
+        $board = new ReportBoard();
+        $board->loadFromCode($this->idreportboard);
+        return $board;
+    }
+
     public function getReport(): Report
     {
         $report = new Report();
         $report->loadFromCode($this->idreport);
-        $report->type = $this->type;
         return $report;
     }
 

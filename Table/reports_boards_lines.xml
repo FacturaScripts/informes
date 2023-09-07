@@ -47,10 +47,6 @@
         <name>sort</name>
         <type>integer</type>
     </column>
-    <column>
-        <name>type</name>
-        <type>character varying(30)</type>
-    </column>
     <constraint>
         <name>reports_boards_lines_pkey</name>
         <type>PRIMARY KEY (id)</type>

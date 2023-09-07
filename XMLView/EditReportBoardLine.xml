@@ -32,13 +32,6 @@
                     <values source="reports" fieldcode="id" fieldtitle="name"/>
                 </widget>
             </column>
-            <column name="type" order="110">
-                <widget type="select" fieldname="type" required="true">
-                    <values title="lines">area</values>
-                    <values title="bars">bar</values>
-                    <values title="pie">Pie</values>
-                </widget>
-            </column>
             <column name="width" numcolumns="2" order="120">
                 <widget type="number" fieldname="columns" min="2" max="12" step="0" required="true"/>
             </column>
