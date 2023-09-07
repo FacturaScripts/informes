@@ -82,7 +82,7 @@ class SalesResultReport extends ResultReport
                 }
 
                 $html .= ''
-                    . '<tr codfamilia ="' . $key . '" data-target="#ventas-' . $cont . '" class="ventas cursor-pointer">'
+                    . '<tr codfamilia ="' . $key . '" data-target="#ventas-' . $cont . '" class="ventas pointer">'
                     . '<td class="title">' . self::$ventas[self::$year]['descripciones'][$key] . '</td>'
                     . '<td class="porc align-middle">';
 
@@ -106,13 +106,7 @@ class SalesResultReport extends ResultReport
                     $html .= '</td>';
                 }
 
-                $html .= '</tr>'
-                    . '<tr>'
-                    . '<td colspan="15" class="hiddenRow">'
-                    . '<div class="collapse" id="ventas-' . $cont . '">'
-                    . '</div>'
-                    . '</td>'
-                    . '</tr>';
+                $html .= '</tr>';
 
                 $cont++;
             }

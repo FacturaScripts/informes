@@ -31,13 +31,11 @@ class AccountResultReport extends ResultReport
     {
         self::apply($formData);
 
-        $html = ''
-            . '<table class="table table-hover mb-0">'
-            . '<tbody>';
+        $html = '';
 
         foreach (self::$gastos[self::$year]['cuentas'][self::$parent_codcuenta] as $key => $value) {
             $html .= ''
-                . '<tr>'
+                . '<tr class="subaccount">'
                 . '<td class="title">' . self::$gastos[self::$year]['descripciones'][$key] . '</td>'
                 . '<td class="porc text-right align-middle">';
 
@@ -67,10 +65,6 @@ class AccountResultReport extends ResultReport
             $html .= ''
                 . '</tr>';
         }
-
-        $html .= ''
-            . '</tbody>'
-            . '</table>';
 
         return $html;
     }
