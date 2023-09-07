@@ -54,4 +54,34 @@ class PieChart extends Chart
     }
 });</script>";
     }
+
+    protected function renderDatasets(array $datasets): string
+    {
+        $colors = ['255, 99, 132', '54, 162, 235', '255, 206, 86', '75, 192, 192', '153, 102, 255', '255, 159, 64'];
+        shuffle($colors);
+
+        $items = [];
+        $num = 0;
+        foreach ($datasets as $dataset) {
+            $backgroundColor = [];
+            $borderColor = [];
+            foreach ($dataset['data'] as $data) {
+                $color = $colors[$num] ?? '255, 206, 86';
+                $num++;
+
+                $backgroundColor[] = "'rgb(" . $color . ")'";
+                $borderColor[] = "'rgb(" . $color . ")'";
+            }
+
+            $items[] = "{
+                label: '" . $dataset['label'] . "',
+                data: [" . implode(",", $dataset['data']) . "],
+                backgroundColor: [" . implode(", ", $backgroundColor) . "],
+                borderColor: [" . implode(", ", $borderColor) . "],
+                borderWidth: 1
+            }";
+        }
+
+        return implode(',', $items);
+    }
 }
