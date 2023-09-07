@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2023 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -20,13 +20,10 @@
 namespace FacturaScripts\Plugins\Informes\Lib\ReportChart;
 
 /**
- * Description of AreaChart
- *
- * @author Carlos Garcia Gomez <carlos@facturascripts.com>
+ * @author Daniel Fernández Giménez <hola@danielfg.es>
  */
-class AreaChart extends Chart
+class PieChart extends Chart
 {
-
     public function render(): string
     {
         $data = $this->getData();
@@ -39,14 +36,21 @@ class AreaChart extends Chart
         return '<canvas id="' . $canvasId . '"/>'
             . "<script>let ctx" . $num . " = document.getElementById('" . $canvasId . "').getContext('2d');"
             . "let myChart" . $num . " = new Chart(ctx" . $num . ", {
-    type: 'line',
+    type: 'pie',
     data: {
         labels: ['" . implode("','", $data['labels']) . "'],
         datasets: [" . $this->renderDatasets($data['datasets']) . "]
     },
     options: {
         responsive: true,
-        maintainAspectRatio: false
+        maintainAspectRatio: false,
+        legend: {
+            position: 'top',
+        },
+        title: {
+            display: true,
+            text: '" . $data['datasets'][0]['label'] . "'
+        }
     }
 });</script>";
     }
