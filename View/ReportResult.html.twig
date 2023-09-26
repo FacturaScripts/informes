@@ -1,5 +1,5 @@
 {#
-* Copyright (C) 2019-2021 Carlos Garcia Gomez <carlos@facturascripts.com>
+* Copyright (C) 2019-2023 Carlos Garcia Gomez <carlos@facturascripts.com>
 * Author Daniel Fernández Giménez <hola@danielfg.es>
 #}
 
@@ -40,16 +40,17 @@
                         <select class="form-control" id="selectYear">
                             {{ fsc.getYears() | raw }}
                         </select>
-                        <div class="ml-2 mt-2" load-after="true" id="yearSpinner"></div>
+                        <button class="btn btn-primary btn-sm btn-spin-action ml-2 mt-2"></button>
                     </div>
                     <div id="summaryData"></div>
                 </div>
 
                 <div class="card border-success shadow mt-4">
-                    <h5 class="card-header bg-success text-white cursor-pointer d-flex" id="showSales">
+                    <h5 class="card-header bg-success text-white pointer d-flex" id="showSales">
                         {{ i18n.trans('sales') }}
-                        <div class="ml-2" load-after="true" id="salesSpinner"></div>
-                        <i class="fa fa-plus ml-auto"></i>
+                        <button class="btn btn-success btn-sm btn-spin-action ml-auto">
+                            <i class="fa fa-plus"></i>
+                        </button>
                     </h5>
                     <div id="salesReport" class="collapse">
                         <div class="card-body p-0"></div>
@@ -57,10 +58,11 @@
                 </div>
 
                 <div class="card border-danger shadow mt-4">
-                    <h5 class="card-header bg-danger text-white cursor-pointer d-flex" id="showPurchases">
+                    <h5 class="card-header bg-danger text-white pointer d-flex" id="showPurchases">
                         {{ i18n.trans('expenses') }}
-                        <div class="ml-2" load-after="true" id="purchasesSpinner"></div>
-                        <i class="fa fa-plus ml-auto"></i>
+                        <button class="btn btn-danger btn-sm btn-spin-action ml-auto">
+                            <i class="fa fa-plus"></i>
+                        </button>
                     </h5>
                     <div id="purchasesReport" class="collapse">
                         <div class="card-body p-0"></div>
@@ -200,15 +202,7 @@
             width: 6%;
         }
 
-        .cursor-pointer {
-            cursor: pointer;
-        }
-
-        table td.hiddenRow {
-            padding: 0 !important;
-        }
-
-        table td.hiddenRow div {
+        tr.subfamily{
             background: #e6f0ff;
             border-top: 1px solid #000;
             border-bottom: 1px solid #000;
@@ -220,7 +214,6 @@
     {{ parent() }}
 
     <script src="{{ asset('node_modules/chart.js/dist/Chart.min.js') }}"></script>
-    {% include 'LoadSpinner.html.twig' %}
 
     <script>
         let accountReport = '';
@@ -248,13 +241,11 @@
 
                 let formData = new FormData();
                 formData.append('action', 'load-summary');
-                sendForm(formData, $('#yearSpinner'));
+                sendForm(formData);
             }
 
-            function sendForm(formData, btn = '') {
-                if (btn !== '') {
-                    animateSpinner(btn, 'add');
-                }
+            function sendForm(formData) {
+                animateSpinner('add');
 
                 formData.append('codejercicio', $('#selectYear option:selected').val());
 
@@ -265,13 +256,7 @@
                     body: formData
                 }).then(function (response) {
                     if (response.ok) {
-                        if (btn !== '') {
-                            animateSpinner(btn, 'remove', true);
-                        }
                         return response.json();
-                    }
-                    if (btn !== '') {
-                        animateSpinner(btn, 'remove', false);
                     }
                     return Promise.reject(response);
                 }).then(function (data) {
@@ -293,7 +278,7 @@
                     if (data.family && data.family !== '') {
                         $('#salesReport tr').each(function(){
                             if ($(this).attr('codfamilia') === data.codfamilia) {
-                                $(this).next().find('div').html(data.family);
+                                $(this).after(data.family);
                             }
                         });
                     }
@@ -301,7 +286,7 @@
                     if (data.account && data.account !== '') {
                         $('#purchasesReport tr').each(function(){
                             if ($(this).attr('codcuenta') === data.codcuenta) {
-                                $(this).next().find('div').html(data.account);
+                                $(this).after(data.account);
                             }
                         });
                     }
@@ -309,9 +294,12 @@
                     if (Array.isArray(data.messages)) {
                         data.messages.forEach(item => alert(item.message));
                     }
+
+                    animateSpinner('remove');
                 }).catch(function (error) {
                     alert('error');
                     console.warn(error);
+                    animateSpinner('remove');
                 });
 
                 return false;
@@ -606,13 +594,13 @@
 
             $(document).on('click', '#showSales', function () {
                 if (salesReport === false) {
-                    $('#showSales i').removeClass('fa-plus').addClass('fa-minus');
+                    $('#showSales svg').removeClass('fa-plus').addClass('fa-minus');
                     salesReport = true;
                     let formData = new FormData();
                     formData.append('action', 'load-sales');
-                    sendForm(formData, $('#salesSpinner'));
+                    sendForm(formData);
                 } else {
-                    $('#showSales i').addClass('fa-plus').removeClass('fa-minus');
+                    $('#showSales svg').addClass('fa-plus').removeClass('fa-minus');
                     salesReport = false;
                 }
                 $('#salesReport').collapse('toggle');
@@ -621,34 +609,29 @@
             $(document).on('click', '#salesReport tr.ventas', function () {
                 if (salesReport) {
                     if (familyReport === $(this).attr('codfamilia')) {
-                        $($(this).attr('data-target')).collapse('hide');
+                        $('tr.subfamily').remove();
                         familyReport = '';
                         return;
                     }
 
                     familyReport = $(this).attr('codfamilia');
 
-                    $('#salesReport tr.ventas').each(function () {
-                        $($(this).attr('data-target')).collapse('hide');
-                    });
-
                     let formData = new FormData();
                     formData.append('action', 'load-family');
                     formData.append('parent_codfamilia', familyReport);
-                    sendForm(formData, $(this).find('td:first'));
-                    $($(this).attr('data-target')).collapse('toggle');
+                    sendForm(formData);
                 }
             });
 
             $(document).on('click', '#showPurchases', function () {
                 if (purchasesReport === false) {
-                    $('#showPurchases i').removeClass('fa-plus').addClass('fa-minus');
+                    $('#showPurchases svg').removeClass('fa-plus').addClass('fa-minus');
                     purchasesReport = true;
                     let formData = new FormData();
                     formData.append('action', 'load-purchases');
-                    sendForm(formData, $('#purchasesSpinner'));
+                    sendForm(formData);
                 } else {
-                    $('#showPurchases i').addClass('fa-plus').removeClass('fa-minus');
+                    $('#showPurchases svg').addClass('fa-plus').removeClass('fa-minus');
                     purchasesReport = false;
                 }
                 $('#purchasesReport').collapse('toggle');
@@ -657,22 +640,17 @@
             $(document).on('click', '#purchasesReport tr.gastos', function () {
                 if (purchasesReport) {
                     if (accountReport === $(this).attr('codcuenta')) {
-                        $($(this).attr('data-target')).collapse('hide');
+                        $('tr.subaccount').remove();
                         accountReport = '';
                         return;
                     }
 
                     accountReport = $(this).attr('codcuenta');
 
-                    $('#purchasesReport tr.gastos').each(function () {
-                        $($(this).attr('data-target')).collapse('hide');
-                    });
-
                     let formData = new FormData();
                     formData.append('action', 'load-account');
                     formData.append('parent_codcuenta', accountReport);
-                    sendForm(formData, $(this).find('td:first'));
-                    $($(this).attr('data-target')).collapse('toggle');
+                    sendForm(formData);
                 }
             });
 

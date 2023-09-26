@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2023 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -33,6 +33,9 @@ class ReportBoardLine extends ModelClass
     public $columns;
 
     /** @var int */
+    public $height;
+
+    /** @var int */
     public $id;
 
     /** @var int */
@@ -48,7 +51,15 @@ class ReportBoardLine extends ModelClass
     {
         parent::clear();
         $this->columns = 6;
+        $this->height = 250;
         $this->sort = $this->count() + 1;
+    }
+
+    public function getBoard(): ReportBoard
+    {
+        $board = new ReportBoard();
+        $board->loadFromCode($this->idreportboard);
+        return $board;
     }
 
     public function getReport(): Report

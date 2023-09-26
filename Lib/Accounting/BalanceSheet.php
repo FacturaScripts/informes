@@ -37,6 +37,9 @@ use FacturaScripts\Plugins\Informes\Model\BalanceCode;
  */
 class BalanceSheet
 {
+    /** @var array */
+    protected $amounts = [];
+
     /** @var DataBase */
     protected $dataBase;
 
@@ -196,12 +199,27 @@ class BalanceSheet
 
     protected function getAccountAmounts(BalanceCode $balance, BalanceAccount $model, string $codejercicio, array $params): float
     {
+        $key = $codejercicio . '-' . $model->codcuenta;
+        if (array_key_exists($key, $this->amounts)) {
+            return $this->amounts[$key];
+        }
+
         $total = 0.00;
         $sql = "SELECT SUM(partidas.debe) AS debe, SUM(partidas.haber) AS haber"
             . " FROM partidas"
             . " LEFT JOIN asientos ON partidas.idasiento = asientos.idasiento"
             . " WHERE asientos.codejercicio = " . $this->dataBase->var2str($codejercicio)
             . " AND partidas.codsubcuenta LIKE '" . $model->codcuenta . "%'";
+
+        if ($model->codcuenta === '129') {
+            $sql = "SELECT SUM(partidas.debe) as debe, SUM(partidas.haber) as haber"
+                . " FROM partidas"
+                . " LEFT JOIN asientos ON partidas.idasiento = asientos.idasiento"
+                . " LEFT JOIN subcuentas ON partidas.idsubcuenta = subcuentas.idsubcuenta"
+                . " LEFT JOIN cuentas ON subcuentas.idcuenta = cuentas.idcuenta"
+                . " WHERE asientos.codejercicio = " . $this->dataBase->var2str($codejercicio)
+                . " AND (partidas.codsubcuenta LIKE '" . $model->codcuenta . "%' OR subcuentas.codcuenta LIKE '6%' OR subcuentas.codcuenta LIKE '7%')";
+        }
 
         if ($codejercicio === $this->exercise->codejercicio) {
             $sql .= ' AND asientos.fecha BETWEEN ' . $this->dataBase->var2str($this->dateFrom)
@@ -226,23 +244,7 @@ class BalanceSheet
                 (float)$row['haber'] - (float)$row['debe'];
         }
 
-        // para la cuenta 129 hacemos una consulta especial
-        if ($model->codcuenta === '129') {
-            $total = 0 - $total;
-            $sql2 = "SELECT SUM(partidas.debe) as debe, SUM(partidas.haber) as haber"
-                . " FROM partidas"
-                . " LEFT JOIN asientos ON partidas.idasiento = asientos.idasiento"
-                . " LEFT JOIN subcuentas ON partidas.idsubcuenta = subcuentas.idsubcuenta"
-                . " LEFT JOIN cuentas ON subcuentas.idcuenta = cuentas.idcuenta"
-                . " WHERE asientos.codejercicio = " . $this->dataBase->var2str($codejercicio)
-                . " AND (partidas.codsubcuenta LIKE '" . $model->codcuenta . "%' OR subcuentas.codcuenta LIKE '6%' OR subcuentas.codcuenta LIKE '7%')";
-            foreach ($this->dataBase->select($sql2) as $row) {
-                $total += $balance->nature === 'A' ?
-                    (float)$row['debe'] - (float)$row['haber'] :
-                    (float)$row['haber'] - (float)$row['debe'];
-            }
-        }
-
+        $this->amounts[$key] = $total;
         return $total;
     }
 

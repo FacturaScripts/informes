@@ -36,7 +36,7 @@ class AreaChart extends Chart
 
         $num = mt_rand();
         $canvasId = 'chart' . $num;
-        return '<canvas id="' . $canvasId . '" height="250"/>'
+        return '<canvas id="' . $canvasId . '"/>'
             . "<script>let ctx" . $num . " = document.getElementById('" . $canvasId . "').getContext('2d');"
             . "let myChart" . $num . " = new Chart(ctx" . $num . ", {
     type: 'line',

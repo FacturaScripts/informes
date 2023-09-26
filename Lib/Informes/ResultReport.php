@@ -249,6 +249,9 @@ class ResultReport
         ];
         $asiento_regularizacion = $asiento->loadFromCode('', $where) ? intval($asiento->numero) : 0;
 
+        // necesitamos el número de meses para calcular la media
+        $countMonth = 0;
+
         // Recorremos los meses y ejecutamos una consulta filtrando por el mes
         for ($mes = 1; $mes <= 12; $mes++) {
             // inicializamos
@@ -331,6 +334,10 @@ class ResultReport
                     $gastos = self::setDescriptionAccount($gastos, $codejercicio);
                 }
             }
+
+            if ($gastos['total_mes'][$mes] > 0) {
+                $countMonth++;
+            }
         }
 
         /**
@@ -338,7 +345,13 @@ class ResultReport
          * *****************************************************************
          */
         $gastos['total_mes'][0] = round($gastos_total_meses, FS_NF0);
-        $gastos['total_mes']['media'] = round($gastos_total_meses / 12, FS_NF0);
+
+        if ($countMonth > 0) {
+            $gastos['total_mes']['media'] = round($gastos_total_meses / $countMonth, FS_NF0);
+        } else {
+            $gastos['total_mes']['media'] = round($gastos_total_meses, FS_NF0);
+        }
+
 
         /**
          *  PORCENTAJES
@@ -585,7 +598,7 @@ class ResultReport
          * *****************************************************************
          */
         $resultado['total_mes'][0] = round(self::$ventas[$year]['total_mes'][0] - self::$gastos[$year]['total_mes'][0], FS_NF0);
-        $resultado['total_mes']['media'] = round((self::$ventas[$year]['total_mes']['media'] - self::$gastos[$year]['total_mes']['media']) / 12, FS_NF0);
+        $resultado['total_mes']['media'] = round((self::$ventas[$year]['total_mes']['media'] - self::$gastos[$year]['total_mes']['media']), FS_NF0);
 
         // Variables globales para usar en la vista
         self::$resultado[$year] = $resultado;
@@ -626,6 +639,9 @@ class ResultReport
         $ventas_total_pag_meses = 0;
         $ventas_total_age_meses = 0;
 
+        // necesitamos el número de meses para calcular la media
+        $countMonth = 0;
+
         // Recorremos los meses y ejecutamos una consulta filtrando por el mes
         for ($mes = 1; $mes <= 12; $mes++) {
             // inicializamos
@@ -640,7 +656,7 @@ class ResultReport
                  *  VENTAS: Consulta con las lineasfacturascli
                  * *****************************************************************
                  */
-                $ventas = self::salesLineasFacturasCli($ventas, $date, $codejercicio, $mes, $ventas_total_fam_meses);
+                $ventas = self::salesLineasFacturasCli($ventas, $date, $codejercicio, $mes, $ventas_total_fam_meses, $countMonth);
 
                 // Recorremos las facturas
                 $ventas = self::customerInvoices($ventas, $date, $codejercicio, $mes, $ventas_total_ser_meses, $ventas_total_pag_meses, $ventas_total_age_meses);
@@ -661,7 +677,12 @@ class ResultReport
          * *****************************************************************
          */
         $ventas['total_mes'][0] = round($ventas_total_fam_meses, FS_NF0);
-        $ventas['total_mes']['media'] = round($ventas_total_fam_meses / 12, FS_NF0);
+
+        if ($countMonth > 0) {
+            $ventas['total_mes']['media'] = round($ventas_total_fam_meses / $countMonth, FS_NF0);
+        } else {
+            $ventas['total_mes']['media'] = round($ventas_total_fam_meses, FS_NF0);
+        }
 
         /**
          *  PORCENTAJES
@@ -677,7 +698,7 @@ class ResultReport
         self::$ventas[$year] = $ventas;
     }
 
-    protected static function salesLineasFacturasCli(array $ventas, array $date, string $codejercicio, int $mes, float &$ventas_total_fam_meses): array
+    protected static function salesLineasFacturasCli(array $ventas, array $date, string $codejercicio, int $mes, float &$ventas_total_fam_meses, int &$countMonth): array
     {
         $dataBase = new DataBase();
 
@@ -731,6 +752,10 @@ class ResultReport
 
             // Array temporal con los totales (falta añadir descripción familia)
             $ventas['familias'][$codfamilia][$referencia][$mes] = array('pvptotal' => $pvptotal);
+        }
+
+        if ($ventas['total_mes'][$mes] > 0) {
+            $countMonth++;
         }
 
         return $ventas;

@@ -8,7 +8,7 @@
         <div class="form-row">
             {% for line in lines %}
                 {% set report = line.getReport() %}
-                <div class="col-md-{{ line.columns }}">
+                <div class="col-md-{{ line.columns }} my-2" style="height: {{ line.height }}px">
                     {{ report.getChart().render() | raw }}
                 </div>
             {% endfor %}
