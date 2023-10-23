@@ -295,11 +295,11 @@
                         data.messages.forEach(item => alert(item.message));
                     }
 
-                    animateSpinner('remove');
+                    animateSpinner('remove', true);
                 }).catch(function (error) {
                     alert('error');
                     console.warn(error);
-                    animateSpinner('remove');
+                    animateSpinner('remove', false);
                 });
 
                 return false;
