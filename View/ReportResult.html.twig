@@ -13,11 +13,11 @@
         <div class="row">
             <div class="col-md-7">
                 <div class="btn-group">
-                    <a class="btn btn-sm btn-secondary" href="{{ fsc.url() }}" title="{{ i18n.trans('refresh') }}">
+                    <a class="btn btn-sm btn-secondary" href="{{ fsc.url() }}" title="{{ trans('refresh') }}">
                         <i class="fas fa-redo" aria-hidden="true"></i>
                     </a>
                     <a class="btn btn-sm btn-secondary" href="{{ fsc.url() }}?defaultPage=TRUE"
-                       title="{{ i18n.trans('mark-as-homepage') }}">
+                       title="{{ trans('mark-as-homepage') }}">
                         <i class="far fa-bookmark" aria-hidden="true"></i>
                     </a>
                 </div>
@@ -25,7 +25,7 @@
 
             <div class="col-md-5 text-right">
                 <h1 class="h4 mb-0 d-none d-md-inline-block">
-                    {% set title = i18n.trans(fsc.getPageData()['title']) | capitalize %}
+                    {% set title = trans(fsc.getPageData()['title']) | capitalize %}
                     {{ title }}<i class="{{ fsc.getPageData()['icon'] }} ml-3" aria-hidden="true"></i>
                 </h1>
             </div>
@@ -47,7 +47,7 @@
 
                 <div class="card border-success shadow mt-4">
                     <h5 class="card-header bg-success text-white pointer d-flex" id="showSales">
-                        {{ i18n.trans('sales') }}
+                        {{ trans('sales') }}
                         <button class="btn btn-success btn-sm btn-spin-action ml-auto">
                             <i class="fa fa-plus"></i>
                         </button>
@@ -59,7 +59,7 @@
 
                 <div class="card border-danger shadow mt-4">
                     <h5 class="card-header bg-danger text-white pointer d-flex" id="showPurchases">
-                        {{ i18n.trans('expenses') }}
+                        {{ trans('expenses') }}
                         <button class="btn btn-danger btn-sm btn-spin-action ml-auto">
                             <i class="fa fa-plus"></i>
                         </button>
@@ -74,7 +74,7 @@
             <div class="col-12">
                 <div class="card shadow mt-4">
                     <div class="card-body h5">
-                        <i class="fas fa-chart-line"></i> {{ i18n.trans('annual-result') }}
+                        <i class="fas fa-chart-line"></i> {{ trans('annual-result') }}
                     </div>
                     <div class="canva">
                         <canvas id="chartsResume"></canvas>
@@ -84,7 +84,7 @@
             <div class="col-md-6 col-lg-3">
                 <div class="card shadow mt-4">
                     <div class="card-body h5">
-                        <i class="fas fa-chart-pie"></i> {{ i18n.trans('sales-per-family') }}
+                        <i class="fas fa-chart-pie"></i> {{ trans('sales-per-family') }}
                     </div>
                     <div class="canva">
                         <canvas id="chartsFamilies"></canvas>
@@ -92,10 +92,12 @@
                     <div class="table-responsive" id="chartsListFamilies">
                         <table class="table mb-0 table-sm">
                             <thead>
+                            <tr>
                             <th></th>
-                            <th>{{ i18n.trans('family') }}</th>
+                            <th>{{ trans('family') }}</th>
                             <th class="porc">%</th>
-                            <th class="total">{{ i18n.trans('total') }}</th>
+                            <th class="total">{{ trans('total') }}</th>
+                            </tr>
                             </thead>
                             <tbody></tbody>
                         </table>
@@ -105,7 +107,7 @@
             <div class="col-md-6 col-lg-3">
                 <div class="card shadow mt-4">
                     <div class="card-body h5">
-                        <i class="fas fa-chart-pie"></i> {{ i18n.trans('sales-per-serie') }}
+                        <i class="fas fa-chart-pie"></i> {{ trans('sales-per-serie') }}
                     </div>
                     <div class="canva">
                         <canvas id="chartsSeries"></canvas>
@@ -113,10 +115,12 @@
                     <div class="table-responsive" id="chartsListSeries">
                         <table class="table mb-0 table-sm">
                             <thead>
+                            <tr>
                             <th></th>
-                            <th>{{ i18n.trans('serie') }}</th>
+                            <th>{{ trans('serie') }}</th>
                             <th class="porc">%</th>
-                            <th class="total">{{ i18n.trans('total') }}</th>
+                            <th class="total">{{ trans('total') }}</th>
+                            </tr>
                             </thead>
                             <tbody></tbody>
                         </table>
@@ -126,7 +130,7 @@
             <div class="col-md-6 col-lg-3">
                 <div class="card shadow mt-4">
                     <div class="card-body h5">
-                        <i class="fas fa-chart-pie"></i> {{ i18n.trans('sales-per-paymethod') }}
+                        <i class="fas fa-chart-pie"></i> {{ trans('sales-per-paymethod') }}
                     </div>
                     <div class="canva">
                         <canvas id="chartsPagos"></canvas>
@@ -134,10 +138,12 @@
                     <div class="table-responsive" id="chartsListPagos">
                         <table class="table mb-0 table-sm">
                             <thead>
+                            <tr>
                             <th></th>
-                            <th>{{ i18n.trans('method-payment') }}</th>
+                            <th>{{ trans('method-payment') }}</th>
                             <th class="porc">%</th>
-                            <th class="total">{{ i18n.trans('total') }}</th>
+                            <th class="total">{{ trans('total') }}</th>
+                            </tr>
                             </thead>
                             <tbody></tbody>
                         </table>
@@ -147,7 +153,7 @@
             <div class="col-md-6 col-lg-3">
                 <div class="card shadow mt-4">
                     <div class="card-body h5">
-                        <i class="fas fa-chart-pie"></i> {{ i18n.trans('sales-per-agent') }}
+                        <i class="fas fa-chart-pie"></i> {{ trans('sales-per-agent') }}
                     </div>
                     <div class="canva">
                         <canvas id="chartsAgentes"></canvas>
@@ -155,10 +161,12 @@
                     <div class="table-responsive" id="chartsListAgentes">
                         <table class="table mb-0 table-sm">
                             <thead>
+                            <tr>
                             <th></th>
-                            <th>{{ i18n.trans('agent') }}</th>
+                            <th>{{ trans('agent') }}</th>
                             <th class="porc">%</th>
-                            <th class="total">{{ i18n.trans('total') }}</th>
+                            <th class="total">{{ trans('total') }}</th>
+                            </tr>
                             </thead>
                             <tbody></tbody>
                         </table>
@@ -322,35 +330,35 @@
                 };
                 let dataResume = {
                     labels: [
-                        "{{ i18n.trans('january') }}",
-                        "{{ i18n.trans('february') }}",
-                        "{{ i18n.trans('march') }}",
-                        "{{ i18n.trans('april') }}",
-                        "{{ i18n.trans('may') }}",
-                        "{{ i18n.trans('june') }}",
-                        "{{ i18n.trans('july') }}",
-                        "{{ i18n.trans('august') }}",
-                        "{{ i18n.trans('september') }}",
-                        "{{ i18n.trans('october') }}",
-                        "{{ i18n.trans('november') }}",
-                        "{{ i18n.trans('december') }}"],
+                        "{{ trans('january') }}",
+                        "{{ trans('february') }}",
+                        "{{ trans('march') }}",
+                        "{{ trans('april') }}",
+                        "{{ trans('may') }}",
+                        "{{ trans('june') }}",
+                        "{{ trans('july') }}",
+                        "{{ trans('august') }}",
+                        "{{ trans('september') }}",
+                        "{{ trans('october') }}",
+                        "{{ trans('november') }}",
+                        "{{ trans('december') }}"],
                     datasets: [{
                         type: 'line',
-                        label: '{{ i18n.trans('sales') }}',
+                        label: '{{ trans('sales') }}',
                         borderColor: window.chartColors.green,
                         borderWidth: 2,
                         fill: false,
                         data: charts['totales']['ventas']
                     }, {
                         type: 'line',
-                        label: '{{ i18n.trans('expenses') }}',
+                        label: '{{ trans('expenses') }}',
                         borderColor: window.chartColors.red,
                         borderWidth: 2,
                         fill: false,
                         data: charts['totales']['gastos']
                     }, {
                         type: 'line',
-                        label: '{{ i18n.trans('result') }}',
+                        label: '{{ trans('result') }}',
                         borderColor: window.chartColors.blue,
                         borderWidth: 4,
                         fill: false,
@@ -430,7 +438,7 @@
                         stacked: false,
                         title: {
                             display: false,
-                            text: '{{ i18n.trans('charts-per-month') }}'
+                            text: '{{ trans('charts-per-month') }}'
                         },
                         tooltips: {
                             mode: 'index',

@@ -8,11 +8,11 @@
         <div class="row">
             <div class="col-md-7">
                 <div class="btn-group">
-                    <a class="btn btn-sm btn-secondary" href="{{ fsc.url() }}" title="{{ i18n.trans('refresh') }}">
+                    <a class="btn btn-sm btn-secondary" href="{{ fsc.url() }}" title="{{ trans('refresh') }}">
                         <i class="fas fa-redo" aria-hidden="true"></i>
                     </a>
                     <a class="btn btn-sm btn-secondary" href="{{ fsc.url() }}?defaultPage=TRUE"
-                       title="{{ i18n.trans('mark-as-homepage') }}">
+                       title="{{ trans('mark-as-homepage') }}">
                         <i class="far fa-bookmark" aria-hidden="true"></i>
                     </a>
                 </div>
@@ -20,14 +20,14 @@
 
             <div class="col-md-5 text-right">
                 <h1 class="h4 mb-0 d-none d-md-inline-block">
-                    {% set title = i18n.trans(fsc.getPageData()['title']) | capitalize %}
+                    {% set title = trans(fsc.getPageData()['title']) | capitalize %}
                     {{ title }}<i class="{{ fsc.getPageData()['icon'] }} ml-3" aria-hidden="true"></i>
                 </h1>
             </div>
         </div>
     </div>
     <div class="pb-5">
-        <div class="h5 text-success text-center">{{ i18n.trans('exercise') }}</div>
+        <div class="h5 text-success text-center">{{ trans('exercise') }}</div>
         <select class="form-control ml-auto mr-auto" id="selectYear">
             {{ fsc.getYears() | raw }}
         </select>
@@ -42,13 +42,13 @@
             <div class="col-sm-6">
                 <div class="card border-info shadow mb-3">
                     <div class="card-header bg-info text-white text-center">
-                        <strong>{{ i18n.trans('treasury')|upper }}</strong>
+                        <strong>{{ trans('treasury')|upper }}</strong>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-striped mb-0">
                             {% if fsc.cajas %}
                                 <tr>
-                                    <td class="text-center align-middle">{{ i18n.trans('boxes')|upper }}
+                                    <td class="text-center align-middle">{{ trans('boxes')|upper }}
                                         (570xxx)
                                     </td>
                                     <td class="p-0">
@@ -56,7 +56,7 @@
                                             {% for caja in fsc.cajas %}
                                                 {{ _self.showLine(fsc, caja.descripcion, caja.saldo) }}
                                             {% endfor %}
-                                            {{ _self.showLine(fsc, i18n.trans('total')|upper, fsc.da_tesoreria['total_cajas']) }}
+                                            {{ _self.showLine(fsc, trans('total')|upper, fsc.da_tesoreria['total_cajas']) }}
                                         </table>
                                     </td>
                                 </tr>
@@ -64,7 +64,7 @@
 
                             {% if fsc.bancos %}
                                 <tr>
-                                    <td class="text-center align-middle">{{ i18n.trans('banks')|upper }}
+                                    <td class="text-center align-middle">{{ trans('banks')|upper }}
                                         (572xxx)
                                     </td>
                                     <td class="p-0">
@@ -72,13 +72,13 @@
                                             {% for banco in fsc.bancos %}
                                                 {{ _self.showLine(fsc, banco.descripcion, banco.saldo) }}
                                             {% endfor %}
-                                            {{ _self.showLine(fsc, i18n.trans('total')|upper, fsc.da_tesoreria['total_bancos']) }}
+                                            {{ _self.showLine(fsc, trans('total')|upper, fsc.da_tesoreria['total_bancos']) }}
                                         </table>
                                     </td>
                                 </tr>
                             {% endif %}
                             <tr>
-                                <td class="text-center align-middle">{{ i18n.trans('total')|upper }}</td>
+                                <td class="text-center align-middle">{{ trans('total')|upper }}</td>
                                 <td class="money">{{ fsc.show_precio(fsc.da_tesoreria['total_tesoreria'])|raw }}</td>
                             </tr>
                         </table>
@@ -88,16 +88,16 @@
             <div class="col-sm-6">
                 <div class="card border-danger shadow mb-3">
                     <div class="card-header bg-danger text-white text-center">
-                        <strong>{{ i18n.trans('pending-expenses-charges')|upper }}</strong>
+                        <strong>{{ trans('pending-expenses-charges')|upper }}</strong>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-striped mb-0">
-                            {{ _self.showLine(fsc, '(a) ' ~ i18n.trans('expenses-pending-payment'), fsc.da_gastoscobros['gastospdtepago']) }}
-                            {{ _self.showLine(fsc, '(b) ' ~ i18n.trans('customers-pending-collection'), fsc.da_gastoscobros['clientespdtecobro']) }}
-                            {{ _self.showLine(fsc, '(c) ' ~ i18n.trans('payroll-pending-payment') ~ ' (465xxx)', fsc.da_gastoscobros['nominaspdtepago']) }}
-                            {{ _self.showLine(fsc, '(d) ' ~ i18n.trans('social-security-pending-payment') ~ ' (476xxx)', fsc.da_gastoscobros['segsocialpdtepago']) }}
-                            {{ _self.showLine(fsc, '(e) ' ~ i18n.trans('social-security-pending-collection') ~ ' (471xxx)', fsc.da_gastoscobros['segsocialpdtecobro']) }}
-                            {{ _self.showLine(fsc, i18n.trans('total')|upper, fsc.da_gastoscobros['total_gastoscobros']) }}
+                            {{ _self.showLine(fsc, '(a) ' ~ trans('expenses-pending-payment'), fsc.da_gastoscobros['gastospdtepago']) }}
+                            {{ _self.showLine(fsc, '(b) ' ~ trans('customers-pending-collection'), fsc.da_gastoscobros['clientespdtecobro']) }}
+                            {{ _self.showLine(fsc, '(c) ' ~ trans('payroll-pending-payment') ~ ' (465xxx)', fsc.da_gastoscobros['nominaspdtepago']) }}
+                            {{ _self.showLine(fsc, '(d) ' ~ trans('social-security-pending-payment') ~ ' (476xxx)', fsc.da_gastoscobros['segsocialpdtepago']) }}
+                            {{ _self.showLine(fsc, '(e) ' ~ trans('social-security-pending-collection') ~ ' (471xxx)', fsc.da_gastoscobros['segsocialpdtecobro']) }}
+                            {{ _self.showLine(fsc, trans('total')|upper, fsc.da_gastoscobros['total_gastoscobros']) }}
                         </table>
                     </div>
                 </div>
@@ -107,41 +107,41 @@
             <div class="col-sm-6">
                 <div class="card border-warning shadow mb-3">
                     <div class="card-header bg-warning text-white text-center">
-                        <strong>{{ i18n.trans('taxes')|upper }}</strong>
+                        <strong>{{ trans('taxes')|upper }}</strong>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-striped mb-0">
-                            {{ _self.showLine(fsc, i18n.trans('irpf')|upper ~ ' (4751xxx) (' ~ i18n.trans('payroll-professionals-111') ~ ')', fsc.da_impuestos['irpf-mod111']) }}
-                            {{ _self.showLine(fsc, i18n.trans('irpf')|upper ~ ' (4751xxx) (' ~ i18n.trans('rent-office') ~ ')', fsc.da_impuestos['irpf-mod115']) }}
+                            {{ _self.showLine(fsc, trans('irpf')|upper ~ ' (4751xxx) (' ~ trans('payroll-professionals-111') ~ ')', fsc.da_impuestos['irpf-mod111']) }}
+                            {{ _self.showLine(fsc, trans('irpf')|upper ~ ' (4751xxx) (' ~ trans('rent-office') ~ ')', fsc.da_impuestos['irpf-mod115']) }}
                             <tr>
                                 <td colspan="2"></td>
                             </tr>
-                            {{ _self.showLine(fsc, '(a) ' ~ i18n.trans('passed-tax') ~ ' (477xxx)', fsc.da_impuestos['iva-repercutido']) }}
-                            {{ _self.showLine(fsc, '(b) ' ~ i18n.trans('input-tax') ~ ' (472xxx)', fsc.da_impuestos['iva-soportado']) }}
-                            {{ _self.showLine(fsc, '(c) ' ~ i18n.trans('tax-return-previous-quarters') ~ ' (470xxx)', fsc.da_impuestos['iva-devolver']) }}
-                            {{ _self.showLine(fsc, i18n.trans('result-tax')|upper ~ ' (MOD 303)', fsc.da_impuestos['resultado_iva-mod303']) }}
+                            {{ _self.showLine(fsc, '(a) ' ~ trans('passed-tax') ~ ' (477xxx)', fsc.da_impuestos['iva-repercutido']) }}
+                            {{ _self.showLine(fsc, '(b) ' ~ trans('input-tax') ~ ' (472xxx)', fsc.da_impuestos['iva-soportado']) }}
+                            {{ _self.showLine(fsc, '(c) ' ~ trans('tax-return-previous-quarters') ~ ' (470xxx)', fsc.da_impuestos['iva-devolver']) }}
+                            {{ _self.showLine(fsc, trans('result-tax')|upper ~ ' (MOD 303)', fsc.da_impuestos['resultado_iva-mod303']) }}
                             <tr>
                                 <td class="text-center" colspan="2">
-                                    <strong>{{ i18n.trans('current-exercise')|upper }}</strong>
+                                    <strong>{{ trans('current-exercise')|upper }}</strong>
                                 </td>
                             </tr>
-                            {{ _self.showLine(fsc, i18n.trans('sales'), fsc.da_impuestos['ventas_totales']) }}
-                            {{ _self.showLine(fsc, i18n.trans('expenses'), fsc.da_impuestos['gastos_totales']) }}
-                            {{ _self.showLine(fsc, i18n.trans('result'), fsc.da_impuestos['resultado']) }}
-                            {{ _self.showLine(fsc, '(a) ' ~ i18n.trans('corporate-tax'), fsc.da_impuestos['sociedades']) }}
-                            {{ _self.showLine(fsc, '(b) ' ~ i18n.trans('payment-previous-periods'), fsc.da_impuestos['pago-ant']) }}
-                            {{ _self.showLine(fsc, i18n.trans('fractional-payment-corporation-tax') ~ ' (MOD 202)', fsc.da_impuestos['pagofraccionado-mod202']) }}
+                            {{ _self.showLine(fsc, trans('sales'), fsc.da_impuestos['ventas_totales']) }}
+                            {{ _self.showLine(fsc, trans('expenses'), fsc.da_impuestos['gastos_totales']) }}
+                            {{ _self.showLine(fsc, trans('result'), fsc.da_impuestos['resultado']) }}
+                            {{ _self.showLine(fsc, '(a) ' ~ trans('corporate-tax'), fsc.da_impuestos['sociedades']) }}
+                            {{ _self.showLine(fsc, '(b) ' ~ trans('payment-previous-periods'), fsc.da_impuestos['pago-ant']) }}
+                            {{ _self.showLine(fsc, trans('fractional-payment-corporation-tax') ~ ' (MOD 202)', fsc.da_impuestos['pagofraccionado-mod202']) }}
                             <tr>
                                 <td class="text-center" colspan="2">
-                                    <strong>{{ i18n.trans('previous-exercise')|upper }}</strong>
+                                    <strong>{{ trans('previous-exercise')|upper }}</strong>
                                 </td>
                             </tr>
-                            {{ _self.showLine(fsc, i18n.trans('result') ~ ' (129xxx)', fsc.da_impuestos['resultado_ejanterior']) }}
-                            {{ _self.showLine(fsc, i18n.trans('negative-results-other-exercises') ~ ' (121xxx)', fsc.da_impuestos['resultado_negotros']) }}
-                            {{ _self.showLine(fsc, i18n.trans('total-result'), fsc.da_impuestos['total']) }}
-                            {{ _self.showLine(fsc, '(a) ' ~ i18n.trans('corporate-tax'), fsc.da_impuestos['sociedades_ant']) }}
-                            {{ _self.showLine(fsc, '(b) ' ~ i18n.trans('corporate-tax-advances') ~ ' (4709xxx)', fsc.da_impuestos['sociedades_adelantos']) }}
-                            {{ _self.showLine(fsc, i18n.trans('total-pay-return-corporate-tax') ~ ' (MOD 200)', fsc.da_impuestos['total-mod200']) }}
+                            {{ _self.showLine(fsc, trans('result') ~ ' (129xxx)', fsc.da_impuestos['resultado_ejanterior']) }}
+                            {{ _self.showLine(fsc, trans('negative-results-other-exercises') ~ ' (121xxx)', fsc.da_impuestos['resultado_negotros']) }}
+                            {{ _self.showLine(fsc, trans('total-result'), fsc.da_impuestos['total']) }}
+                            {{ _self.showLine(fsc, '(a) ' ~ trans('corporate-tax'), fsc.da_impuestos['sociedades_ant']) }}
+                            {{ _self.showLine(fsc, '(b) ' ~ trans('corporate-tax-advances') ~ ' (4709xxx)', fsc.da_impuestos['sociedades_adelantos']) }}
+                            {{ _self.showLine(fsc, trans('total-pay-return-corporate-tax') ~ ' (MOD 200)', fsc.da_impuestos['total-mod200']) }}
                         </table>
                     </div>
                 </div>
@@ -149,45 +149,45 @@
             <div class="col-sm-6">
                 <div class="card border-success shadow mb-3">
                     <div class="card-header bg-success text-white text-center">
-                        <strong>{{ i18n.trans('short-situation-results')|upper }}</strong>
+                        <strong>{{ trans('short-situation-results')|upper }}</strong>
                     </div>
                     <div class="table-responsive">
                         <table class="table mb-0">
-                            {{ _self.showLine(fsc, i18n.trans('total') ~ ' (' ~ i18n.trans('treasury') ~ ' + ' ~ i18n.trans('expenses-charges') ~ ' + MOD 111 + MOD 115 + MOD 303 + MOD 202 + MOD 200)', fsc.da_resultadosituacion['total']) }}
+                            {{ _self.showLine(fsc, trans('total') ~ ' (' ~ trans('treasury') ~ ' + ' ~ trans('expenses-charges') ~ ' + MOD 111 + MOD 115 + MOD 303 + MOD 202 + MOD 200)', fsc.da_resultadosituacion['total']) }}
                         </table>
                     </div>
                 </div>
                 <div class="card border-dark shadow mb-3">
                     <div class="card-header bg-dark text-white text-center">
-                        <strong>{{ i18n.trans('reserves-results-exercises')|upper }}</strong>
+                        <strong>{{ trans('reserves-results-exercises')|upper }}</strong>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-striped mb-0">
-                            {{ _self.showLine(fsc, '(a) ' ~ i18n.trans('legal-reserve') ~ ' (112xxx)', fsc.da_reservasresultados['reservalegal']) }}
-                            {{ _self.showLine(fsc, '(b) ' ~ i18n.trans('voluntary-reserves') ~ ' (113xxx)', fsc.da_reservasresultados['reservasvoluntarias']) }}
-                            {{ _self.showLine(fsc, '(c) ' ~ i18n.trans('previous-exercise-result') ~ ' (129xxx + 121xxx)', fsc.da_reservasresultados['resultadoejercicioanterior']) }}
-                            {{ _self.showLine(fsc, i18n.trans('total'), fsc.da_reservasresultados['total_reservas']) }}
+                            {{ _self.showLine(fsc, '(a) ' ~ trans('legal-reserve') ~ ' (112xxx)', fsc.da_reservasresultados['reservalegal']) }}
+                            {{ _self.showLine(fsc, '(b) ' ~ trans('voluntary-reserves') ~ ' (113xxx)', fsc.da_reservasresultados['reservasvoluntarias']) }}
+                            {{ _self.showLine(fsc, '(c) ' ~ trans('previous-exercise-result') ~ ' (129xxx + 121xxx)', fsc.da_reservasresultados['resultadoejercicioanterior']) }}
+                            {{ _self.showLine(fsc, trans('total'), fsc.da_reservasresultados['total_reservas']) }}
                         </table>
                     </div>
                 </div>
                 <div class="card border-primary shadow mb-3">
                     <div class="card-header bg-primary text-white text-center">
-                        <strong>{{ i18n.trans('current-exercise-results')|upper }}</strong>
+                        <strong>{{ trans('current-exercise-results')|upper }}</strong>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-striped mb-0">
-                            {{ _self.showLine(fsc, i18n.trans('sales'), fsc.da_resultadoejercicioactual['total_ventas']) }}
-                            {{ _self.showLine(fsc, i18n.trans('expenses'), fsc.da_resultadoejercicioactual['total_gastos']) }}
-                            {{ _self.showLine(fsc, i18n.trans('result-exploitation'), fsc.da_resultadoejercicioactual['resultadoexplotacion']) }}
+                            {{ _self.showLine(fsc, trans('sales'), fsc.da_resultadoejercicioactual['total_ventas']) }}
+                            {{ _self.showLine(fsc, trans('expenses'), fsc.da_resultadoejercicioactual['total_gastos']) }}
+                            {{ _self.showLine(fsc, trans('result-exploitation'), fsc.da_resultadoejercicioactual['resultadoexplotacion']) }}
                             <tr>
                                 <td colspan="2"></td>
                             </tr>
-                            {{ _self.showLine(fsc, i18n.trans('amortization-intangible-assets') ~ ' (680xxx)', fsc.da_resultadoejercicioactual['amortizacioninmovintang']) }}
-                            {{ _self.showLine(fsc, i18n.trans('amortization-intangible-material') ~ ' (681xxx)', fsc.da_resultadoejercicioactual['amortizacioninmovmat']) }}
-                            {{ _self.showLine(fsc, i18n.trans('total-amortizations'), fsc.da_resultadoejercicioactual['total_amort']) }}
-                            {{ _self.showLine(fsc, i18n.trans('result-before-taxes-rai'), fsc.da_resultadoejercicioactual['resultado_antes_impuestos']) }}
-                            {{ _self.showLine(fsc, i18n.trans('corporate-tax'), fsc.da_resultadoejercicioactual['impuesto_sociedades']) }}
-                            {{ _self.showLine(fsc, i18n.trans('result-after-taxes-rdi'), fsc.da_resultadoejercicioactual['resultado_despues_impuestos']) }}
+                            {{ _self.showLine(fsc, trans('amortization-intangible-assets') ~ ' (680xxx)', fsc.da_resultadoejercicioactual['amortizacioninmovintang']) }}
+                            {{ _self.showLine(fsc, trans('amortization-intangible-material') ~ ' (681xxx)', fsc.da_resultadoejercicioactual['amortizacioninmovmat']) }}
+                            {{ _self.showLine(fsc, trans('total-amortizations'), fsc.da_resultadoejercicioactual['total_amort']) }}
+                            {{ _self.showLine(fsc, trans('result-before-taxes-rai'), fsc.da_resultadoejercicioactual['resultado_antes_impuestos']) }}
+                            {{ _self.showLine(fsc, trans('corporate-tax'), fsc.da_resultadoejercicioactual['impuesto_sociedades']) }}
+                            {{ _self.showLine(fsc, trans('result-after-taxes-rdi'), fsc.da_resultadoejercicioactual['resultado_despues_impuestos']) }}
                         </table>
                     </div>
                 </div>
