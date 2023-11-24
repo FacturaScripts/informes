@@ -21,6 +21,7 @@ namespace FacturaScripts\Plugins\Informes;
 
 use FacturaScripts\Core\Base\DataBase;
 use FacturaScripts\Core\Base\InitClass;
+use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\Empresa;
 use FacturaScripts\Plugins\Informes\Model\BalanceAccount;
 use FacturaScripts\Plugins\Informes\Model\BalanceCode;
@@ -117,7 +118,7 @@ class Init extends InitClass
             $balance->level4 = $row['nivel4'];
             $balance->subtype = 'normal';
             if (false === $balance->save()) {
-                $this->toolBox()->i18nLog()->warning('balance-code-save-error');
+                Tools::log()->warning('balance-code-save-error');
                 $db->rollback();
                 return;
             }
@@ -133,7 +134,7 @@ class Init extends InitClass
             $balanceAbr->id = null;
             $balanceAbr->subtype = 'abbreviated';
             if (false === $balanceAbr->save()) {
-                $this->toolBox()->i18nLog()->warning('balance-code-save-error');
+                Tools::log()->warning('balance-code-save-error');
                 $db->rollback();
                 return;
             }
@@ -193,7 +194,7 @@ class Init extends InitClass
             // renombramos la tabla
             $sql = 'ALTER TABLE ' . $before . ' RENAME TO ' . $after . ';';
             if (false === $db->exec($sql)) {
-                $this->toolBox()->i18nLog()->warning('rename-table-error');
+                Tools::log()->warning('rename-table-error');
                 return;
             }
         }
