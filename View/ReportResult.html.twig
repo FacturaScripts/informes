@@ -57,6 +57,18 @@
                     </div>
                 </div>
 
+                <div class="card border-warning shadow mt-4">
+                    <h5 class="card-header bg-warning text-white pointer d-flex" id="showPurchasesProductReport">
+                        {{ trans('purchases') }}
+                        <button class="btn btn-warning btn-sm btn-spin-action ml-auto">
+                            <i class="fa fa-plus"></i>
+                        </button>
+                    </h5>
+                    <div id="purchasesProductReport" class="collapse">
+                        <div class="card-body p-0"></div>
+                    </div>
+                </div>
+
                 <div class="card border-danger shadow mt-4">
                     <h5 class="card-header bg-danger text-white pointer d-flex" id="showPurchases">
                         {{ trans('expenses') }}
@@ -230,6 +242,7 @@
         let familyReport = '';
         let pagosChart;
         let purchasesReport = false;
+        let purchasesProductReport = false;
         let resumeChart;
         let salesReport = false;
         let seriesChart;
@@ -240,12 +253,18 @@
                     $('#showSales').click();
                 }
 
+                if (purchasesProductReport) {
+                    $('#showPurchasesProductReport').click();
+                }
+
                 if (purchasesReport) {
                     $('#showPurchases').click();
                 }
 
                 $('#salesReport .card-body').html('');
                 $('#purchasesReport .card-body').html('');
+                $('#purchasesProductReport .card-body').html('');
+
 
                 let formData = new FormData();
                 formData.append('action', 'load-summary');
@@ -277,6 +296,10 @@
 
                     if (data.sales && data.sales !== '') {
                         $('#salesReport .card-body').html(data.sales);
+                    }
+
+                    if (data.purchasesProduct && data.purchasesProduct !== '') {
+                        $('#purchasesProductReport .card-body').html(data.purchasesProduct);
                     }
 
                     if (data.purchases && data.purchases !== '') {
@@ -629,6 +652,20 @@
                     formData.append('parent_codfamilia', familyReport);
                     sendForm(formData);
                 }
+            });
+
+            $(document).on('click', '#showPurchasesProductReport', function () {
+                if (purchasesProductReport === false) {
+                    $('#showPurchasesProductReport svg').removeClass('fa-plus').addClass('fa-minus');
+                    purchasesProductReport = true;
+                    let formData = new FormData();
+                    formData.append('action', 'load-purchases-product');
+                    sendForm(formData);
+                } else {
+                    $('#showPurchasesProductReport svg').addClass('fa-plus').removeClass('fa-minus');
+                    purchasesProductReport = false;
+                }
+                $('#purchasesProductReport').collapse('toggle');
             });
 
             $(document).on('click', '#showPurchases', function () {
