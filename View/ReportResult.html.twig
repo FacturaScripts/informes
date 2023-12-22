@@ -668,6 +668,23 @@
                 $('#purchasesProductReport').collapse('toggle');
             });
 
+            $(document).on('click', '#purchasesProductReport tr.ventas', function () {
+                if (purchasesProductReport) {
+                    if (familyReport === $(this).attr('codfamilia')) {
+                        $('tr.subfamily').remove();
+                        familyReport = '';
+                        return;
+                    }
+
+                    familyReport = $(this).attr('codfamilia');
+
+                    let formData = new FormData();
+                    formData.append('action', 'load-family');
+                    formData.append('parent_codfamilia', familyReport);
+                    sendForm(formData);
+                }
+            });
+
             $(document).on('click', '#showPurchases', function () {
                 if (purchasesReport === false) {
                     $('#showPurchases svg').removeClass('fa-plus').addClass('fa-minus');

@@ -30,26 +30,28 @@ class SalesResultReport extends ResultReport
     {
         self::apply($formData);
 
+    // Definir los meses en un arreglo
+        $meses = [
+            'january', 'february', 'march', 'april', 'may', 'june',
+            'july', 'august', 'september', 'october', 'november', 'december'
+        ];
+
+    // Comenzar a construir el HTML
         $html = '<div class="table-responsive">'
             . '<table class="table table-hover mb-0">'
             . '<thead>'
             . '<tr>'
             . '<th class="title">' . ToolBox::i18n()->trans('family') . '</th>'
             . '<th class="porc">%</th>'
-            . '<th class="total">' . ToolBox::i18n()->trans('total') . '</th>'
-            . '<th class="month">' . ToolBox::i18n()->trans('january') . '</th>'
-            . '<th class="month">' . ToolBox::i18n()->trans('february') . '</th>'
-            . '<th class="month">' . ToolBox::i18n()->trans('march') . '</th>'
-            . '<th class="month">' . ToolBox::i18n()->trans('april') . '</th>'
-            . '<th class="month">' . ToolBox::i18n()->trans('may') . '</th>'
-            . '<th class="month">' . ToolBox::i18n()->trans('june') . '</th>'
-            . '<th class="month">' . ToolBox::i18n()->trans('july') . '</th>'
-            . '<th class="month">' . ToolBox::i18n()->trans('august') . '</th>'
-            . '<th class="month">' . ToolBox::i18n()->trans('september') . '</th>'
-            . '<th class="month">' . ToolBox::i18n()->trans('october') . '</th>'
-            . '<th class="month">' . ToolBox::i18n()->trans('november') . '</th>'
-            . '<th class="month">' . ToolBox::i18n()->trans('december') . '</th>'
-            . '</tr>'
+            . '<th class="total">' . ToolBox::i18n()->trans('total') . '</th>';
+
+    // Añadir los meses usando un bucle
+        foreach ($meses as $mes) {
+            $html .= '<th class="month">' . ToolBox::i18n()->trans($mes) . '</th>';
+        }
+
+    // Finalizar la etiqueta de cabecera y la de cuerpo de la tabla
+        $html .= '</tr>'
             . '</thead>'
             . '<tbody>';
 

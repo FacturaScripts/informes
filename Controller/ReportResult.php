@@ -80,7 +80,8 @@ class ReportResult extends Controller
                 break;
 
             case 'load-sales':
-                $this->loadSales();
+            case 'load-purchases-product':
+                $this->loadSales($action);
                 break;
 
             case 'load-summary':
@@ -121,11 +122,13 @@ class ReportResult extends Controller
         $this->response->setContent(json_encode($content));
     }
 
-    protected function loadSales()
+    protected function loadSales(string $action)
     {
         $this->setTemplate(false);
+        $key = ($action == "load-sales" ) ? "sales" : "purchasesProduct";
+
         $content = [
-            'sales' => SalesResultReport::render($this->request->request->all()),
+            $key => SalesResultReport::render($this->request->request->all()),
             'messages' => $this->toolBox()->log()->read('', $this->logLevels)
         ];
         $this->response->setContent(json_encode($content));

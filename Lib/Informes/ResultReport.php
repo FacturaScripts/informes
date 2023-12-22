@@ -27,6 +27,7 @@ use FacturaScripts\Dinamic\Model\Asiento;
 use FacturaScripts\Dinamic\Model\Cuenta;
 use FacturaScripts\Dinamic\Model\Ejercicio;
 use FacturaScripts\Dinamic\Model\FacturaCliente;
+use FacturaScripts\Dinamic\Model\FacturaProveedor;
 use FacturaScripts\Dinamic\Model\Familia;
 use FacturaScripts\Dinamic\Model\FormaPago;
 use FacturaScripts\Dinamic\Model\Producto;
@@ -91,8 +92,9 @@ class ResultReport
 
             case 'load-family':
             case 'load-sales':
-                self::sales_build_year(self::$year, self::$codejercicio);
-                self::sales_build_year(self::$lastyear, self::$codejercicio_ant);
+            case 'load-purchases-product':
+                self::sales_purchases_build_year(self::$year, self::$codejercicio, $formData['action']);
+                self::sales_purchases_build_year(self::$lastyear, self::$codejercicio_ant, $formData['action']);
                 break;
 
             case 'load-summary':
@@ -138,12 +140,17 @@ class ResultReport
             $familia = 'SIN_FAMILIA';
         }
 
-        return array('ref' => $referencia, 'art_desc' => $art_desc, 'codfamilia' => $codfamilia, 'familia' => $familia, 'pvptotal' => $pvptotal);
+        return array(
+            'ref' => $referencia,
+            'art_desc' => $art_desc,
+            'codfamilia' => $codfamilia,
+            'familia' => $familia,
+            'pvptotal' => $pvptotal
+        );
     }
 
-    protected static function customerInvoices(array $ventas, array $date, string $codejercicio, int $mes, float &$ventas_total_ser_meses, float &$ventas_total_pag_meses, float &$ventas_total_age_meses): array
+    protected static function customerInvoices(array $ventas, array $date, string $codejercicio, int $mes, float &$ventas_total_ser_meses, float &$ventas_total_pag_meses, float &$ventas_total_age_meses, $modelFacturas): array
     {
-        $modelFacturas = new FacturaCliente();
 
         $where = [
             new DataBaseWhere('fecha', $date['desde'], '>='),
@@ -574,7 +581,7 @@ class ResultReport
 
     protected static function summary_build_year($year, $codejercicio)
     {
-        self::sales_build_year($year, $codejercicio);
+        self::sales_purchases_build_year($year, $codejercicio,"load-sales");
         self::purchases_build_year($year, $codejercicio);
 
         $resultado = array(
@@ -604,7 +611,7 @@ class ResultReport
         self::$resultado[$year] = $resultado;
     }
 
-    protected static function sales_build_year($year, $codejercicio)
+    protected static function sales_purchases_build_year(string $year, string $codejercicio, string $action) : void
     {
         $date = array(
             'desde' => '',
@@ -654,12 +661,18 @@ class ResultReport
 
                 /**
                  *  VENTAS: Consulta con las lineasfacturascli
+                 *  COMPRAS: Consulta con las lineasfacturasprov
                  * *****************************************************************
                  */
-                $ventas = self::salesLineasFacturasCli($ventas, $date, $codejercicio, $mes, $ventas_total_fam_meses, $countMonth);
 
+                $tablename = ($action == "load-sales")  ? "facturascli" : "facturasprov";
+                $model = ($action == "load-sales")  ? new FacturaCliente() : new FacturaProveedor();
+
+
+                $ventas = self::salesLineasFacturasCli($ventas, $date, $codejercicio, $mes, $ventas_total_fam_meses, $countMonth, $tablename);
                 // Recorremos las facturas
-                $ventas = self::customerInvoices($ventas, $date, $codejercicio, $mes, $ventas_total_ser_meses, $ventas_total_pag_meses, $ventas_total_age_meses);
+                $ventas = self::customerInvoices($ventas, $date, $codejercicio, $mes, $ventas_total_ser_meses, $ventas_total_pag_meses, $ventas_total_age_meses, $model);
+
 
                 // Las descripciones solo las necesitamos en el año seleccionado,
                 // en el año anterior se omite
@@ -698,12 +711,12 @@ class ResultReport
         self::$ventas[$year] = $ventas;
     }
 
-    protected static function salesLineasFacturasCli(array $ventas, array $date, string $codejercicio, int $mes, float &$ventas_total_fam_meses, int &$countMonth): array
+    protected static function salesLineasFacturasCli(array $ventas, array $date, string $codejercicio, int $mes, float &$ventas_total_fam_meses, int &$countMonth, string $tablename): array
     {
         $dataBase = new DataBase();
 
-        $sql = "select lfc.referencia, sum(lfc.pvptotal) as pvptotal from lineasfacturascli as lfc"
-            . " LEFT JOIN facturascli as fc ON lfc.idfactura = fc.idfactura"
+        $sql = "select lfc.referencia, sum(lfc.pvptotal) as pvptotal from lineas{$tablename} as lfc"
+            . " LEFT JOIN {$tablename} as fc ON lfc.idfactura = fc.idfactura"
             . " where fc.fecha >= " . $dataBase->var2str($date['desde'])
             . " AND fc.fecha <= " . $dataBase->var2str($date['hasta'])
             . " AND fc.codejercicio = " . $dataBase->var2str($codejercicio)
