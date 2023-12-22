@@ -24,7 +24,7 @@ use FacturaScripts\Core\Base\ToolBox;
 /**
  * @author Daniel Fernández Giménez <hola@danielfg.es>
  */
-class SalesResultReport extends ResultReport
+class SalesPurchasesResultReport extends ResultReport
 {
     public static function render(array $formData): string
     {

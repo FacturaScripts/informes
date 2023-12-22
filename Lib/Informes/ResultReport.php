@@ -670,7 +670,7 @@ class ResultReport
                 $model = ($action == "load-sales" OR $action == "load-family-purchases")  ? new FacturaCliente() : new FacturaProveedor();
 
 
-                $ventas = self::salesLineasFacturasCli($ventas, $date, $codejercicio, $mes, $ventas_total_fam_meses, $countMonth, $tablename);
+                $ventas = self::invoiceLines($ventas, $date, $codejercicio, $mes, $ventas_total_fam_meses, $countMonth, $tablename);
                 // Recorremos las facturas
                 $ventas = self::customerInvoices($ventas, $date, $codejercicio, $mes, $ventas_total_ser_meses, $ventas_total_pag_meses, $ventas_total_age_meses, $model);
 
@@ -712,7 +712,7 @@ class ResultReport
         self::$ventas[$year] = $ventas;
     }
 
-    protected static function salesLineasFacturasCli(array $ventas, array $date, string $codejercicio, int $mes, float &$ventas_total_fam_meses, int &$countMonth, string $tablename): array
+    protected static function invoiceLines(array $ventas, array $date, string $codejercicio, int $mes, float &$ventas_total_fam_meses, int &$countMonth, string $tablename): array
     {
         $dataBase = new DataBase();
 

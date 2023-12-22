@@ -25,7 +25,7 @@ use FacturaScripts\Dinamic\Model\Empresa;
 use FacturaScripts\Plugins\Informes\Lib\Informes\AccountResultReport;
 use FacturaScripts\Plugins\Informes\Lib\Informes\FamilyResultReport;
 use FacturaScripts\Plugins\Informes\Lib\Informes\PurchasesResultReport;
-use FacturaScripts\Plugins\Informes\Lib\Informes\SalesResultReport;
+use FacturaScripts\Plugins\Informes\Lib\Informes\SalesPurchasesResultReport;
 use FacturaScripts\Plugins\Informes\Lib\Informes\SummaryResultReport;
 
 /**
@@ -82,7 +82,7 @@ class ReportResult extends Controller
 
             case 'load-sales':
             case 'load-purchases-product':
-                $this->loadSales($action);
+                $this->loadSalesPurchases($action);
                 break;
 
             case 'load-summary':
@@ -124,13 +124,13 @@ class ReportResult extends Controller
         $this->response->setContent(json_encode($content));
     }
 
-    protected function loadSales(string $action)
+    protected function loadSalesPurchases(string $action)
     {
         $this->setTemplate(false);
         $key = ($action == "load-sales" ) ? "sales" : "purchasesProduct";
 
         $content = [
-            $key => SalesResultReport::render($this->request->request->all()),
+            $key => SalesPurchasesResultReport::render($this->request->request->all()),
             'messages' => $this->toolBox()->log()->read('', $this->logLevels)
         ];
         $this->response->setContent(json_encode($content));
