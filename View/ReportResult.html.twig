@@ -307,7 +307,8 @@
                     }
 
                     if (data.family && data.family !== '') {
-                        $('#salesReport tr').each(function(){
+                        var containerId = data.type == 'load-family-sales' ? '#salesReport' : '#purchasesProductReport';
+                        $(containerId + ' tr').each(function(){
                             if ($(this).attr('codfamilia') === data.codfamilia) {
                                 $(this).after(data.family);
                             }
@@ -619,70 +620,60 @@
                 });
             }
 
+            function handleReportToggle(reportElementId, reportFlag, action, additionalAction) {
+                const reportElement = $(reportElementId);
+                reportElement.find('svg').toggleClass('fa-plus fa-minus');
+                reportFlag = !reportFlag;
+
+                if (reportFlag) {
+                    let formData = new FormData();
+                    formData.append('action', action);
+                    if (additionalAction) {
+                        formData.append(additionalAction.key, additionalAction.value);
+                    }
+                    sendForm(formData);
+                }
+
+                $(reportElementId + 'Report').collapse('toggle');
+                return reportFlag;
+            }
+
+            function handleSubReportClick(element, reportFlag, parentAttribute, action) {
+                if (reportFlag) {
+                    const parentValue = $(element).attr(parentAttribute);
+                    if (familyReport === parentValue) {
+                        $(element).closest('tr').siblings('tr.subfamily').remove();
+                        familyReport = '';
+                        return;
+                    }
+
+                    familyReport = parentValue;
+                    let formData = new FormData();
+                    formData.append('action', action);
+                    formData.append('parent_' + parentAttribute, parentValue);
+                    sendForm(formData);
+                }
+            }
+
+
             $(document).on('change', '#selectYear', function () {
                 initPage();
             });
 
             $(document).on('click', '#showSales', function () {
-                if (salesReport === false) {
-                    $('#showSales svg').removeClass('fa-plus').addClass('fa-minus');
-                    salesReport = true;
-                    let formData = new FormData();
-                    formData.append('action', 'load-sales');
-                    sendForm(formData);
-                } else {
-                    $('#showSales svg').addClass('fa-plus').removeClass('fa-minus');
-                    salesReport = false;
-                }
-                $('#salesReport').collapse('toggle');
+                salesReport = handleReportToggle('#sales', salesReport, 'load-sales');
             });
 
             $(document).on('click', '#salesReport tr.ventas', function () {
-                if (salesReport) {
-                    if (familyReport === $(this).attr('codfamilia')) {
-                        $('tr.subfamily').remove();
-                        familyReport = '';
-                        return;
-                    }
-
-                    familyReport = $(this).attr('codfamilia');
-
-                    let formData = new FormData();
-                    formData.append('action', 'load-family');
-                    formData.append('parent_codfamilia', familyReport);
-                    sendForm(formData);
-                }
+                handleSubReportClick(this, salesReport, 'codfamilia', 'load-family-sales');
             });
 
             $(document).on('click', '#showPurchasesProductReport', function () {
-                if (purchasesProductReport === false) {
-                    $('#showPurchasesProductReport svg').removeClass('fa-plus').addClass('fa-minus');
-                    purchasesProductReport = true;
-                    let formData = new FormData();
-                    formData.append('action', 'load-purchases-product');
-                    sendForm(formData);
-                } else {
-                    $('#showPurchasesProductReport svg').addClass('fa-plus').removeClass('fa-minus');
-                    purchasesProductReport = false;
-                }
-                $('#purchasesProductReport').collapse('toggle');
+                purchasesProductReport = handleReportToggle('#purchasesProduct', purchasesProductReport, 'load-purchases-product');
             });
 
             $(document).on('click', '#purchasesProductReport tr.ventas', function () {
-                if (purchasesProductReport) {
-                    if (familyReport === $(this).attr('codfamilia')) {
-                        $('tr.subfamily').remove();
-                        familyReport = '';
-                        return;
-                    }
-
-                    familyReport = $(this).attr('codfamilia');
-
-                    let formData = new FormData();
-                    formData.append('action', 'load-family');
-                    formData.append('parent_codfamilia', familyReport);
-                    sendForm(formData);
-                }
+                handleSubReportClick(this, purchasesProductReport, 'codfamilia', 'load-family-purchases');
             });
 
             $(document).on('click', '#showPurchases', function () {

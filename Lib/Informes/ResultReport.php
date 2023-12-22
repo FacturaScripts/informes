@@ -90,7 +90,8 @@ class ResultReport
                 self::purchases_build_year(self::$lastyear, self::$codejercicio_ant);
                 break;
 
-            case 'load-family':
+            case 'load-family-sales':
+            case 'load-family-purchases':
             case 'load-sales':
             case 'load-purchases-product':
                 self::sales_purchases_build_year(self::$year, self::$codejercicio, $formData['action']);
@@ -665,8 +666,8 @@ class ResultReport
                  * *****************************************************************
                  */
 
-                $tablename = ($action == "load-sales")  ? "facturascli" : "facturasprov";
-                $model = ($action == "load-sales")  ? new FacturaCliente() : new FacturaProveedor();
+                $tablename = ($action == "load-sales" OR $action == "load-family-sales")  ? "facturascli" : "facturasprov";
+                $model = ($action == "load-sales" OR $action == "load-family-purchases")  ? new FacturaCliente() : new FacturaProveedor();
 
 
                 $ventas = self::salesLineasFacturasCli($ventas, $date, $codejercicio, $mes, $ventas_total_fam_meses, $countMonth, $tablename);

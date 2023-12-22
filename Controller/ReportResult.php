@@ -71,7 +71,8 @@ class ReportResult extends Controller
                 $this->loadAccount();
                 break;
 
-            case 'load-family':
+            case 'load-family-sales':
+            case 'load-family-purchases':
                 $this->loadFamily();
                 break;
 
@@ -107,7 +108,8 @@ class ReportResult extends Controller
         $content = [
             'codfamilia' => $this->request->request->get('parent_codfamilia'),
             'family' => FamilyResultReport::render($this->request->request->all()),
-            'messages' => $this->toolBox()->log()->read('', $this->logLevels)
+            'messages' => $this->toolBox()->log()->read('', $this->logLevels),
+            'type' => $this->request->request->get('action')
         ];
         $this->response->setContent(json_encode($content));
     }
