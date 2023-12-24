@@ -57,6 +57,18 @@
                     </div>
                 </div>
 
+                <div class="card border-warning shadow mt-4">
+                    <h5 class="card-header bg-warning text-white pointer d-flex" id="showPurchasesProductReport">
+                        {{ trans('purchases') }}
+                        <button class="btn btn-warning btn-sm btn-spin-action ml-auto">
+                            <i class="fa fa-plus"></i>
+                        </button>
+                    </h5>
+                    <div id="purchasesProductReport" class="collapse">
+                        <div class="card-body p-0"></div>
+                    </div>
+                </div>
+
                 <div class="card border-danger shadow mt-4">
                     <h5 class="card-header bg-danger text-white pointer d-flex" id="showPurchases">
                         {{ trans('expenses') }}
@@ -227,9 +239,11 @@
         let accountReport = '';
         let agentesChart;
         let familiesChart;
-        let familyReport = '';
+        let familyReportSales = '';
+        let familyReportPurchases = '';
         let pagosChart;
         let purchasesReport = false;
+        let purchasesProductReport = false;
         let resumeChart;
         let salesReport = false;
         let seriesChart;
@@ -240,12 +254,18 @@
                     $('#showSales').click();
                 }
 
+                if (purchasesProductReport) {
+                    $('#showPurchasesProductReport').click();
+                }
+
                 if (purchasesReport) {
                     $('#showPurchases').click();
                 }
 
                 $('#salesReport .card-body').html('');
                 $('#purchasesReport .card-body').html('');
+                $('#purchasesProductReport .card-body').html('');
+
 
                 let formData = new FormData();
                 formData.append('action', 'load-summary');
@@ -279,12 +299,17 @@
                         $('#salesReport .card-body').html(data.sales);
                     }
 
+                    if (data.purchasesProduct && data.purchasesProduct !== '') {
+                        $('#purchasesProductReport .card-body').html(data.purchasesProduct);
+                    }
+
                     if (data.purchases && data.purchases !== '') {
                         $('#purchasesReport .card-body').html(data.purchases);
                     }
 
                     if (data.family && data.family !== '') {
-                        $('#salesReport tr').each(function(){
+                        var containerId = data.type == 'load-family-sales' ? '#salesReport' : '#purchasesProductReport';
+                        $(containerId + ' tr').each(function(){
                             if ($(this).attr('codfamilia') === data.codfamilia) {
                                 $(this).after(data.family);
                             }
@@ -596,39 +621,64 @@
                 });
             }
 
+            function handleReportToggle(reportElementId, reportFlag, action, additionalAction) {
+                const reportElement = $(reportElementId);
+                reportElement.find('svg').toggleClass('fa-plus fa-minus');
+                reportFlag = !reportFlag;
+
+                if (reportFlag) {
+                    let formData = new FormData();
+                    formData.append('action', action);
+                    if (additionalAction) {
+                        formData.append(additionalAction.key, additionalAction.value);
+                    }
+                    sendForm(formData);
+                }
+
+                $(reportElementId + 'Report').collapse('toggle');
+                return reportFlag;
+            }
+
+            function handleSubReportClick(element, reportFlag, parentAttribute, action) {
+
+                if (reportFlag) {
+                    const parentValue = $(element).attr(parentAttribute);
+                    $(element).closest('tr').siblings('tr.subfamily').remove();
+
+                    familyReport = action === 'load-family-sales' ? familyReportSales : familyReportPurchases;
+
+                    if (familyReport === parentValue) {
+                        action === 'load-family-sales' ? familyReportSales = '' : familyReportPurchases = '';
+                        return;
+                    }
+
+                    action === 'load-family-sales' ? familyReportSales = parentValue : familyReportPurchases = parentValue;
+                    let formData = new FormData();
+                    formData.append('action', action);
+                    formData.append('parent_' + parentAttribute, parentValue);
+                    sendForm(formData);
+                }
+            }
+
+
             $(document).on('change', '#selectYear', function () {
                 initPage();
             });
 
             $(document).on('click', '#showSales', function () {
-                if (salesReport === false) {
-                    $('#showSales svg').removeClass('fa-plus').addClass('fa-minus');
-                    salesReport = true;
-                    let formData = new FormData();
-                    formData.append('action', 'load-sales');
-                    sendForm(formData);
-                } else {
-                    $('#showSales svg').addClass('fa-plus').removeClass('fa-minus');
-                    salesReport = false;
-                }
-                $('#salesReport').collapse('toggle');
+                salesReport = handleReportToggle('#sales', salesReport, 'load-sales');
             });
 
             $(document).on('click', '#salesReport tr.ventas', function () {
-                if (salesReport) {
-                    if (familyReport === $(this).attr('codfamilia')) {
-                        $('tr.subfamily').remove();
-                        familyReport = '';
-                        return;
-                    }
+                handleSubReportClick(this, salesReport, 'codfamilia', 'load-family-sales');
+            });
 
-                    familyReport = $(this).attr('codfamilia');
+            $(document).on('click', '#showPurchasesProductReport', function () {
+                purchasesProductReport = handleReportToggle('#purchasesProduct', purchasesProductReport, 'load-purchases-product');
+            });
 
-                    let formData = new FormData();
-                    formData.append('action', 'load-family');
-                    formData.append('parent_codfamilia', familyReport);
-                    sendForm(formData);
-                }
+            $(document).on('click', '#purchasesProductReport tr.ventas', function () {
+                handleSubReportClick(this, purchasesProductReport, 'codfamilia', 'load-family-purchases');
             });
 
             $(document).on('click', '#showPurchases', function () {
