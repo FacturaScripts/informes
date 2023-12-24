@@ -239,7 +239,8 @@
         let accountReport = '';
         let agentesChart;
         let familiesChart;
-        let familyReport = '';
+        let familyReportSales = '';
+        let familyReportPurchases = '';
         let pagosChart;
         let purchasesReport = false;
         let purchasesProductReport = false;
@@ -639,15 +640,19 @@
             }
 
             function handleSubReportClick(element, reportFlag, parentAttribute, action) {
+
                 if (reportFlag) {
                     const parentValue = $(element).attr(parentAttribute);
+                    $(element).closest('tr').siblings('tr.subfamily').remove();
+
+                    familyReport = action === 'load-family-sales' ? familyReportSales : familyReportPurchases;
+
                     if (familyReport === parentValue) {
-                        $(element).closest('tr').siblings('tr.subfamily').remove();
-                        familyReport = '';
+                        action === 'load-family-sales' ? familyReportSales = '' : familyReportPurchases = '';
                         return;
                     }
 
-                    familyReport = parentValue;
+                    action === 'load-family-sales' ? familyReportSales = parentValue : familyReportPurchases = parentValue;
                     let formData = new FormData();
                     formData.append('action', action);
                     formData.append('parent_' + parentAttribute, parentValue);

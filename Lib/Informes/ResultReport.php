@@ -150,7 +150,7 @@ class ResultReport
         );
     }
 
-    protected static function customerInvoices(array $ventas, array $date, string $codejercicio, int $mes, float &$ventas_total_ser_meses, float &$ventas_total_pag_meses, float &$ventas_total_age_meses, $modelFacturas): array
+    protected static function dataInvoices(array $ventas, array $date, string $codejercicio, int $mes, float &$ventas_total_ser_meses, float &$ventas_total_pag_meses, float &$ventas_total_age_meses, $modelFacturas): array
     {
 
         $where = [
@@ -672,7 +672,7 @@ class ResultReport
 
                 $ventas = self::invoiceLines($ventas, $date, $codejercicio, $mes, $ventas_total_fam_meses, $countMonth, $tablename);
                 // Recorremos las facturas
-                $ventas = self::customerInvoices($ventas, $date, $codejercicio, $mes, $ventas_total_ser_meses, $ventas_total_pag_meses, $ventas_total_age_meses, $model);
+                $ventas = self::dataInvoices($ventas, $date, $codejercicio, $mes, $ventas_total_ser_meses, $ventas_total_pag_meses, $ventas_total_age_meses, $model);
 
 
                 // Las descripciones solo las necesitamos en el año seleccionado,
