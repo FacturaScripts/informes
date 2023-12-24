@@ -25,7 +25,7 @@ use FacturaScripts\Dinamic\Model\Empresa;
 use FacturaScripts\Plugins\Informes\Lib\Informes\AccountResultReport;
 use FacturaScripts\Plugins\Informes\Lib\Informes\FamilyResultReport;
 use FacturaScripts\Plugins\Informes\Lib\Informes\PurchasesResultReport;
-use FacturaScripts\Plugins\Informes\Lib\Informes\SalesResultReport;
+use FacturaScripts\Plugins\Informes\Lib\Informes\SalesPurchasesResultReport;
 use FacturaScripts\Plugins\Informes\Lib\Informes\SummaryResultReport;
 
 /**
@@ -71,7 +71,8 @@ class ReportResult extends Controller
                 $this->loadAccount();
                 break;
 
-            case 'load-family':
+            case 'load-family-sales':
+            case 'load-family-purchases':
                 $this->loadFamily();
                 break;
 
@@ -80,7 +81,8 @@ class ReportResult extends Controller
                 break;
 
             case 'load-sales':
-                $this->loadSales();
+            case 'load-purchases-product':
+                $this->loadSalesPurchases($action);
                 break;
 
             case 'load-summary':
@@ -106,7 +108,8 @@ class ReportResult extends Controller
         $content = [
             'codfamilia' => $this->request->request->get('parent_codfamilia'),
             'family' => FamilyResultReport::render($this->request->request->all()),
-            'messages' => $this->toolBox()->log()->read('', $this->logLevels)
+            'messages' => $this->toolBox()->log()->read('', $this->logLevels),
+            'type' => $this->request->request->get('action')
         ];
         $this->response->setContent(json_encode($content));
     }
@@ -121,11 +124,13 @@ class ReportResult extends Controller
         $this->response->setContent(json_encode($content));
     }
 
-    protected function loadSales()
+    protected function loadSalesPurchases(string $action)
     {
         $this->setTemplate(false);
+        $key = ($action == "load-sales" ) ? "sales" : "purchasesProduct";
+
         $content = [
-            'sales' => SalesResultReport::render($this->request->request->all()),
+            $key => SalesPurchasesResultReport::render($this->request->request->all()),
             'messages' => $this->toolBox()->log()->read('', $this->logLevels)
         ];
         $this->response->setContent(json_encode($content));
