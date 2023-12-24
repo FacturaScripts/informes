@@ -594,11 +594,29 @@ class ResultReport
             // inicializamos
             $resultado['total_mes'][$mes] = 0;
 
+            if (!isset(self::$ventas[$year]['total_mes'][$mes])) {
+                self::$ventas[$year]['total_mes'][$mes] = 0;
+                self::$ventas[$year]['total_mes']['media'] = 0;
+            }
+
+            if (!isset(self::$gastos[$year]['total_mes'][$mes])) {
+                self::$gastos[$year]['total_mes'][$mes] = 0;
+                self::$gastos[$year]['total_mes']['media'] = 0;
+            }
+
             /**
              *  RESULTADOS
              * *****************************************************************
              */
             $resultado['total_mes'][$mes] = round(self::$ventas[$year]['total_mes'][$mes] - self::$gastos[$year]['total_mes'][$mes], FS_NF0);
+        }
+
+        if (!isset(self::$ventas[$year]['total_mes'][0])) {
+            self::$ventas[$year]['total_mes'][0] = 0;
+        }
+
+        if (!isset(self::$gastos[$year]['total_mes'][0])) {
+            self::$gastos[$year]['total_mes'][0] = 0;
         }
 
         /**
