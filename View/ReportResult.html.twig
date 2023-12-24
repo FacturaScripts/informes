@@ -40,15 +40,17 @@
                         <select class="form-control" id="selectYear">
                             {{ fsc.getYears() | raw }}
                         </select>
-                        <button class="btn btn-primary btn-sm btn-spin-action ml-2 mt-2"></button>
+                        <button class="btn btn-primary btn-sm btn-spin-action ml-2">
+                            <i class="fa fa-refresh"></i>
+                        </button>
                     </div>
                     <div id="summaryData"></div>
                 </div>
 
                 <div class="card border-success shadow mt-4">
-                    <h5 class="card-header bg-success text-white pointer d-flex" id="showSales">
+                    <h5 class="card-header bg-success text-white pointer" id="showSales">
                         {{ trans('sales') }}
-                        <button class="btn btn-success btn-sm btn-spin-action ml-auto">
+                        <button class="btn btn-success btn-sm btn-spin-action float-right">
                             <i class="fa fa-plus"></i>
                         </button>
                     </h5>
@@ -58,9 +60,9 @@
                 </div>
 
                 <div class="card border-warning shadow mt-4">
-                    <h5 class="card-header bg-warning text-white pointer d-flex" id="showPurchasesProductReport">
+                    <h5 class="card-header bg-warning text-white pointer" id="showPurchasesProductReport">
                         {{ trans('purchases') }}
-                        <button class="btn btn-warning btn-sm btn-spin-action ml-auto">
+                        <button class="btn btn-warning btn-sm btn-spin-action float-right">
                             <i class="fa fa-plus"></i>
                         </button>
                     </h5>
@@ -70,9 +72,9 @@
                 </div>
 
                 <div class="card border-danger shadow mt-4">
-                    <h5 class="card-header bg-danger text-white pointer d-flex" id="showPurchases">
+                    <h5 class="card-header bg-danger text-white pointer" id="showPurchases">
                         {{ trans('expenses') }}
-                        <button class="btn btn-danger btn-sm btn-spin-action ml-auto">
+                        <button class="btn btn-danger btn-sm btn-spin-action float-right">
                             <i class="fa fa-plus"></i>
                         </button>
                     </h5>

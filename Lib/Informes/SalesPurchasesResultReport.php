@@ -19,7 +19,7 @@
 
 namespace FacturaScripts\Plugins\Informes\Lib\Informes;
 
-use FacturaScripts\Core\Base\ToolBox;
+use FacturaScripts\Core\Tools;
 
 /**
  * @author Daniel Fernández Giménez <hola@danielfg.es>
@@ -30,34 +30,34 @@ class SalesPurchasesResultReport extends ResultReport
     {
         self::apply($formData);
 
-    // Definir los meses en un arreglo
+        // Definir los meses en un arreglo
         $meses = [
             'january', 'february', 'march', 'april', 'may', 'june',
             'july', 'august', 'september', 'october', 'november', 'december'
         ];
 
-    // Comenzar a construir el HTML
+        // Comenzar a construir el HTML
         $html = '<div class="table-responsive">'
             . '<table class="table table-hover mb-0">'
             . '<thead>'
             . '<tr>'
-            . '<th class="title">' . ToolBox::i18n()->trans('family') . '</th>'
+            . '<th class="title">' . Tools::lang()->trans('family') . '</th>'
             . '<th class="porc">%</th>'
-            . '<th class="total">' . ToolBox::i18n()->trans('total') . '</th>';
+            . '<th class="total">' . Tools::lang()->trans('total') . '</th>';
 
-    // Añadir los meses usando un bucle
+        // Añadir los meses usando un bucle
         foreach ($meses as $mes) {
-            $html .= '<th class="month">' . ToolBox::i18n()->trans($mes) . '</th>';
+            $html .= '<th class="month">' . Tools::lang()->trans($mes) . '</th>';
         }
 
-    // Finalizar la etiqueta de cabecera y la de cuerpo de la tabla
+        // Finalizar la etiqueta de cabecera y la de cuerpo de la tabla
         $html .= '</tr>'
             . '</thead>'
             . '<tbody>';
 
         if (self::$ventas[self::$year]) {
             $html .= '<tr>'
-                . '<td class="title align-middle">' . ToolBox::i18n()->trans('all') . '</td>'
+                . '<td class="title align-middle">' . Tools::lang()->trans('all') . '</td>'
                 . '<td class="porc align-middle">100.0 %</td>';
 
             for ($x = 0; $x <= 12; $x++) {
@@ -65,9 +65,9 @@ class SalesPurchasesResultReport extends ResultReport
                 $money = self::$ventas[self::$year]['total_mes'][$x];
                 $lastmoney = self::$ventas[self::$lastyear]['total_mes'][$x];
                 $html .= '<td class="' . $css . '">';
-                $html .= $money ? ToolBox::coins()::format($money) : self::defaultMoney();
+                $html .= $money ? Tools::money($money) : self::defaultMoney();
                 $html .= '<div class="small">';
-                $html .= $lastmoney ? ToolBox::coins()::format($lastmoney) : self::defaultMoney();
+                $html .= $lastmoney ? Tools::money($lastmoney) : self::defaultMoney();
                 $html .= '</div>'
                     . '</td>';
             }
@@ -84,7 +84,7 @@ class SalesPurchasesResultReport extends ResultReport
                 }
 
                 $html .= ''
-                    . '<tr codfamilia ="' . $key . '" data-target="#ventas-' . $cont . '" class="ventas pointer">'
+                    . '<tr codfamilia="' . $key . '" data-target="#ventas-' . $cont . '" class="ventas pointer">'
                     . '<td class="title">' . self::$ventas[self::$year]['descripciones'][$key] . '</td>'
                     . '<td class="porc align-middle">';
 
@@ -95,15 +95,15 @@ class SalesPurchasesResultReport extends ResultReport
                     . '<td class="total align-middle">';
 
                 $money = self::$ventas[self::$year]['total_fam'][$key];
-                $html .= $money ? ToolBox::coins()::format($money) : self::defaultMoney();
+                $html .= $money ? Tools::money($money) : self::defaultMoney();
 
                 $html .= '</td>';
 
                 for ($x = 1; $x <= 12; $x++) {
-                    $title = ToolBox::i18n()->trans(strtolower(date("F", mktime(0, 0, 0, $x, 10))));
+                    $title = Tools::lang()->trans(strtolower(date("F", mktime(0, 0, 0, $x, 10))));
                     $html .= '<td title="' . $title . '" class="month align-middle">';
                     $html .= isset(self::$ventas[self::$year]['total_fam_mes'][$key][$x]) ?
-                        ToolBox::coins()::format(self::$ventas[self::$year]['total_fam_mes'][$key][$x]) :
+                        Tools::money(self::$ventas[self::$year]['total_fam_mes'][$key][$x]) :
                         self::defaultMoney();
                     $html .= '</td>';
                 }

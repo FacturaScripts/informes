@@ -20,7 +20,7 @@
 namespace FacturaScripts\Plugins\Informes\Controller;
 
 use FacturaScripts\Core\Base\Controller;
-use FacturaScripts\Core\Base\ToolBox;
+use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\Ejercicio;
 use FacturaScripts\Dinamic\Model\Empresa;
 use FacturaScripts\Dinamic\Model\Subcuenta;
@@ -79,7 +79,7 @@ class ReportTreasury extends Controller
 
     public function show_precio($price)
     {
-        $priceFormat = ToolBox::coins()::format($price);
+        $priceFormat = Tools::money($price);
         $html = $price < 0 ? '<span class="text-danger">' . $priceFormat . '</span>' : $priceFormat;
         return $html;
     }

@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2017-2022 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2017-2023 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -21,6 +21,7 @@ namespace FacturaScripts\Plugins\Informes\Model;
 
 use FacturaScripts\Core\Model\Base\ModelClass;
 use FacturaScripts\Core\Model\Base\ModelTrait;
+use FacturaScripts\Core\Tools;
 
 /**
  * @author Carlos García Gómez <carlos@facturascripts.com>
@@ -85,21 +86,21 @@ class BalanceCode extends ModelClass
     public function test(): bool
     {
         // escapamos el html
-        $this->codbalance = self::toolBox()::utils()::noHtml($this->codbalance);
-        $this->description1 = self::toolBox()::utils()::noHtml($this->description1);
-        $this->description2 = self::toolBox()::utils()::noHtml($this->description2);
-        $this->description3 = self::toolBox()::utils()::noHtml($this->description3);
-        $this->description4 = self::toolBox()::utils()::noHtml($this->description4);
-        $this->level1 = self::toolBox()::utils()::noHtml($this->level1);
-        $this->level2 = self::toolBox()::utils()::noHtml($this->level2);
-        $this->level3 = self::toolBox()::utils()::noHtml($this->level3);
-        $this->level4 = self::toolBox()::utils()::noHtml($this->level4);
-        $this->nature = self::toolBox()::utils()::noHtml($this->nature);
-        $this->subtype = self::toolBox()::utils()::noHtml($this->subtype);
+        $this->codbalance = Tools::noHtml($this->codbalance);
+        $this->description1 = Tools::noHtml($this->description1);
+        $this->description2 = Tools::noHtml($this->description2);
+        $this->description3 = Tools::noHtml($this->description3);
+        $this->description4 = Tools::noHtml($this->description4);
+        $this->level1 = Tools::noHtml($this->level1);
+        $this->level2 = Tools::noHtml($this->level2);
+        $this->level3 = Tools::noHtml($this->level3);
+        $this->level4 = Tools::noHtml($this->level4);
+        $this->nature = Tools::noHtml($this->nature);
+        $this->subtype = Tools::noHtml($this->subtype);
 
         // comprobamos que tenga un código válido
         if (empty($this->codbalance) || 1 !== preg_match('/^[A-Z0-9_\+\.\-]{1,15}$/i', $this->codbalance)) {
-            $this->toolBox()->i18nLog()->error(
+            Tools::log()->error(
                 'invalid-alphanumeric-code',
                 ['%value%' => $this->codbalance, '%column%' => 'codbalance', '%min%' => '1', '%max%' => '15']
             );

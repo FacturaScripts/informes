@@ -20,6 +20,7 @@
 namespace FacturaScripts\Plugins\Informes\Controller;
 
 use FacturaScripts\Core\Lib\ExtendedController\EditController;
+use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Lib\Accounting\Ledger;
 use FacturaScripts\Plugins\Informes\Model\ReportLedger;
 
@@ -61,7 +62,7 @@ class EditReportLedger extends EditController
         $format = $this->request->get('option', 'PDF');
         $pages = $this->generateReport($model, $format);
         if (empty($pages)) {
-            $this->toolBox()->i18nLog()->warning('no-data');
+            Tools::log()->warning('no-data');
             return;
         }
 
@@ -70,7 +71,7 @@ class EditReportLedger extends EditController
         $this->exportManager->newDoc($format, $model->name);
 
         if ($format === 'PDF') {
-            $this->exportManager->addModelPage($view->model, $view->getColumns(), $this->toolBox()->i18n()->trans('accounting-reports'));
+            $this->exportManager->addModelPage($view->model, $view->getColumns(), Tools::lang()->trans('accounting-reports'));
         }
 
         foreach ($pages as $data) {

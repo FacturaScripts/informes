@@ -19,7 +19,7 @@
 
 namespace FacturaScripts\Plugins\Informes\Lib\Informes;
 
-use FacturaScripts\Core\Base\ToolBox;
+use FacturaScripts\Core\Tools;
 
 /**
  * @author Carlos Garcia Gomez      <carlos@facturascripts.com>
@@ -27,7 +27,7 @@ use FacturaScripts\Core\Base\ToolBox;
  */
 class AccountResultReport extends ResultReport
 {
-    public static function render(array $formData)
+    public static function render(array $formData): string
     {
         self::apply($formData);
 
@@ -47,16 +47,16 @@ class AccountResultReport extends ResultReport
                 . '<td class="total text-right align-middle">';
 
             $money = self::$gastos[self::$year]['total_subcuenta'][self::$parent_codcuenta][$key];
-            $html .= $money ? ToolBox::coins()::format($money) : self::defaultMoney();
+            $html .= $money ? Tools::money($money) : self::defaultMoney();
 
             $html .= ''
                 . '</td>';
 
             for ($x = 1; $x <= 12; $x++) {
-                $title = ToolBox::i18n()->trans(strtolower(date("F", mktime(0, 0, 0, $x, 10))));
+                $title = Tools::lang()->trans(strtolower(date("F", mktime(0, 0, 0, $x, 10))));
                 $html .= '<td title="' . $title . '" class="month text-right align-middle">';
                 $html .= isset(self::$gastos[self::$year]['cuentas'][self::$parent_codcuenta][$key][$x]['pvptotal']) ?
-                    ToolBox::coins()::format(self::$gastos[self::$year]['cuentas'][self::$parent_codcuenta][$key][$x]['pvptotal']) :
+                    Tools::money(self::$gastos[self::$year]['cuentas'][self::$parent_codcuenta][$key][$x]['pvptotal']) :
                     self::defaultMoney();
                 $html .= ''
                     . '</td>';

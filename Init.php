@@ -27,7 +27,7 @@ use FacturaScripts\Plugins\Informes\Model\BalanceAccount;
 use FacturaScripts\Plugins\Informes\Model\BalanceCode;
 use ParseCsv\Csv;
 
-class Init extends InitClass
+final class Init extends InitClass
 {
     public function init()
     {

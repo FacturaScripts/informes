@@ -21,7 +21,7 @@ namespace FacturaScripts\Plugins\Informes\Lib\Accounting;
 
 use FacturaScripts\Core\Base\DataBase;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
-use FacturaScripts\Core\Base\ToolBox;
+use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\Asiento;
 use FacturaScripts\Dinamic\Model\Cuenta;
 use FacturaScripts\Dinamic\Model\Ejercicio;
@@ -138,7 +138,7 @@ class BalanceAmounts
     {
         $max--;
         if ($max < 0) {
-            ToolBox::log()->error('account loop on ' . $selAccount->codcuenta);
+            Tools::log()->error('account loop on ' . $selAccount->codcuenta);
             return;
         }
 
@@ -179,15 +179,15 @@ class BalanceAmounts
         switch ($type) {
             case 'money':
                 if ($this->format === 'PDF') {
-                    return $prefix . ToolBox::coins()->format($value, FS_NF0, '') . $suffix;
+                    return $prefix . Tools::money($value, FS_NF0, '') . $suffix;
                 }
                 return number_format($value, FS_NF0, '.', '');
 
             default:
                 if ($this->format === 'PDF') {
-                    return $prefix . ToolBox::utils()->fixHtml($value) . $suffix;
+                    return $prefix . Tools::fixHtml($value) . $suffix;
                 }
-                return ToolBox::utils()->fixHtml($value);
+                return Tools::fixHtml($value);
         }
     }
 

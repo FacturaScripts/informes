@@ -23,6 +23,7 @@ use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Lib\ExtendedController\BaseView;
 use FacturaScripts\Core\Lib\ExtendedController\EditController;
 use FacturaScripts\Core\Model\Subcuenta;
+use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\Cuenta;
 use FacturaScripts\Dinamic\Model\Ejercicio;
 use FacturaScripts\Plugins\Informes\Lib\Accounting\BalanceSheet;
@@ -104,14 +105,14 @@ class EditReportBalance extends EditController
         $format = $this->request->get('option', 'PDF');
         $pages = $this->generateReport($model, $format);
         if (empty($pages)) {
-            $this->toolBox()->i18nLog()->warning('no-data');
+            Tools::log()->warning('no-data');
             return;
         }
 
         $this->setTemplate(false);
         $view = $this->views[$this->getMainViewName()];
         $this->exportManager->newDoc($format, $model->name);
-        $this->exportManager->addModelPage($view->model, $view->getColumns(), $this->toolBox()->i18n()->trans('accounting-reports'));
+        $this->exportManager->addModelPage($view->model, $view->getColumns(), Tools::lang()->trans('accounting-reports'));
 
         foreach ($pages as $data) {
             $headers = empty($data) ? [] : array_keys($data[0]);
@@ -132,7 +133,7 @@ class EditReportBalance extends EditController
         $exercise = new Ejercicio();
         $exercise->idempresa = $this->getModel()->idcompany;
         if (false === $exercise->loadFromDate($this->getModel()->startdate, false, false)) {
-            self::toolBox()->i18nLog()->warning('exercise-not-found');
+            Tools::log()->warning('exercise-not-found');
             return;
         }
 
@@ -147,7 +148,7 @@ class EditReportBalance extends EditController
             // comprobamos que el campo parent_codcuenta son los primeros caracteres del campo codcuenta
             $len = strlen($account->parent_codcuenta);
             if (substr($account->codcuenta, 0, $len) !== $account->parent_codcuenta) {
-                $this->toolBox()->i18nLog()->warning('account-bad-parent', ['%codcuenta%' => $account->codcuenta]);
+                Tools::log()->warning('account-bad-parent', ['%codcuenta%' => $account->codcuenta]);
             }
         }
 
@@ -158,7 +159,7 @@ class EditReportBalance extends EditController
             // comprobamos que el campo codcuenta son los primeros caracteres del campo codsubcuenta
             $len = strlen($subAccount->codcuenta);
             if (substr($subAccount->codsubcuenta, 0, $len) !== $subAccount->codcuenta) {
-                $this->toolBox()->i18nLog()->warning('subaccount-bad-codcuenta', ['%codsubcuenta%' => $subAccount->codsubcuenta]);
+                Tools::log()->warning('subaccount-bad-codcuenta', ['%codsubcuenta%' => $subAccount->codsubcuenta]);
                 continue;
             }
 
@@ -174,7 +175,7 @@ class EditReportBalance extends EditController
                 }
 
                 if (substr($subAccount->codsubcuenta, 0, $len2) === $account->codcuenta) {
-                    $this->toolBox()->i18nLog()->info('subaccount-alt-codcuenta', [
+                    Tools::log()->info('subaccount-alt-codcuenta', [
                         '%codsubcuenta%' => $subAccount->codsubcuenta,
                         '%codcuenta%' => $subAccount->codcuenta,
                         '%alternative%' => $account->codcuenta
@@ -190,7 +191,7 @@ class EditReportBalance extends EditController
         $exercise = new Ejercicio();
         $exercise->idempresa = $this->getModel()->idcompany;
         if (false === $exercise->loadFromDate($this->getModel()->startdate, false, false)) {
-            self::toolBox()->i18nLog()->warning('exercise-not-found');
+            Tools::log()->warning('exercise-not-found');
             return;
         }
 
@@ -237,7 +238,7 @@ class EditReportBalance extends EditController
             }
 
             // si no existe la relación, avisamos
-            $this->toolBox()->i18nLog()->info('account-missing-in-balance', [
+            Tools::log()->info('account-missing-in-balance', [
                 '%codcuenta%' => $cuenta->codcuenta,
                 '%saldo%' => round($saldo, FS_NF0)
             ]);

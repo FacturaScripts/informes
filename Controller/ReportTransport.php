@@ -22,6 +22,7 @@ namespace FacturaScripts\Plugins\Informes\Controller;
 use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Model\Base\ModelCore;
+use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Lib\ExportManager;
 use FacturaScripts\Dinamic\Model\CodeModel;
 
@@ -48,17 +49,17 @@ class ReportTransport extends Controller
     public function getFormatExport(): array
     {
         return [
-            'PDF' => strtoupper($this->toolBox()->i18n()->trans('pdf')),
-            'CSV' => strtoupper($this->toolBox()->i18n()->trans('csv')),
-            'XLS' => strtoupper($this->toolBox()->i18n()->trans('xls'))
+            'PDF' => strtoupper(Tools::lang()->trans('pdf')),
+            'CSV' => strtoupper(Tools::lang()->trans('csv')),
+            'XLS' => strtoupper(Tools::lang()->trans('xls'))
         ];
     }
 
     public function getModelType(): array
     {
         return [
-            'AlbaranCliente' => $this->toolBox()->i18n()->trans('customer-delivery-notes'),
-            'FacturaCliente' => $this->toolBox()->i18n()->trans('customer-invoices')
+            'AlbaranCliente' => Tools::lang()->trans('customer-delivery-notes'),
+            'FacturaCliente' => Tools::lang()->trans('customer-invoices')
         ];
     }
 
@@ -94,7 +95,7 @@ class ReportTransport extends Controller
     {
         $data = $this->getReportData();
         if (empty($data)) {
-            $this->toolBox()->i18nLog()->warning('no-data');
+            Tools::log()->warning('no-data');
             return;
         }
 
@@ -165,9 +166,9 @@ class ReportTransport extends Controller
         return $data;
     }
 
-    protected function processLayout(array &$lines)
+    protected function processLayout(array &$lines): void
     {
-        $i18n = $this->toolBox()->i18n();
+        $i18n = Tools::lang();
         $nameFile = $i18n->trans('carriers') . ' ' . $i18n->trans($this->modelname);
         $userDate = date(ModelCore::DATE_STYLE, strtotime($this->date));
 

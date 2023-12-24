@@ -20,6 +20,7 @@
 namespace FacturaScripts\Plugins\Informes\Controller;
 
 use FacturaScripts\Core\Base\Controller;
+use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\Ejercicio;
 use FacturaScripts\Dinamic\Model\Empresa;
 use FacturaScripts\Plugins\Informes\Lib\Informes\AccountResultReport;
@@ -61,11 +62,8 @@ class ReportResult extends Controller
     public function privateCore(&$response, $user, $permissions)
     {
         parent::privateCore($response, $user, $permissions);
-        $this->execPreviousAction($this->request->get('action', ''));
-    }
 
-    protected function execPreviousAction($action)
-    {
+        $action = $this->request->get('action', '');
         switch ($action) {
             case 'load-account':
                 $this->loadAccount();
@@ -91,58 +89,58 @@ class ReportResult extends Controller
         }
     }
 
-    protected function loadAccount()
+    protected function loadAccount(): void
     {
         $this->setTemplate(false);
         $content = [
             'codcuenta' => $this->request->request->get('parent_codcuenta'),
             'account' => AccountResultReport::render($this->request->request->all()),
-            'messages' => $this->toolBox()->log()->read('', $this->logLevels)
+            'messages' => Tools::log()->read('', $this->logLevels)
         ];
         $this->response->setContent(json_encode($content));
     }
 
-    protected function loadFamily()
+    protected function loadFamily(): void
     {
         $this->setTemplate(false);
         $content = [
             'codfamilia' => $this->request->request->get('parent_codfamilia'),
             'family' => FamilyResultReport::render($this->request->request->all()),
-            'messages' => $this->toolBox()->log()->read('', $this->logLevels),
+            'messages' => Tools::log()->read('', $this->logLevels),
             'type' => $this->request->request->get('action')
         ];
         $this->response->setContent(json_encode($content));
     }
 
-    protected function loadPurchases()
+    protected function loadPurchases(): void
     {
         $this->setTemplate(false);
         $content = [
             'purchases' => PurchasesResultReport::render($this->request->request->all()),
-            'messages' => $this->toolBox()->log()->read('', $this->logLevels)
+            'messages' => Tools::log()->read('', $this->logLevels)
         ];
         $this->response->setContent(json_encode($content));
     }
 
-    protected function loadSalesPurchases(string $action)
+    protected function loadSalesPurchases(string $action): void
     {
         $this->setTemplate(false);
-        $key = ($action == "load-sales" ) ? "sales" : "purchasesProduct";
+        $key = ($action == "load-sales") ? "sales" : "purchasesProduct";
 
         $content = [
             $key => SalesPurchasesResultReport::render($this->request->request->all()),
-            'messages' => $this->toolBox()->log()->read('', $this->logLevels)
+            'messages' => Tools::log()->read('', $this->logLevels)
         ];
         $this->response->setContent(json_encode($content));
     }
 
-    protected function loadSummary()
+    protected function loadSummary(): void
     {
         $this->setTemplate(false);
         $content = [
             'summary' => SummaryResultReport::render($this->request->request->all()),
             'charts' => SummaryResultReport::$charts,
-            'messages' => $this->toolBox()->log()->read('', $this->logLevels)
+            'messages' => Tools::log()->read('', $this->logLevels)
         ];
         $this->response->setContent(json_encode($content));
     }

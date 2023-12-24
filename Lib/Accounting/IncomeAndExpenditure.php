@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2017-2022 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2017-2023 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -21,8 +21,8 @@ namespace FacturaScripts\Plugins\Informes\Lib\Accounting;
 
 use FacturaScripts\Core\Base\DataBase;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
-use FacturaScripts\Core\Base\ToolBox;
 use FacturaScripts\Core\Model\Asiento;
+use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\Ejercicio;
 use FacturaScripts\Dinamic\Model\Partida;
 use FacturaScripts\Plugins\Informes\Model\BalanceAccount;
@@ -145,15 +145,15 @@ class IncomeAndExpenditure
         switch ($type) {
             case 'money':
                 if ($this->format === 'PDF') {
-                    return $prefix . ToolBox::coins()->format($value, FS_NF0, '') . $suffix;
+                    return $prefix . Tools::money($value, FS_NF0, '') . $suffix;
                 }
                 return number_format($value, FS_NF0, '.', '');
 
             default:
                 if ($this->format === 'PDF') {
-                    return $prefix . ToolBox::utils()->fixHtml($value) . $suffix;
+                    return $prefix . Tools::fixHtml($value) . $suffix;
                 }
-                return ToolBox::utils()->fixHtml($value) ?? '';
+                return Tools::fixHtml($value) ?? '';
         }
     }
 

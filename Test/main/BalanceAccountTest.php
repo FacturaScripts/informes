@@ -20,7 +20,7 @@
 namespace FacturaScripts\Test\Plugins;
 
 use FacturaScripts\Core\Base\DataBase;
-use FacturaScripts\Core\Base\ToolBox;
+use FacturaScripts\Core\Tools;
 use FacturaScripts\Plugins\Informes\Model\BalanceAccount;
 use FacturaScripts\Plugins\Informes\Model\BalanceCode;
 use FacturaScripts\Test\Traits\LogErrorsTrait;
@@ -45,7 +45,7 @@ final class BalanceAccountTest extends TestCase
         $database->updateSequence($balanceAccount::tableName(), $balanceAccount->getModelFields());
     }
 
-    public function testCreate()
+    public function testCreate(): void
     {
         // creamos un balance
         $balance = new BalanceCode();
@@ -68,7 +68,7 @@ final class BalanceAccountTest extends TestCase
         $this->assertTrue($balance->delete(), 'balance-cant-delete');
     }
 
-    public function testAccountBalanceNoBalance()
+    public function testAccountBalanceNoBalance(): void
     {
         // creamos un balance de cuenta sin balance
         $accountBalance = new BalanceAccount();
@@ -79,7 +79,7 @@ final class BalanceAccountTest extends TestCase
         $this->assertFalse($accountBalance->save(), 'account-balance-can-save-without-balance');
     }
 
-    public function testHtmlOnFields()
+    public function testHtmlOnFields(): void
     {
         // creamos un balance
         $balance = new BalanceCode();
@@ -96,7 +96,7 @@ final class BalanceAccountTest extends TestCase
         $this->assertTrue($accountBalance->save(), 'account-balance-cant-save');
 
         // comprobamos que el html ha sido escapado
-        $noHtml = ToolBox::utils()::noHtml('<b>Test Html</b>');
+        $noHtml = Tools::noHtml('<b>Test Html</b>');
         $this->assertEquals($noHtml, $accountBalance->desccuenta, 'account-balance-wrong-html');
 
         // eliminamos
@@ -104,7 +104,7 @@ final class BalanceAccountTest extends TestCase
         $this->assertTrue($balance->delete(), 'balance-cant-delete');
     }
 
-    public function testDeleteCascade()
+    public function testDeleteCascade(): void
     {
         // creamos un balance
         $balance = new BalanceCode();

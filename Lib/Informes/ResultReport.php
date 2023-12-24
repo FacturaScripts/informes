@@ -21,7 +21,7 @@ namespace FacturaScripts\Plugins\Informes\Lib\Informes;
 
 use FacturaScripts\Core\Base\DataBase;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
-use FacturaScripts\Core\Base\ToolBox;
+use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\Agente;
 use FacturaScripts\Dinamic\Model\Asiento;
 use FacturaScripts\Dinamic\Model\Cuenta;
@@ -82,7 +82,7 @@ class ResultReport
         self::$parent_codfamilia = isset($formData['parent_codfamilia']) ? (string)$formData['parent_codfamilia'] : null;
 
         // Llamamos a la función que crea los arrays con los datos,
-        // pasandole el año seleccionado y el anterior.
+        // pasándole el año seleccionado y el anterior.
         switch ($formData['action']) {
             case 'load-account':
             case 'load-purchases':
@@ -105,7 +105,7 @@ class ResultReport
         }
     }
 
-    protected static function build_data($dl)
+    protected static function build_data($dl): array
     {
         $pvptotal = round($dl['pvptotal'], FS_NF0);
         $referencia = $dl['referencia'];
@@ -125,7 +125,7 @@ class ResultReport
 
                 if (empty($codfamilia)) {
                     $codfamilia = 'SIN_FAMILIA';
-                    $familia = ToolBox::i18n()->trans('no-family');
+                    $familia = Tools::lang()->trans('no-family');
                 } else {
                     $modelFamilia = new Familia();
                     $modelFamilia->loadFromCode($codfamilia);
@@ -136,7 +136,7 @@ class ResultReport
 
         if (!$articulo) {
             $referencia = 'SIN_REFERENCIA';
-            $art_desc = ToolBox::i18n()->trans('no-product-desc');
+            $art_desc = Tools::lang()->trans('no-product-desc');
             $codfamilia = 'SIN_FAMILIA';
             $familia = 'SIN_FAMILIA';
         }
@@ -221,7 +221,7 @@ class ResultReport
 
     protected static function defaultMoney(): string
     {
-        return '<span style="color:#ccc;">' . ToolBox::coins()::format(0) . '</span>';
+        return '<span style="color:#ccc;">' . Tools::money(0) . '</span>';
     }
 
     protected static function defaultPerc(): string
@@ -413,7 +413,7 @@ class ResultReport
     {
         foreach ($ventas['agentes'] as $codagente => $agentes) {
             if ($codagente === 'SIN_AGENTE') {
-                $ventas['agentes'][$codagente]['descripcion'] = ToolBox::i18n()->trans('no-agent');
+                $ventas['agentes'][$codagente]['descripcion'] = Tools::lang()->trans('no-agent');
                 continue;
             }
 
@@ -582,7 +582,7 @@ class ResultReport
 
     protected static function summary_build_year($year, $codejercicio)
     {
-        self::sales_purchases_build_year($year, $codejercicio,"load-sales");
+        self::sales_purchases_build_year($year, $codejercicio, "load-sales");
         self::purchases_build_year($year, $codejercicio);
 
         $resultado = array(
@@ -612,7 +612,7 @@ class ResultReport
         self::$resultado[$year] = $resultado;
     }
 
-    protected static function sales_purchases_build_year(string $year, string $codejercicio, string $action) : void
+    protected static function sales_purchases_build_year(string $year, string $codejercicio, string $action): void
     {
         $date = array(
             'desde' => '',
@@ -666,8 +666,8 @@ class ResultReport
                  * *****************************************************************
                  */
 
-                $tablename = ($action == "load-sales" OR $action == "load-family-sales")  ? "facturascli" : "facturasprov";
-                $model = ($action == "load-sales" OR $action == "load-family-purchases")  ? new FacturaCliente() : new FacturaProveedor();
+                $tablename = ($action == "load-sales" or $action == "load-family-sales") ? "facturascli" : "facturasprov";
+                $model = ($action == "load-sales" or $action == "load-family-purchases") ? new FacturaCliente() : new FacturaProveedor();
 
 
                 $ventas = self::invoiceLines($ventas, $date, $codejercicio, $mes, $ventas_total_fam_meses, $countMonth, $tablename);

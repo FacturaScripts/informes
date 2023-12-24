@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2017-2022 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2017-2023 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -22,6 +22,7 @@ namespace FacturaScripts\Plugins\Informes\Controller;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\DataSrc\Empresas;
 use FacturaScripts\Core\Lib\ExtendedController\ListController;
+use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\Ejercicio;
 use FacturaScripts\Dinamic\Model\ReportAmount;
 use FacturaScripts\Dinamic\Model\ReportBalance;
@@ -44,7 +45,7 @@ class ListReportAccounting extends ListController
         return $data;
     }
 
-    private function addCommonFilters(string $viewName)
+    private function addCommonFilters(string $viewName): void
     {
         // si hay más de una empresa, añadimos un filtro para seleccionarla
         if ($this->empresa->count() > 1) {
@@ -54,7 +55,7 @@ class ListReportAccounting extends ListController
         $this->addFilterNumber($viewName, 'channel', 'channel', 'channel', '=');
     }
 
-    protected function addGenerateButton(string $viewName)
+    protected function addGenerateButton(string $viewName): void
     {
         $this->addButton($viewName, [
             'action' => 'generate-balances',
@@ -80,7 +81,7 @@ class ListReportAccounting extends ListController
      *
      * @param string $viewName
      */
-    protected function createViewsAmount(string $viewName = 'ListReportAmount')
+    protected function createViewsAmount(string $viewName = 'ListReportAmount'): void
     {
         $this->addView($viewName, 'ReportAmount', 'sums-and-balances', 'fas fa-calculator');
         $this->addOrderBy($viewName, ['name'], 'name');
@@ -98,7 +99,7 @@ class ListReportAccounting extends ListController
      *
      * @param string $viewName
      */
-    protected function createViewsBalance(string $viewName = 'ListReportBalance')
+    protected function createViewsBalance(string $viewName = 'ListReportBalance'): void
     {
         $this->addView($viewName, 'ReportBalance', 'balances', 'fas fa-book');
         $this->addOrderBy($viewName, ['name'], 'name');
@@ -116,7 +117,7 @@ class ListReportAccounting extends ListController
      *
      * @param string $viewName
      */
-    protected function createViewsLedger(string $viewName = 'ListReportLedger')
+    protected function createViewsLedger(string $viewName = 'ListReportLedger'): void
     {
         $this->addView($viewName, 'ReportLedger', 'ledger', 'fas fa-file-alt');
         $this->addOrderBy($viewName, ['name'], 'name');
@@ -134,7 +135,7 @@ class ListReportAccounting extends ListController
      *
      * @param string $viewName
      */
-    protected function createViewsPreferences(string $viewName = 'ListBalanceCode')
+    protected function createViewsPreferences(string $viewName = 'ListBalanceCode'): void
     {
         $this->addView($viewName, 'BalanceCode', 'balance-codes', 'fas fa-cogs');
         $this->addOrderBy($viewName, ['subtype', 'codbalance'], 'code', 1);
@@ -147,7 +148,7 @@ class ListReportAccounting extends ListController
         ]);
 
         // añadimos filtro de nature
-        $i18n = $this->toolBox()->i18n();
+        $i18n = Tools::lang();
         $this->addFilterSelect($viewName, 'nature', 'nature', 'nature', [
             ['code' => '', 'description' => '------'],
             ['code' => 'A', 'description' => $i18n->trans('asset')],
@@ -187,7 +188,7 @@ class ListReportAccounting extends ListController
             $this->generateBalances($total, $eje);
         }
 
-        $this->toolBox()->i18nLog()->notice('items-added-correctly', ['%num%' => $total]);
+        Tools::log()->notice('items-added-correctly', ['%num%' => $total]);
         return true;
     }
 
@@ -195,7 +196,7 @@ class ListReportAccounting extends ListController
      * @param int $total
      * @param Ejercicio $ejercicio
      */
-    protected function generateBalances(&$total, $ejercicio)
+    protected function generateBalances(&$total, $ejercicio): void
     {
         // ledger
         $ledger = new ReportLedger();
@@ -207,7 +208,7 @@ class ListReportAccounting extends ListController
         if (false === $ledger->loadFromCode('', $where)) {
             $ledger->enddate = $ejercicio->fechafin;
             $ledger->idcompany = $ejercicio->idempresa;
-            $ledger->name = $this->toolBox()->i18n()->trans('ledger') . ' ' . $ejercicio->nombre;
+            $ledger->name = Tools::lang()->trans('ledger') . ' ' . $ejercicio->nombre;
             $ledger->startdate = $ejercicio->fechainicio;
             $total += $ledger->save() ? 1 : 0;
         }
@@ -219,7 +220,7 @@ class ListReportAccounting extends ListController
             $amounts->idcompany = $ejercicio->idempresa;
             $amounts->ignoreclosure = true;
             $amounts->ignoreregularization = true;
-            $amounts->name = $this->toolBox()->i18n()->trans('balance-amounts') . ' ' . $ejercicio->nombre;
+            $amounts->name = Tools::lang()->trans('balance-amounts') . ' ' . $ejercicio->nombre;
             $amounts->startdate = $ejercicio->fechainicio;
             $total += $amounts->save() ? 1 : 0;
         }
@@ -236,7 +237,7 @@ class ListReportAccounting extends ListController
             if (false === $balance->loadFromCode('', $where2)) {
                 $balance->enddate = $ejercicio->fechafin;
                 $balance->idcompany = $ejercicio->idempresa;
-                $balance->name = $this->toolBox()->i18n()->trans($type) . ' ' . $ejercicio->nombre;
+                $balance->name = Tools::lang()->trans($type) . ' ' . $ejercicio->nombre;
                 $balance->startdate = $ejercicio->fechainicio;
                 $balance->type = $type;
                 $total += $balance->save() ? 1 : 0;

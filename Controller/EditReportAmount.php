@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2020-2022 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2020-2023 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -20,6 +20,7 @@
 namespace FacturaScripts\Plugins\Informes\Controller;
 
 use FacturaScripts\Core\Lib\ExtendedController\EditController;
+use FacturaScripts\Core\Tools;
 use FacturaScripts\Plugins\Informes\Lib\Accounting\BalanceAmounts;
 use FacturaScripts\Plugins\Informes\Model\ReportAmount;
 
@@ -55,20 +56,20 @@ class EditReportAmount extends EditController
         }
     }
 
-    protected function exportAction()
+    protected function exportAction(): void
     {
         $model = $this->getModel();
         $format = $this->request->get('option', 'PDF');
         $pages = $this->generateReport($model, $format);
         if (empty($pages)) {
-            $this->toolBox()->i18nLog()->warning('no-data');
+            Tools::log()->warning('no-data');
             return;
         }
 
         $this->setTemplate(false);
         $view = $this->views[$this->getMainViewName()];
         $this->exportManager->newDoc($format, $model->name);
-        $this->exportManager->addModelPage($view->model, $view->getColumns(), $this->toolBox()->i18n()->trans('accounting-reports'));
+        $this->exportManager->addModelPage($view->model, $view->getColumns(), Tools::lang()->trans('accounting-reports'));
 
         foreach ($pages as $data) {
             $headers = empty($data) ? [] : array_keys($data[0]);

@@ -22,6 +22,7 @@ namespace FacturaScripts\Plugins\Informes\Model;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Model\Base\ModelClass;
 use FacturaScripts\Core\Model\Base\ModelTrait;
+use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\BalanceCode as DinBalanceCode;
 use FacturaScripts\Dinamic\Model\Cuenta;
 
@@ -87,7 +88,7 @@ class BalanceAccount extends ModelClass
             $this->desccuenta = $this->getCuenta()->descripcion;
         }
 
-        $this->desccuenta = $this->toolBox()->utils()->noHtml($this->desccuenta);
+        $this->desccuenta = Tools::noHtml($this->desccuenta);
         return parent::test();
     }
 

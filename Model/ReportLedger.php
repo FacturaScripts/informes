@@ -21,6 +21,7 @@ namespace FacturaScripts\Plugins\Informes\Model;
 
 use FacturaScripts\Core\Model\Base\ModelClass;
 use FacturaScripts\Core\Model\Base\ModelTrait;
+use FacturaScripts\Core\Tools;
 
 /**
  * Model for ledger report
@@ -69,7 +70,7 @@ class ReportLedger extends ModelClass
     {
         parent::clear();
         $this->enddate = date('31-12-Y');
-        $this->idcompany = $this->toolBox()->appSettings()->get('default', 'idempresa');
+        $this->idcompany = Tools::settings('default', 'idempresa');
         $this->startdate = date('01-01-Y');
     }
 
@@ -90,10 +91,10 @@ class ReportLedger extends ModelClass
 
     public function test(): bool
     {
-        $this->name = $this->toolBox()->utils()->noHtml($this->name);
+        $this->name = Tools::noHtml($this->name);
 
         if (empty($this->idcompany)) {
-            $this->toolBox()->i18nLog()->warning(
+            Tools::log()->warning(
                 'field-can-not-be-null',
                 ['%fieldName%' => 'idempresa', '%tableName%' => static::tableName()]
             );
@@ -102,12 +103,12 @@ class ReportLedger extends ModelClass
 
         if (strtotime($this->startdate) > strtotime($this->enddate)) {
             $params = ['%endDate%' => $this->startdate, '%startDate%' => $this->enddate];
-            $this->toolBox()->i18nLog()->warning('start-date-later-end-date', $params);
+            Tools::log()->warning('start-date-later-end-date', $params);
             return false;
         }
 
         if (strtotime($this->startdate) < 1) {
-            $this->toolBox()->i18nLog()->warning('date-invalid');
+            Tools::log()->warning('date-invalid');
             return false;
         }
 

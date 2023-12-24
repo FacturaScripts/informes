@@ -19,7 +19,7 @@
 
 namespace FacturaScripts\Plugins\Informes\Lib\Informes;
 
-use FacturaScripts\Core\Base\ToolBox;
+use FacturaScripts\Core\Tools;
 
 /**
  * @author Daniel Fernández Giménez <hola@danielfg.es>
@@ -40,38 +40,38 @@ class SummaryResultReport extends ResultReport
             . '<table class="table table-hover mb-0">'
             . '<thead>'
             . '<tr>'
-            . '<th class="title"><b>' . ToolBox::i18n()->trans('summary') . '</b></th>'
-            . '<th class="porc">' . ToolBox::i18n()->trans('monthly-average') . '</th>'
-            . '<th class="total">' . ToolBox::i18n()->trans('total') . '</th>'
-            . '<th class="month">' . ToolBox::i18n()->trans('january') . '</th>'
-            . '<th class="month">' . ToolBox::i18n()->trans('february') . '</th>'
-            . '<th class="month">' . ToolBox::i18n()->trans('march') . '</th>'
-            . '<th class="month">' . ToolBox::i18n()->trans('april') . '</th>'
-            . '<th class="month">' . ToolBox::i18n()->trans('may') . '</th>'
-            . '<th class="month">' . ToolBox::i18n()->trans('june') . '</th>'
-            . '<th class="month">' . ToolBox::i18n()->trans('july') . '</th>'
-            . '<th class="month">' . ToolBox::i18n()->trans('august') . '</th>'
-            . '<th class="month">' . ToolBox::i18n()->trans('september') . '</th>'
-            . '<th class="month">' . ToolBox::i18n()->trans('october') . '</th>'
-            . '<th class="month">' . ToolBox::i18n()->trans('november') . '</th>'
-            . '<th class="month">' . ToolBox::i18n()->trans('december') . '</th>'
+            . '<th class="title"><b>' . Tools::lang()->trans('summary') . '</b></th>'
+            . '<th class="porc">' . Tools::lang()->trans('monthly-average') . '</th>'
+            . '<th class="total">' . Tools::lang()->trans('total') . '</th>'
+            . '<th class="month">' . Tools::lang()->trans('january') . '</th>'
+            . '<th class="month">' . Tools::lang()->trans('february') . '</th>'
+            . '<th class="month">' . Tools::lang()->trans('march') . '</th>'
+            . '<th class="month">' . Tools::lang()->trans('april') . '</th>'
+            . '<th class="month">' . Tools::lang()->trans('may') . '</th>'
+            . '<th class="month">' . Tools::lang()->trans('june') . '</th>'
+            . '<th class="month">' . Tools::lang()->trans('july') . '</th>'
+            . '<th class="month">' . Tools::lang()->trans('august') . '</th>'
+            . '<th class="month">' . Tools::lang()->trans('september') . '</th>'
+            . '<th class="month">' . Tools::lang()->trans('october') . '</th>'
+            . '<th class="month">' . Tools::lang()->trans('november') . '</th>'
+            . '<th class="month">' . Tools::lang()->trans('december') . '</th>'
             . '</tr>'
             . '</thead>'
             . '<tbody>';
 
         // ventas
         $html .= '<tr class="table-success">'
-            . '<td class="title align-middle"><b>' . ToolBox::i18n()->trans('sales') . '</b><br/>'
-            . '<small>' . ToolBox::i18n()->trans('previous') . '</small></td>'
+            . '<td class="title align-middle"><b>' . Tools::lang()->trans('sales') . '</b><br/>'
+            . '<small>' . Tools::lang()->trans('previous') . '</small></td>'
             . '<td class="porc">';
 
         $money = self::$ventas[self::$year]['total_mes']['media'];
         $lastmoney = self::$ventas[self::$lastyear]['total_mes']['media'];
         $html .= $money ?
-            $money < 0 ? '<span class="text-danger">' . ToolBox::coins()::format($money) . '</span>' : ToolBox::coins()::format($money) :
+            $money < 0 ? '<span class="text-danger">' . Tools::money($money) . '</span>' : Tools::money($money) :
             self::defaultMoney();
         $html .= '<div class="small">';
-        $html .= $lastmoney ? ToolBox::coins()::format($lastmoney) : self::defaultMoney();
+        $html .= $lastmoney ? Tools::money($lastmoney) : self::defaultMoney();
 
         $html .= '</div>'
             . '</td>';
@@ -82,10 +82,10 @@ class SummaryResultReport extends ResultReport
             $lastmoney = self::$ventas[self::$lastyear]['total_mes'][$x];
             $html .= '<td class="' . $css . '">';
             $html .= $money ? $money < 0 ?
-                '<span class="text-danger">' . ToolBox::coins()::format($money) . '</span>' : ToolBox::coins()::format($money) :
+                '<span class="text-danger">' . Tools::money($money) . '</span>' : Tools::money($money) :
                 self::defaultMoney();
             $html .= '<div class="small">';
-            $html .= $lastmoney ? ToolBox::coins()::format($lastmoney) : self::defaultMoney();
+            $html .= $lastmoney ? Tools::money($lastmoney) : self::defaultMoney();
             $html .= '</div>'
                 . '</td>';
         }
@@ -93,17 +93,17 @@ class SummaryResultReport extends ResultReport
 
         // compras
         $html .= '<tr class="table-danger">'
-            . '<td class="title align-middle"><b>' . ToolBox::i18n()->trans('expenses') . '</b><br/>'
-            . '<small>' . ToolBox::i18n()->trans('previous') . '</small></td>'
+            . '<td class="title align-middle"><b>' . Tools::lang()->trans('expenses') . '</b><br/>'
+            . '<small>' . Tools::lang()->trans('previous') . '</small></td>'
             . '<td class="porc">';
 
         $money = self::$gastos[self::$year]['total_mes']['media'];
         $lastmoney = self::$gastos[self::$lastyear]['total_mes']['media'];
         $html .= $money ? $money < 0 ?
-            '<span class="text-danger">' . ToolBox::coins()::format($money) . '</span>' : ToolBox::coins()::format($money) :
+            '<span class="text-danger">' . Tools::money($money) . '</span>' : Tools::money($money) :
             self::defaultMoney();
         $html .= '<div class="small">';
-        $html .= $lastmoney ? ToolBox::coins()::format($lastmoney) : self::defaultMoney();
+        $html .= $lastmoney ? Tools::money($lastmoney) : self::defaultMoney();
 
         $html .= '</div>'
             . '</td>';
@@ -114,10 +114,10 @@ class SummaryResultReport extends ResultReport
             $lastmoney = self::$gastos[self::$lastyear]['total_mes'][$x];
             $html .= '<td class="' . $css . '">';
             $html .= $money ? $money < 0 ?
-                '<span class="text-danger">' . ToolBox::coins()::format($money) . '</span>' : ToolBox::coins()::format($money) :
+                '<span class="text-danger">' . Tools::money($money) . '</span>' : Tools::money($money) :
                 self::defaultMoney();
             $html .= '<div class="small">';
-            $html .= $lastmoney ? ToolBox::coins()::format($lastmoney) : self::defaultMoney();
+            $html .= $lastmoney ? Tools::money($lastmoney) : self::defaultMoney();
             $html .= '</div>'
                 . '</td>';
         }
@@ -125,17 +125,17 @@ class SummaryResultReport extends ResultReport
 
         // resultados
         $html .= '<tr class="table-primary">'
-            . '<td class="title align-middle"><b>' . ToolBox::i18n()->trans('result') . '</b><br/>'
-            . '<small>' . ToolBox::i18n()->trans('previous') . '</small></td>'
+            . '<td class="title align-middle"><b>' . Tools::lang()->trans('result') . '</b><br/>'
+            . '<small>' . Tools::lang()->trans('previous') . '</small></td>'
             . '<td class="porc">';
 
         $money = self::$resultado[self::$year]['total_mes']['media'];
         $lastmoney = self::$resultado[self::$lastyear]['total_mes']['media'];
         $html .= $money ? $money < 0 ?
-            '<span class="text-danger">' . ToolBox::coins()::format($money) . '</span>' : ToolBox::coins()::format($money) :
+            '<span class="text-danger">' . Tools::money($money) . '</span>' : Tools::money($money) :
             self::defaultMoney();
         $html .= '<div class="small">';
-        $html .= $lastmoney ? ToolBox::coins()::format($lastmoney) : self::defaultMoney();
+        $html .= $lastmoney ? Tools::money($lastmoney) : self::defaultMoney();
 
         $html .= '</div>'
             . '</td>';
@@ -146,10 +146,10 @@ class SummaryResultReport extends ResultReport
             $lastmoney = self::$resultado[self::$lastyear]['total_mes'][$x];
             $html .= '<td class="' . $css . '">';
             $html .= $money ? $money < 0 ?
-                '<span class="text-danger">' . ToolBox::coins()::format($money) . '</span>' : ToolBox::coins()::format($money) :
+                '<span class="text-danger">' . Tools::money($money) . '</span>' : Tools::money($money) :
                 self::defaultMoney();
             $html .= '<div class="small">';
-            $html .= $lastmoney ? ToolBox::coins()::format($lastmoney) : self::defaultMoney();
+            $html .= $lastmoney ? Tools::money($lastmoney) : self::defaultMoney();
             $html .= '</div>'
                 . '</td>';
         }
@@ -177,7 +177,7 @@ class SummaryResultReport extends ResultReport
         arsort(self::$ventas[self::$year]['porc_fam']);
         foreach (self::$ventas[self::$year]['porc_fam'] as $codfamilia => $porc) {
             $totalaux = round(self::$ventas[self::$year]['total_fam'][$codfamilia], FS_NF0);
-            $fam_desc = ToolBox::i18n()->trans('no-family');
+            $fam_desc = Tools::lang()->trans('no-family');
             if ($codfamilia != 'SIN_FAMILIA' && isset(self::$ventas[self::$year]['descripciones'][$codfamilia])) {
                 $fam_desc = self::$ventas[self::$year]['descripciones'][$codfamilia];
             }
@@ -194,7 +194,7 @@ class SummaryResultReport extends ResultReport
                 . '<td class="align-middle"><span style="color: ' . $color . '"><i class="fas fa-square"></i></span></td>'
                 . '<td>' . $fam_desc . '</td>'
                 . '<td class="porc align-middle">' . $porc . ' %</td>'
-                . '<td class="total align-middle">' . ToolBox::coins()::format($totalaux) . '</td>'
+                . '<td class="total align-middle">' . Tools::money($totalaux) . '</td>'
                 . '</tr>';
         }
 
@@ -214,7 +214,7 @@ class SummaryResultReport extends ResultReport
                 . '<td class="align-middle"><span style="color: ' . $color . '"><i class="fas fa-square"></i></span></td>'
                 . '<td>' . self::$ventas[self::$year]['series'][$codserie]['descripcion'] . '</td>'
                 . '<td class="porc align-middle">' . $porc . ' %</td>'
-                . '<td class="total align-middle">' . ToolBox::coins()::format($totalaux) . '</td>'
+                . '<td class="total align-middle">' . Tools::money($totalaux) . '</td>'
                 . '</tr>';
         }
 
@@ -234,7 +234,7 @@ class SummaryResultReport extends ResultReport
                 . '<td class="align-middle"><span style="color: ' . $color . '"><i class="fas fa-square"></i></span></td>'
                 . '<td>' . self::$ventas[self::$year]['pagos'][$codpago]['descripcion'] . '</td>'
                 . '<td class="porc align-middle">' . $porc . ' %</td>'
-                . '<td class="total align-middle">' . ToolBox::coins()::format($totalaux) . '</td>'
+                . '<td class="total align-middle">' . Tools::money($totalaux) . '</td>'
                 . '</tr>';
         }
 
@@ -254,7 +254,7 @@ class SummaryResultReport extends ResultReport
                 . '<td class="align-middle"><span style="color: ' . $color . '"><i class="fas fa-square"></i></span></td>'
                 . '<td>' . self::$ventas[self::$year]['agentes'][$codagente]['descripcion'] . '</td>'
                 . '<td class="porc align-middle">' . $porc . ' %</td>'
-                . '<td class="total align-middle">' . ToolBox::coins()::format($totalaux) . '</td>'
+                . '<td class="total align-middle">' . Tools::money($totalaux) . '</td>'
                 . '</tr>';
         }
     }

@@ -20,6 +20,7 @@
 namespace FacturaScripts\Plugins\Informes\Model;
 
 use FacturaScripts\Core\Model\Base;
+use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Lib\ReportChart\AreaChart;
 
 /**
@@ -90,13 +91,13 @@ class Report extends Base\ModelClass
 
     public function test(): bool
     {
-        $utils = $this->toolBox()->utils();
-        $this->name = $utils->noHtml($this->name);
-        $this->table = $utils->noHtml($this->table);
-        $this->type = $utils->noHtml($this->type);
-        $this->xcolumn = $utils->noHtml($this->xcolumn);
-        $this->xoperation = $utils->noHtml($this->xoperation);
-        $this->ycolumn = $utils->noHtml($this->ycolumn);
+        $this->name = Tools::noHtml($this->name);
+        $this->table = Tools::noHtml($this->table);
+        $this->type = Tools::noHtml($this->type);
+        $this->xcolumn = Tools::noHtml($this->xcolumn);
+        $this->xoperation = Tools::noHtml($this->xoperation);
+        $this->ycolumn = Tools::noHtml($this->ycolumn);
+
         return parent::test();
     }
 }

@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2017-2022 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2017-2023 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -21,6 +21,7 @@ namespace FacturaScripts\Plugins\Informes\Model;
 
 use FacturaScripts\Core\Model\Base\ModelClass;
 use FacturaScripts\Core\Model\Base\ModelTrait;
+use FacturaScripts\Core\Tools;
 
 /**
  * Model for amounts balance
@@ -69,7 +70,7 @@ class ReportAmount extends ModelClass
     {
         parent::clear();
         $this->enddate = date('31-12-Y');
-        $this->idcompany = $this->toolBox()->appSettings()->get('default', 'idempresa');
+        $this->idcompany = Tools::settings('default', 'idempresa');
         $this->ignoreclosure = true;
         $this->ignoreregularization = true;
         $this->level = 0;
@@ -93,10 +94,10 @@ class ReportAmount extends ModelClass
 
     public function test(): bool
     {
-        $this->name = $this->toolBox()->utils()->noHtml($this->name);
+        $this->name = Tools::noHtml($this->name);
 
         if (empty($this->idcompany)) {
-            $this->toolBox()->i18nLog()->warning(
+            Tools::log()->warning(
                 'field-can-not-be-null',
                 ['%fieldName%' => 'idempresa', '%tableName%' => static::tableName()]
             );
@@ -105,12 +106,12 @@ class ReportAmount extends ModelClass
 
         if (strtotime($this->startdate) > strtotime($this->enddate)) {
             $params = ['%endDate%' => $this->startdate, '%startDate%' => $this->enddate];
-            $this->toolBox()->i18nLog()->warning('start-date-later-end-date', $params);
+            Tools::log()->warning('start-date-later-end-date', $params);
             return false;
         }
 
         if (strtotime($this->startdate) < 1) {
-            $this->toolBox()->i18nLog()->warning('date-invalid');
+            Tools::log()->warning('date-invalid');
             return false;
         }
 

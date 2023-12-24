@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2023 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -19,10 +19,9 @@
 
 namespace FacturaScripts\Plugins\Informes\Controller;
 
-use FacturaScripts\Core\App\AppSettings;
 use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
-use FacturaScripts\Core\Base\ToolBox;
+use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\CodeModel;
 use FacturaScripts\Dinamic\Model\Contacto;
@@ -57,7 +56,7 @@ class ReportBreakdown extends Controller
         if (false === $contacto) {
             return '';
         }
-        $description = empty($contacto->descripcion) ? '(' . $this->toolBox()->i18n()->trans('empty') . ') ' : '(' . $contacto->descripcion . ') ';
+        $description = empty($contacto->descripcion) ? '(' . Tools::lang()->trans('empty') . ') ' : '(' . $contacto->descripcion . ') ';
         $description .= empty($contacto->direccion) ? '' : $contacto->direccion;
         return $description;
     }
@@ -109,7 +108,7 @@ class ReportBreakdown extends Controller
         }
     }
 
-    protected function autocompleteCustomerAction()
+    protected function autocompleteCustomerAction(): void
     {
         $this->setTemplate(false);
 
@@ -118,19 +117,19 @@ class ReportBreakdown extends Controller
         $query = $this->request->get('query');
         foreach ($cliente->codeModelSearch($query, 'codcliente') as $value) {
             $list[] = [
-                'key' => $this->toolBox()->utils()->fixHtml($value->code),
-                'value' => $this->toolBox()->utils()->fixHtml($value->description)
+                'key' => Tools::fixHtml($value->code),
+                'value' => Tools::fixHtml($value->description)
             ];
         }
 
         if (empty($list)) {
-            $list[] = ['key' => null, 'value' => $this->toolBox()->i18n()->trans('no-data')];
+            $list[] = ['key' => null, 'value' => Tools::lang()->trans('no-data')];
         }
 
         $this->response->setContent(json_encode($list));
     }
 
-    protected function autocompleteCustomerAddressAction()
+    protected function autocompleteCustomerAddressAction(): void
     {
         $this->setTemplate(false);
 
@@ -142,19 +141,19 @@ class ReportBreakdown extends Controller
         ];
         foreach ($contactoModel->all($where, ['apellidos' => 'ASC', 'nombre' => 'ASC'], 0, 0) as $contacto) {
             $list[] = [
-                'key' => $this->toolBox()->utils()->fixHtml($contacto->idcontacto),
-                'value' => $this->toolBox()->utils()->fixHtml($this->getAddress($contacto))
+                'key' => Tools::fixHtml($contacto->idcontacto),
+                'value' => Tools::fixHtml($this->getAddress($contacto))
             ];
         }
 
         if (empty($list)) {
-            $list[] = ['key' => null, 'value' => $this->toolBox()->i18n()->trans('no-data')];
+            $list[] = ['key' => null, 'value' => Tools::lang()->trans('no-data')];
         }
 
         $this->response->setContent(json_encode($list));
     }
 
-    protected function autocompleteSupplierAction()
+    protected function autocompleteSupplierAction(): void
     {
         $this->setTemplate(false);
 
@@ -163,19 +162,19 @@ class ReportBreakdown extends Controller
         $query = $this->request->get('query');
         foreach ($proveedor->codeModelSearch($query, 'codproveedor') as $value) {
             $list[] = [
-                'key' => $this->toolBox()->utils()->fixHtml($value->code),
-                'value' => $this->toolBox()->utils()->fixHtml($value->description)
+                'key' => Tools::fixHtml($value->code),
+                'value' => Tools::fixHtml($value->description)
             ];
         }
 
         if (empty($list)) {
-            $list[] = ['key' => null, 'value' => $this->toolBox()->i18n()->trans('no-data')];
+            $list[] = ['key' => null, 'value' => Tools::lang()->trans('no-data')];
         }
 
         $this->response->setContent(json_encode($list));
     }
 
-    protected function generarInforme()
+    protected function generarInforme(): void
     {
         switch ($this->request->get('generar')) {
             case 'informe_compras':
@@ -403,7 +402,7 @@ class ReportBreakdown extends Controller
 
     protected function getMonthsTitlesRows(): string
     {
-        $i18n = ToolBox::i18n();
+        $i18n = Tools::lang();
         return substr($i18n->trans('january'), 0, 3) . ';'
             . substr($i18n->trans('february'), 0, 3) . ';'
             . substr($i18n->trans('march'), 0, 3) . ';'
@@ -422,7 +421,7 @@ class ReportBreakdown extends Controller
     {
         $cliente = new Cliente();
         if ($codcliente && $cliente->loadFromCode($codcliente)) {
-            return self::toolBox()::utils()::fixHtml($cliente->nombre);
+            return Tools::fixHtml($cliente->nombre);
         }
 
         return '-';
@@ -432,13 +431,13 @@ class ReportBreakdown extends Controller
     {
         $proveedor = new Proveedor();
         if ($codproveedor && $proveedor->loadFromCode($codproveedor)) {
-            return self::toolBox()::utils()::fixHtml($proveedor->nombre);
+            return Tools::fixHtml($proveedor->nombre);
         }
 
         return '-';
     }
 
-    protected function getProvincias()
+    protected function getProvincias(): void
     {
         $this->setTemplate(false);
 
@@ -491,16 +490,16 @@ class ReportBreakdown extends Controller
         return $totales;
     }
 
-    protected function informeCompras()
+    protected function informeCompras(): void
     {
         $data = $this->getInformeComprasData();
         if (empty($data)) {
-            $this->toolBox()->i18nLog()->warning('no-data');
+            Tools::log()->warning('no-data');
             return;
         }
 
         // imprimimos las cabeceras
-        $i18n = ToolBox::i18n();
+        $i18n = Tools::lang();
         $this->setTemplate(false);
         header("content-type:application/csv;charset=UTF-8");
         header('Content-Disposition: attachment; filename="'
@@ -529,7 +528,7 @@ class ReportBreakdown extends Controller
 
         // imprimimos los totales por año
         foreach ($this->getTotalesAgrupados($agrupados) as $year => $meses) {
-            echo ";" . strtoupper(ToolBox::i18n()->trans('totals')) . ";" . $year;
+            echo ";" . strtoupper(Tools::lang()->trans('totals')) . ";" . $year;
             foreach ($meses as $mes) {
                 echo ';' . number_format($mes, FS_NF0, '.', '');
             }
@@ -537,16 +536,16 @@ class ReportBreakdown extends Controller
         }
     }
 
-    protected function informeComprasUnidades()
+    protected function informeComprasUnidades(): void
     {
         $data = $this->getInformeComprasUnidadesData();
         if (empty($data)) {
-            $this->toolBox()->i18nLog()->warning('no-data');
+            Tools::log()->warning('no-data');
             return;
         }
 
         // imprimimos las cabeceras
-        $i18n = ToolBox::i18n();
+        $i18n = Tools::lang();
         $this->setTemplate(false);
         header("content-type:application/csv;charset=UTF-8");
         header("Content-Disposition: attachment; filename=\""
@@ -577,16 +576,16 @@ class ReportBreakdown extends Controller
         }
     }
 
-    protected function informeVentas()
+    protected function informeVentas(): void
     {
         $data = $this->getInformeVentasData();
         if (empty($data)) {
-            $this->toolBox()->i18nLog()->warning('no-data');
+            Tools::log()->warning('no-data');
             return;
         }
 
         // imprimimos las cabeceras
-        $i18n = ToolBox::i18n();
+        $i18n = Tools::lang();
         $this->setTemplate(false);
         header("content-type:application/csv;charset=UTF-8");
         header("Content-Disposition: attachment; filename=\""
@@ -614,7 +613,7 @@ class ReportBreakdown extends Controller
 
         // imprimimos los totales por año
         foreach ($this->getTotalesAgrupados($agrupados) as $year => $meses) {
-            echo ";" . strtoupper(ToolBox::i18n()->trans('totals')) . ";" . $year;
+            echo ";" . strtoupper(Tools::lang()->trans('totals')) . ";" . $year;
             foreach ($meses as $mes) {
                 echo ';' . number_format($mes, FS_NF0, '.', '');
             }
@@ -622,15 +621,15 @@ class ReportBreakdown extends Controller
         }
     }
 
-    protected function informeVentasUnidades()
+    protected function informeVentasUnidades(): void
     {
         $data = $this->getInformeVentasUnidadesData();
         if (empty($data)) {
-            $this->toolBox()->i18nLog()->warning('no-data');
+            Tools::log()->warning('no-data');
             return;
         }
 
-        $i18n = ToolBox::i18n();
+        $i18n = Tools::lang();
         $this->setTemplate(false);
         header("content-type:application/csv;charset=UTF-8");
         header("Content-Disposition: attachment; filename=\""
@@ -664,7 +663,7 @@ class ReportBreakdown extends Controller
     /**
      * Obtenemos los valores de los filtros del formulario.
      */
-    protected function iniFilters()
+    protected function iniFilters(): void
     {
         $this->desde = $this->request->get('desde', Date('Y') . '-01-01');
         $this->hasta = $this->request->get('hasta', Date('Y') . '-12-31');
@@ -674,7 +673,7 @@ class ReportBreakdown extends Controller
         $this->codpago = $this->request->get('codpago', false);
         $this->codagente = $this->request->get('codagente', false);
         $this->codalmacen = $this->request->get('codalmacen', false);
-        $this->coddivisa = $this->request->get('coddivisa', AppSettings::get('default', 'coddivisa'));
+        $this->coddivisa = $this->request->get('coddivisa', Tools::settings('default', 'coddivisa'));
 
         $this->cliente = FALSE;
         if ($this->request->get('codcliente')) {
