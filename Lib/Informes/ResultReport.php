@@ -48,6 +48,7 @@ class ResultReport
     protected static $parent_codfamilia;
     protected static $resultado;
     protected static $ventas;
+    protected static $compras;
     protected static $year;
 
     protected static function apply(array $formData)
@@ -583,6 +584,7 @@ class ResultReport
     protected static function summary_build_year($year, $codejercicio)
     {
         self::sales_purchases_build_year($year, $codejercicio, "load-sales");
+        self::sales_purchases_build_year($year, $codejercicio, "load-purchases");
         self::purchases_build_year($year, $codejercicio);
 
         $resultado = array(
@@ -632,12 +634,15 @@ class ResultReport
 
     protected static function sales_purchases_build_year(string $year, string $codejercicio, string $action): void
     {
+
+        $key = ($action == "load-sales" or $action == "load-family-sales") ? "ventas" : "compras";
+
         $date = array(
             'desde' => '',
             'hasta' => '',
         );
 
-        $ventas = array(
+        ${$key} = array(
             'agentes' => [],
             'descripciones' => [],
             'familias' => [],
@@ -671,7 +676,7 @@ class ResultReport
         // Recorremos los meses y ejecutamos una consulta filtrando por el mes
         for ($mes = 1; $mes <= 12; $mes++) {
             // inicializamos
-            $ventas['total_mes'][$mes] = 0;
+            ${$key}['total_mes'][$mes] = 0;
 
             if ($year) {
                 $dia_mes = ResultReport::days_in_month($mes, $year);
@@ -685,21 +690,21 @@ class ResultReport
                  */
 
                 $tablename = ($action == "load-sales" or $action == "load-family-sales") ? "facturascli" : "facturasprov";
-                $model = ($action == "load-sales" or $action == "load-family-purchases") ? new FacturaCliente() : new FacturaProveedor();
+                $model = ($action == "load-sales" or $action == "load-family-sales") ? new FacturaCliente() : new FacturaProveedor();
 
 
-                $ventas = self::invoiceLines($ventas, $date, $codejercicio, $mes, $ventas_total_fam_meses, $countMonth, $tablename);
+                ${$key} = self::invoiceLines(${$key}, $date, $codejercicio, $mes, $ventas_total_fam_meses, $countMonth, $tablename);
                 // Recorremos las facturas
-                $ventas = self::dataInvoices($ventas, $date, $codejercicio, $mes, $ventas_total_ser_meses, $ventas_total_pag_meses, $ventas_total_age_meses, $model);
+                ${$key} = self::dataInvoices(${$key}, $date, $codejercicio, $mes, $ventas_total_ser_meses, $ventas_total_pag_meses, $ventas_total_age_meses, $model);
 
 
                 // Las descripciones solo las necesitamos en el año seleccionado,
                 // en el año anterior se omite
                 if ($year == self::$year) {
-                    $ventas = self::setDescriptionFamilies($ventas, $codejercicio);
-                    $ventas = self::setDescriptionSeries($ventas);
-                    $ventas = self::setDescriptionPayments($ventas);
-                    $ventas = self::setDescriptionAgents($ventas);
+                    ${$key} = self::setDescriptionFamilies(${$key}, $codejercicio);
+                    ${$key} = self::setDescriptionSeries(${$key});
+                    ${$key} = self::setDescriptionPayments(${$key});
+                    ${$key} = self::setDescriptionAgents(${$key});
                 }
             }
         }
@@ -708,12 +713,12 @@ class ResultReport
          *  TOTALES GLOBALES
          * *****************************************************************
          */
-        $ventas['total_mes'][0] = round($ventas_total_fam_meses, FS_NF0);
+        ${$key}['total_mes'][0] = round($ventas_total_fam_meses, FS_NF0);
 
         if ($countMonth > 0) {
-            $ventas['total_mes']['media'] = round($ventas_total_fam_meses / $countMonth, FS_NF0);
+            ${$key}['total_mes']['media'] = round($ventas_total_fam_meses / $countMonth, FS_NF0);
         } else {
-            $ventas['total_mes']['media'] = round($ventas_total_fam_meses, FS_NF0);
+            ${$key}['total_mes']['media'] = round($ventas_total_fam_meses, FS_NF0);
         }
 
         /**
@@ -721,13 +726,13 @@ class ResultReport
          * *****************************************************************
          */
         // VENTAS: Calculamos los porcentajes con los totales globales
-        $ventas = self::setPercentageFamilies($ventas, $ventas_total_fam_meses);
-        $ventas = self::setPercentageSeries($ventas, $ventas_total_ser_meses);
-        $ventas = self::setPercentagePayments($ventas, $ventas_total_pag_meses);
-        $ventas = self::setPercentageAgents($ventas, $ventas_total_age_meses);
+        ${$key} = self::setPercentageFamilies(${$key}, $ventas_total_fam_meses);
+        ${$key} = self::setPercentageSeries(${$key}, $ventas_total_ser_meses);
+        ${$key} = self::setPercentagePayments(${$key}, $ventas_total_pag_meses);
+        ${$key} = self::setPercentageAgents(${$key}, $ventas_total_age_meses);
 
         // Variables globales para usar en la vista
-        self::$ventas[$year] = $ventas;
+        self::${$key}[$year] = ${$key};
     }
 
     protected static function invoiceLines(array $ventas, array $date, string $codejercicio, int $mes, float &$ventas_total_fam_meses, int &$countMonth, string $tablename): array
