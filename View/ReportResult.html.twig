@@ -378,6 +378,13 @@
                         data: charts['totales']['ventas']
                     }, {
                         type: 'line',
+                        label: '{{ trans('purchases') }}',
+                        borderColor: window.chartColors.orange,
+                        borderWidth: 2,
+                        fill: false,
+                        data: charts['totales']['compras']
+                    },{
+                        type: 'line',
                         label: '{{ trans('expenses') }}',
                         borderColor: window.chartColors.red,
                         borderWidth: 2,
