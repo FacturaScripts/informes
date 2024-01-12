@@ -29,6 +29,7 @@ class SalesPurchasesResultReport extends ResultReport
     public static function render(array $formData): string
     {
         self::apply($formData);
+        $varName = ($formData['action'] == "load-sales" or $formData['action'] == "load-family-sales") ? "ventas" : "compras";
 
         // Definir los meses en un arreglo
         $meses = [
@@ -55,15 +56,15 @@ class SalesPurchasesResultReport extends ResultReport
             . '</thead>'
             . '<tbody>';
 
-        if (self::$ventas[self::$year]) {
+        if (self::${$varName}[self::$year]) {
             $html .= '<tr>'
                 . '<td class="title align-middle">' . Tools::lang()->trans('all') . '</td>'
                 . '<td class="porc align-middle">100.0 %</td>';
 
             for ($x = 0; $x <= 12; $x++) {
                 $css = $x == 0 ? 'total' : 'month';
-                $money = self::$ventas[self::$year]['total_mes'][$x];
-                $lastmoney = self::$ventas[self::$lastyear]['total_mes'][$x] ?? 0;
+                $money = self::${$varName}[self::$year]['total_mes'][$x];
+                $lastmoney = self::${$varName}[self::$lastyear]['total_mes'][$x] ?? 0;
                 $html .= '<td class="' . $css . '">';
                 $html .= $money ? Tools::money($money) : self::defaultMoney();
                 $html .= '<div class="small">';
@@ -75,26 +76,26 @@ class SalesPurchasesResultReport extends ResultReport
             $html .= '</tr>';
         }
 
-        if (isset(self::$ventas[self::$year]['descripciones'])) {
-            asort(self::$ventas[self::$year]['descripciones']);
+        if (isset(self::${$varName}[self::$year]['descripciones'])) {
+            asort(self::${$varName}[self::$year]['descripciones']);
             $cont = 1;
-            foreach (self::$ventas[self::$year]['descripciones'] as $key => $value) {
-                if (!isset(self::$ventas[self::$year]['familias'][$key])) {
+            foreach (self::${$varName}[self::$year]['descripciones'] as $key => $value) {
+                if (!isset(self::${$varName}[self::$year]['familias'][$key])) {
                     continue;
                 }
 
                 $html .= ''
                     . '<tr codfamilia="' . $key . '" data-target="#ventas-' . $cont . '" class="ventas pointer">'
-                    . '<td class="title">' . self::$ventas[self::$year]['descripciones'][$key] . '</td>'
+                    . '<td class="title">' . self::${$varName}[self::$year]['descripciones'][$key] . '</td>'
                     . '<td class="porc align-middle">';
 
-                $percentage = (float)self::$ventas[self::$year]['porc_fam'][$key];
+                $percentage = (float)self::${$varName}[self::$year]['porc_fam'][$key];
                 $html .= $percentage > 0 ? $percentage . ' %' : self::defaultPerc();
 
                 $html .= '</td>'
                     . '<td class="total align-middle">';
 
-                $money = self::$ventas[self::$year]['total_fam'][$key];
+                $money = self::${$varName}[self::$year]['total_fam'][$key];
                 $html .= $money ? Tools::money($money) : self::defaultMoney();
 
                 $html .= '</td>';
@@ -102,8 +103,8 @@ class SalesPurchasesResultReport extends ResultReport
                 for ($x = 1; $x <= 12; $x++) {
                     $title = Tools::lang()->trans(strtolower(date("F", mktime(0, 0, 0, $x, 10))));
                     $html .= '<td title="' . $title . '" class="month align-middle">';
-                    $html .= isset(self::$ventas[self::$year]['total_fam_mes'][$key][$x]) ?
-                        Tools::money(self::$ventas[self::$year]['total_fam_mes'][$key][$x]) :
+                    $html .= isset(self::${$varName}[self::$year]['total_fam_mes'][$key][$x]) ?
+                        Tools::money(self::${$varName}[self::$year]['total_fam_mes'][$key][$x]) :
                         self::defaultMoney();
                     $html .= '</td>';
                 }

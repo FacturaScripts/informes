@@ -36,128 +36,66 @@ class SummaryResultReport extends ResultReport
         self::apply($formData);
         self::charts_build();
 
-        $html = '<div class="table-responsive">'
-            . '<table class="table table-hover mb-0">'
-            . '<thead>'
-            . '<tr>'
-            . '<th class="title"><b>' . Tools::lang()->trans('summary') . '</b></th>'
-            . '<th class="porc">' . Tools::lang()->trans('monthly-average') . '</th>'
-            . '<th class="total">' . Tools::lang()->trans('total') . '</th>'
-            . '<th class="month">' . Tools::lang()->trans('january') . '</th>'
-            . '<th class="month">' . Tools::lang()->trans('february') . '</th>'
-            . '<th class="month">' . Tools::lang()->trans('march') . '</th>'
-            . '<th class="month">' . Tools::lang()->trans('april') . '</th>'
-            . '<th class="month">' . Tools::lang()->trans('may') . '</th>'
-            . '<th class="month">' . Tools::lang()->trans('june') . '</th>'
-            . '<th class="month">' . Tools::lang()->trans('july') . '</th>'
-            . '<th class="month">' . Tools::lang()->trans('august') . '</th>'
-            . '<th class="month">' . Tools::lang()->trans('september') . '</th>'
-            . '<th class="month">' . Tools::lang()->trans('october') . '</th>'
-            . '<th class="month">' . Tools::lang()->trans('november') . '</th>'
-            . '<th class="month">' . Tools::lang()->trans('december') . '</th>'
-            . '</tr>'
-            . '</thead>'
-            . '<tbody>';
+        $monthNames = ['monthly-average', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+        $categories = ['ventas' => 'sales', 'compras' => "purchases" ,'gastos' => 'expenses', 'resultado' => 'result'];
 
-        // ventas
-        $html .= '<tr class="table-success">'
-            . '<td class="title align-middle"><b>' . Tools::lang()->trans('sales') . '</b><br/>'
-            . '<small>' . Tools::lang()->trans('previous') . '</small></td>'
-            . '<td class="porc">';
+        $html = '<div class="table-responsive"><table class="table table-hover mb-0"><thead><tr><th class="title"><b>' . Tools::lang()->trans('summary') . '</b></th>';
 
-        $money = self::$ventas[self::$year]['total_mes']['media'];
-        $lastmoney = self::$ventas[self::$lastyear]['total_mes']['media'] ?? 0;
-        $html .= $money ?
-            $money < 0 ? '<span class="text-danger">' . Tools::money($money) . '</span>' : Tools::money($money) :
-            self::defaultMoney();
-        $html .= '<div class="small">';
-        $html .= $lastmoney ? Tools::money($lastmoney) : self::defaultMoney();
+        foreach ($monthNames as $month) {
+            $html .= '<th class="' . ($month === 'monthly-average' ? 'porc' : 'month') . '">' . Tools::lang()->trans($month) . '</th>';
+        }
 
-        $html .= '</div>'
-            . '</td>';
+        $html .= '</tr></thead><tbody>';
+
+        foreach ($categories as $key => $category) {
+            $html .= self::generateCategoryRow($key, $category);
+        }
+
+        $html .= '</tbody></table></div>';
+        return $html;
+    }
+
+    private static function generateCategoryRow($categoryKey, $categoryName): string
+    {
+        $html = '<tr class="' . self::getRowClass($categoryName) . '">'
+            . '<td class="title align-middle"><b>' . Tools::lang()->trans($categoryName) . '</b><br/>'
+            . '<small>' . Tools::lang()->trans('previous') . '</small></td>';
 
         for ($x = 0; $x <= 12; $x++) {
-            $css = $x == 0 ? 'total' : 'month';
-            $money = self::$ventas[self::$year]['total_mes'][$x];
-            $lastmoney = self::$ventas[self::$lastyear]['total_mes'][$x] ?? 0;
-            $html .= '<td class="' . $css . '">';
-            $html .= $money ? $money < 0 ?
-                '<span class="text-danger">' . Tools::money($money) . '</span>' : Tools::money($money) :
-                self::defaultMoney();
-            $html .= '<div class="small">';
-            $html .= $lastmoney ? Tools::money($lastmoney) : self::defaultMoney();
-            $html .= '</div>'
-                . '</td>';
+            $css = $x == 0 ? 'porc' : 'month';
+            $money = self::${$categoryKey}[self::$year]['total_mes'][$x];
+            $lastmoney = self::${$categoryKey}[self::$lastyear]['total_mes'][$x];
+
+            $html .= self::generateTableCell($money, $lastmoney, $css);
         }
+
         $html .= '</tr>';
+        return $html;
+    }
 
-        // compras
-        $html .= '<tr class="table-danger">'
-            . '<td class="title align-middle"><b>' . Tools::lang()->trans('expenses') . '</b><br/>'
-            . '<small>' . Tools::lang()->trans('previous') . '</small></td>'
-            . '<td class="porc">';
-
-        $money = self::$gastos[self::$year]['total_mes']['media'];
-        $lastmoney = self::$gastos[self::$lastyear]['total_mes']['media'] ?? 0;
-        $html .= $money ? $money < 0 ?
-            '<span class="text-danger">' . Tools::money($money) . '</span>' : Tools::money($money) :
-            self::defaultMoney();
-        $html .= '<div class="small">';
-        $html .= $lastmoney ? Tools::money($lastmoney) : self::defaultMoney();
-
-        $html .= '</div>'
-            . '</td>';
-
-        for ($x = 0; $x <= 12; $x++) {
-            $css = $x == 0 ? 'total' : 'month';
-            $money = self::$gastos[self::$year]['total_mes'][$x];
-            $lastmoney = self::$gastos[self::$lastyear]['total_mes'][$x] ?? 0;
-            $html .= '<td class="' . $css . '">';
-            $html .= $money ? $money < 0 ?
-                '<span class="text-danger">' . Tools::money($money) . '</span>' : Tools::money($money) :
-                self::defaultMoney();
-            $html .= '<div class="small">';
-            $html .= $lastmoney ? Tools::money($lastmoney) : self::defaultMoney();
-            $html .= '</div>'
-                . '</td>';
-        }
-        $html .= '</tr>';
-
-        // resultados
-        $html .= '<tr class="table-primary">'
-            . '<td class="title align-middle"><b>' . Tools::lang()->trans('result') . '</b><br/>'
-            . '<small>' . Tools::lang()->trans('previous') . '</small></td>'
-            . '<td class="porc">';
-
-        $money = self::$resultado[self::$year]['total_mes']['media'];
-        $lastmoney = self::$resultado[self::$lastyear]['total_mes']['media'] ?? 0;
-        $html .= $money ? $money < 0 ?
-            '<span class="text-danger">' . Tools::money($money) . '</span>' : Tools::money($money) :
-            self::defaultMoney();
-        $html .= '<div class="small">';
-        $html .= $lastmoney ? Tools::money($lastmoney) : self::defaultMoney();
-
-        $html .= '</div>'
-            . '</td>';
-
-        for ($x = 0; $x <= 12; $x++) {
-            $css = $x == 0 ? 'total' : 'month';
-            $money = self::$resultado[self::$year]['total_mes'][$x];
-            $lastmoney = self::$resultado[self::$lastyear]['total_mes'][$x] ?? 0;
-            $html .= '<td class="' . $css . '">';
-            $html .= $money ? $money < 0 ?
-                '<span class="text-danger">' . Tools::money($money) . '</span>' : Tools::money($money) :
-                self::defaultMoney();
-            $html .= '<div class="small">';
-            $html .= $lastmoney ? Tools::money($lastmoney) : self::defaultMoney();
-            $html .= '</div>'
-                . '</td>';
+    private static function getRowClass($categoryName): string
+    {
+        switch ($categoryName) {
+            case 'sales':
+                return 'table-success';
+            case 'purchases':
+                return 'table-warning';
+            case 'expenses':
+                return 'table-danger';
+            case 'result':
+                return 'table-primary';
         }
 
-        $html .= '</tr>'
-            . '</tbody>'
-            . '</table>'
-            . '</div>';
+        return 'table-success';
+    }
+
+    private static function generateTableCell($money, $lastmoney, $css): string
+    {
+        $html = '<td class="' . $css . '">'
+            . ($money ? ($money < 0 ? '<span class="text-danger">' : '') . Tools::money($money) . ($money < 0 ? '</span>' : '') : self::defaultMoney())
+            . '<div class="small">'
+            . ($lastmoney ? Tools::money($lastmoney) : self::defaultMoney())
+            . '</div></td>';
         return $html;
     }
 
@@ -169,6 +107,7 @@ class SummaryResultReport extends ResultReport
          */
         for ($mes = 1; $mes <= 12; $mes++) {
             self::$charts['totales']['ventas'][$mes - 1] = round(self::$ventas[self::$year]['total_mes'][$mes], FS_NF0);
+            self::$charts['totales']['compras'][$mes - 1] = round(self::$compras[self::$year]['total_mes'][$mes], FS_NF0);
             self::$charts['totales']['gastos'][$mes - 1] = round(self::$gastos[self::$year]['total_mes'][$mes], FS_NF0);
             self::$charts['totales']['resultado'][$mes - 1] = round(self::$resultado[self::$year]['total_mes'][$mes], FS_NF0);
         }

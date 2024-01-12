@@ -30,28 +30,29 @@ class FamilyResultReport extends ResultReport
     public static function render(array $formData): string
     {
         self::apply($formData);
-
+        $varName = ($formData['action'] == "load-sales" or $formData['action'] == "load-family-sales") ? "ventas" : "compras";
+        
         $html = '';
 
-        asort(self::$ventas[self::$year]['descripciones']);
-        foreach (self::$ventas[self::$year]['descripciones'] as $key => $value) {
-            if (!isset(self::$ventas[self::$year]['familias'][self::$parent_codfamilia][$key])) {
+        asort(self::${$varName}[self::$year]['descripciones']);
+        foreach (self::${$varName}[self::$year]['descripciones'] as $key => $value) {
+            if (!isset(self::${$varName}[self::$year]['familias'][self::$parent_codfamilia][$key])) {
                 continue;
             }
 
             $html .= ''
                 . '<tr class="subfamily">'
-                . '<td class="title">' . self::$ventas[self::$year]['descripciones'][$key] . '</td>'
+                . '<td class="title">' . self::${$varName}[self::$year]['descripciones'][$key] . '</td>'
                 . '<td class="porc text-right align-middle">';
 
-            $percentage = (float)self::$ventas[self::$year]['porc_ref'][self::$parent_codfamilia][$key];
+            $percentage = (float)self::${$varName}[self::$year]['porc_ref'][self::$parent_codfamilia][$key];
             $html .= $percentage > 0 ? $percentage . ' %' : self::defaultPerc();
 
             $html .= ''
                 . '</td>'
                 . '<td class="total text-right align-middle">';
 
-            $money = self::$ventas[self::$year]['total_ref'][self::$parent_codfamilia][$key];
+            $money = self::${$varName}[self::$year]['total_ref'][self::$parent_codfamilia][$key];
             $html .= $money ? Tools::money($money) : self::defaultMoney();
 
             $html .= ''
@@ -60,8 +61,8 @@ class FamilyResultReport extends ResultReport
             for ($x = 1; $x <= 12; $x++) {
                 $title = Tools::lang()->trans(strtolower(date("F", mktime(0, 0, 0, $x, 10))));
                 $html .= '<td title="' . $title . '" class="month text-right align-middle">';
-                $html .= isset(self::$ventas[self::$year]['familias'][self::$parent_codfamilia][$key][$x]['pvptotal']) ?
-                    Tools::money(self::$ventas[self::$year]['familias'][self::$parent_codfamilia][$key][$x]['pvptotal']) :
+                $html .= isset(self::${$varName}[self::$year]['familias'][self::$parent_codfamilia][$key][$x]['pvptotal']) ?
+                    Tools::money(self::${$varName}[self::$year]['familias'][self::$parent_codfamilia][$key][$x]['pvptotal']) :
                     self::defaultMoney();
                 $html .= ''
                     . '</td>';
