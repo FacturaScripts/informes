@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2017-2023 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2017-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -64,7 +64,25 @@ class BalanceCode extends ModelClass
     public $nature;
 
     /** @var string */
+    public $positive;
+
+    /** @var string */
     public $subtype;
+
+    public function calculate(float $debe, float $haber): float
+    {
+        if ($this->positive === 'true') {
+            return $debe - $haber;
+        }
+
+        if ($this->positive === 'false') {
+            return $haber - $debe;
+        }
+
+        return $this->nature === 'A' ?
+            $haber - $debe :
+            $debe - $haber;
+    }
 
     public function clear()
     {
@@ -96,6 +114,7 @@ class BalanceCode extends ModelClass
         $this->level3 = Tools::noHtml($this->level3);
         $this->level4 = Tools::noHtml($this->level4);
         $this->nature = Tools::noHtml($this->nature);
+        $this->positive = Tools::noHtml($this->positive);
         $this->subtype = Tools::noHtml($this->subtype);
 
         // comprobamos que tenga un código válido

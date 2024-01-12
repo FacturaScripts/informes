@@ -239,9 +239,7 @@ class BalanceSheet
             . ',' . $this->dataBase->var2str(Asiento::OPERATION_CLOSING) . '))';
 
         foreach ($this->dataBase->select($sql) as $row) {
-            $total += $balance->nature === 'A' ?
-                (float)$row['debe'] - (float)$row['haber'] :
-                (float)$row['haber'] - (float)$row['debe'];
+            $total += $balance->calculate((float)$row['debe'], (float)$row['haber']);
         }
 
         $this->amounts[$key] = $total;
