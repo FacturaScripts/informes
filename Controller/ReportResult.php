@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022-2023 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -22,8 +22,6 @@ namespace FacturaScripts\Plugins\Informes\Controller;
 use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Core\DataSrc\Empresas;
 use FacturaScripts\Core\Tools;
-use FacturaScripts\Dinamic\Model\Ejercicio;
-use FacturaScripts\Dinamic\Model\Empresa;
 use FacturaScripts\Plugins\Informes\Lib\Informes\AccountResultReport;
 use FacturaScripts\Plugins\Informes\Lib\Informes\FamilyResultReport;
 use FacturaScripts\Plugins\Informes\Lib\Informes\PurchasesResultReport;
@@ -35,6 +33,9 @@ use FacturaScripts\Plugins\Informes\Lib\Informes\SummaryResultReport;
  */
 class ReportResult extends Controller
 {
+    /** @var string */
+    public $codejercicio;
+
     private $logLevels = ['critical', 'error', 'info', 'notice', 'warning'];
 
     public function getCompanies(): array
@@ -54,6 +55,8 @@ class ReportResult extends Controller
     public function privateCore(&$response, $user, $permissions)
     {
         parent::privateCore($response, $user, $permissions);
+
+        $this->loadCurrentExercise();
 
         $action = $this->request->get('action', '');
         switch ($action) {
@@ -90,6 +93,16 @@ class ReportResult extends Controller
             'messages' => Tools::log()->read('', $this->logLevels)
         ];
         $this->response->setContent(json_encode($content));
+    }
+
+    protected function loadCurrentExercise(): void
+    {
+        foreach ($this->user->getCompany()->getExercises() as $exercise) {
+            if (date('Y', strtotime($exercise->fechafin)) === date('Y')) {
+                $this->codejercicio = $exercise->codejercicio;
+                break;
+            }
+        }
     }
 
     protected function loadFamily(): void

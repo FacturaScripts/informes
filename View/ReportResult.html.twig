@@ -1,5 +1,5 @@
 {#
-* Copyright (C) 2019-2023 Carlos Garcia Gomez <carlos@facturascripts.com>
+* Copyright (C) 2019-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
 * Author Daniel Fernández Giménez <hola@danielfg.es>
 #}
 
@@ -41,9 +41,15 @@
                             {% for company in fsc.getCompanies() %}
                                 <optgroup label="{{ company.nombrecorto }}">
                                     {% for exercise in company.getExercises() %}
-                                        <option value="{{ exercise.codejercicio }}">
-                                            {{ exercise.nombre }}
-                                        </option>
+                                        {% if exercise.codejercicio == fsc.codejercicio %}
+                                            <option value="{{ exercise.codejercicio }}" selected>
+                                                {{ exercise.nombre }}
+                                            </option>
+                                        {% else %}
+                                            <option value="{{ exercise.codejercicio }}">
+                                                {{ exercise.nombre }}
+                                            </option>
+                                        {% endif %}
                                     {% endfor %}
                                 </optgroup>
                             {% endfor %}
@@ -115,10 +121,10 @@
                         <table class="table mb-0 table-sm">
                             <thead>
                             <tr>
-                            <th></th>
-                            <th>{{ trans('family') }}</th>
-                            <th class="porc">%</th>
-                            <th class="total">{{ trans('total') }}</th>
+                                <th></th>
+                                <th>{{ trans('family') }}</th>
+                                <th class="porc">%</th>
+                                <th class="total">{{ trans('total') }}</th>
                             </tr>
                             </thead>
                             <tbody></tbody>
@@ -138,10 +144,10 @@
                         <table class="table mb-0 table-sm">
                             <thead>
                             <tr>
-                            <th></th>
-                            <th>{{ trans('serie') }}</th>
-                            <th class="porc">%</th>
-                            <th class="total">{{ trans('total') }}</th>
+                                <th></th>
+                                <th>{{ trans('serie') }}</th>
+                                <th class="porc">%</th>
+                                <th class="total">{{ trans('total') }}</th>
                             </tr>
                             </thead>
                             <tbody></tbody>
@@ -161,10 +167,10 @@
                         <table class="table mb-0 table-sm">
                             <thead>
                             <tr>
-                            <th></th>
-                            <th>{{ trans('method-payment') }}</th>
-                            <th class="porc">%</th>
-                            <th class="total">{{ trans('total') }}</th>
+                                <th></th>
+                                <th>{{ trans('method-payment') }}</th>
+                                <th class="porc">%</th>
+                                <th class="total">{{ trans('total') }}</th>
                             </tr>
                             </thead>
                             <tbody></tbody>
@@ -184,10 +190,10 @@
                         <table class="table mb-0 table-sm">
                             <thead>
                             <tr>
-                            <th></th>
-                            <th>{{ trans('agent') }}</th>
-                            <th class="porc">%</th>
-                            <th class="total">{{ trans('total') }}</th>
+                                <th></th>
+                                <th>{{ trans('agent') }}</th>
+                                <th class="porc">%</th>
+                                <th class="total">{{ trans('total') }}</th>
                             </tr>
                             </thead>
                             <tbody></tbody>
@@ -232,7 +238,7 @@
             width: 6%;
         }
 
-        tr.subfamily{
+        tr.subfamily {
             background: #e6f0ff;
             border-top: 1px solid #000;
             border-bottom: 1px solid #000;
@@ -319,7 +325,7 @@
 
                     if (data.family && data.family !== '') {
                         var containerId = data.type == 'load-family-sales' ? '#salesReport' : '#purchasesProductReport';
-                        $(containerId + ' tr').each(function(){
+                        $(containerId + ' tr').each(function () {
                             if ($(this).attr('codfamilia') === data.codfamilia) {
                                 $(this).after(data.family);
                             }
@@ -327,7 +333,7 @@
                     }
 
                     if (data.account && data.account !== '') {
-                        $('#purchasesReport tr').each(function(){
+                        $('#purchasesReport tr').each(function () {
                             if ($(this).attr('codcuenta') === data.codcuenta) {
                                 $(this).after(data.account);
                             }
@@ -391,7 +397,7 @@
                         borderWidth: 2,
                         fill: false,
                         data: charts['totales']['compras']
-                    },{
+                    }, {
                         type: 'line',
                         label: '{{ trans('expenses') }}',
                         borderColor: window.chartColors.red,

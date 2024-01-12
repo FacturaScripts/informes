@@ -23,7 +23,6 @@ use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Core\DataSrc\Empresas;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\Ejercicio;
-use FacturaScripts\Dinamic\Model\Empresa;
 use FacturaScripts\Dinamic\Model\Subcuenta;
 
 /**
@@ -93,6 +92,7 @@ class ReportTreasury extends Controller
     public function privateCore(&$response, $user, $permissions)
     {
         parent::privateCore($response, $user, $permissions);
+
         $this->loadTreasury();
     }
 
