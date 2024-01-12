@@ -25,6 +25,7 @@ use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\Agente;
 use FacturaScripts\Dinamic\Model\Asiento;
 use FacturaScripts\Dinamic\Model\Cuenta;
+use FacturaScripts\Dinamic\Model\CuentaEspecial;
 use FacturaScripts\Dinamic\Model\Ejercicio;
 use FacturaScripts\Dinamic\Model\FacturaCliente;
 use FacturaScripts\Dinamic\Model\FacturaProveedor;
@@ -230,6 +231,47 @@ class ResultReport
         return '<span style="color:#ccc;">0.0 %</span>';
     }
 
+    protected static function getCuentaGastos(string $codejercicio): Cuenta
+    {
+        // obtenemos la cuenta especial de COMPRA
+        $cuentaEspecial = new CuentaEspecial();
+        if (false === $cuentaEspecial->loadFromCode('COMPRA')) {
+            return new Cuenta();
+        }
+
+        // obtenemos la cuenta de gastos
+        $cuenta = $cuentaEspecial->getCuenta($codejercicio);
+
+        // si no existe, terminamos
+        if (false === $cuenta->exists()) {
+            return new Cuenta();
+        }
+
+        // si la cuenta obtenida no tiene cuenta padre, la devolvemos
+        if (empty($cuenta->parent_idcuenta)) {
+            return $cuenta;
+        }
+
+        // si la cuenta tiene cuenta padre, la buscamos
+        return self::getCuentaGastosPadre($cuenta->parent_idcuenta);
+    }
+
+    protected static function getCuentaGastosPadre(int $id_cuenta): Cuenta
+    {
+        $cuenta = new Cuenta();
+        if (false === $cuenta->loadFromCode($id_cuenta)) {
+            return new Cuenta();
+        }
+
+        // si no tiene cuenta padre, la devolvemos
+        if (empty($cuenta->parent_idcuenta)) {
+            return $cuenta;
+        }
+
+        // si tiene cuenta padre, la buscamos
+        return self::getCuentaGastosPadre($cuenta->parent_idcuenta);
+    }
+
     protected static function purchases_build_year($year, $codejercicio)
     {
         $dataBase = new DataBase();
@@ -271,71 +313,7 @@ class ResultReport
                 $date['desde'] = date('01-' . $mes . '-' . $year);
                 $date['hasta'] = date($dia_mes . '-' . $mes . '-' . $year);
 
-                if ($dataBase->tableExists('partidas')) {
-                    /**
-                     *  GASTOS
-                     * *****************************************************************
-                     */
-                    // Gastos: Consulta de las partidas y asientos del grupo 6
-                    $sql = "select * from partidas as par"
-                        . " LEFT JOIN asientos as asi ON par.idasiento = asi.idasiento"
-                        . " where asi.fecha >= " . $dataBase->var2str($date['desde'])
-                        . " AND asi.fecha <= " . $dataBase->var2str($date['hasta'])
-                        . " AND asi.codejercicio = " . $dataBase->var2str($codejercicio)
-                        . " AND codsubcuenta LIKE '6%'";
-
-                    if ($asiento_regularizacion) {
-                        $sql .= " AND asi.numero <> " . $dataBase->var2str($asiento_regularizacion);
-                    }
-
-                    $sql .= " ORDER BY codsubcuenta";
-
-                    $partidas = $dataBase->select($sql);
-                    if ($partidas) {
-                        foreach ($partidas as $p) {
-                            $codsubcuenta = $p['codsubcuenta'];
-                            $codcuenta = substr($codsubcuenta, 0, 3);
-                            $pvptotal = (float)$p['debe'] - (float)$p['haber'];
-
-                            // Array con los datos a mostrar
-                            if (isset($gastos['total_cuenta_mes'][$codcuenta][$mes])) {
-                                $gastos['total_cuenta_mes'][$codcuenta][$mes] += $pvptotal;
-                            } else {
-                                $gastos['total_cuenta_mes'][$codcuenta][$mes] = $pvptotal;
-                            }
-
-                            if (isset($gastos['total_cuenta'][$codcuenta])) {
-                                $gastos['total_cuenta'][$codcuenta] += $pvptotal;
-                            } else {
-                                $gastos['total_cuenta'][$codcuenta] = $pvptotal;
-                            }
-
-                            if (isset($gastos['total_mes'][$mes])) {
-                                $gastos['total_mes'][$mes] += $pvptotal;
-                            } else {
-                                $gastos['total_mes'][$mes] = $pvptotal;
-                            }
-
-                            $gastos_total_meses = $pvptotal + $gastos_total_meses;
-
-                            if (self::$parent_codcuenta === $codcuenta) {
-                                if (isset($gastos['total_subcuenta'][$codcuenta][$codsubcuenta])) {
-                                    $gastos['total_subcuenta'][$codcuenta][$codsubcuenta] += $pvptotal;
-                                } else {
-                                    $gastos['total_subcuenta'][$codcuenta][$codsubcuenta] = $pvptotal;
-                                }
-
-                                if (isset($gastos['cuentas'][$codcuenta][$codsubcuenta][$mes])) {
-                                    $gastos['cuentas'][$codcuenta][$codsubcuenta][$mes]['pvptotal'] += $pvptotal;
-                                } else {
-                                    $gastos['cuentas'][$codcuenta][$codsubcuenta][$mes]['pvptotal'] = $pvptotal;
-                                }
-                            } else {
-                                $gastos['cuentas'][$codcuenta]['codsubcuenta'] = $codsubcuenta;
-                            }
-                        }
-                    }
-                }
+                self::setGastos($dataBase, $codejercicio, $date, $asiento_regularizacion, $mes, $gastos_total_meses, $gastos);
 
                 // Las descripciones solo las necesitamos en el año seleccionado,
                 // en el año anterior se omite
@@ -374,7 +352,7 @@ class ResultReport
         self::$gastos[$year] = $gastos;
     }
 
-    protected static function randomColor()
+    protected static function randomColor(): string
     {
         return substr(str_shuffle('ABCDEF0123456789'), 0, 6);
     }
@@ -505,6 +483,88 @@ class ResultReport
         }
 
         return $ventas;
+    }
+
+    protected static function setGastos(DataBase $dataBase, string $codejercicio, array $date, int $asiento_regularizacion, int $mes, float &$gastos_total_meses, array &$gastos)
+    {
+        // si no existe la tabla partidas, no hacemos nada
+        if (false === $dataBase->tableExists('partidas')) {
+            return;
+        }
+
+        // obtenemos la cuenta para gastos
+        $cuentaGastos = self::getCuentaGastos($codejercicio);
+
+        // si no existe la cuenta para gastos, no hacemos nada
+        if (false === $cuentaGastos->exists()) {
+            return;
+        }
+
+        /**
+         *  GASTOS
+         * *****************************************************************
+         */
+        // Gastos: Consulta de las partidas y asientos del grupo 6
+        $sql = "select * from partidas as par"
+            . " LEFT JOIN asientos as asi ON par.idasiento = asi.idasiento"
+            . " where asi.fecha >= " . $dataBase->var2str($date['desde'])
+            . " AND asi.fecha <= " . $dataBase->var2str($date['hasta'])
+            . " AND asi.codejercicio = " . $dataBase->var2str($codejercicio)
+            . " AND codsubcuenta LIKE '" . $cuentaGastos->codcuenta . "%'";
+
+        if ($asiento_regularizacion) {
+            $sql .= " AND asi.numero <> " . $dataBase->var2str($asiento_regularizacion);
+        }
+
+        $sql .= " ORDER BY codsubcuenta";
+
+        $partidas = $dataBase->select($sql);
+        if (empty($partidas)) {
+            return;
+        }
+
+        foreach ($partidas as $p) {
+            $codsubcuenta = $p['codsubcuenta'];
+            $codcuenta = substr($codsubcuenta, 0, 3);
+            $pvptotal = (float)$p['debe'] - (float)$p['haber'];
+
+            // Array con los datos a mostrar
+            if (isset($gastos['total_cuenta_mes'][$codcuenta][$mes])) {
+                $gastos['total_cuenta_mes'][$codcuenta][$mes] += $pvptotal;
+            } else {
+                $gastos['total_cuenta_mes'][$codcuenta][$mes] = $pvptotal;
+            }
+
+            if (isset($gastos['total_cuenta'][$codcuenta])) {
+                $gastos['total_cuenta'][$codcuenta] += $pvptotal;
+            } else {
+                $gastos['total_cuenta'][$codcuenta] = $pvptotal;
+            }
+
+            if (isset($gastos['total_mes'][$mes])) {
+                $gastos['total_mes'][$mes] += $pvptotal;
+            } else {
+                $gastos['total_mes'][$mes] = $pvptotal;
+            }
+
+            $gastos_total_meses = $pvptotal + $gastos_total_meses;
+
+            if (self::$parent_codcuenta === $codcuenta) {
+                if (isset($gastos['total_subcuenta'][$codcuenta][$codsubcuenta])) {
+                    $gastos['total_subcuenta'][$codcuenta][$codsubcuenta] += $pvptotal;
+                } else {
+                    $gastos['total_subcuenta'][$codcuenta][$codsubcuenta] = $pvptotal;
+                }
+
+                if (isset($gastos['cuentas'][$codcuenta][$codsubcuenta][$mes])) {
+                    $gastos['cuentas'][$codcuenta][$codsubcuenta][$mes]['pvptotal'] += $pvptotal;
+                } else {
+                    $gastos['cuentas'][$codcuenta][$codsubcuenta][$mes]['pvptotal'] = $pvptotal;
+                }
+            } else {
+                $gastos['cuentas'][$codcuenta]['codsubcuenta'] = $codsubcuenta;
+            }
+        }
     }
 
     protected static function setPercentageAgents(array $ventas, float $ventas_total_age_meses): array

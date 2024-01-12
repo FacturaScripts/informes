@@ -20,6 +20,7 @@
 namespace FacturaScripts\Plugins\Informes\Controller;
 
 use FacturaScripts\Core\Base\Controller;
+use FacturaScripts\Core\DataSrc\Empresas;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\Ejercicio;
 use FacturaScripts\Dinamic\Model\Empresa;
@@ -36,6 +37,11 @@ class ReportResult extends Controller
 {
     private $logLevels = ['critical', 'error', 'info', 'notice', 'warning'];
 
+    public function getCompanies(): array
+    {
+        return Empresas::all();
+    }
+
     public function getPageData(): array
     {
         $data = parent::getPageData();
@@ -43,20 +49,6 @@ class ReportResult extends Controller
         $data["title"] = "result-report";
         $data["icon"] = "fas fa-poll";
         return $data;
-    }
-
-    public function getYears(): string
-    {
-        $html = '';
-        $model = new Ejercicio();
-        foreach ($model->all([], ['fechainicio' => 'desc'], 0, 0) as $row) {
-            $emp = new Empresa();
-            $emp->loadFromCode($row->idempresa);
-            $html .= '<option value="' . $row->codejercicio . '">'
-                . $row->nombre . ' | ' . $emp->nombrecorto
-                . '</option>';
-        }
-        return $html;
     }
 
     public function privateCore(&$response, $user, $permissions)

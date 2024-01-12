@@ -37,8 +37,16 @@
             <div class="col-sm-12">
                 <div class="card border-primary shadow mt-4">
                     <div class="card-header bg-primary text-white d-flex flex-row">
-                        <select class="form-control" id="selectYear">
-                            {{ fsc.getYears() | raw }}
+                        <select class="form-control" id="selectExercise">
+                            {% for company in fsc.getCompanies() %}
+                                <optgroup label="{{ company.nombrecorto }}">
+                                    {% for exercise in company.getExercises() %}
+                                        <option value="{{ exercise.codejercicio }}">
+                                            {{ exercise.nombre }}
+                                        </option>
+                                    {% endfor %}
+                                </optgroup>
+                            {% endfor %}
                         </select>
                         <button class="btn btn-primary btn-sm btn-spin-action ml-2">
                             <i class="fa fa-refresh"></i>
@@ -207,7 +215,7 @@
             transform: rotate(90deg);
         }
 
-        #selectYear {
+        #selectExercise {
             max-width: 300px;
         }
 
@@ -277,7 +285,7 @@
             function sendForm(formData) {
                 animateSpinner('add');
 
-                formData.append('codejercicio', $('#selectYear option:selected').val());
+                formData.append('codejercicio', $('#selectExercise option:selected').val());
 
                 console.log(Object.fromEntries(formData));
 
@@ -670,7 +678,7 @@
             }
 
 
-            $(document).on('change', '#selectYear', function () {
+            $(document).on('change', '#selectExercise', function () {
                 initPage();
             });
 
