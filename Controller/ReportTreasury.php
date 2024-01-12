@@ -231,7 +231,7 @@ class ReportTreasury extends Controller
     protected function cuadro_resultado_actual(): void
     {
         /**
-         * Cuadro resultados ejercicio actual
+         * Cuadro resultado ejercicio actual
          */
         $this->da_resultadoejercicioactual = array(
             'total_ventas' => $this->get_ventas_totales(),
@@ -288,9 +288,9 @@ class ReportTreasury extends Controller
         }
     }
 
-    protected function get_gastos_pendientes(): float|int
+    protected function get_gastos_pendientes(): float
     {
-        $total = 0;
+        $total = 0.0;
 
         $sql = "SELECT SUM(total) as total FROM facturasprov WHERE pagada = false;";
         $data = $this->dataBase->select($sql);
@@ -301,9 +301,9 @@ class ReportTreasury extends Controller
         return $total;
     }
 
-    protected function get_cobros_pendientes(): float|int
+    protected function get_cobros_pendientes(): float
     {
-        $total = 0;
+        $total = 0.0;
 
         $sql = "SELECT SUM(total) as total FROM facturascli WHERE pagada = false;";
         $data = $this->dataBase->select($sql);
@@ -314,9 +314,9 @@ class ReportTreasury extends Controller
         return $total;
     }
 
-    protected function get_ventas_totales(): float|int
+    protected function get_ventas_totales(): float
     {
-        $total = 0;
+        $total = 0.0;
 
         $sql = "SELECT SUM(neto) as total FROM facturascli WHERE fecha >= " . $this->dataBase->var2str($this->desde)
             . " AND fecha <= " . $this->dataBase->var2str($this->hasta) . ';';
@@ -328,9 +328,9 @@ class ReportTreasury extends Controller
         return $total;
     }
 
-    protected function get_compras_totales(): float|int
+    protected function get_compras_totales(): float
     {
-        $total = 0;
+        $total = 0.0;
 
         $sql = "SELECT SUM(neto) as total FROM facturasprov WHERE fecha >= " . $this->empresa->var2str($this->desde)
             . " AND fecha <= " . $this->empresa->var2str($this->hasta) . ';';
@@ -355,7 +355,6 @@ class ReportTreasury extends Controller
         // seleccionamos el ejercicio actual
         $ejercicio = new Ejercicio();
         foreach ($ejercicio->all([], ['idempresa' => 'ASC', 'fechainicio' => 'DESC'], 0, 0) as $eje) {
-            print_r($eje);
             // si ya tenemos ejercicio, pero no tiene la misma empresa, paramos
             if ($this->ejercicio->exists() && $this->ejercicio->idempresa !== $eje->idempresa) {
                 break;
@@ -384,10 +383,6 @@ class ReportTreasury extends Controller
             return;
         }
 
-        print '---------------------';
-        print_r($this->ejercicio);
-        print_r($this->ejercicio_ant);
-
         $this->cuadro_tesoreria();
         $this->cuadro_gastos_y_cobros();
         $this->cuadro_reservas();
@@ -396,9 +391,9 @@ class ReportTreasury extends Controller
         $this->cuadro_resultados_situacion_corto();
     }
 
-    protected function saldo_cuenta($cuenta, $desde, $hasta): float|int
+    protected function saldo_cuenta(string $cuenta, string $desde, string $hasta): float
     {
-        $saldo = 0;
+        $saldo = 0.0;
 
         if ($this->dataBase->tableExists('partidas')) {
             /// calculamos el saldo de todos aquellos asientos que afecten a caja
@@ -415,9 +410,9 @@ class ReportTreasury extends Controller
         return $saldo;
     }
 
-    protected function saldo_cuenta_asiento_regularizacion($cuenta, $desde, $hasta, $numasientoregularizacion): float|int
+    protected function saldo_cuenta_asiento_regularizacion($cuenta, $desde, $hasta, $numasientoregularizacion): float
     {
-        $saldo = 0;
+        $saldo = 0.0;
 
         if ($this->dataBase->tableExists('co_partidas')) {
             /// calculamos el saldo de todos aquellos asientos que afecten a caja
