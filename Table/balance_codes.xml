@@ -53,6 +53,11 @@
         <null>NO</null>
     </column>
     <column>
+        <name>positive</name>
+        <type>boolean</type>
+        <default>true</default>
+    </column>
+    <column>
         <name>subtype</name>
         <type>character varying(15)</type>
         <null>NO</null>

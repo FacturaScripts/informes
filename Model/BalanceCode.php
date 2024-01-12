@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2017-2023 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2017-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -63,6 +63,9 @@ class BalanceCode extends ModelClass
     /** @var string */
     public $nature;
 
+    /** @var bool */
+    public $positive;
+
     /** @var string */
     public $subtype;
 
@@ -70,6 +73,7 @@ class BalanceCode extends ModelClass
     {
         parent::clear();
         $this->nature = 'A';
+        $this->positive = true;
         $this->subtype = 'normal';
     }
 

@@ -201,9 +201,18 @@ class IncomeAndExpenditure
                 . ',' . $this->dataBase->var2str(Asiento::OPERATION_CLOSING) . '))';
 
             foreach ($this->dataBase->select($sql) as $row) {
+                // si el balance es positivo
+                if ($balance->positive) {
+                    $total += $balance->nature === 'A' ?
+                        (float)$row['debe'] - (float)$row['haber'] :
+                        (float)$row['haber'] - (float)$row['debe'];
+                    continue;
+                }
+
+                // si el balance es negativo
                 $total += $balance->nature === 'A' ?
-                    (float)$row['debe'] - (float)$row['haber'] :
-                    (float)$row['haber'] - (float)$row['debe'];
+                    (float)$row['haber'] - (float)$row['debe'] :
+                    (float)$row['debe'] - (float)$row['haber'];
             }
         }
 
