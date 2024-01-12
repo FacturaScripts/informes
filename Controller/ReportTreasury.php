@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022-2023 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -20,6 +20,7 @@
 namespace FacturaScripts\Plugins\Informes\Controller;
 
 use FacturaScripts\Core\Base\Controller;
+use FacturaScripts\Core\DataSrc\Empresas;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\Ejercicio;
 use FacturaScripts\Dinamic\Model\Empresa;
@@ -30,21 +31,55 @@ use FacturaScripts\Dinamic\Model\Subcuenta;
  */
 class ReportTreasury extends Controller
 {
-    public $bancos;
-    public $cajas;
-    public $codejercicio;
-    public $codejercicio_ant;
-    public $da_gastoscobros;
-    public $da_impuestos;
-    public $da_reservasresultados;
-    public $da_resultadoejercicioactual;
-    public $da_resultadosituacion;
-    public $da_tesoreria;
-    public $desde;
-    public $hasta;
+    /** @var array */
+    public $bancos = [];
 
+    /** @var array */
+    public $cajas = [];
+
+    /** @var string */
+    public $code = null;
+
+    /** @var string */
+    public $codejercicio = null;
+
+    /** @var string */
+    public $codejercicio_ant = null;
+
+    /** @var array */
+    public $da_gastoscobros = [];
+
+    /** @var array */
+    public $da_impuestos = [];
+
+    /** @var array */
+    public $da_reservasresultados = [];
+
+    /** @var array */
+    public $da_resultadoejercicioactual = [];
+
+    /** @var array */
+    public $da_resultadosituacion = [];
+
+    /** @var array */
+    public $da_tesoreria = [];
+
+    /** @var string */
+    public $desde = null;
+
+    /** @var string */
+    public $hasta = null;
+
+    /** @var Ejercicio */
     protected $ejercicio;
+
+    /** @var Ejercicio */
     protected $ejercicio_ant;
+
+    public function getCompanies(): array
+    {
+        return Empresas::all();
+    }
 
     public function getPageData(): array
     {
@@ -55,36 +90,19 @@ class ReportTreasury extends Controller
         return $data;
     }
 
-    public function getYears(): string
-    {
-        $code = $this->request->get('code', '');
-        $html = '';
-        $model = new Ejercicio();
-        foreach ($model->all([], ['fechainicio' => 'desc'], 0, 0) as $row) {
-            $emp = new Empresa();
-            $emp->loadFromCode($row->idempresa);
-            $selected = $code == $row->codejercicio ? 'selected' : '';
-            $html .= '<option value="' . $row->codejercicio . '" ' . $selected . '>'
-                . $row->nombre . ' | ' . $emp->nombrecorto
-                . '</option>';
-        }
-        return $html;
-    }
-
     public function privateCore(&$response, $user, $permissions)
     {
         parent::privateCore($response, $user, $permissions);
         $this->loadTreasury();
     }
 
-    public function show_precio($price)
+    public function show_precio($price): string
     {
         $priceFormat = Tools::money($price);
-        $html = $price < 0 ? '<span class="text-danger">' . $priceFormat . '</span>' : $priceFormat;
-        return $html;
+        return $price < 0 ? '<span class="text-danger">' . $priceFormat . '</span>' : $priceFormat;
     }
 
-    protected function cuadro_tesoreria()
+    protected function cuadro_tesoreria(): void
     {
         /**
          * Cuadro de tesorería.
@@ -107,7 +125,7 @@ class ReportTreasury extends Controller
         $this->da_tesoreria["total_tesoreria"] = $this->da_tesoreria["total_cajas"] + $this->da_tesoreria["total_bancos"];
     }
 
-    protected function cuadro_gastos_y_cobros()
+    protected function cuadro_gastos_y_cobros(): void
     {
         /**
          * Cuadro gastos y cobros.
@@ -124,7 +142,7 @@ class ReportTreasury extends Controller
         $this->da_gastoscobros["total_gastoscobros"] = $this->da_gastoscobros["gastospdtepago"] + $this->da_gastoscobros["clientespdtecobro"] + $this->da_gastoscobros["nominaspdtepago"] + $this->da_gastoscobros["segsocialpdtepago"] + $this->da_gastoscobros["segsocialpdtecobro"];
     }
 
-    protected function cuadro_impuestos()
+    protected function cuadro_impuestos(): void
     {
         /**
          * Cuadro de impuestos.
@@ -188,14 +206,14 @@ class ReportTreasury extends Controller
         $this->da_impuestos["total-mod200"] = $this->da_impuestos["sociedades_ant"] - $this->da_impuestos["sociedades_adelantos"];
     }
 
-    protected function cuadro_resultados_situacion_corto()
+    protected function cuadro_resultados_situacion_corto(): void
     {
         $this->da_resultadosituacion["total"] = $this->da_tesoreria["total_tesoreria"] + $this->da_gastoscobros["total_gastoscobros"] +
             $this->da_impuestos["irpf-mod111"] + $this->da_impuestos["irpf-mod115"] + $this->da_impuestos["resultado_iva-mod303"] +
             $this->da_impuestos["pagofraccionado-mod202"] + $this->da_impuestos["total-mod200"];
     }
 
-    protected function cuadro_reservas()
+    protected function cuadro_reservas(): void
     {
         /**
          * Cuadro reservas + resultados
@@ -210,10 +228,10 @@ class ReportTreasury extends Controller
         $this->da_reservasresultados["total_reservas"] = $this->da_reservasresultados["reservalegal"] + $this->da_reservasresultados["reservasvoluntarias"] + $this->da_reservasresultados["resultadoejercicioanterior"];
     }
 
-    protected function cuadro_resultado_actual()
+    protected function cuadro_resultado_actual(): void
     {
         /**
-         * Cuadro resultados ejercicio actual
+         * Cuadro resultado ejercicio actual
          */
         $this->da_resultadoejercicioactual = array(
             'total_ventas' => $this->get_ventas_totales(),
@@ -241,7 +259,7 @@ class ReportTreasury extends Controller
         $this->da_resultadoejercicioactual["resultado_despues_impuestos"] = $this->da_resultadoejercicioactual["resultado_antes_impuestos"] + $this->da_resultadoejercicioactual["impuesto_sociedades"];
     }
 
-    protected function get_bancos()
+    protected function get_bancos(): void
     {
         $this->bancos = array();
 
@@ -256,7 +274,7 @@ class ReportTreasury extends Controller
         }
     }
 
-    protected function get_cajas()
+    protected function get_cajas(): void
     {
         $this->cajas = array();
 
@@ -270,9 +288,9 @@ class ReportTreasury extends Controller
         }
     }
 
-    protected function get_gastos_pendientes()
+    protected function get_gastos_pendientes(): float
     {
-        $total = 0;
+        $total = 0.0;
 
         $sql = "SELECT SUM(total) as total FROM facturasprov WHERE pagada = false;";
         $data = $this->dataBase->select($sql);
@@ -283,9 +301,9 @@ class ReportTreasury extends Controller
         return $total;
     }
 
-    protected function get_cobros_pendientes()
+    protected function get_cobros_pendientes(): float
     {
-        $total = 0;
+        $total = 0.0;
 
         $sql = "SELECT SUM(total) as total FROM facturascli WHERE pagada = false;";
         $data = $this->dataBase->select($sql);
@@ -296,9 +314,9 @@ class ReportTreasury extends Controller
         return $total;
     }
 
-    protected function get_ventas_totales()
+    protected function get_ventas_totales(): float
     {
-        $total = 0;
+        $total = 0.0;
 
         $sql = "SELECT SUM(neto) as total FROM facturascli WHERE fecha >= " . $this->dataBase->var2str($this->desde)
             . " AND fecha <= " . $this->dataBase->var2str($this->hasta) . ';';
@@ -310,9 +328,9 @@ class ReportTreasury extends Controller
         return $total;
     }
 
-    protected function get_compras_totales()
+    protected function get_compras_totales(): float
     {
-        $total = 0;
+        $total = 0.0;
 
         $sql = "SELECT SUM(neto) as total FROM facturasprov WHERE fecha >= " . $this->empresa->var2str($this->desde)
             . " AND fecha <= " . $this->empresa->var2str($this->hasta) . ';';
@@ -324,33 +342,45 @@ class ReportTreasury extends Controller
         return $total;
     }
 
-    protected function loadTreasury()
+    protected function loadTreasury(): void
     {
-        $code = $this->request->get('code', '');
-        $this->codejercicio = NULL;
-        $this->codejercicio_ant = NULL;
+        $this->code = $this->request->get('code', '');
+        $this->codejercicio = null;
+        $this->codejercicio_ant = null;
         $this->desde = date('01-01-Y');
+        $this->ejercicio = new Ejercicio();
+        $this->ejercicio_ant = new Ejercicio();
         $this->hasta = date('31-12-Y');
 
-        /// seleccionamos el ejercicio actual
+        // seleccionamos el ejercicio actual
         $ejercicio = new Ejercicio();
-        foreach ($ejercicio->all([], ['fechainicio' => 'desc'], 0, 0) as $eje) {
-            if ($code == $eje->codejercicio || $code == '' && date('Y', strtotime($eje->fechafin)) == date('Y')) {
-                $this->codejercicio = $eje->codejercicio;
-                $this->desde = $eje->fechainicio;
-                $this->hasta = $eje->fechafin;
-            } else if ($this->codejercicio) {
-                $this->codejercicio_ant = $eje->codejercicio;
+        foreach ($ejercicio->all([], ['idempresa' => 'ASC', 'fechainicio' => 'DESC'], 0, 0) as $eje) {
+            // si ya tenemos ejercicio, pero no tiene la misma empresa, paramos
+            if ($this->ejercicio->exists() && $this->ejercicio->idempresa !== $eje->idempresa) {
+                break;
+            }
+
+            if ($this->code === $eje->codejercicio || empty($this->code) && date('Y', strtotime($eje->fechafin)) === date('Y')) {
+                $this->ejercicio = $eje;
+                $this->code = $this->ejercicio->codejercicio;
+                $this->codejercicio = $this->ejercicio->codejercicio;
+                $this->desde = $this->ejercicio->fechainicio;
+                $this->hasta = $this->ejercicio->fechafin;
+            } elseif ($this->ejercicio->exists()) {
+                $this->ejercicio_ant = $eje;
+                $this->codejercicio_ant = $this->ejercicio_ant->codejercicio;
                 break;
             }
         }
 
-        $this->ejercicio = new Ejercicio();
-        $this->ejercicio->loadFromCode($this->codejercicio);
+        // comprobamos el ejercicio
+        if (false === $this->ejercicio->exists()) {
+            return;
+        }
 
-        $this->ejercicio_ant = new Ejercicio();
-        if ($this->codejercicio_ant) {
-            $this->ejercicio_ant->loadFromCode($this->codejercicio_ant);
+        // comprobamos el ejercicio anterior
+        if ($this->codejercicio_ant && false === $this->ejercicio_ant->exists()) {
+            return;
         }
 
         $this->cuadro_tesoreria();
@@ -361,9 +391,9 @@ class ReportTreasury extends Controller
         $this->cuadro_resultados_situacion_corto();
     }
 
-    protected function saldo_cuenta($cuenta, $desde, $hasta)
+    protected function saldo_cuenta(string $cuenta, string $desde, string $hasta): float
     {
-        $saldo = 0;
+        $saldo = 0.0;
 
         if ($this->dataBase->tableExists('partidas')) {
             /// calculamos el saldo de todos aquellos asientos que afecten a caja
@@ -380,9 +410,9 @@ class ReportTreasury extends Controller
         return $saldo;
     }
 
-    protected function saldo_cuenta_asiento_regularizacion($cuenta, $desde, $hasta, $numasientoregularizacion)
+    protected function saldo_cuenta_asiento_regularizacion($cuenta, $desde, $hasta, $numasientoregularizacion): float
     {
-        $saldo = 0;
+        $saldo = 0.0;
 
         if ($this->dataBase->tableExists('co_partidas')) {
             /// calculamos el saldo de todos aquellos asientos que afecten a caja
