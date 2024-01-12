@@ -62,7 +62,7 @@ class PurchasesResultReport extends ResultReport
             for ($x = 0; $x <= 12; $x++) {
                 $css = $x == 0 ? 'total' : 'month';
                 $money = self::$gastos[self::$year]['total_mes'][$x];
-                $lastmoney = self::$gastos[self::$lastyear]['total_mes'][$x];
+                $lastmoney = self::$gastos[self::$lastyear]['total_mes'][$x] ?? 0;
                 $html .= '<td class="' . $css . '">';
                 $html .= $money ? Tools::money($money) : self::defaultMoney();
                 $html .= '<div class="small">';

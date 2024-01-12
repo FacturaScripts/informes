@@ -66,7 +66,7 @@ class SummaryResultReport extends ResultReport
             . '<td class="porc">';
 
         $money = self::$ventas[self::$year]['total_mes']['media'];
-        $lastmoney = self::$ventas[self::$lastyear]['total_mes']['media'];
+        $lastmoney = self::$ventas[self::$lastyear]['total_mes']['media'] ?? 0;
         $html .= $money ?
             $money < 0 ? '<span class="text-danger">' . Tools::money($money) . '</span>' : Tools::money($money) :
             self::defaultMoney();
@@ -79,7 +79,7 @@ class SummaryResultReport extends ResultReport
         for ($x = 0; $x <= 12; $x++) {
             $css = $x == 0 ? 'total' : 'month';
             $money = self::$ventas[self::$year]['total_mes'][$x];
-            $lastmoney = self::$ventas[self::$lastyear]['total_mes'][$x];
+            $lastmoney = self::$ventas[self::$lastyear]['total_mes'][$x] ?? 0;
             $html .= '<td class="' . $css . '">';
             $html .= $money ? $money < 0 ?
                 '<span class="text-danger">' . Tools::money($money) . '</span>' : Tools::money($money) :
@@ -98,7 +98,7 @@ class SummaryResultReport extends ResultReport
             . '<td class="porc">';
 
         $money = self::$gastos[self::$year]['total_mes']['media'];
-        $lastmoney = self::$gastos[self::$lastyear]['total_mes']['media'];
+        $lastmoney = self::$gastos[self::$lastyear]['total_mes']['media'] ?? 0;
         $html .= $money ? $money < 0 ?
             '<span class="text-danger">' . Tools::money($money) . '</span>' : Tools::money($money) :
             self::defaultMoney();
@@ -111,7 +111,7 @@ class SummaryResultReport extends ResultReport
         for ($x = 0; $x <= 12; $x++) {
             $css = $x == 0 ? 'total' : 'month';
             $money = self::$gastos[self::$year]['total_mes'][$x];
-            $lastmoney = self::$gastos[self::$lastyear]['total_mes'][$x];
+            $lastmoney = self::$gastos[self::$lastyear]['total_mes'][$x] ?? 0;
             $html .= '<td class="' . $css . '">';
             $html .= $money ? $money < 0 ?
                 '<span class="text-danger">' . Tools::money($money) . '</span>' : Tools::money($money) :
@@ -130,7 +130,7 @@ class SummaryResultReport extends ResultReport
             . '<td class="porc">';
 
         $money = self::$resultado[self::$year]['total_mes']['media'];
-        $lastmoney = self::$resultado[self::$lastyear]['total_mes']['media'];
+        $lastmoney = self::$resultado[self::$lastyear]['total_mes']['media'] ?? 0;
         $html .= $money ? $money < 0 ?
             '<span class="text-danger">' . Tools::money($money) . '</span>' : Tools::money($money) :
             self::defaultMoney();
@@ -143,7 +143,7 @@ class SummaryResultReport extends ResultReport
         for ($x = 0; $x <= 12; $x++) {
             $css = $x == 0 ? 'total' : 'month';
             $money = self::$resultado[self::$year]['total_mes'][$x];
-            $lastmoney = self::$resultado[self::$lastyear]['total_mes'][$x];
+            $lastmoney = self::$resultado[self::$lastyear]['total_mes'][$x] ?? 0;
             $html .= '<td class="' . $css . '">';
             $html .= $money ? $money < 0 ?
                 '<span class="text-danger">' . Tools::money($money) . '</span>' : Tools::money($money) :
