@@ -64,7 +64,7 @@ class SummaryResultReport extends ResultReport
         for ($x = 0; $x <= 12; $x++) {
             $css = $x == 0 ? 'porc' : 'month';
             $money = self::${$categoryKey}[self::$year]['total_mes'][$x];
-            $lastmoney = self::${$categoryKey}[self::$lastyear]['total_mes'][$x];
+            $lastmoney = self::${$categoryKey}[self::$lastyear]['total_mes'][$x] ?? 0;
 
             $html .= self::generateTableCell($money, $lastmoney, $css);
         }
