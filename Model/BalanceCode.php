@@ -31,6 +31,9 @@ class BalanceCode extends ModelClass
     use ModelTrait;
 
     /** @var string */
+    public $calculation;
+
+    /** @var string */
     public $codbalance;
 
     /** @var string */
@@ -64,24 +67,22 @@ class BalanceCode extends ModelClass
     public $nature;
 
     /** @var string */
-    public $positive;
-
-    /** @var string */
     public $subtype;
 
     public function calculate(float $debe, float $haber): float
     {
-        if ($this->positive === 'true') {
-            return $debe - $haber;
-        }
+        switch ($this->calculation) {
+            case 'positive':
+                return $debe - $haber;
 
-        if ($this->positive === 'false') {
-            return $haber - $debe;
-        }
+            case 'negative':
+                return $haber - $debe;
 
-        return $this->nature === 'A' ?
-            $haber - $debe :
-            $debe - $haber;
+            default:
+                return $this->nature === 'A' ?
+                    $haber - $debe :
+                    $debe - $haber;
+        }
     }
 
     public function clear()
@@ -104,6 +105,7 @@ class BalanceCode extends ModelClass
     public function test(): bool
     {
         // escapamos el html
+        $this->calculation = Tools::noHtml($this->calculation);
         $this->codbalance = Tools::noHtml($this->codbalance);
         $this->description1 = Tools::noHtml($this->description1);
         $this->description2 = Tools::noHtml($this->description2);
@@ -114,7 +116,6 @@ class BalanceCode extends ModelClass
         $this->level3 = Tools::noHtml($this->level3);
         $this->level4 = Tools::noHtml($this->level4);
         $this->nature = Tools::noHtml($this->nature);
-        $this->positive = Tools::noHtml($this->positive);
         $this->subtype = Tools::noHtml($this->subtype);
 
         // comprobamos que tenga un código válido
