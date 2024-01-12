@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022-2023 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -519,7 +519,7 @@ class ReportBreakdown extends Controller
                 // ahora para cada año imprimimos una línea
                 echo '"' . $codproveedor . '";' . $this->getNombreProveedor($codproveedor) . ';' . $year;
                 foreach ($meses as $mes) {
-                    echo ';' . number_format($mes, FS_NF0, '.', '');
+                    echo ';' . number_format($mes, FS_NF0, ',', '');
                 }
                 echo "\n";
             }
@@ -530,7 +530,7 @@ class ReportBreakdown extends Controller
         foreach ($this->getTotalesAgrupados($agrupados) as $year => $meses) {
             echo ";" . strtoupper(Tools::lang()->trans('totals')) . ";" . $year;
             foreach ($meses as $mes) {
-                echo ';' . number_format($mes, FS_NF0, '.', '');
+                echo ';' . number_format($mes, FS_NF0, ',', '');
             }
             echo ";\n";
         }
@@ -566,7 +566,7 @@ class ReportBreakdown extends Controller
                 foreach ($years as $year => $meses) {
                     echo '"' . $codproveedor . '";' . $this->getNombreProveedor($codproveedor) . ';"' . $referencia . '";' . $year;
                     foreach ($meses as $mes) {
-                        echo ';' . number_format($mes, FS_NF0, '.', '');
+                        echo ';' . number_format($mes, FS_NF0, ',', '');
                     }
                     echo "\n";
                 }
@@ -604,7 +604,7 @@ class ReportBreakdown extends Controller
             foreach ($years as $year => $meses) {
                 echo '"' . $codcliente . '";' . $this->getNombreCliente($codcliente) . ';' . $year;
                 foreach ($meses as $mes) {
-                    echo ';' . number_format($mes, FS_NF0, '.', '');
+                    echo ';' . number_format($mes, FS_NF0, ',', '');
                 }
                 echo "\n";
             }
@@ -615,7 +615,7 @@ class ReportBreakdown extends Controller
         foreach ($this->getTotalesAgrupados($agrupados) as $year => $meses) {
             echo ";" . strtoupper(Tools::lang()->trans('totals')) . ";" . $year;
             foreach ($meses as $mes) {
-                echo ';' . number_format($mes, FS_NF0, '.', '');
+                echo ';' . number_format($mes, FS_NF0, ',', '');
             }
             echo ";\n";
         }
@@ -650,7 +650,7 @@ class ReportBreakdown extends Controller
                 foreach ($years as $year => $meses) {
                     echo '"' . $codcliente . '";' . $this->getNombreCliente($codcliente) . ';"' . $referencia . '";' . $year;
                     foreach ($meses as $mes) {
-                        echo ';' . number_format($mes, FS_NF0, '.', '');
+                        echo ';' . number_format($mes, FS_NF0, ',', '');
                     }
                     echo "\n";
                 }
