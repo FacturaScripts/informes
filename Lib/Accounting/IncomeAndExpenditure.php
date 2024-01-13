@@ -145,7 +145,7 @@ class IncomeAndExpenditure
         switch ($type) {
             case 'money':
                 if ($this->format === 'PDF') {
-                    return $prefix . Tools::money($value, FS_NF0, '') . $suffix;
+                    return $prefix . Tools::number($value) . $suffix;
                 }
                 return number_format($value, FS_NF0, '.', '');
 
