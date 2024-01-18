@@ -125,14 +125,14 @@ class BalanceAmounts
 
             // comprobamos que cuadran debe y haber
             if (abs($debe - $debe2) >= 0.01) {
-                ToolBox::i18nLog()->error(
+                Tools::log()->error(
                     'debit-not-match-account',
                     ['%account%' => $account->codcuenta, '%debit%' => $debe, '%sum%' => $debe2]
                 );
                 return [];
             }
             if (abs($haber - $haber2) >= 0.01) {
-                ToolBox::i18nLog()->error(
+                Tools::log()->error(
                     'credit-not-match-account',
                     ['%account%' => $account->codcuenta, '%credit%' => $haber, '%sum%' => $haber2]
                 );
