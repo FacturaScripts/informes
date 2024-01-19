@@ -80,8 +80,8 @@ class BalanceCode extends ModelClass
 
             default:
                 return $this->nature === 'A' ?
-                    $haber - $debe :
-                    $debe - $haber;
+                    $debe - $haber :
+                    $haber - $debe;
         }
     }
 
