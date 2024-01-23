@@ -123,6 +123,13 @@ class BalanceAmounts
                 continue;
             }
 
+            // si se ha marcado la opción de ignorar asientos de regularización o de cierre, no comprobamos que cuadren
+            $ignoreRegularization = (bool)($params['ignoreregularization'] ?? false);
+            $ignoreClosure = (bool)($params['ignoreclosure'] ?? false);
+            if ($ignoreRegularization || $ignoreClosure) {
+                continue;
+            }
+
             // comprobamos que cuadran debe y haber
             if (abs($debe - $debe2) >= 0.01) {
                 Tools::log()->error(
