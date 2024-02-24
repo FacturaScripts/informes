@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<view>
+    <columns>
+        <group name="data" numcolumns="12">
+            <column name="pagada" order="100">
+                <widget type="select" fieldname="pagada" translate="true">
+                    <values title="yes">1</values>
+                    <values title="no">0</values>
+                </widget>
+            </column>
+        </group>
+    </columns>
+</view>

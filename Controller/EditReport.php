@@ -21,6 +21,8 @@ namespace FacturaScripts\Plugins\Informes\Controller;
 
 use FacturaScripts\Core\Lib\ExtendedController\BaseView;
 use FacturaScripts\Core\Lib\ExtendedController\EditController;
+use FacturaScripts\Core\Model\Base\ModelClass;
+use FacturaScripts\Core\Tools;
 
 /**
  * Description of EditReport
@@ -49,6 +51,7 @@ class EditReport extends EditController
         parent::createViews();
         $this->setTabsPosition('bottom');
         $this->addHtmlView('chart', 'Master/htmlChart', 'Report', 'chart');
+        $this->createViewFiltrosAvanzados();
 
         // disable print button
         $this->setSettings($this->getMainViewName(), 'btnPrint', false);
@@ -60,6 +63,11 @@ class EditReport extends EditController
      */
     protected function loadData($viewName, $view)
     {
+        if($this->request->request->get('action') === 'insert'
+            && $this->request->request->get('activetab') === 'FiltrosAvanzados'){
+            // TODO AQUI APLICAMOS EL FILTRO AL MODELO DE LA TABLA SELECCIONADA
+        }
+
         if ($viewName === $this->getMainViewName()) {
             parent::loadData($viewName, $view);
             $this->loadWidgetValues($viewName);
@@ -85,6 +93,48 @@ class EditReport extends EditController
         $columnY = $this->views[$viewName]->columnForField('ycolumn');
         if ($columnY && count($columns) > 0 && $columnY->widget->getType() === 'select') {
             $columnY->widget->setValuesFromArray($columns, false, true);
+        }
+    }
+
+    protected function createViewFiltrosAvanzados()
+    {
+        // Obtenemos todos los modelos
+        $modelNames = [];
+        $modelsFolder = Tools::folder('Dinamic', 'Model');
+        foreach (Tools::folderScan($modelsFolder) as $fileName) {
+            if ('.php' === substr($fileName, -4)) {
+                $modelNames[] = substr($fileName, 0, -4);
+            }
+        }
+
+        // Obtenemos la tabla de la que queremos obtener el modelo
+        $tabla = $this->request->request->get('table');
+        $dinamicModelNamespace = '\\FacturaScripts\\Dinamic\\Model\\';
+        if (is_null($tabla)){
+            // Obtenemos la tabla del modelo
+            $modelNamespace = $dinamicModelNamespace . $this->getModelClassName();
+            /** @var ModelClass $model */
+            $model = new $modelNamespace;
+            $model->loadFromCode($this->request->get('code'));
+            $tabla = $model->table;
+        }
+
+        // Recorremos los modelo y obtenemos el que coincida con la tabla
+        $modelName = null;
+        foreach($modelNames as $nombreModelo){
+            $modelNamespace = $dinamicModelNamespace . $nombreModelo;
+            /** @var ModelClass $modelo */
+            $modelo = new $modelNamespace;
+            if(method_exists($modelo, 'tableName')){
+                if($modelo->tableName() === $tabla){
+                    $modelName = $nombreModelo;
+                    break;
+                }
+            }
+        }
+
+        if (false === is_null($modelName)){
+            $this->addEditView('FiltrosAvanzados', $modelName, 'filtro-avanzado');
         }
     }
 }
