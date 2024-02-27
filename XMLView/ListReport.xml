@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
  * 'This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2019 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2019-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -21,19 +21,44 @@
 <view>
     <columns>
         <column name="code" display="none" order="100">
-            <widget type="text" fieldname="id" />
+            <widget type="text" fieldname="id"/>
         </column>
         <column name="name" order="110">
-            <widget type="text" fieldname="name" />
+            <widget type="text" fieldname="name"/>
         </column>
-        <column name="table" order="120">
-            <widget type="text" fieldname="table" />
+        <column name="type" order="120">
+            <widget type="select" fieldname="type" translate="true" required="true">
+                <values title="lines">area</values>
+                <values title="bars">bar</values>
+                <values title="pie">pie</values>
+            </widget>
+        </column>
+        <column name="table" order="130">
+            <widget type="text" fieldname="table"/>
         </column>
         <column name="x-column" order="140">
-            <widget type="text" fieldname="xcolumn" />
+            <widget type="text" fieldname="xcolumn"/>
         </column>
-        <column name="y-column" order="150">
-            <widget type="text" fieldname="ycolumn" />
+        <column name="x-operation" display="none" order="150">
+            <widget type="select" fieldname="xoperation" translate="true">
+                <values title="group-by-day">DAY</values>
+                <values title="group-by-week">WEEK</values>
+                <values title="group-by-month">MONTH</values>
+                <values title="group-by-months">MONTHS</values>
+                <values title="group-by-year">YEAR</values>
+                <values title="group-by-day-unixtime">UNIXTIME_DAY</values>
+                <values title="group-by-week-unixtime">UNIXTIME_WEEK</values>
+                <values title="group-by-month-unixtime">UNIXTIME_MONTH</values>
+                <values title="group-by-year-unixtime">UNIXTIME_YEAR</values>
+            </widget>
+        </column>
+        <column name="y-column" order="160">
+            <widget type="text" fieldname="ycolumn"/>
+        </column>
+        <column name="compared" display="none" order="170">
+            <widget type="select" fieldname="compared">
+                <values source="reports" fieldcode="id" fieldtitle="name"/>
+            </widget>
         </column>
     </columns>
 </view>

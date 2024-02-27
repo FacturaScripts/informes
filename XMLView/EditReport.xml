@@ -35,7 +35,7 @@
                 </widget>
             </column>
             <column name="compared" order="130">
-                <widget type="select" fieldname="compared">
+                <widget type="select" fieldname="compared" onclick="EditReport">
                     <values source="reports" fieldcode="id" fieldtitle="name"/>
                 </widget>
             </column>

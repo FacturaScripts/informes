@@ -55,11 +55,23 @@ class ListReport extends ListController
         $this->addFilterSelect($viewName, 'type', 'type', 'type', $types);
 
         // añadimos filtro de tablas
-        $tables = [];
+        $tables = [new CodeModel()];
         foreach ($this->dataBase->getTables() as $table) {
             $tables[] = new CodeModel(['code' => $table, 'description' => $table]);
         }
         $this->addFilterSelect($viewName, 'table', 'table', 'table', $tables);
+
+        // añadimos filtro de columna x
+        $columnX = $this->codeModel->all('reports', 'xcolumn', 'xcolumn');
+        $this->addFilterSelect($viewName, 'xcolumn', 'x-column', 'xcolumn', $columnX);
+
+        // añadimos filtro de operación x
+        $operationX = $this->codeModel->all('reports', 'xoperation', 'xoperation');
+        $this->addFilterSelect($viewName, 'xoperation', 'x-operation', 'xoperation', $operationX);
+
+        // añadimos filtro de columna y
+        $columnY = $this->codeModel->all('reports', 'ycolumn', 'ycolumn');
+        $this->addFilterSelect($viewName, 'ycolumn', 'y-column', 'ycolumn', $columnY);
     }
 
     protected function createViewsReportBoard(string $viewName = 'ListReportBoard'): void
