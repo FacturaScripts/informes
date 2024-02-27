@@ -1,7 +1,7 @@
-<?php declare(strict_types=1);
+<?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2024 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * @author Antonio Palma <desarrolloweb@antoniojosepalma.es>
  */
 
@@ -27,24 +27,24 @@ use FacturaScripts\Core\Model\Base\ModelTrait;
 /**
  * @author Daniel Fernández Giménez <hola@danielfg.es>
  */
-class ReportFilterLine extends ModelClass
+class ReportFilter extends ModelClass
 {
     use ModelTrait;
 
     /** @var int */
     public $id;
 
-    /** @var string */
-    public $tablecolumn;
+    /** @var int */
+    public $id_report;
 
     /** @var string */
     public $operator;
 
     /** @var string */
-    public $value;
+    public $table_column;
 
-    /** @var int */
-    public $idreport;
+    /** @var string */
+    public $value;
 
     public static function primaryColumn(): string
     {
@@ -53,6 +53,6 @@ class ReportFilterLine extends ModelClass
 
     public static function tableName(): string
     {
-        return "reports_filters_lines";
+        return "reports_filters";
     }
 }

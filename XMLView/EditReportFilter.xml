@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
  * 'This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2024 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -21,19 +21,15 @@
 <view>
     <columns>
         <group name="data" numcolumns="12">
-
             <column name="id" display="none" order="0">
                 <widget type="text" fieldname="id"/>
             </column>
-
             <column name="report" display="none" order="10">
-                <widget type="text" fieldname="idreport"/>
+                <widget type="text" fieldname="id_report"/>
             </column>
-
-            <column name="tablecolumn" order="100">
-                <widget type="select" fieldname="tablecolumn" required="true"/>
+            <column name="table_column" order="100">
+                <widget type="select" fieldname="table_column" required="true"/>
             </column>
-
             <column name="operator" order="110">
                 <widget type="select" fieldname="operator" translate="true" required="true">
                     <values title="=">=</values>
@@ -42,11 +38,13 @@
                     <values title="&gt;=">&gt;=</values>
                     <values title="&lt;">&lt;</values>
                     <values title="&lt;=">&lt;=</values>
+                    <values title="like">LIKE</values>
+                    <values title="is-null">IS NULL</values>
+                    <values title="is-not-null">IS NOT NULL</values>
                 </widget>
             </column>
-
             <column name="value" order="120">
-                <widget type="text" fieldname="value" required="true"/>
+                <widget type="text" fieldname="value"/>
             </column>
         </group>
     </columns>

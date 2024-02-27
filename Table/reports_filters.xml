@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
  * 'This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2024 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -23,11 +23,9 @@
         <name>id</name>
         <type>serial</type>
     </column>
-
     <column>
-        <name>tablecolumn</name>
-        <type>character varying(100)</type>
-        <null>NO</null>
+        <name>id_report</name>
+        <type>integer</type>
     </column>
     <column>
         <name>operator</name>
@@ -35,22 +33,21 @@
         <null>NO</null>
     </column>
     <column>
+        <name>table_column</name>
+        <type>character varying(100)</type>
+        <null>NO</null>
+    </column>
+    <column>
         <name>value</name>
         <type>character varying(100)</type>
         <null>NO</null>
     </column>
-
-    <column>
-        <name>idreport</name>
-        <type>integer</type>
-    </column>
-    
     <constraint>
-        <name>reports_filters_lines_pkey</name>
+        <name>reports_filters_pkey</name>
         <type>PRIMARY KEY (id)</type>
     </constraint>
     <constraint>
-        <name>ca_reports_filters_lines_reports</name>
-        <type>FOREIGN KEY (idreport) REFERENCES reports (id) ON DELETE CASCADE ON UPDATE CASCADE</type>
+        <name>ca_reports_filters_reports</name>
+        <type>FOREIGN KEY (id_report) REFERENCES reports (id) ON DELETE CASCADE ON UPDATE CASCADE</type>
     </constraint>
 </table>

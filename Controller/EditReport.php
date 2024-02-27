@@ -1,7 +1,7 @@
-<?php declare(strict_types=1);
+<?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -30,7 +30,6 @@ use FacturaScripts\Core\Lib\ExtendedController\EditController;
  */
 class EditReport extends EditController
 {
-
     public function getModelClassName(): string
     {
         return 'Report';
@@ -49,11 +48,30 @@ class EditReport extends EditController
     {
         parent::createViews();
         $this->setTabsPosition('bottom');
-        $this->addHtmlView('chart', 'Master/htmlChart', 'Report', 'chart');
-        $this->createViewFilterLines();
 
-        // disable print button
+        // pestaña de gráfico
+        $this->addHtmlView('chart', 'Master/htmlChart', 'Report', 'chart');
+
+        // desactivamos los botones de imprimir
         $this->setSettings($this->getMainViewName(), 'btnPrint', false);
+
+        // añadimos la pestaña de filtros
+        $this->createViewsFilterLines();
+    }
+
+    protected function createViewsFilterLines(string $viewName = 'EditReportFilter'): void
+    {
+        $this->addEditListView($viewName, 'ReportFilter', 'filters', 'fas fa-filter')
+            ->setInLine(true);
+    }
+
+    protected function execAfterAction($action): void
+    {
+        // Activamos la vista del gráfico siempre, para que se cargue correctamente el gráfico
+        // y no haya que recargar la página para que se muestren los datos en el gráfico.
+        $this->active = 'chart';
+
+        parent::execAfterAction($action);
     }
 
     /**
@@ -65,19 +83,19 @@ class EditReport extends EditController
         $mainViewName = $this->getMainViewName();
 
         switch ($viewName) {
-            case 'EditReportFilterLine':
+            case 'EditReportFilter':
                 $tableName = $this->views[$this->getMainViewName()]->model->table;
                 $columns = empty($tableName) || !$this->dataBase->tableExists($tableName) ? [] : array_keys($this->dataBase->getColumns($tableName));
                 sort($columns);
 
-                $columnTable = $this->views[$viewName]->columnForField('tablecolumn');
+                $columnTable = $this->views[$viewName]->columnForField('table_column');
                 if ($columnTable && $columnTable->widget->getType() === 'select') {
                     $columnTable->widget->setValuesFromArray($columns);
                 }
 
                 $code = $this->getViewModelValue($mainViewName, 'id');
-                $where = [new DataBaseWhere('idreport', $code)];
-                $orderBy = ['tablecolumn' => 'ASC'];
+                $where = [new DataBaseWhere('id_report', $code)];
+                $orderBy = ['table_column' => 'ASC'];
                 $view->loadData('', $where, $orderBy);
                 break;
 
@@ -108,22 +126,5 @@ class EditReport extends EditController
         if ($columnY && count($columns) > 0 && $columnY->widget->getType() === 'select') {
             $columnY->widget->setValuesFromArray($columns, false, true);
         }
-    }
-
-    protected function createViewFilterLines(string $viewName = 'EditReportFilterLine'): void
-    {
-        $this->addEditListView($viewName, 'ReportFilterLine', 'filters', 'fas fa-filter');
-
-        // ponemos la vista compacta
-        $this->views[$viewName]->setInLine(true);
-    }
-
-    protected function execAfterAction($action): void
-    {
-        // Activamos la vista del grafico siempre, para que se carge correctamente el gráfico
-        // y no haya que recargar la página para que se muestren los datos en el gráfico.
-        $this->active = 'chart';
-
-        parent::execAfterAction($action);
     }
 }
