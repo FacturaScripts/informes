@@ -104,12 +104,26 @@ class EditReport extends EditController
 
         // añadimos la pestaña de filtros
         $this->createViewsFilterLines();
+
+        // añadimos la pestaña de informes relacionados
+        $this->createViewsRelatedReports();
     }
 
     protected function createViewsFilterLines(string $viewName = 'EditReportFilter'): void
     {
         $this->addEditListView($viewName, 'ReportFilter', 'filters', 'fas fa-filter')
             ->setInLine(true);
+    }
+
+    protected function createViewsRelatedReports(string $viewName = 'ListReport'): void
+    {
+        $this->addListView($viewName, 'Report', 'related', 'fas fa-chart-pie')
+            ->addOrderBy(['name'], 'name', 1)
+            ->addSearchFields(['name']);
+
+        // desactivamos los botones de añadir y eliminar
+        $this->setSettings($viewName, 'btnNew', false);
+        $this->setSettings($viewName, 'btnDelete', false);
     }
 
     protected function execPreviousAction($action)
@@ -128,6 +142,7 @@ class EditReport extends EditController
     protected function loadData($viewName, $view): void
     {
         $mainViewName = $this->getMainViewName();
+        $id = $this->getViewModelValue($mainViewName, 'id');
 
         switch ($viewName) {
             case 'EditReportFilter':
@@ -140,10 +155,18 @@ class EditReport extends EditController
                     $columnTable->widget->setValuesFromArray($columns);
                 }
 
-                $code = $this->getViewModelValue($mainViewName, 'id');
-                $where = [new DataBaseWhere('id_report', $code)];
+                $where = [new DataBaseWhere('id_report', $id)];
                 $orderBy = ['table_column' => 'ASC'];
                 $view->loadData('', $where, $orderBy);
+                break;
+
+            case 'ListReport':
+                $table = $this->getViewModelValue($mainViewName, 'table');
+                $where = [
+                    new DataBaseWhere('table', $table),
+                    new DataBaseWhere('id', $id, '!='),
+                ];
+                $view->loadData('', $where);
                 break;
 
             case $mainViewName:
