@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -29,18 +29,17 @@ use FacturaScripts\Plugins\Informes\Model\Report;
  */
 abstract class Chart
 {
-
     /** @var Report */
     protected $report;
 
-    abstract public function render():string;
+    abstract public function render(): string;
 
     public function __construct(Report $report)
     {
         $this->report = $report;
     }
 
-    protected function getData():array
+    protected function getData(): array
     {
         $sources = $this->getDataSources();
         if (empty($sources)) {
@@ -88,7 +87,7 @@ abstract class Chart
         return ['labels' => $labels, 'datasets' => $datasets];
     }
 
-    protected function getDataSources():array
+    protected function getDataSources(): array
     {
         $dataBase = new DataBase();
         $sql = $this->getSql($this->report);
@@ -107,16 +106,18 @@ abstract class Chart
         return $sources;
     }
 
-    protected function getSql(Report $report):string
+    protected function getSql(Report $report): string
     {
         if (empty($report->table) || empty($report->xcolumn)) {
             return '';
         }
 
-        return strtolower(FS_DB_TYPE) == 'postgresql' ? $this->getSqlPostgreSQL($report) : $this->getSqlMySQL($report);
+        return strtolower(FS_DB_TYPE) == 'postgresql' ?
+            $this->getSqlPostgreSQL($report) :
+            $this->getSqlMySQL($report);
     }
 
-    protected function getSqlMySQL(Report $report):string
+    protected function getSqlMySQL(Report $report): string
     {
         $xcol = $report->xcolumn;
         switch ($report->xoperation) {
@@ -129,6 +130,10 @@ abstract class Chart
                 break;
 
             case 'MONTH':
+                $xcol = "DATE_FORMAT(" . $report->xcolumn . ", '%m')";
+                break;
+
+            case 'MONTHS':
                 $xcol = "DATE_FORMAT(" . $report->xcolumn . ", '%Y-%m')";
                 break;
 
@@ -163,7 +168,7 @@ abstract class Chart
         return $sql;
     }
 
-    protected function getSqlPostgreSQL(Report $report):string
+    protected function getSqlPostgreSQL(Report $report): string
     {
         $xcol = $report->xcolumn;
         switch ($report->xoperation) {
@@ -176,6 +181,10 @@ abstract class Chart
                 break;
 
             case 'MONTH':
+                $xcol = "to_char(" . $report->xcolumn . ", 'MM')";
+                break;
+
+            case 'MONTHS':
                 $xcol = "to_char(" . $report->xcolumn . ", 'YY-MM')";
                 break;
 
@@ -210,7 +219,7 @@ abstract class Chart
         return $sql;
     }
 
-    protected function renderDatasets(array $datasets):string
+    protected function renderDatasets(array $datasets): string
     {
         $colors = ['255, 99, 132', '54, 162, 235', '255, 206, 86', '75, 192, 192', '153, 102, 255', '255, 159, 64'];
         shuffle($colors);

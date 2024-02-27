@@ -27,11 +27,11 @@
             <column name="report" display="none" order="10">
                 <widget type="text" fieldname="id_report"/>
             </column>
-            <column name="table_column" order="100">
+            <column name="column" order="100">
                 <widget type="select" fieldname="table_column" required="true"/>
             </column>
             <column name="operator" order="110">
-                <widget type="select" fieldname="operator" translate="true" required="true">
+                <widget type="select" fieldname="operator" required="true">
                     <values title="=">=</values>
                     <values title="!=">!=</values>
                     <values title="&gt;">&gt;</values>
