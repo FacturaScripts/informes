@@ -29,7 +29,7 @@
     </column>
     <column>
         <name>operator</name>
-        <type>character varying(10)</type>
+        <type>character varying(15)</type>
         <null>NO</null>
     </column>
     <column>
