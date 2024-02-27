@@ -87,8 +87,7 @@ class EditReport extends EditController
             }
         }
 
-        Tools::log()->info('record-updated-correctly');
-        $this->redirect($newReport->url(), 1);
+        $this->redirect($newReport->url() . '&action=save-ok');
         return true;
     }
 

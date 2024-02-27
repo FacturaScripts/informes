@@ -20,6 +20,7 @@
 namespace FacturaScripts\Plugins\Informes\Controller;
 
 use FacturaScripts\Core\Lib\ExtendedController\ListController;
+use FacturaScripts\Dinamic\Model\CodeModel;
 
 /**
  * Description of ListReport
@@ -43,17 +44,28 @@ class ListReport extends ListController
         $this->createViewsReportBoard();
     }
 
-    protected function createViewsReport(string $viewName = 'ListReport')
+    protected function createViewsReport(string $viewName = 'ListReport'): void
     {
-        $this->addView($viewName, 'Report', 'charts', 'fas fa-chart-pie');
-        $this->addOrderBy($viewName, ['name'], 'name');
-        $this->addSearchFields($viewName, ['name', 'table', 'xcolumn', 'ycolumn']);
+        $this->addView($viewName, 'Report', 'charts', 'fas fa-chart-pie')
+            ->addOrderBy(['name'], 'name')
+            ->addSearchFields(['name', 'table', 'xcolumn', 'ycolumn']);
+
+        // añadimos filtro de tipos
+        $types = $this->codeModel->all('reports', 'type', 'type');
+        $this->addFilterSelect($viewName, 'type', 'type', 'type', $types);
+
+        // añadimos filtro de tablas
+        $tables = [];
+        foreach ($this->dataBase->getTables() as $table) {
+            $tables[] = new CodeModel(['code' => $table, 'description' => $table]);
+        }
+        $this->addFilterSelect($viewName, 'table', 'table', 'table', $tables);
     }
 
-    protected function createViewsReportBoard(string $viewName = 'ListReportBoard')
+    protected function createViewsReportBoard(string $viewName = 'ListReportBoard'): void
     {
-        $this->addView($viewName, 'ReportBoard', 'reports-board', 'fas fa-chalkboard');
-        $this->addOrderBy($viewName, ['name'], 'name');
-        $this->addSearchFields($viewName, ['name']);
+        $this->addView($viewName, 'ReportBoard', 'reports-board', 'fas fa-chalkboard')
+            ->addOrderBy(['name'], 'name')
+            ->addSearchFields(['name']);
     }
 }
