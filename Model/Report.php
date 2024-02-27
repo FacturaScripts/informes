@@ -114,7 +114,7 @@ class Report extends Base\ModelClass
 
         $counter = 0;
         foreach ($filters as $filter) {
-            $sql .= ' ' . $filter->tablecolumn . ' ' . $filter->operator . ' ' . $filter->value;
+            $sql .= ' ' . $filter->tablecolumn . ' ' . $filter->operator . ' "' . $filter->value . '"';
 
             // Agregamos AND siempre que no sea el ultimo elemento
             if ($counter !== count($filters) - 1) {

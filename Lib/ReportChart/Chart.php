@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php
 /**
  * This file is part of Informes plugin for FacturaScripts
  * Copyright (C) 2022 Carlos Garcia Gomez <carlos@facturascripts.com>
