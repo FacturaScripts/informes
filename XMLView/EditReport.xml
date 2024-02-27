@@ -27,13 +27,27 @@
             <column name="name" order="110">
                 <widget type="text" fieldname="name" required="true"/>
             </column>
-            <column name="table" order="120">
+            <column name="type" numcolumns="3" order="120">
+                <widget type="select" fieldname="type" translate="true" required="true">
+                    <values title="lines">area</values>
+                    <values title="bars">bar</values>
+                    <values title="pie">pie</values>
+                </widget>
+            </column>
+            <column name="compared" order="130">
+                <widget type="select" fieldname="compared">
+                    <values source="reports" fieldcode="id" fieldtitle="name"/>
+                </widget>
+            </column>
+        </group>
+        <group name="advanced" numcolumns="12">
+            <column name="table" order="100">
                 <widget type="select" fieldname="table" required="true"/>
             </column>
-            <column name="x-column" order="140">
+            <column name="x-column" order="110">
                 <widget type="select" fieldname="xcolumn"/>
             </column>
-            <column name="x-operation" order="150">
+            <column name="x-operation" order="120">
                 <widget type="select" fieldname="xoperation" translate="true">
                     <values title="group-by-day">DAY</values>
                     <values title="group-by-week">WEEK</values>
@@ -46,22 +60,8 @@
                     <values title="group-by-year-unixtime">UNIXTIME_YEAR</values>
                 </widget>
             </column>
-            <column name="y-column" order="160">
+            <column name="y-column" order="130">
                 <widget type="select" fieldname="ycolumn"/>
-            </column>
-        </group>
-        <group name="advanced" numcolumns="12">
-            <column name="type" numcolumns="3" order="100">
-                <widget type="select" fieldname="type" translate="true" required="true">
-                    <values title="lines">area</values>
-                    <values title="bars">bar</values>
-                    <values title="pie">pie</values>
-                </widget>
-            </column>
-            <column name="compared" numcolumns="3" order="110">
-                <widget type="select" fieldname="compared">
-                    <values source="reports" fieldcode="id" fieldtitle="name"/>
-                </widget>
             </column>
         </group>
     </columns>

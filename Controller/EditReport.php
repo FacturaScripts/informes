@@ -22,6 +22,8 @@ namespace FacturaScripts\Plugins\Informes\Controller;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Lib\ExtendedController\BaseView;
 use FacturaScripts\Core\Lib\ExtendedController\EditController;
+use FacturaScripts\Core\Tools;
+use FacturaScripts\Plugins\Informes\Model\Report;
 
 /**
  * Description of EditReport
@@ -44,13 +46,59 @@ class EditReport extends EditController
         return $data;
     }
 
+    protected function copyReportAction(): bool
+    {
+        if (false === $this->permissions->allowUpdate) {
+            Tools::log()->warning('not-allowed-update');
+            return true;
+        } elseif (false === $this->validateFormToken()) {
+            return true;
+        }
+
+        // cargamos el informe original
+        $original = new Report();
+        $code = $this->request->get('code');
+        if (false === $original->loadFromCode($code)) {
+            Tools::log()->warning('no-data-found');
+            return true;
+        }
+
+        // creamos el nuevo informe
+        $newReport = new Report();
+        $newReport->name = $original->name . ' (copy)';
+        $newReport->table = $original->table;
+        $newReport->type = $original->type;
+        $newReport->xcolumn = $original->xcolumn;
+        $newReport->xoperation = $original->xoperation;
+        $newReport->ycolumn = $original->ycolumn;
+        if (false === $newReport->save()) {
+            Tools::log()->warning('record-save-error');
+            return true;
+        }
+
+        // copiamos los filtros
+        foreach ($original->getFilters() as $filter) {
+            $newFilter = clone $filter;
+            $newFilter->id = null;
+            $newFilter->id_report = $newReport->id;
+            if (false === $newFilter->save()) {
+                Tools::log()->warning('record-save-error');
+                return true;
+            }
+        }
+
+        Tools::log()->info('record-updated-correctly');
+        $this->redirect($newReport->url(), 1);
+        return true;
+    }
+
     protected function createViews(): void
     {
         parent::createViews();
         $this->setTabsPosition('bottom');
 
         // pestaña de gráfico
-        $this->addHtmlView('chart', 'Master/htmlChart', 'Report', 'chart');
+        $this->addHtmlView('chart', 'Master/htmlChart', 'Report', 'chart', 'fa-solid fa-chart-line');
 
         // desactivamos los botones de imprimir
         $this->setSettings($this->getMainViewName(), 'btnPrint', false);
@@ -65,13 +113,13 @@ class EditReport extends EditController
             ->setInLine(true);
     }
 
-    protected function execAfterAction($action): void
+    protected function execPreviousAction($action)
     {
-        // Activamos la vista del gráfico siempre, para que se cargue correctamente el gráfico
-        // y no haya que recargar la página para que se muestren los datos en el gráfico.
-        $this->active = 'chart';
+        if ($action === 'copy') {
+            return $this->copyReportAction();
+        }
 
-        parent::execAfterAction($action);
+        return parent::execPreviousAction($action);
     }
 
     /**
@@ -99,29 +147,45 @@ class EditReport extends EditController
                 $view->loadData('', $where, $orderBy);
                 break;
 
-            default:
+            case $mainViewName:
                 parent::loadData($viewName, $view);
                 $this->loadWidgetValues($viewName);
+                if ($view->model->exists()) {
+                    $this->addButton($viewName, [
+                        'action' => $view->model->url() . '&action=copy&multireqtoken=' . $this->multiRequestProtection->newToken(),
+                        'icon' => 'fa-solid fa-scissors',
+                        'label' => 'copy',
+                        'type' => 'link',
+                    ]);
+                }
+                break;
+
+            default:
+                parent::loadData($viewName, $view);
                 break;
         }
     }
 
     protected function loadWidgetValues(string $viewName): void
     {
+        // añadimos valores al campo de tabla
         $columnTable = $this->views[$viewName]->columnForField('table');
         if ($columnTable && $columnTable->widget->getType() === 'select') {
             $columnTable->widget->setValuesFromArray($this->dataBase->getTables());
         }
 
+        // añadimos valores a los campos de columnas
         $tableName = $this->views[$viewName]->model->table;
         $columns = empty($tableName) || !$this->dataBase->tableExists($tableName) ? [] : array_keys($this->dataBase->getColumns($tableName));
         sort($columns);
 
+        // añadimos valores a los campos de columna X
         $columnX = $this->views[$viewName]->columnForField('xcolumn');
         if ($columnX && count($columns) > 0 && $columnX->widget->getType() === 'select') {
             $columnX->widget->setValuesFromArray($columns);
         }
 
+        // añadimos valores a los campos de columna Y
         $columnY = $this->views[$viewName]->columnForField('ycolumn');
         if ($columnY && count($columns) > 0 && $columnY->widget->getType() === 'select') {
             $columnY->widget->setValuesFromArray($columns, false, true);
