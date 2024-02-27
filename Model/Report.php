@@ -1,7 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022-2023 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -19,9 +19,9 @@
 
 namespace FacturaScripts\Plugins\Informes\Model;
 
+use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Model\Base;
 use FacturaScripts\Core\Tools;
-use FacturaScripts\Dinamic\Lib\ReportChart\AreaChart;
 
 /**
  * Description of Report
@@ -32,7 +32,7 @@ class Report extends Base\ModelClass
 {
     use Base\ModelTrait;
 
-    const DEFAULT_TYPE = 'area';
+    public const DEFAULT_TYPE = 'area';
 
     /** @var int */
     public $compared;
@@ -58,7 +58,7 @@ class Report extends Base\ModelClass
     /** @var string */
     public $ycolumn;
 
-    public function clear()
+    public function clear(): void
     {
         parent::clear();
         $this->type = self::DEFAULT_TYPE;
@@ -99,5 +99,31 @@ class Report extends Base\ModelClass
         $this->ycolumn = Tools::noHtml($this->ycolumn);
 
         return parent::test();
+    }
+
+    public function getSqlFilters()
+    {
+        $filters = new ReportFilterLine();
+        $filters = $filters->all([new DataBaseWhere('idreport', $this->id)]);
+
+        if (count($filters) === 0) {
+            return '';
+        }
+
+        $sql = 'WHERE';
+
+        $counter = 0;
+        foreach ($filters as $filter) {
+            $sql .= ' ' . $filter->tablecolumn . ' ' . $filter->operator . ' "' . $filter->value . '"';
+
+            // Agregamos AND siempre que no sea el ultimo elemento
+            if ($counter !== count($filters) - 1) {
+                $sql .= ' AND';
+            }
+
+            $counter++;
+        }
+
+        return $sql . ' ';
     }
 }
