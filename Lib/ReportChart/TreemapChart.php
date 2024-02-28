@@ -43,9 +43,9 @@ class TreemapChart extends Chart
         tree = new google.visualization.TreeMap(document.getElementById('" . $divId . "'));
 
         tree.draw(data, {
-          minColor: '#f00',
-          midColor: '#ddd',
-          maxColor: '#0d0',
+          minColor: '#009688',
+          midColor: '#f7f7f7',
+          maxColor: '#ee8100',
           headerHeight: 15,
           fontColor: 'black',
           showScale: true
