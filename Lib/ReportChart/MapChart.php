@@ -32,7 +32,7 @@ class MapChart extends Chart
 
         $num = mt_rand();
         $divId = 'treemap' . $num;
-        return '<h2 class="h5 text-right pt-3 pr-3">' . $this->report->name . "</h2>\n"
+        return '<h2 class="h5 text-center pt-3 pr-3">' . $this->report->name . "</h2>\n"
             . '<div id="' . $divId . '" style="height: ' . max($height - 40, 210) . 'px;"></div>' . "\n"
             . "<script>
       google.charts.load('current', {
