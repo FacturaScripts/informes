@@ -32,6 +32,7 @@
                     <values title="lines">area</values>
                     <values title="bars">bar</values>
                     <values title="doughnut">doughnut</values>
+                    <values title="map">map</values>
                     <values title="pie">pie</values>
                     <values title="treemap">treemap</values>
                 </widget>
