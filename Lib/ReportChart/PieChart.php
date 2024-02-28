@@ -55,6 +55,54 @@ class PieChart extends Chart
 });</script>";
     }
 
+    protected function getData(): array
+    {
+        $sources = $this->getDataSources();
+        if (empty($sources)) {
+            return [];
+        }
+
+        $labels = [];
+
+        // mix data of sources
+        $mix = [];
+        $num = 1;
+        $countSources = count($sources);
+        foreach ($sources as $source) {
+            foreach ($source as $row) {
+                $xCol = $row['xcol'];
+                if (!isset($mix[$xCol])) {
+                    $labels[] = $xCol;
+
+                    $newItem = ['xcol' => $xCol];
+                    for ($count = 1; $count <= $countSources; $count++) {
+                        $newItem['ycol' . $count] = 0;
+                    }
+                    $mix[$xCol] = $newItem;
+                }
+
+                $mix[$xCol]['ycol' . $num] = $row['ycol'];
+            }
+            $num++;
+        }
+
+        sort($labels);
+        ksort($mix);
+
+        $datasets = [];
+        foreach (array_keys($sources) as $pos => $label) {
+            $num = 1 + $pos;
+            $data = [];
+            foreach ($mix as $row) {
+                $data[] = round($row['ycol' . $num], 2);
+            }
+
+            $datasets[] = ['label' => $label, 'data' => $data];
+        }
+
+        return ['labels' => $labels, 'datasets' => $datasets];
+    }
+
     protected function renderDatasets(array $datasets): string
     {
         $colors = $this->getColors(count($datasets[0]['data']));

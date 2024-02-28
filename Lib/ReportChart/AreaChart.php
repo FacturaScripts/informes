@@ -49,4 +49,78 @@ class AreaChart extends Chart
     }
 });</script>";
     }
+
+    protected function getData(): array
+    {
+        $sources = $this->getDataSources();
+        if (empty($sources)) {
+            return [];
+        }
+
+        $labels = [];
+
+        // mix data of sources
+        $mix = [];
+        $num = 1;
+        $countSources = count($sources);
+        foreach ($sources as $source) {
+            foreach ($source as $row) {
+                $xCol = $row['xcol'];
+                if (!isset($mix[$xCol])) {
+                    $labels[] = $xCol;
+
+                    $newItem = ['xcol' => $xCol];
+                    for ($count = 1; $count <= $countSources; $count++) {
+                        $newItem['ycol' . $count] = 0;
+                    }
+                    $mix[$xCol] = $newItem;
+                }
+
+                $mix[$xCol]['ycol' . $num] = $row['ycol'];
+            }
+            $num++;
+        }
+
+        sort($labels);
+        ksort($mix);
+
+        $datasets = [];
+        foreach (array_keys($sources) as $pos => $label) {
+            $num = 1 + $pos;
+            $data = [];
+            foreach ($mix as $row) {
+                $data[] = round($row['ycol' . $num], 2);
+            }
+
+            $datasets[] = ['label' => $label, 'data' => $data];
+        }
+
+        return ['labels' => $labels, 'datasets' => $datasets];
+    }
+
+    protected function renderDatasets(array $datasets): string
+    {
+        $colors = $this->getColors(count($datasets));
+
+        $items = [];
+        $num = 0;
+        foreach ($datasets as $dataset) {
+            $color = $colors[$num] ?? '255, 206, 86';
+            $num++;
+
+            $items[] = "{
+                label: '" . $dataset['label'] . "',
+                data: [" . implode(",", $dataset['data']) . "],
+                backgroundColor: [
+                    'rgba(" . $color . ", 0.2)'
+                ],
+                borderColor: [
+                    'rgba(" . $color . ", 1)'
+                ],
+                borderWidth: 1
+            }";
+        }
+
+        return implode(',', $items);
+    }
 }

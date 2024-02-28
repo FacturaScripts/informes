@@ -55,15 +55,26 @@ class TreemapChart extends Chart
     </script>";
     }
 
+    protected function getData(): array
+    {
+        foreach($this->getDataSources() as $source) {
+            return $source;
+        }
+
+        return [];
+    }
+
     protected function renderTreemapData(array $data): string
     {
         $list = "['Column', 'Parent', 'Value', 'Color'],\n"
             . "['" . $this->report->xcolumn . "', null, 0, 0],\n";
 
-        foreach ($data['labels'] as $key => $label) {
-            $list .= "['" . $label . " (" . $data['datasets'][0]['data'][$key] . ")', '" . $this->report->xcolumn
-                . "', " . $data['datasets'][0]['data'][$key]
-                . ", " . $data['datasets'][0]['data'][$key] . "],\n";
+        foreach ($data as $row) {
+            $label = $row['xcol'];
+            $value = round($row['ycol'], 2);
+            $list .= "['" . $label . " (" . $value . ")', '" . $this->report->xcolumn
+                . "', " . $value
+                . ", " . $value . "],\n";
         }
 
         return $list;

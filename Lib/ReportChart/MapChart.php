@@ -54,11 +54,20 @@ class MapChart extends Chart
     </script>";
     }
 
+    protected function getData(): array
+    {
+        foreach ($this->getDataSources() as $source) {
+            return $source;
+        }
+
+        return [];
+    }
+
     protected function renderMapData(array $data): string
     {
         $list = "['Country', 'Popularity'],\n";
-        foreach ($data['labels'] as $key => $label) {
-            $list .= "['" . Paises::get($label)->codiso . "', " . $data['datasets'][0]['data'][$key] . "],\n";
+        foreach ($data as $row) {
+            $list .= "['" . Paises::get($row['xcol'])->codiso . "', " . round($row['ycol'], 2) . "],\n";
         }
         return $list;
     }

@@ -106,7 +106,7 @@ class Report extends Base\ModelClass
             $where[] = Where::column($filter->table_column, $filter->value, $filter->operator);
         }
 
-        return 'WHERE ' . Where::multiSql($where) . ' ';
+        return ' WHERE ' . Where::multiSql($where);
     }
 
     public static function primaryColumn(): string

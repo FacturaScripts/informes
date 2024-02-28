@@ -34,6 +34,8 @@ abstract class Chart
 
     abstract public function render(int $height = 0): string;
 
+    abstract protected function getData(): array;
+
     public function __construct(Report $report)
     {
         $this->report = $report;
@@ -66,54 +68,6 @@ abstract class Chart
         return $colors;
     }
 
-    protected function getData(): array
-    {
-        $sources = $this->getDataSources();
-        if (empty($sources)) {
-            return [];
-        }
-
-        $labels = [];
-
-        // mix data of sources
-        $mix = [];
-        $num = 1;
-        $countSources = count($sources);
-        foreach ($sources as $source) {
-            foreach ($source as $row) {
-                $xcol = $row['xcol'];
-                if (!isset($mix[$xcol])) {
-                    $labels[] = $xcol;
-
-                    $newItem = ['xcol' => $xcol];
-                    for ($count = 1; $count <= $countSources; $count++) {
-                        $newItem['ycol' . $count] = 0;
-                    }
-                    $mix[$xcol] = $newItem;
-                }
-
-                $mix[$xcol]['ycol' . $num] = $row['ycol'];
-            }
-            $num++;
-        }
-
-        sort($labels);
-        ksort($mix);
-
-        $datasets = [];
-        foreach (array_keys($sources) as $pos => $label) {
-            $num = 1 + $pos;
-            $data = [];
-            foreach ($mix as $row) {
-                $data[] = round($row['ycol' . $num], 2);
-            }
-
-            $datasets[] = ['label' => $label, 'data' => $data];
-        }
-
-        return ['labels' => $labels, 'datasets' => $datasets];
-    }
-
     protected function getDataSources(): array
     {
         $dataBase = new DataBase();
@@ -122,8 +76,7 @@ abstract class Chart
             return [];
         }
 
-        $sources = [];
-        $sources[$this->report->name] = $dataBase->select($sql);
+        $sources = [$this->report->name => $dataBase->select($sql)];
 
         $comparedReport = new Report();
         if (!empty($this->report->compared) && $comparedReport->loadFromCode($this->report->compared)) {
@@ -146,129 +99,95 @@ abstract class Chart
 
     protected function getSqlMySQL(Report $report): string
     {
-        $xcol = $report->xcolumn;
+        $xCol = $report->xcolumn;
         switch ($report->xoperation) {
             case 'DAY':
-                $xcol = "DATE_FORMAT(" . $report->xcolumn . ", '%Y-%m-%d')";
+                $xCol = "DATE_FORMAT(" . $report->xcolumn . ", '%Y-%m-%d')";
                 break;
 
             case 'WEEK':
-                $xcol = "DATE_FORMAT(" . $report->xcolumn . ", '%Y-%u')";
+                $xCol = "DATE_FORMAT(" . $report->xcolumn . ", '%Y-%u')";
                 break;
 
             case 'MONTH':
-                $xcol = "DATE_FORMAT(" . $report->xcolumn . ", '%m')";
+                $xCol = "DATE_FORMAT(" . $report->xcolumn . ", '%m')";
                 break;
 
             case 'MONTHS':
-                $xcol = "DATE_FORMAT(" . $report->xcolumn . ", '%Y-%m')";
+                $xCol = "DATE_FORMAT(" . $report->xcolumn . ", '%Y-%m')";
                 break;
 
             case 'UNIXTIME_DAY':
-                $xcol = "DATE_FORMAT(FROM_UNIXTIME(" . $report->xcolumn . "), '%Y-%m-%d')";
+                $xCol = "DATE_FORMAT(FROM_UNIXTIME(" . $report->xcolumn . "), '%Y-%m-%d')";
                 break;
 
             case 'UNIXTIME_WEEK':
-                $xcol = "DATE_FORMAT(FROM_UNIXTIME(" . $report->xcolumn . "), '%Y-%u')";
+                $xCol = "DATE_FORMAT(FROM_UNIXTIME(" . $report->xcolumn . "), '%Y-%u')";
                 break;
 
             case 'UNIXTIME_MONTH':
-                $xcol = "DATE_FORMAT(FROM_UNIXTIME(" . $report->xcolumn . "), '%Y-%m')";
+                $xCol = "DATE_FORMAT(FROM_UNIXTIME(" . $report->xcolumn . "), '%Y-%m')";
                 break;
 
             case 'UNIXTIME_YEAR':
-                $xcol = "DATE_FORMAT(FROM_UNIXTIME(" . $report->xcolumn . "), '%Y')";
+                $xCol = "DATE_FORMAT(FROM_UNIXTIME(" . $report->xcolumn . "), '%Y')";
                 break;
 
             case 'YEAR':
-                $xcol = "DATE_FORMAT(" . $report->xcolumn . ", '%Y')";
+                $xCol = "DATE_FORMAT(" . $report->xcolumn . ", '%Y')";
                 break;
         }
 
-        $ycol = empty($report->ycolumn) ? 'COUNT(*)' : 'SUM(' . $report->ycolumn . ')';
+        $yCol = empty($report->ycolumn) ? 'COUNT(*)' : 'SUM(' . $report->ycolumn . ')';
 
-        $sql = 'SELECT ' . $xcol . ' as xcol, ' . $ycol . ' as ycol ';
-        $sql .= 'FROM ' . $report->table . ' ';
-        $sql .= $report->getSqlFilters();
-        $sql .= 'GROUP BY xcol ORDER BY xcol ASC;';
-
-        return $sql;
+        return 'SELECT ' . $xCol . ' as xcol, ' . $yCol . ' as ycol FROM ' . $report->table
+            . $report->getSqlFilters() . ' GROUP BY xcol ORDER BY xcol ASC;';
     }
 
     protected function getSqlPostgreSQL(Report $report): string
     {
-        $xcol = $report->xcolumn;
+        $xCol = $report->xcolumn;
         switch ($report->xoperation) {
             case 'DAY':
-                $xcol = "to_char(" . $report->xcolumn . ", 'YY-MM-DD')";
+                $xCol = "to_char(" . $report->xcolumn . ", 'YY-MM-DD')";
                 break;
 
             case 'WEEK':
-                $xcol = "to_char(" . $report->xcolumn . ", 'YY-WW')";
+                $xCol = "to_char(" . $report->xcolumn . ", 'YY-WW')";
                 break;
 
             case 'MONTH':
-                $xcol = "to_char(" . $report->xcolumn . ", 'MM')";
+                $xCol = "to_char(" . $report->xcolumn . ", 'MM')";
                 break;
 
             case 'MONTHS':
-                $xcol = "to_char(" . $report->xcolumn . ", 'YY-MM')";
+                $xCol = "to_char(" . $report->xcolumn . ", 'YY-MM')";
                 break;
 
             case 'UNIXTIME_DAY':
-                $xcol = "to_char(FROM_UNIXTIME(" . $report->xcolumn . "), 'YY-MM-DD')";
+                $xCol = "to_char(FROM_UNIXTIME(" . $report->xcolumn . "), 'YY-MM-DD')";
                 break;
 
             case 'UNIXTIME_WEEK':
-                $xcol = "to_char(FROM_UNIXTIME(" . $report->xcolumn . "), 'YY-WW')";
+                $xCol = "to_char(FROM_UNIXTIME(" . $report->xcolumn . "), 'YY-WW')";
                 break;
 
             case 'UNIXTIME_MONTH':
-                $xcol = "to_char(FROM_UNIXTIME(" . $report->xcolumn . "), 'YY-MM')";
+                $xCol = "to_char(FROM_UNIXTIME(" . $report->xcolumn . "), 'YY-MM')";
                 break;
 
             case 'UNIXTIME_YEAR':
-                $xcol = "to_char(FROM_UNIXTIME(" . $report->xcolumn . "), 'YY')";
+                $xCol = "to_char(FROM_UNIXTIME(" . $report->xcolumn . "), 'YY')";
                 break;
 
             case 'YEAR':
-                $xcol = "to_char(" . $report->xcolumn . ", 'YY')";
+                $xCol = "to_char(" . $report->xcolumn . ", 'YY')";
                 break;
         }
 
-        $ycol = empty($report->ycolumn) ? 'COUNT(*)' : 'SUM(' . $report->ycolumn . ')';
+        $yCol = empty($report->ycolumn) ? 'COUNT(*)' : 'SUM(' . $report->ycolumn . ')';
 
-        $sql = 'SELECT ' . $xcol . ' as xcol, ' . $ycol . ' as ycol ';
-        $sql .= 'FROM ' . $report->table . ' ';
-        $sql .= $report->getSqlFilters() . ' ';
-        $sql .= 'GROUP BY xcol ORDER BY xcol ASC;';
-
-        return $sql;
-    }
-
-    protected function renderDatasets(array $datasets): string
-    {
-        $colors = $this->getColors(count($datasets));
-
-        $items = [];
-        $num = 0;
-        foreach ($datasets as $dataset) {
-            $color = $colors[$num] ?? '255, 206, 86';
-            $num++;
-
-            $items[] = "{
-                label: '" . $dataset['label'] . "',
-                data: [" . implode(",", $dataset['data']) . "],
-                backgroundColor: [
-                    'rgba(" . $color . ", 0.2)'
-                ],
-                borderColor: [
-                    'rgba(" . $color . ", 1)'
-                ],
-                borderWidth: 1
-            }";
-        }
-
-        return implode(',', $items);
+        return 'SELECT ' . $xCol . ' as xcol, ' . $yCol . ' as ycol FROM ' . $report->table
+            . $report->getSqlFilters() . ' GROUP BY xcol ORDER BY xcol ASC;';
     }
 }

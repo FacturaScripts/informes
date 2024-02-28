@@ -24,7 +24,7 @@ namespace FacturaScripts\Plugins\Informes\Lib\ReportChart;
  *
  * @author Daniel Fernández Giménez <hola@danielfg.es>
  */
-class BarChart extends Chart
+class BarChart extends AreaChart
 {
     public function render(int $height = 0): string
     {
