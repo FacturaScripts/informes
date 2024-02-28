@@ -31,7 +31,9 @@
                 <widget type="select" fieldname="type" translate="true" required="true">
                     <values title="lines">area</values>
                     <values title="bars">bar</values>
+                    <values title="doughnut">doughnut</values>
                     <values title="pie">pie</values>
+                    <values title="treemap">treemap</values>
                 </widget>
             </column>
             <column name="compared" order="130">

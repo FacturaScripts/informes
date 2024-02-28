@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2023 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2023-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -24,7 +24,7 @@ namespace FacturaScripts\Plugins\Informes\Lib\ReportChart;
  */
 class PieChart extends Chart
 {
-    public function render(): string
+    public function render(int $height = 0): string
     {
         $data = $this->getData();
         if (empty($data)) {
@@ -57,13 +57,7 @@ class PieChart extends Chart
 
     protected function renderDatasets(array $datasets): string
     {
-        $colors = [
-            '255, 99, 132', '54, 162, 235', '255, 206, 86', '75, 192, 192', '153, 102, 255', '255, 159, 64',
-            '230, 25, 75', '60, 180, 75', '255, 225, 25', '0, 130, 200', '245, 130, 48', '145, 30, 180',
-            '70, 240, 240', '240, 50, 230', '210, 245, 60', '250, 190, 190', '0, 128, 128', '230, 190, 255',
-            '170, 110, 40', '255, 250, 200', '128, 0, 0', '170, 255, 195', '128, 128, 0', '255, 215, 180',
-        ];
-        shuffle($colors);
+        $colors = $this->getColors(count($datasets[0]['data']));
 
         $items = [];
         $num = 0;

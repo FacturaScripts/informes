@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2024 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -19,12 +19,7 @@
 
 namespace FacturaScripts\Plugins\Informes\Lib\ReportChart;
 
-/**
- * Description of AreaChart
- *
- * @author Carlos Garcia Gomez <carlos@facturascripts.com>
- */
-class AreaChart extends Chart
+class DoughnutChart extends Chart
 {
     public function render(int $height = 0): string
     {
@@ -38,15 +33,51 @@ class AreaChart extends Chart
         return '<canvas id="' . $canvasId . '"/>'
             . "<script>let ctx" . $num . " = document.getElementById('" . $canvasId . "').getContext('2d');"
             . "let myChart" . $num . " = new Chart(ctx" . $num . ", {
-    type: 'line',
+    type: 'doughnut',
     data: {
         labels: ['" . implode("','", $data['labels']) . "'],
         datasets: [" . $this->renderDatasets($data['datasets']) . "]
     },
     options: {
         responsive: true,
-        maintainAspectRatio: false
+        maintainAspectRatio: false,
+        legend: {
+            position: 'top',
+        },
+        title: {
+            display: true,
+            text: '" . $data['datasets'][0]['label'] . "'
+        }
     }
 });</script>";
+    }
+
+    protected function renderDatasets(array $datasets): string
+    {
+        $colors = $this->getColors(count($datasets[0]['data']));
+
+        $items = [];
+        $num = 0;
+        foreach ($datasets as $dataset) {
+            $backgroundColor = [];
+            $borderColor = [];
+            foreach ($dataset['data'] as $data) {
+                $color = $colors[$num] ?? '255, 206, 86';
+                $num++;
+
+                $backgroundColor[] = "'rgb(" . $color . ")'";
+                $borderColor[] = "'rgb(" . $color . ")'";
+            }
+
+            $items[] = "{
+                label: '" . $dataset['label'] . "',
+                data: [" . implode(",", $dataset['data']) . "],
+                backgroundColor: [" . implode(", ", $backgroundColor) . "],
+                borderColor: [" . implode(", ", $borderColor) . "],
+                borderWidth: 1
+            }";
+        }
+
+        return implode(',', $items);
     }
 }

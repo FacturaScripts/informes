@@ -26,7 +26,7 @@ namespace FacturaScripts\Plugins\Informes\Lib\ReportChart;
  */
 class BarChart extends Chart
 {
-    public function render(): string
+    public function render(int $height = 0): string
     {
         $data = $this->getData();
         if (empty($data)) {
@@ -52,8 +52,7 @@ class BarChart extends Chart
 
     protected function renderDatasets(array $datasets): string
     {
-        $colors = ['255, 99, 132', '54, 162, 235', '255, 206, 86', '75, 192, 192', '153, 102, 255', '255, 159, 64'];
-        shuffle($colors);
+        $colors = $this->getColors(count($datasets));
 
         $items = [];
         $num = 0;

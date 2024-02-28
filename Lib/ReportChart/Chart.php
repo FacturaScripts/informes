@@ -32,11 +32,38 @@ abstract class Chart
     /** @var Report */
     protected $report;
 
-    abstract public function render(): string;
+    abstract public function render(int $height = 0): string;
 
     public function __construct(Report $report)
     {
         $this->report = $report;
+    }
+
+    protected function getColors(int $num): array
+    {
+        $colors = [];
+        for ($i = 0; $i < $num; $i++) {
+            $option = mt_rand(0, 3);
+            switch ($option) {
+                case 0:
+                    $colors[] = '0, ' . mt_rand(0, 255) . ', ' . mt_rand(0, 255);
+                    break;
+
+                case 1:
+                    $colors[] = mt_rand(0, 255) . ', 0, ' . mt_rand(0, 255);
+                    break;
+
+                case 2:
+                    $colors[] = mt_rand(0, 255) . ', ' . mt_rand(0, 255) . ', 0';
+                    break;
+
+                default:
+                    $colors[] = mt_rand(0, 255) . ', ' . mt_rand(0, 255) . ', ' . mt_rand(0, 255);
+                    break;
+            }
+        }
+
+        return $colors;
     }
 
     protected function getData(): array
@@ -221,8 +248,7 @@ abstract class Chart
 
     protected function renderDatasets(array $datasets): string
     {
-        $colors = ['255, 99, 132', '54, 162, 235', '255, 206, 86', '75, 192, 192', '153, 102, 255', '255, 159, 64'];
-        shuffle($colors);
+        $colors = $this->getColors(count($datasets));
 
         $items = [];
         $num = 0;
