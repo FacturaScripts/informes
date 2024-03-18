@@ -138,7 +138,26 @@ abstract class Chart
                 break;
         }
 
-        $yCol = empty($report->ycolumn) ? 'COUNT(*)' : 'SUM(' . $report->ycolumn . ')';
+        switch ($report->yoperation) {
+            case 'SUM':
+                $yCol = "SUM(" . $report->ycolumn . ")";
+                break;
+
+            case 'AVERAGE':
+                $yCol = "AVG(" . $report->ycolumn . ")";
+                break;
+
+            case 'MAXIMUM':
+                $yCol = "MAX(" . $report->ycolumn . ")";
+                break;
+
+            case 'MINIMUM':
+                $yCol = "MIN(" . $report->ycolumn . ")";
+                break;
+
+            default:
+                $yCol = 'COUNT(*)';
+        }
 
         return 'SELECT ' . $xCol . ' as xcol, ' . $yCol . ' as ycol FROM ' . $report->table
             . $report->getSqlFilters() . ' GROUP BY xcol ORDER BY xcol ASC;';
@@ -185,7 +204,26 @@ abstract class Chart
                 break;
         }
 
-        $yCol = empty($report->ycolumn) ? 'COUNT(*)' : 'SUM(' . $report->ycolumn . ')';
+        switch ($report->yoperation) {
+            case 'SUM':
+                $yCol = "SUM(" . $report->ycolumn . ")";
+                break;
+
+            case 'AVERAGE':
+                $yCol = "AVG(" . $report->ycolumn . ")";
+                break;
+
+            case 'MAXIMUM':
+                $yCol = "MAX(" . $report->ycolumn . ")";
+                break;
+
+            case 'MINIMUM':
+                $yCol = "MIN(" . $report->ycolumn . ")";
+                break;
+
+            default:
+                $yCol = 'COUNT(*)';
+        }
 
         return 'SELECT ' . $xCol . ' as xcol, ' . $yCol . ' as ycol FROM ' . $report->table
             . $report->getSqlFilters() . ' GROUP BY xcol ORDER BY xcol ASC;';

@@ -72,6 +72,10 @@ class ListReport extends ListController
         // añadimos filtro de columna y
         $columnY = $this->codeModel->all('reports', 'ycolumn', 'ycolumn');
         $this->addFilterSelect($viewName, 'ycolumn', 'y-column', 'ycolumn', $columnY);
+
+        // añadimos filtro de operación y
+        $operationY = $this->codeModel->all('reports', 'yoperation', 'yoperation');
+        $this->addFilterSelect($viewName, 'yoperation', 'y-operation', 'yoperation', $operationY);
     }
 
     protected function createViewsReportBoard(string $viewName = 'ListReportBoard'): void

@@ -71,6 +71,7 @@ class EditReport extends EditController
         $newReport->xcolumn = $original->xcolumn;
         $newReport->xoperation = $original->xoperation;
         $newReport->ycolumn = $original->ycolumn;
+        $newReport->yoperation = $original->yoperation;
         if (false === $newReport->save()) {
             Tools::log()->warning('record-save-error');
             return true;
