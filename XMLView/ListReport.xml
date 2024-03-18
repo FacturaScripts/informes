@@ -58,6 +58,14 @@
         <column name="y-column" order="160">
             <widget type="text" fieldname="ycolumn"/>
         </column>
+        <column name="y-operation" order="165">
+            <widget type="select" fieldname="yoperation" translate="true">
+                <values title="sum">SUM</values>
+                <values title="average">AVERAGE</values>
+                <values title="maximum">MAXIMUM</values>
+                <values title="minimum">MINIMUM</values>
+            </widget>
+        </column>
         <column name="compared" display="none" order="170">
             <widget type="select" fieldname="compared">
                 <values source="reports" fieldcode="id" fieldtitle="name"/>
