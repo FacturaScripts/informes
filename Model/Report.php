@@ -103,6 +103,13 @@ class Report extends Base\ModelClass
                 continue;
             }
 
+            // Parseamos la fecha, si se trata de un valor de fecha predefinido.
+            $filter->value = trim($filter->value);
+            $presetFilterValues = new PresetFilterValues();
+            if(in_array($filter->value, $presetFilterValues->all())){
+                $filter->value = $presetFilterValues->getValue($filter->value);
+            }
+
             $where[] = Where::column($filter->table_column, $filter->value, $filter->operator);
         }
 
