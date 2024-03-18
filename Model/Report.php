@@ -23,6 +23,7 @@ use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Model\Base;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Core\Where;
+use FacturaScripts\Plugins\Informes\Lib\PresetFilterValues;
 
 /**
  * Description of Report

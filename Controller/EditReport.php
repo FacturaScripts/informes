@@ -23,7 +23,7 @@ use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Lib\ExtendedController\BaseView;
 use FacturaScripts\Core\Lib\ExtendedController\EditController;
 use FacturaScripts\Core\Tools;
-use FacturaScripts\Plugins\Informes\Model\PresetFilterValues;
+use FacturaScripts\Plugins\Informes\Lib\PresetFilterValues;
 use FacturaScripts\Plugins\Informes\Model\Report;
 
 /**

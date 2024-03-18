@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace FacturaScripts\Plugins\Informes\Model;
+namespace FacturaScripts\Plugins\Informes\Lib;
 
 use FacturaScripts\Dinamic\Model\Base\ModelCore;
 
