@@ -23,6 +23,7 @@ use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Lib\ExtendedController\BaseView;
 use FacturaScripts\Core\Lib\ExtendedController\EditController;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Plugins\Informes\Lib\PresetFilterValues;
 use FacturaScripts\Plugins\Informes\Model\Report;
 
 /**
@@ -71,6 +72,7 @@ class EditReport extends EditController
         $newReport->xcolumn = $original->xcolumn;
         $newReport->xoperation = $original->xoperation;
         $newReport->ycolumn = $original->ycolumn;
+        $newReport->yoperation = $original->yoperation;
         if (false === $newReport->save()) {
             Tools::log()->warning('record-save-error');
             return true;
@@ -153,6 +155,17 @@ class EditReport extends EditController
                 $columnTable = $this->views[$viewName]->columnForField('table_column');
                 if ($columnTable && $columnTable->widget->getType() === 'select') {
                     $columnTable->widget->setValuesFromArray($columns);
+                }
+
+                /** AGREAGMOS OPCIONES AL DATALIST DE VALORES */
+                $column = $this->views['EditReportFilter']->columnForName('value');
+                if($column && $column->widget->getType() === 'datalist') {
+                    $customValues = [];
+                    $presetFilterValues = new PresetFilterValues();
+                    foreach ($presetFilterValues->all() as $key => $valor){
+                        $customValues[] = ['value' => $key, 'title' => $valor];
+                    }
+                    $column->widget->setValuesFromArray($customValues);
                 }
 
                 $where = [new DataBaseWhere('id_report', $id)];
