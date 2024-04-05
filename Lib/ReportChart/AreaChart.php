@@ -81,15 +81,14 @@ class AreaChart extends Chart
             $num++;
         }
 
-        sort($labels);
-        ksort($mix);
-
         $datasets = [];
         foreach (array_keys($sources) as $pos => $label) {
             $num = 1 + $pos;
             $data = [];
             foreach ($mix as $row) {
-                $data[] = round($row['ycol' . $num], 2);
+                $data[] = is_numeric($row['ycol' . $num]) ?
+                    round($row['ycol' . $num], 2) :
+                    $row['ycol' . $num];
             }
 
             $datasets[] = ['label' => $label, 'data' => $data];

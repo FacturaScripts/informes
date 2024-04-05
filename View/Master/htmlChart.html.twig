@@ -10,27 +10,29 @@
 </div>
 
 {% if config('debug') %}
-    {% for s_name, source in chart.getDataSources() %}
-        <div class="card shadow mb-4">
-            <div class="card-body">
-                <h3 class="h5 mb-0 text-center">{{ s_name }}</h3>
-            </div>
-            <table class="table table-striped table-hover mb-0">
-                <thead>
-                <tr>
-                    <th>{{ trans('x-column') }}</th>
-                    <th>{{ trans('y-column') }}</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for item in source %}
+    <div class="card-deck">
+        {% for s_name, source in chart.getDataSources() %}
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <h3 class="h5 mb-0 text-center">{{ s_name }}</h3>
+                </div>
+                <table class="table table-striped table-hover mb-0">
+                    <thead>
                     <tr>
-                        <td>{{ item.xcol }}</td>
-                        <td>{{ item.ycol }}</td>
+                        <th>{{ trans('x-column') }}</th>
+                        <th>{{ trans('y-column') }}</th>
                     </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    {% endfor %}
+                    </thead>
+                    <tbody>
+                    {% for item in source %}
+                        <tr>
+                            <td>{{ item.xcol }}</td>
+                            <td>{{ item.ycol }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endfor %}
+    </div>
 {% endif %}
