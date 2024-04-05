@@ -68,6 +68,14 @@
             <column name="y-column" order="130">
                 <widget type="select" fieldname="ycolumn"/>
             </column>
+            <column name="y-operation" order="140">
+                <widget type="select" fieldname="yoperation" translate="true">
+                    <values title="sum">SUM</values>
+                    <values title="average">AVERAGE</values>
+                    <values title="maximum">MAXIMUM</values>
+                    <values title="minimum">MINIMUM</values>
+                </widget>
+            </column>
         </group>
     </columns>
 </view>

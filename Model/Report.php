@@ -60,6 +60,9 @@ class Report extends Base\ModelClass
     /** @var string */
     public $ycolumn;
 
+    /** @var string */
+    public $yoperation;
+
     public function clear(): void
     {
         parent::clear();
@@ -140,6 +143,7 @@ class Report extends Base\ModelClass
         $this->xcolumn = Tools::noHtml($this->xcolumn);
         $this->xoperation = Tools::noHtml($this->xoperation);
         $this->ycolumn = Tools::noHtml($this->ycolumn);
+        $this->yoperation = Tools::noHtml($this->yoperation);
 
         return parent::test();
     }
