@@ -44,7 +44,7 @@
                 </widget>
             </column>
             <column name="value" order="120">
-                <widget type="text" fieldname="value"/>
+                <widget type="datalist" fieldname="value" required="true" />
             </column>
         </group>
     </columns>

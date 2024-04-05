@@ -23,6 +23,7 @@ use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Model\Base;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Core\Where;
+use FacturaScripts\Plugins\Informes\Lib\PresetFilterValues;
 
 /**
  * Description of Report
@@ -104,6 +105,13 @@ class Report extends Base\ModelClass
             if ($filter->operator === 'IS NOT NULL') {
                 $where[] = Where::isNotNull($filter->table_column);
                 continue;
+            }
+
+            // Parseamos la fecha, si se trata de un valor de fecha predefinido.
+            $filter->value = trim($filter->value);
+            $presetFilterValues = new PresetFilterValues();
+            if(in_array($filter->value, $presetFilterValues->all())){
+                $filter->value = $presetFilterValues->getValue($filter->value);
             }
 
             $where[] = Where::column($filter->table_column, $filter->value, $filter->operator);

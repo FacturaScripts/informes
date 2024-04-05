@@ -20,6 +20,7 @@
 namespace FacturaScripts\Plugins\Informes\Lib\ReportChart;
 
 use FacturaScripts\Core\Base\DataBase;
+use FacturaScripts\Core\Tools;
 use FacturaScripts\Plugins\Informes\Model\Report;
 
 /**
@@ -101,6 +102,14 @@ abstract class Chart
     {
         $xCol = $report->xcolumn;
         switch ($report->xoperation) {
+            case 'HAS_A_VALUE':
+                $xCol = "CASE WHEN " . $report->xcolumn . " IS NOT NULL THEN '" . Tools::lang()->trans('has-a-value') . "' ELSE '" . Tools::lang()->trans('does-not-have-a-value') . "' END";
+                break;
+
+            case 'DOES_NOT_HAVE_A_VALUE':
+                $xCol = "CASE WHEN " . $report->xcolumn . " IS NULL THEN '" . Tools::lang()->trans('has-a-value') . "' ELSE '" . Tools::lang()->trans('does-not-have-a-value') . "' END";
+                break;
+
             case 'DAY':
                 $xCol = "DATE_FORMAT(" . $report->xcolumn . ", '%Y-%m-%d')";
                 break;
@@ -167,6 +176,14 @@ abstract class Chart
     {
         $xCol = $report->xcolumn;
         switch ($report->xoperation) {
+            case 'HAS_A_VALUE':
+                $xCol = "CASE WHEN " . $report->xcolumn . " IS NOT NULL THEN '" . Tools::lang()->trans('has-a-value') . "' ELSE '" . Tools::lang()->trans('does-not-have-a-value') . "' END";
+                break;
+
+            case 'DOES_NOT_HAVE_A_VALUE':
+                $xCol = "CASE WHEN " . $report->xcolumn . " IS NULL THEN '" . Tools::lang()->trans('has-a-value') . "' ELSE '" . Tools::lang()->trans('does-not-have-a-value') . "' END";
+                break;
+
             case 'DAY':
                 $xCol = "to_char(" . $report->xcolumn . ", 'YY-MM-DD')";
                 break;
