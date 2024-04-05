@@ -41,6 +41,24 @@ abstract class Chart
         $this->report = $report;
     }
 
+    public function getDataSources(): array
+    {
+        $dataBase = new DataBase();
+        $sql = $this->getSql($this->report);
+        if (empty($sql) || !$dataBase->tableExists($this->report->table)) {
+            return [];
+        }
+
+        $sources = [$this->report->name => $dataBase->select($sql)];
+
+        $comparedReport = new Report();
+        if (!empty($this->report->compared) && $comparedReport->loadFromCode($this->report->compared)) {
+            $sources[$comparedReport->name] = $dataBase->select($this->getSql($comparedReport));
+        }
+
+        return $sources;
+    }
+
     protected function getColors(int $num): array
     {
         $colors = [];
@@ -66,24 +84,6 @@ abstract class Chart
         }
 
         return $colors;
-    }
-
-    protected function getDataSources(): array
-    {
-        $dataBase = new DataBase();
-        $sql = $this->getSql($this->report);
-        if (empty($sql) || !$dataBase->tableExists($this->report->table)) {
-            return [];
-        }
-
-        $sources = [$this->report->name => $dataBase->select($sql)];
-
-        $comparedReport = new Report();
-        if (!empty($this->report->compared) && $comparedReport->loadFromCode($this->report->compared)) {
-            $sources[$comparedReport->name] = $dataBase->select($this->getSql($comparedReport));
-        }
-
-        return $sources;
     }
 
     protected function getSql(Report $report): string
