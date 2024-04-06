@@ -57,44 +57,59 @@ class PieChart extends Chart
 
     protected function getData(): array
     {
+        // obtenemos las distintas fuentes de datos
         $sources = $this->getDataSources();
         if (empty($sources)) {
             return [];
         }
 
+        // agrupamos las etiquetas
         $labels = [];
-
-        // mix data of sources
-        $mix = [];
-        $num = 1;
-        $countSources = count($sources);
         foreach ($sources as $source) {
             foreach ($source as $row) {
-                $xCol = $row['xcol'];
-                if (!isset($mix[$xCol])) {
-                    $labels[] = $xCol;
-
-                    $newItem = ['xcol' => $xCol];
-                    for ($count = 1; $count <= $countSources; $count++) {
-                        $newItem['ycol' . $count] = 0;
-                    }
-                    $mix[$xCol] = $newItem;
+                if (!in_array($row['xcol'], $labels)) {
+                    $labels[] = $row['xcol'];
                 }
-
-                $mix[$xCol]['ycol' . $num] = $row['ycol'];
             }
-            $num++;
+        }
+        sort($labels);
+
+        // ahora agrupamos los datos
+        $mix = [];
+        $countSources = count($sources);
+        foreach ($labels as $label) {
+
+            // la etiqueta es la columna x
+            $newItem = ['xcol' => $label];
+
+            // rellenamos con ceros las columnas y
+            for ($count = 1; $count <= $countSources; $count++) {
+                $newItem['ycol' . $count] = 0;
+            }
+
+            // ahora consultamos las fuentes de datos
+            $num = 1;
+            foreach ($sources as $source) {
+                foreach ($source as $row) {
+                    if ($row['xcol'] === $label) {
+                        $newItem['ycol' . $num] = $row['ycol'];
+                    }
+                }
+                $num++;
+            }
+
+            $mix[$label] = $newItem;
         }
 
-        sort($labels);
-        ksort($mix);
-
+        // ahora preparamos los datos para el gráfico
         $datasets = [];
         foreach (array_keys($sources) as $pos => $label) {
             $num = 1 + $pos;
             $data = [];
             foreach ($mix as $row) {
-                $data[] = round($row['ycol' . $num], 2);
+                $data[] = is_numeric($row['ycol' . $num]) ?
+                    round($row['ycol' . $num], 2) :
+                    $row['ycol' . $num];
             }
 
             $datasets[] = ['label' => $label, 'data' => $data];

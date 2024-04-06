@@ -17,13 +17,19 @@
     "current-exercise-results": "Resultados exercicio actual",
     "customers-pending-collection": "Clientes pendentes de cobro",
     "debit-not-match-account": "Atoparonse discrepancias nas entradas da conta %account%.",
+    "does-not-have-a-value": "No tiene valor",
+    "doughnut": "Donut",
     "empty-report-board": "A lousa está baleira. Engade algúns gráficos desde a pestana gráficos.",
     "expenses-charges": "Gastos e cobros",
     "expenses-pending-payment": "Gastos pendentes de pago",
     "fractional-payment-corporation-tax": "Pago fraccionado Imp. Sociedades",
     "group-by-months": "Agrupar por meses",
+    "has-a-value": "Tiene valor",
     "input-tax": "IVE soportado",
     "legal-reserve": "Reserva legal",
+    "map": "Mapa",
+    "maximum": "Máximo",
+    "minimum": "Mínimo",
     "minimum-amount": "Importe mínimo",
     "monthly-average": "Media mensual",
     "negative": "Negativo",
@@ -68,5 +74,7 @@
     "total-pay-return-corporate-tax": "Total a pagar ou devolver imposto sociedades",
     "total-result": "Resultado total",
     "treasury": "Tesourería",
-    "voluntary-reserves": "Reservas voluntarias"
+    "treemap": "Mapa de árbol",
+    "voluntary-reserves": "Reservas voluntarias",
+    "y-operation": "Operación sobre Y"
 }

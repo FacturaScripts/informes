@@ -17,13 +17,19 @@
     "current-exercise-results": "Resultats exercici actual",
     "customers-pending-collection": "Clients pendents de cobrament",
     "debit-not-match-account": "Hi ha desquadraments als seients al compte %account%.",
+    "does-not-have-a-value": "No tiene valor",
+    "doughnut": "Donut",
     "empty-report-board": "La pissarra és buida. Afegeix alguns gràfics des de la pestanya gràfics.",
     "expenses-charges": "Despeses i cobraments",
     "expenses-pending-payment": "Despeses pendents de pagament",
     "fractional-payment-corporation-tax": "Pagament fraccionat Imp. Societats",
     "group-by-months": "Agrupar per mesos",
+    "has-a-value": "Tiene valor",
     "input-tax": "IVA suportat",
     "legal-reserve": "Reserva legal",
+    "map": "Mapa",
+    "maximum": "Máximo",
+    "minimum": "Mínimo",
     "minimum-amount": "Import mínim",
     "monthly-average": "Mitjana mensual",
     "negative": "Negatiu",
@@ -68,5 +74,7 @@
     "total-pay-return-corporate-tax": "Total a pagar o tornar impost societats",
     "total-result": "Resultat total",
     "treasury": "Tresoreria",
-    "voluntary-reserves": "Reserves voluntàries"
+    "treemap": "Mapa de árbol",
+    "voluntary-reserves": "Reserves voluntàries",
+    "y-operation": "Operación sobre Y"
 }

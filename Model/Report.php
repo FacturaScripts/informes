@@ -23,7 +23,6 @@ use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Model\Base;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Core\Where;
-use FacturaScripts\Plugins\Informes\Lib\PresetFilterValues;
 
 /**
  * Description of Report
@@ -107,12 +106,8 @@ class Report extends Base\ModelClass
                 continue;
             }
 
-            // Parseamos la fecha, si se trata de un valor de fecha predefinido.
-            $filter->value = trim($filter->value);
-            $presetFilterValues = new PresetFilterValues();
-            if(in_array($filter->value, $presetFilterValues->all())){
-                $filter->value = $presetFilterValues->getValue($filter->value);
-            }
+            // convertimos los valores dinámicos
+            $filter->value = ReportFilter::getDynamicValue($filter->value);
 
             $where[] = Where::column($filter->table_column, $filter->value, $filter->operator);
         }

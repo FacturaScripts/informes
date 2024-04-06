@@ -23,6 +23,7 @@ namespace FacturaScripts\Plugins\Informes\Model;
 
 use FacturaScripts\Core\Model\Base\ModelClass;
 use FacturaScripts\Core\Model\Base\ModelTrait;
+use FacturaScripts\Core\Tools;
 
 /**
  * @author Daniel Fernández Giménez <hola@danielfg.es>
@@ -45,6 +46,32 @@ class ReportFilter extends ModelClass
 
     /** @var string */
     public $value;
+
+    public static function getDynamicValue(string $value): string
+    {
+        $values = self::getDynamicValues();
+        return $values[trim($value)] ?? $value;
+    }
+
+    public static function getDynamicValues(): array
+    {
+        return [
+            '{now}' => Tools::dateTime(),
+            '{-1 hour}' => Tools::dateTime('-1 hour'),
+            '{-6 hours}' => Tools::dateTime('-6 hours'),
+            '{-12 hours}' => Tools::dateTime('-12 hours'),
+            '{-24 hours}' => Tools::dateTime('-24 hours'),
+            '{today}' => Tools::date(),
+            '{-1 day}' => Tools::date('-1 day'),
+            '{-7 days}' => Tools::date('-7 days'),
+            '{-15 days}' => Tools::date('-15 days'),
+            '{-1 month}' => Tools::date('-1 month'),
+            '{-3 months}' => Tools::date('-3 months'),
+            '{-6 months}' => Tools::date('-6 months'),
+            '{-1 year}' => Tools::date('-1 year'),
+            '{-2 years}' => Tools::date('-2 years'),
+        ];
+    }
 
     public static function primaryColumn(): string
     {

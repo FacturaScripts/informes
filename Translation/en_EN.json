@@ -17,13 +17,19 @@
     "current-exercise-results": "Current exercise results",
     "customers-pending-collection": "Customers pending collection",
     "debit-not-match-account": "There is a mismatch in the sit ID of your account %account%.",
+    "does-not-have-a-value": "No tiene valor",
+    "doughnut": "Donut",
     "empty-report-board": "The board is empty. Add some graphics from the graphics tab.",
     "expenses-charges": "Expenses and charges",
     "expenses-pending-payment": "Unpaid expenses",
     "fractional-payment-corporation-tax": "Fractional payment Corporate Tax",
     "group-by-months": "Agrupar por meses",
+    "has-a-value": "Tiene valor",
     "input-tax": "Input VAT",
     "legal-reserve": "Legal reserve",
+    "map": "Mapa",
+    "maximum": "Máximo",
+    "minimum": "Mínimo",
     "minimum-amount": "Minimum amount",
     "monthly-average": "Monthly average",
     "negative": "Negative",
@@ -68,5 +74,7 @@
     "total-pay-return-corporate-tax": "Total to pay or refund corporation tax",
     "total-result": "Total result",
     "treasury": "Treasury",
-    "voluntary-reserves": "Voluntary reserves"
+    "treemap": "Mapa de árbol",
+    "voluntary-reserves": "Voluntary reserves",
+    "y-operation": "Operación sobre Y"
 }

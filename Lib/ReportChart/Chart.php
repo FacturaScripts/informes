@@ -103,11 +103,13 @@ abstract class Chart
         $xCol = $report->xcolumn;
         switch ($report->xoperation) {
             case 'HAS_A_VALUE':
-                $xCol = "CASE WHEN " . $report->xcolumn . " IS NOT NULL THEN '" . Tools::lang()->trans('has-a-value') . "' ELSE '" . Tools::lang()->trans('does-not-have-a-value') . "' END";
+                $xCol = "CASE WHEN " . $report->xcolumn . " IS NOT NULL THEN '" . Tools::lang()->trans('has-a-value')
+                    . "' ELSE '" . Tools::lang()->trans('does-not-have-a-value') . "' END";
                 break;
 
             case 'DOES_NOT_HAVE_A_VALUE':
-                $xCol = "CASE WHEN " . $report->xcolumn . " IS NULL THEN '" . Tools::lang()->trans('has-a-value') . "' ELSE '" . Tools::lang()->trans('does-not-have-a-value') . "' END";
+                $xCol = "CASE WHEN " . $report->xcolumn . " IS NULL THEN '" . Tools::lang()->trans('has-a-value')
+                    . "' ELSE '" . Tools::lang()->trans('does-not-have-a-value') . "' END";
                 break;
 
             case 'DAY':
@@ -165,7 +167,7 @@ abstract class Chart
                 break;
 
             default:
-                $yCol = 'COUNT(*)';
+                $yCol = empty($report->ycolumn) ? 'COUNT(*)' : 'SUM(' . $report->ycolumn . ')';
         }
 
         return 'SELECT ' . $xCol . ' as xcol, ' . $yCol . ' as ycol FROM ' . $report->table
@@ -177,11 +179,13 @@ abstract class Chart
         $xCol = $report->xcolumn;
         switch ($report->xoperation) {
             case 'HAS_A_VALUE':
-                $xCol = "CASE WHEN " . $report->xcolumn . " IS NOT NULL THEN '" . Tools::lang()->trans('has-a-value') . "' ELSE '" . Tools::lang()->trans('does-not-have-a-value') . "' END";
+                $xCol = "CASE WHEN " . $report->xcolumn . " IS NOT NULL THEN '" . Tools::lang()->trans('has-a-value')
+                    . "' ELSE '" . Tools::lang()->trans('does-not-have-a-value') . "' END";
                 break;
 
             case 'DOES_NOT_HAVE_A_VALUE':
-                $xCol = "CASE WHEN " . $report->xcolumn . " IS NULL THEN '" . Tools::lang()->trans('has-a-value') . "' ELSE '" . Tools::lang()->trans('does-not-have-a-value') . "' END";
+                $xCol = "CASE WHEN " . $report->xcolumn . " IS NULL THEN '" . Tools::lang()->trans('has-a-value')
+                    . "' ELSE '" . Tools::lang()->trans('does-not-have-a-value') . "' END";
                 break;
 
             case 'DAY':
@@ -239,7 +243,7 @@ abstract class Chart
                 break;
 
             default:
-                $yCol = 'COUNT(*)';
+                $yCol = empty($report->ycolumn) ? 'COUNT(*)' : 'SUM(' . $report->ycolumn . ')';
         }
 
         return 'SELECT ' . $xCol . ' as xcol, ' . $yCol . ' as ycol FROM ' . $report->table

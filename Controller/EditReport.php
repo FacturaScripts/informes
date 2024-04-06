@@ -23,8 +23,8 @@ use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Lib\ExtendedController\BaseView;
 use FacturaScripts\Core\Lib\ExtendedController\EditController;
 use FacturaScripts\Core\Tools;
-use FacturaScripts\Plugins\Informes\Lib\PresetFilterValues;
 use FacturaScripts\Plugins\Informes\Model\Report;
+use FacturaScripts\Plugins\Informes\Model\ReportFilter;
 
 /**
  * Description of EditReport
@@ -152,18 +152,17 @@ class EditReport extends EditController
                 $columns = empty($tableName) || !$this->dataBase->tableExists($tableName) ? [] : array_keys($this->dataBase->getColumns($tableName));
                 sort($columns);
 
-                $columnTable = $this->views[$viewName]->columnForField('table_column');
+                $columnTable = $view->columnForField('table_column');
                 if ($columnTable && $columnTable->widget->getType() === 'select') {
                     $columnTable->widget->setValuesFromArray($columns);
                 }
 
-                /** AGREAGMOS OPCIONES AL DATALIST DE VALORES */
-                $column = $this->views['EditReportFilter']->columnForName('value');
-                if($column && $column->widget->getType() === 'datalist') {
+                /** AGREGAMOS OPCIONES AL DATALIST DE VALORES */
+                $column = $view->columnForName('value');
+                if ($column && $column->widget->getType() === 'datalist') {
                     $customValues = [];
-                    $presetFilterValues = new PresetFilterValues();
-                    foreach ($presetFilterValues->all() as $key => $valor){
-                        $customValues[] = ['value' => $key, 'title' => $valor];
+                    foreach (ReportFilter::getDynamicValues() as $key => $valor) {
+                        $customValues[] = ['value' => $key, 'title' => $key];
                     }
                     $column->widget->setValuesFromArray($customValues);
                 }

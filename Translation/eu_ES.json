@@ -17,13 +17,19 @@
     "current-exercise-results": "Oraingo ekitaldiaren emaitzak",
     "customers-pending-collection": "Kobratzeko zain dauden bezeroak",
     "debit-not-match-account": "%account% kontuaren idazpenetan akatsak daude",
+    "does-not-have-a-value": "No tiene valor",
+    "doughnut": "Donut",
     "empty-report-board": "Taula hutsik dago. Gehitu grafiko batzuk grafikoen fitxatik.",
     "expenses-charges": "Gastuak eta karguak",
     "expenses-pending-payment": "Ordaindu gabeko gastuak",
     "fractional-payment-corporation-tax": "Sozietateen gaineko zergaren zatikako ordainketa",
     "group-by-months": "Agrupar por meses",
+    "has-a-value": "Tiene valor",
     "input-tax": "Sarrerako BEZa",
     "legal-reserve": "Legezko erreserba",
+    "map": "Mapa",
+    "maximum": "Máximo",
+    "minimum": "Mínimo",
     "minimum-amount": "Gutxieneko zenbatekoa",
     "monthly-average": "Hileko batez bestekoa",
     "negative": "Negativo",
@@ -68,5 +74,7 @@
     "total-pay-return-corporate-tax": "Sozietateen gaineko zerga ordaintzeko edo itzultzeko totala",
     "total-result": "Emaitza totala",
     "treasury": "Diruzaintza",
-    "voluntary-reserves": "Borondatezko erreserbak"
+    "treemap": "Mapa de árbol",
+    "voluntary-reserves": "Borondatezko erreserbak",
+    "y-operation": "Operación sobre Y"
 }
