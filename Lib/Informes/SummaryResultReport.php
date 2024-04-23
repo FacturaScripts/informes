@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022-2023 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -26,23 +26,23 @@ use FacturaScripts\Core\Tools;
  */
 class SummaryResultReport extends ResultReport
 {
-    public static $charts = array(
+    public static $charts = [
         'totales' => [],
         'families' => [],
-    );
+    ];
 
     public static function render(array $formData): string
     {
         self::apply($formData);
         self::charts_build();
 
-        $monthNames = ['monthly-average', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
-        $categories = ['ventas' => 'sales', 'compras' => "purchases" ,'gastos' => 'expenses', 'resultado' => 'result'];
+        $monthNames = ['total', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+        $categories = ['ventas' => 'sales', 'compras' => "purchases", 'gastos' => 'expenses', 'resultado' => 'result'];
 
         $html = '<div class="table-responsive"><table class="table table-hover mb-0"><thead><tr><th class="title"><b>' . Tools::lang()->trans('summary') . '</b></th>';
 
         foreach ($monthNames as $month) {
-            $html .= '<th class="' . ($month === 'monthly-average' ? 'porc' : 'month') . '">' . Tools::lang()->trans($month) . '</th>';
+            $html .= '<th class="' . ($month === 'total' ? 'porc' : 'month') . '">' . Tools::lang()->trans($month) . '</th>';
         }
 
         $html .= '</tr></thead><tbody>';
