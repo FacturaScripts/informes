@@ -82,4 +82,13 @@ class ReportFilter extends ModelClass
     {
         return "reports_filters";
     }
+
+    public function test(): bool
+    {
+        // escapamos el html
+        $this->table_column = Tools::noHtml($this->table_column);
+        $this->value = Tools::noHtml($this->value);
+
+        return parent::test();
+    }
 }

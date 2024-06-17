@@ -21,8 +21,8 @@ namespace FacturaScripts\Plugins\Informes\Model;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Model\Base\ModelClass;
-use FacturaScripts\Core\Model\Base\ModelCore;
 use FacturaScripts\Core\Model\Base\ModelTrait;
+use FacturaScripts\Core\Tools;
 
 /**
  * @author Daniel Fernández Giménez <hola@danielfg.es>
@@ -43,7 +43,7 @@ class ReportBoard extends ModelClass
     public function clear()
     {
         parent::clear();
-        $this->creationdate = date(ModelCore::DATETIME_STYLE);
+        $this->creationdate = Tools::dateTime();
     }
 
     public function getLines(): array
@@ -67,6 +67,14 @@ class ReportBoard extends ModelClass
     public static function tableName(): string
     {
         return "reports_boards";
+    }
+
+    public function test(): bool
+    {
+        // escapamos el html
+        $this->name = Tools::noHtml($this->name);
+
+        return parent::test();
     }
 
     public function url(string $type = 'auto', string $list = 'ListReport?activetab=List'): string

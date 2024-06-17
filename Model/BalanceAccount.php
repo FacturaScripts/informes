@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2017-2023 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2017-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -88,7 +88,10 @@ class BalanceAccount extends ModelClass
             $this->desccuenta = $this->getCuenta()->descripcion;
         }
 
+        // escapamos el html
+        $this->codcuenta = Tools::noHtml($this->codcuenta);
         $this->desccuenta = Tools::noHtml($this->desccuenta);
+
         return parent::test();
     }
 
