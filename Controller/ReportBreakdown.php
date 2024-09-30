@@ -66,7 +66,7 @@ class ReportBreakdown extends Controller
         $data = parent::getPageData();
         $data["menu"] = "reports";
         $data["title"] = "report-breakdown";
-        $data["icon"] = "fas fa-braille";
+        $data["icon"] = "fa-solid fa-braille";
         return $data;
     }
 

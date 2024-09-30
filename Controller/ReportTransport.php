@@ -68,7 +68,7 @@ class ReportTransport extends Controller
         $data = parent::getPageData();
         $data["menu"] = "reports";
         $data["title"] = "report-transport";
-        $data["icon"] = "fas fa-truck-loading";
+        $data["icon"] = "fa-solid fa-truck-loading";
         return $data;
     }
 

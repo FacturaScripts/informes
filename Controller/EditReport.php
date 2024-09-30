@@ -43,7 +43,7 @@ class EditReport extends EditController
         $data = parent::getPageData();
         $data['menu'] = 'reports';
         $data['title'] = 'report';
-        $data['icon'] = 'fas fa-chart-pie';
+        $data['icon'] = 'fa-solid fa-chart-pie';
         return $data;
     }
 
@@ -113,13 +113,13 @@ class EditReport extends EditController
 
     protected function createViewsFilterLines(string $viewName = 'EditReportFilter'): void
     {
-        $this->addEditListView($viewName, 'ReportFilter', 'filters', 'fas fa-filter')
+        $this->addEditListView($viewName, 'ReportFilter', 'filters', 'fa-solid fa-filter')
             ->setInLine(true);
     }
 
     protected function createViewsRelatedReports(string $viewName = 'ListReport'): void
     {
-        $this->addListView($viewName, 'Report', 'related', 'fas fa-chart-pie')
+        $this->addListView($viewName, 'Report', 'related', 'fa-solid fa-chart-pie')
             ->addOrderBy(['name'], 'name', 1)
             ->addSearchFields(['name']);
 

@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022-2023 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -20,7 +20,7 @@
 namespace FacturaScripts\Plugins\Informes;
 
 use FacturaScripts\Core\Base\DataBase;
-use FacturaScripts\Core\Base\InitClass;
+use FacturaScripts\Core\Template\InitClass;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\Empresa;
 use FacturaScripts\Plugins\Informes\Model\BalanceAccount;
@@ -29,12 +29,16 @@ use ParseCsv\Csv;
 
 final class Init extends InitClass
 {
-    public function init()
+    public function init(): void
     {
         $this->loadExtension(new Extension\Controller\EditCuenta());
     }
 
-    public function update()
+    public function uninstall(): void
+    {
+    }
+
+    public function update(): void
     {
         // inicializamos empresa para que aplique los cambios en la tabla
         new Empresa();

@@ -130,7 +130,7 @@ class SummaryResultReport extends ResultReport
 
             self::$charts['families']['table'] .= ''
                 . '<tr>'
-                . '<td class="align-middle"><span style="color: ' . $color . '"><i class="fas fa-square"></i></span></td>'
+                . '<td class="align-middle"><span style="color: ' . $color . '"><i class="fa-solid fa-square"></i></span></td>'
                 . '<td>' . $fam_desc . '</td>'
                 . '<td class="porc align-middle">' . $porc . ' %</td>'
                 . '<td class="total align-middle">' . Tools::money($totalaux) . '</td>'
@@ -150,7 +150,7 @@ class SummaryResultReport extends ResultReport
 
             self::$charts['series']['table'] .= ''
                 . '<tr>'
-                . '<td class="align-middle"><span style="color: ' . $color . '"><i class="fas fa-square"></i></span></td>'
+                . '<td class="align-middle"><span style="color: ' . $color . '"><i class="fa-solid fa-square"></i></span></td>'
                 . '<td>' . self::$ventas[self::$year]['series'][$codserie]['descripcion'] . '</td>'
                 . '<td class="porc align-middle">' . $porc . ' %</td>'
                 . '<td class="total align-middle">' . Tools::money($totalaux) . '</td>'
@@ -170,7 +170,7 @@ class SummaryResultReport extends ResultReport
 
             self::$charts['pagos']['table'] .= ''
                 . '<tr>'
-                . '<td class="align-middle"><span style="color: ' . $color . '"><i class="fas fa-square"></i></span></td>'
+                . '<td class="align-middle"><span style="color: ' . $color . '"><i class="fa-solid fa-square"></i></span></td>'
                 . '<td>' . self::$ventas[self::$year]['pagos'][$codpago]['descripcion'] . '</td>'
                 . '<td class="porc align-middle">' . $porc . ' %</td>'
                 . '<td class="total align-middle">' . Tools::money($totalaux) . '</td>'
@@ -190,7 +190,7 @@ class SummaryResultReport extends ResultReport
 
             self::$charts['agentes']['table'] .= ''
                 . '<tr>'
-                . '<td class="align-middle"><span style="color: ' . $color . '"><i class="fas fa-square"></i></span></td>'
+                . '<td class="align-middle"><span style="color: ' . $color . '"><i class="fa-solid fa-square"></i></span></td>'
                 . '<td>' . self::$ventas[self::$year]['agentes'][$codagente]['descripcion'] . '</td>'
                 . '<td class="porc align-middle">' . $porc . ' %</td>'
                 . '<td class="total align-middle">' . Tools::money($totalaux) . '</td>'

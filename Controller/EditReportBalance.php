@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2017-2023 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2017-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -51,7 +51,7 @@ class EditReportBalance extends EditController
         $data = parent::getPageData();
         $data['menu'] = 'reports';
         $data['title'] = 'balances';
-        $data['icon'] = 'fas fa-book';
+        $data['icon'] = 'fa-solid fa-book';
         return $data;
     }
 
@@ -335,7 +335,7 @@ class EditReportBalance extends EditController
                 $this->addButton($viewName, [
                     'action' => 'find-problems',
                     'color' => 'warning',
-                    'icon' => 'fas fa-search',
+                    'icon' => 'fa-solid fa-search',
                     'label' => 'find-problems'
                 ]);
                 break;

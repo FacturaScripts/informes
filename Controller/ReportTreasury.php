@@ -85,7 +85,7 @@ class ReportTreasury extends Controller
         $data = parent::getPageData();
         $data["menu"] = "reports";
         $data["title"] = "treasury";
-        $data["icon"] = "fas fa-balance-scale-left";
+        $data["icon"] = "fa-solid fa-balance-scale-left";
         return $data;
     }
 

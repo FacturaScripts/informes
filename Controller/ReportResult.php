@@ -48,7 +48,7 @@ class ReportResult extends Controller
         $data = parent::getPageData();
         $data["menu"] = "reports";
         $data["title"] = "result-report";
-        $data["icon"] = "fas fa-poll";
+        $data["icon"] = "fa-solid fa-poll";
         return $data;
     }
 

@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2017-2023 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2017-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -41,7 +41,7 @@ class ListReportAccounting extends ListController
         $data = parent::getPageData();
         $data['menu'] = 'reports';
         $data['title'] = 'accounting-reports';
-        $data['icon'] = 'fas fa-balance-scale';
+        $data['icon'] = 'fa-solid fa-balance-scale';
         return $data;
     }
 
@@ -60,7 +60,7 @@ class ListReportAccounting extends ListController
         $this->addButton($viewName, [
             'action' => 'generate-balances',
             'confirm' => true,
-            'icon' => 'fas fa-magic',
+            'icon' => 'fa-solid fa-magic',
             'label' => 'generate'
         ]);
     }
@@ -83,7 +83,7 @@ class ListReportAccounting extends ListController
      */
     protected function createViewsAmount(string $viewName = 'ListReportAmount'): void
     {
-        $this->addView($viewName, 'ReportAmount', 'sums-and-balances', 'fas fa-calculator');
+        $this->addView($viewName, 'ReportAmount', 'sums-and-balances', 'fa-solid fa-calculator');
         $this->addOrderBy($viewName, ['name'], 'name');
         $this->addOrderBy($viewName, ['idcompany', 'name'], 'company');
         $this->addSearchFields($viewName, ['name']);
@@ -101,7 +101,7 @@ class ListReportAccounting extends ListController
      */
     protected function createViewsBalance(string $viewName = 'ListReportBalance'): void
     {
-        $this->addView($viewName, 'ReportBalance', 'balances', 'fas fa-book');
+        $this->addView($viewName, 'ReportBalance', 'balances', 'fa-solid fa-book');
         $this->addOrderBy($viewName, ['name'], 'name');
         $this->addOrderBy($viewName, ['idcompany', 'name'], 'company');
         $this->addSearchFields($viewName, ['name']);
@@ -119,7 +119,7 @@ class ListReportAccounting extends ListController
      */
     protected function createViewsLedger(string $viewName = 'ListReportLedger'): void
     {
-        $this->addView($viewName, 'ReportLedger', 'ledger', 'fas fa-file-alt');
+        $this->addView($viewName, 'ReportLedger', 'ledger', 'fa-solid fa-file-alt');
         $this->addOrderBy($viewName, ['name'], 'name');
         $this->addOrderBy($viewName, ['idcompany', 'name'], 'company');
         $this->addSearchFields($viewName, ['name']);
@@ -137,7 +137,7 @@ class ListReportAccounting extends ListController
      */
     protected function createViewsPreferences(string $viewName = 'ListBalanceCode'): void
     {
-        $this->addView($viewName, 'BalanceCode', 'balance-codes', 'fas fa-cogs');
+        $this->addView($viewName, 'BalanceCode', 'balance-codes', 'fa-solid fa-cogs');
         $this->addOrderBy($viewName, ['subtype', 'codbalance'], 'code', 1);
         $this->addOrderBy($viewName, ['description1'], 'description-1');
         $this->addOrderBy($viewName, ['description2'], 'description-2');

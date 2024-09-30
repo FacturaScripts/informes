@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -34,7 +34,7 @@ class ListReport extends ListController
         $data = parent::getPageData();
         $data['menu'] = 'reports';
         $data['title'] = 'charts';
-        $data['icon'] = 'fas fa-chart-pie';
+        $data['icon'] = 'fa-solid fa-chart-pie';
         return $data;
     }
 
@@ -46,7 +46,7 @@ class ListReport extends ListController
 
     protected function createViewsReport(string $viewName = 'ListReport'): void
     {
-        $this->addView($viewName, 'Report', 'charts', 'fas fa-chart-pie')
+        $this->addView($viewName, 'Report', 'charts', 'fa-solid fa-chart-pie')
             ->addOrderBy(['name'], 'name')
             ->addSearchFields(['name', 'table', 'xcolumn', 'ycolumn']);
 
@@ -80,7 +80,7 @@ class ListReport extends ListController
 
     protected function createViewsReportBoard(string $viewName = 'ListReportBoard'): void
     {
-        $this->addView($viewName, 'ReportBoard', 'reports-board', 'fas fa-chalkboard')
+        $this->addView($viewName, 'ReportBoard', 'reports-board', 'fa-solid fa-chalkboard')
             ->addOrderBy(['name'], 'name')
             ->addSearchFields(['name']);
     }
