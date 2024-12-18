@@ -1,12 +1,26 @@
 <?php
+/**
+ * This file is part of Informes plugin for FacturaScripts
+ * Copyright (C) 2024 Carlos Garcia Gomez <carlos@facturascripts.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 namespace FacturaScripts\Plugins\Informes\Lib\Informes;
 
 use FacturaScripts\Core\Tools;
 
-/**
- * @author Daniel Fernández Giménez <hola@danielfg.es>
- */
 class SummaryReportClients extends ReportClients
 {
     public static $charts = array(
@@ -18,13 +32,13 @@ class SummaryReportClients extends ReportClients
         self::applyStartBuild($formData);
         self::charts_build();
 
-        $monthNames = ['total-year', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
-        $categories = ['activos' => 'active-clients', 'inactivos' => 'inactive-clients', 'clientes' => 'all-clients'];
+        $monthNames = ['total', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+        $categories = ['activos' => 'active', 'inactivos' => 'inactive', 'clientes' => 'all'];
 
         $html = '<div class="table-responsive"><table class="table table-hover mb-0"><thead><tr><th class="title"><b>' . Tools::lang()->trans('status') . '</b></th>';
 
         foreach ($monthNames as $month) {
-            $html .= '<th class="' . ($month === 'total-year' ? 'porc' : 'month') . '">' . Tools::lang()->trans($month) . '</th>';
+            $html .= '<th class="' . ($month === 'total' ? 'porc' : 'month') . '">' . Tools::lang()->trans($month) . '</th>';
         }
 
         $html .= '</tr></thead><tbody>';
@@ -58,14 +72,12 @@ class SummaryReportClients extends ReportClients
     private static function getRowClass($categoryName): string
     {        
         switch ($categoryName) {
-            
-            case 'active-clients':
+            case 'active':
                 return 'table-success';
-            case 'inactive-clients':
+            case 'inactive':
                 return 'table-danger';
-            case 'all-clients':
-                return 'table-primary';                
-                
+            case 'all':
+                return 'table-primary';
         }
 
         return 'table-success';
@@ -106,8 +118,7 @@ class SummaryReportClients extends ReportClients
             self::$charts['Grupos-Clientes']['colors'][] = $color;
             self::$charts['Grupos-Clientes']['totales'][] = $totalaux;
 
-            self::$charts['Grupos-Clientes']['table'] .= ''
-                . '<tr>'
+            self::$charts['Grupos-Clientes']['table'] .= '<tr>'
                 . '<td class="align-middle"><span style="color: ' . $color . '"><i class="fas fa-square"></i></span></td>'
                 . '<td>' . self::$ventas[self::$year]['series'][$codserie]['descripcion'] . '</td>'
                 . '<td class="porc align-middle">' . $porc . ' %</td>'
@@ -127,14 +138,12 @@ class SummaryReportClients extends ReportClients
             self::$charts['Grupos']['colors'][] = $color;
             self::$charts['Grupos']['totales'][] = $totalaux;
 
-            self::$charts['Grupos']['table'] .= ''
-                . '<tr>'
+            self::$charts['Grupos']['table'] .= '<tr>'
                 . '<td class="align-middle"><span style="color: ' . $color . '"><i class="fas fa-square"></i></span></td>'
                 . '<td>' . self::$ventas[self::$year]['pagos'][$codpago]['descripcion'] . '</td>'
                 . '<td class="porc align-middle">' . $porc . ' %</td>'
                 . '<td class="total align-middle">' . Tools::money($totalaux) . '</td>'
                 . '</tr>';
         }
-
     }
 }

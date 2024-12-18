@@ -1,4 +1,21 @@
 <?php
+/**
+ * This file is part of Informes plugin for FacturaScripts
+ * Copyright (C) 2024 Carlos Garcia Gomez <carlos@facturascripts.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 namespace FacturaScripts\Plugins\Informes\Lib\Informes;
 
@@ -11,14 +28,12 @@ class ClientsUnpaidReport extends ReportClients
         self::applyStartBuild($formData);
         $varName = ($formData['action'] == "load-unpaid") ? "unpaid" : "";
         
-        $monthNames = ['total-year', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+        $monthNames = ['total', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
 
-        
         $categories = [
-            'Clientes impagos' => 'count_clients_impagos',
-            'Importe impago' => 'total_facturas_impagas'        
+            'unpaid-customers' => 'count_clients_impagos',
+            'unpaid-amount' => 'total_facturas_impagas'
         ];
-
         
         $html = '<div class="table-responsive">'
             . '<table class="table table-hover mb-0">'

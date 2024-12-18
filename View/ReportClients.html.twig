@@ -1,14 +1,8 @@
 {#
-* Copyright (C) 2019-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
-* Author Daniel Fernández Giménez <hola@danielfg.es>
+* Copyright (C) 2024 Carlos Garcia Gomez <carlos@facturascripts.com>
 #}
 
 {% extends "Master/MenuBgTemplate.html.twig" %}
-
-{% set pageData = fsc.getPageData() %}
-
-{% set countries = fsc.getCountriesClientsCompany() %}
-{% set provinces = fsc.getProvincesClientsCompany() %}
 
 {% block body %}
     <div class="container-fluid d-print-none">
@@ -25,7 +19,6 @@
                     </a>
                 </div>
             </div>
-
             <div class="col-md-5 text-right">
                 <h1 class="h4 mb-0 d-none d-md-inline-block">
                     {% set title = trans(fsc.getPageData()['title']) | capitalize %}
@@ -34,7 +27,6 @@
             </div>
         </div>
     </div>
-
     <div class="container-fluid">
         <div class="row">
             <div class="col-sm-12">
@@ -57,53 +49,30 @@
                                 </optgroup>
                             {% endfor %}
                         </select>
-
                         <select class="form-control" id="selectCountry">
-                            {% if countries is not empty %}
-                                <option value="" selected>{{ trans('all-countries') }}</option> 
-                                {% for country in countries %}                                                                        
-                                    <option value="{{ country.codigo_pais }}">
-                                        {{ country.nombre_pais }}
-                                    </option>                                                                       
-                                {% endfor %}
-                            {% else %}
-                                <option value="" selected>-----</option> 
-                            {% endif %}
+                            <option value="" selected>{{ trans('all') }}</option>
+                            <option value="" selected>-----</option>
+                            {% for country in fsc.getCountriesClientsCompany() %}
+                                <option value="{{ country.codigo_pais }}">
+                                    {{ country.nombre_pais }}
+                                </option>
+                            {% endfor %}
                         </select>
-
                         <select class="form-control" id="selectProvince">
-                        {% if provinces is not empty %}
-                            <option value="" selected>{{ trans('all-provinces') }}</option> 
-                            {% for province in provinces %}                                                                        
+                            <option value="" selected>{{ trans('all-provinces') }}</option>
+                            <option value="" selected>-----</option>
+                            <option value="" selected>{{ trans('all-provinces') }}</option>
+                            {% for province in fsc.getProvincesClientsCompany() %}
                                 <option value="{{ province.provincia }}">
                                     {{ province.provincia }}
-                                </option>                                                                       
+                                </option>
                             {% endfor %}
-                        {% else %}
-                            <option value="" selected>{{ trans('all-provinces') }}</option> 
-                        {% endif %}
                         </select>
-
-                        <button class="btn btn-primary btn-sm btn-spin-action ml-2">
-                            <i class="fa fa-refresh"></i>
-                        </button>
                     </div>
-                                 
-                </div>    
-
-
-
-                <div class="card border-primary shadow mt-4">
-                    <h5 class="card-header bg-primary text-white pointer">
-                        {{ trans('status-clients') }}                        
-                    </h5>
                     <div id="statusClients">
                         <div id="summaryData" class="card-body p-0"></div>
                     </div>
                 </div>
-
-
-
                 <div class="card border-success shadow mt-4">
                     <h5 class="card-header bg-success text-white pointer" id="showBillingLocation">
                         {{ trans('billing-groups') }}
@@ -115,16 +84,10 @@
                         <div class="card-body p-0"></div>
                     </div>
                 </div>
-
-
                 <div class="card border-danger shadow mt-4">
                     <h5 class="card-header bg-danger text-white pointer" id="showUnpaidClients">
-                        
-
                         <span>{{ trans('unpaid-clients') }}</span>
                         <span class="msg-click">{{ trans('msg-click-view-details-unpaid-clients') }}</span>
-
-
                         <button class="btn btn-danger btn-sm btn-spin-action float-right">
                             <i class="fa fa-plus"></i>
                         </button>
@@ -132,14 +95,10 @@
                     <div id="unpaidClientsReport" class="collapse">
                         <div class="card-body p-0"></div>
                     </div>
-                </div>                
-
-            </div>       
-        </div>    
-
-
+                </div>
+            </div>
+        </div>
         <div class="form-row">
-
             <div class="col-12">
                 <div class="card shadow mt-4">
                     <div class="card-body h5">
@@ -150,8 +109,6 @@
                     </div>
                 </div>
             </div>
-
-
             <div class="col-md-6">
                 <div class="card shadow mt-4">
                     <div class="card-body h5">
@@ -174,9 +131,7 @@
                         </table>
                     </div>
                 </div>
-            </div>           
-
-            
+            </div>
             <div class="col-md-6">
                 <div class="card shadow mt-4">
                     <div class="card-body h5">
@@ -199,24 +154,13 @@
                         </table>
                     </div>
                 </div>
-            </div>           
-
-
-             
-
-
+            </div>
         </div>
-
-
-
-
-
     </div>
 {% endblock %}
 
 {% block css %}
     {{ parent() }}
-
     <style>
         .canva {
             height: 300px;
@@ -256,7 +200,7 @@
         span.msg-click {
             font-size: 0.7rem;
         }
-        
+
         .card-header-selectors {
             gap: 8px;
         }
@@ -265,20 +209,16 @@
 
 {% block javascripts %}
     {{ parent() }}
-
     <script src="{{ asset('node_modules/chart.js/dist/Chart.min.js') }}"></script>
-
-    <script>                                      
-        let billingGroupsChart;                
-        let resumeChart;        
+    <script>
+        let billingGroupsChart;
+        let resumeChart;
         let cliGrpChart;
         let billingLocationReport = false;
         let unpaidClientsReport = false;
 
         $(document).ready(function () {
-
             function initPage() {
-                
                 if (billingLocationReport) {
                     $('#showBillingLocation').click();
                 }
@@ -288,7 +228,6 @@
                     $('#showUnpaidClients').click();
                 }
                 $('#unpaidClientsReport .card-body').html('');
-                
 
                 let formData = new FormData();
                 formData.append('action', 'load-summary');
@@ -301,7 +240,6 @@
                 formData.append('codejercicio', $('#selectExercise option:selected').val());
                 formData.append('codpais', $('#selectCountry option:selected').val());
                 formData.append('provincia', $('#selectProvince option:selected').val());
-                
 
                 fetch('{{ fsc.url() }}', {
                     method: 'POST',
@@ -311,57 +249,66 @@
                         return response.json();
                     }
                     return Promise.reject(response);
-                }).then(function (data) {                    
-
+                }).then(function (data) {
                     if (data.summary && data.summary !== '') {
                         $('#summaryData').html(data.summary);
                         setCharts(data.charts);
                     }
-                    
+
                     if (data.billing && data.billing !== '') {
-                        $('#billingLocationReport  .card-body').html(data.billing);                        
+                        $('#billingLocationReport  .card-body').html(data.billing);
                     }
-                    
+
                     if (data.unpaid && data.unpaid !== '') {
-                        $('#unpaidClientsReport  .card-body').html(data.unpaid);                       
-                    }                    
-                
+                        $('#unpaidClientsReport  .card-body').html(data.unpaid);
+                    }
+
+                    if (data.unpaid_clients_details) {
+                        let newRow = document.createElement('tr');
+                        newRow.classList.add('tr-unpaid-clients');
+
+                        let newCell = document.createElement('td');
+                        newCell.setAttribute('colspan', '9');
+                        newCell.innerHTML = data.unpaid_clients_details;
+                        newRow.appendChild(newCell);
+
+                        let unpaidClientsTbody = document.querySelector('.tbody-unpaid-clients');
+                        unpaidClientsTbody.appendChild(newRow);
+                    }
+
                     if (Array.isArray(data.messages)) {
                         data.messages.forEach(item => alert(item.message));
                     }
 
                     animateSpinner('remove', true);
                 }).catch(function (error) {
-                    alert('error');                    
+                    alert('error');
                     animateSpinner('remove', false);
                 });
 
                 return false;
             }
 
-            
-
             $(document).on('change', '#selectExercise', function () {
                 initPage();
             });
-            
+
             $(document).on('change', '#selectCountry', function () {
                 initPage();
             });
 
             $(document).on('change', '#selectProvince', function () {
                 initPage();
-            });            
-          
+            });
+
             $(document).on('click', '#showBillingLocation', function () {
                 billingLocationReport = handleReportToggle('#billingLocation', billingLocationReport, 'load-billing');
-            });           
-            
+            });
+
             $(document).on('click', '#showUnpaidClients', function () {
                 unpaidClientsReport = handleReportToggle('#unpaidClients', unpaidClientsReport, 'load-unpaid');
             });
 
-            
             function handleReportToggle(reportElementId, reportFlag, action, additionalAction) {
                 const reportElement = $(reportElementId);
                 reportElement.find('svg').toggleClass('fa-plus fa-minus');
@@ -379,76 +326,28 @@
                 $(reportElementId + 'Report').collapse('toggle');
                 return reportFlag;
             }
-               
-            $(document).on('click', '.click-celda-impago', function () {
 
+            $(document).on('click', '.click-celda-impago', function () {
                 $('.tr-unpaid-clients').remove();
 
-                const month = $(this).data('month');                
+                const month = $(this).data('month');
                 const year = $(this).data('year');
 
                 let formData = new FormData();
                 formData.append('action', 'load-unpaid-details');
                 formData.append('month', month);
-                formData.append('year', year);                
+                formData.append('year', year);
                 formData.append('codpais', $('#selectCountry option:selected').val());
                 formData.append('provincia', $('#selectProvince option:selected').val());
 
-                getDataUnpaid(formData);
-
+                sendForm(formData);
             });
 
-            function getDataUnpaid(formData) {
-                animateSpinner('add');
+            initPage();
 
-                formData.append('codejercicio', $('#selectExercise option:selected').val());
-                
-
-                fetch('{{ fsc.url() }}', {
-                    method: 'POST',
-                    body: formData
-                }).then(function (response) {
-                    if (response.ok) {
-                        return response.json();
-                    }
-                    return Promise.reject(response);
-                }).then(data => {
-                    if (data.unpaid_clients_details) {
-                        
-                        let newRow = document.createElement('tr');
-
-                        newRow.classList.add('tr-unpaid-clients');
-                        
-                        let newCell = document.createElement('td');
-                        newCell.setAttribute('colspan', '9'); 
-                        
-                        newCell.innerHTML = data.unpaid_clients_details;
-                        
-                        newRow.appendChild(newCell);
-                        
-                        let unpaidClientsTbody = document.querySelector('.tbody-unpaid-clients');
-                        
-                        unpaidClientsTbody.appendChild(newRow);
-                    } else {
-                        
-                        console.log('No se encontraron detalles de clientes impagos.');
-                    }
-                    animateSpinner('remove', true);
-                }).catch(error => {
-                    console.error(error);
-                    animateSpinner('remove', false);
-                });
-
-                return false;
-            }
-
-            initPage();          
-            
-            
-            function setCharts(charts) {               
-                
+            function setCharts(charts) {
                 $('#chartsListBillingGroups table tbody').html(charts['Grupos']['table']);
-                let seriesTable = charts['Grupos-Clientes']['table'].replace(/ €/g, '');                            
+                let seriesTable = charts['Grupos-Clientes']['table'].replace(/ €/g, '');
                 $('#chartsListClientsGroups table tbody').html(seriesTable);
 
                 window.chartColors = {
@@ -482,7 +381,7 @@
                         fill: false,
                         data: charts['totales']['ventas']
                     }]
-                };    
+                };
 
                 let dataBillingGroups = {
                     labels: charts['Grupos']['labels'],
@@ -574,8 +473,8 @@
                             }
                         }
                     }
-                });                
-                                   
+                });
+
                 cliGrpChart = new Chart(canvaSeries.getContext("2d"), {
                     type: 'pie',
                     data: dataClientsGroups,
@@ -612,10 +511,7 @@
                         }
                     }
                 });
-
-                
             }
-
         });
     </script>
 {% endblock %}

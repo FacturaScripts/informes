@@ -1,4 +1,21 @@
 <?php
+/**
+ * This file is part of Informes plugin for FacturaScripts
+ * Copyright (C) 2024 Carlos Garcia Gomez <carlos@facturascripts.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 namespace FacturaScripts\Plugins\Informes\Lib\Informes;
 
@@ -10,6 +27,7 @@ use FacturaScripts\Dinamic\Model\GrupoClientes;
 
 class ReportClients
 {
+    const NO_GROUP = 'without-group';
     protected static $codejercicio;
     protected static $codejercicio_ant;
     protected static $gastos;
@@ -63,8 +81,6 @@ class ReportClients
         self::$provincia = (!empty($formData['provincia']))? $formData['provincia']:false;
 
         switch ($formData['action']) {
-           
-            
             case 'load-summary':
                 self::summary_count_clients_build_year(self::$year, self::$codejercicio);
                 self::summary_count_clients_build_year(self::$lastyear, self::$codejercicio_ant);
@@ -78,8 +94,7 @@ class ReportClients
             case 'load-unpaid':                
                 self::clients_unpaid_build_year(self::$year, self::$codejercicio, $formData['action']);
                 self::clients_unpaid_build_year(self::$lastyear, self::$codejercicio_ant, $formData['action']);
-                break;  
-                            
+                break;
         }
     }
    
@@ -157,7 +172,7 @@ class ReportClients
             $baseSQL .= " AND contactos_paises.codigo_pais IS NOT NULL";
         }
     
-        $baseSQL .= " GROUP BY grupo_codigo";
+        $baseSQL .= " GROUP BY g.codgrupo";
     
         return $baseSQL;
     }

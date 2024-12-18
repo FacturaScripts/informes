@@ -1,4 +1,21 @@
 <?php
+/**
+ * This file is part of Informes plugin for FacturaScripts
+ * Copyright (C) 2024 Carlos Garcia Gomez <carlos@facturascripts.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 namespace FacturaScripts\Plugins\Informes\Lib\Informes;
 
@@ -11,13 +28,12 @@ class ClientsBillingReport extends ReportClients
         self::applyStartBuild($formData);
         $varName = ($formData['action'] == "load-billing") ? "billing" : "";
         
-        $monthNames = ['total-year', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+        $monthNames = ['total', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
 
         $categories = [
-            'Clientes facturados' => 'count_clients',
-            'Importe facturado' => 'total_facturas'        
+            'invoiced-customers' => 'count_clients',
+            'invoice-amount' => 'total_facturas'
         ];
-
         
         $html = '<div class="table-responsive">'
             . '<table class="table table-hover mb-0">'
@@ -25,17 +41,14 @@ class ClientsBillingReport extends ReportClients
             . '<tr>'
             . '<th class="title"></th>';
 
-        
         foreach ($monthNames as $month) {
             $html .= '<th class="month">' . Tools::lang()->trans($month) . '</th>';
         }
 
-        
         $html .= '</tr>'
             . '</thead>'
             . '<tbody>';
 
-        
         foreach ($categories as $categoryKey => $categoryValue) {
             $html .= self::generateCategoryRow($categoryKey, $varName, $categoryValue);
         }
@@ -139,7 +152,6 @@ class ClientsBillingReport extends ReportClients
             foreach ($groups as $group) {               
                
                 $groupCod = ($group['codigo_grupo'] === '0') ? null : $group['codigo_grupo'];
-
                 
                 $html .= '<tr class="table-success">'
                 . '<td class="title align-middle"><b>' . $group['nombre_grupo'] . '</b><br/>'
