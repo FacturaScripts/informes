@@ -1,0 +1,621 @@
+{#
+* Copyright (C) 2019-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
+* Author Daniel Fernández Giménez <hola@danielfg.es>
+#}
+
+{% extends "Master/MenuBgTemplate.html.twig" %}
+
+{% set pageData = fsc.getPageData() %}
+
+{% set countries = fsc.getCountriesClientsCompany() %}
+{% set provinces = fsc.getProvincesClientsCompany() %}
+
+{% block body %}
+    <div class="container-fluid d-print-none">
+        {{ parent() }}
+        <div class="row">
+            <div class="col-md-7">
+                <div class="btn-group">
+                    <a class="btn btn-sm btn-secondary" href="{{ fsc.url() }}" title="{{ trans('refresh') }}">
+                        <i class="fas fa-redo" aria-hidden="true"></i>
+                    </a>
+                    <a class="btn btn-sm btn-secondary" href="{{ fsc.url() }}?defaultPage=TRUE"
+                       title="{{ trans('mark-as-homepage') }}">
+                        <i class="far fa-bookmark" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-md-5 text-right">
+                <h1 class="h4 mb-0 d-none d-md-inline-block">
+                    {% set title = trans(fsc.getPageData()['title']) | capitalize %}
+                    {{ title }}<i class="{{ fsc.getPageData()['icon'] }} ml-3" aria-hidden="true"></i>
+                </h1>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card border-primary shadow mt-4">
+                    <div class="card-header card-header-selectors bg-primary text-white d-flex flex-row">
+                        <select class="form-control" id="selectExercise">
+                            {% for company in fsc.getCompanies() %}
+                                <optgroup label="{{ company.nombrecorto }}">
+                                    {% for exercise in company.getExercises() %}
+                                        {% if exercise.codejercicio == fsc.codejercicio %}
+                                            <option value="{{ exercise.codejercicio }}" selected>
+                                                {{ exercise.nombre }}
+                                            </option>
+                                        {% else %}
+                                            <option value="{{ exercise.codejercicio }}">
+                                                {{ exercise.nombre }}
+                                            </option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </optgroup>
+                            {% endfor %}
+                        </select>
+
+                        <select class="form-control" id="selectCountry">
+                            {% if countries is not empty %}
+                                <option value="" selected>{{ trans('all-countries') }}</option> 
+                                {% for country in countries %}                                                                        
+                                    <option value="{{ country.codigo_pais }}">
+                                        {{ country.nombre_pais }}
+                                    </option>                                                                       
+                                {% endfor %}
+                            {% else %}
+                                <option value="" selected>-----</option> 
+                            {% endif %}
+                        </select>
+
+                        <select class="form-control" id="selectProvince">
+                        {% if provinces is not empty %}
+                            <option value="" selected>{{ trans('all-provinces') }}</option> 
+                            {% for province in provinces %}                                                                        
+                                <option value="{{ province.provincia }}">
+                                    {{ province.provincia }}
+                                </option>                                                                       
+                            {% endfor %}
+                        {% else %}
+                            <option value="" selected>{{ trans('all-provinces') }}</option> 
+                        {% endif %}
+                        </select>
+
+                        <button class="btn btn-primary btn-sm btn-spin-action ml-2">
+                            <i class="fa fa-refresh"></i>
+                        </button>
+                    </div>
+                                 
+                </div>    
+
+
+
+                <div class="card border-primary shadow mt-4">
+                    <h5 class="card-header bg-primary text-white pointer">
+                        {{ trans('status-clients') }}                        
+                    </h5>
+                    <div id="statusClients">
+                        <div id="summaryData" class="card-body p-0"></div>
+                    </div>
+                </div>
+
+
+
+                <div class="card border-success shadow mt-4">
+                    <h5 class="card-header bg-success text-white pointer" id="showBillingLocation">
+                        {{ trans('billing-groups') }}
+                        <button class="btn btn-success btn-sm btn-spin-action float-right">
+                            <i class="fa fa-plus"></i>
+                        </button>
+                    </h5>
+                    <div id="billingLocationReport" class="collapse">
+                        <div class="card-body p-0"></div>
+                    </div>
+                </div>
+
+
+                <div class="card border-danger shadow mt-4">
+                    <h5 class="card-header bg-danger text-white pointer" id="showUnpaidClients">
+                        
+
+                        <span>{{ trans('unpaid-clients') }}</span>
+                        <span class="msg-click">{{ trans('msg-click-view-details-unpaid-clients') }}</span>
+
+
+                        <button class="btn btn-danger btn-sm btn-spin-action float-right">
+                            <i class="fa fa-plus"></i>
+                        </button>
+                    </h5>
+                    <div id="unpaidClientsReport" class="collapse">
+                        <div class="card-body p-0"></div>
+                    </div>
+                </div>                
+
+            </div>       
+        </div>    
+
+
+        <div class="form-row">
+
+            <div class="col-12">
+                <div class="card shadow mt-4">
+                    <div class="card-body h5">
+                        <i class="fas fa-chart-line"></i> {{ trans('billing') }}
+                    </div>
+                    <div class="canva">
+                        <canvas id="chartsResume"></canvas>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="col-md-6">
+                <div class="card shadow mt-4">
+                    <div class="card-body h5">
+                        <i class="fas fa-chart-pie"></i> {{ trans('clients-groups') }}
+                    </div>
+                    <div class="canva">
+                        <canvas id="chartsClientsGroups"></canvas>
+                    </div>
+                    <div class="table-responsive" id="chartsListClientsGroups">
+                        <table class="table mb-0 table-sm">
+                            <thead>
+                            <tr>
+                                <th></th>
+                                <th>{{ trans('groups') }}</th>
+                                <th class="porc">%</th>
+                                <th class="total">{{ trans('total') }}</th>
+                            </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>           
+
+            
+            <div class="col-md-6">
+                <div class="card shadow mt-4">
+                    <div class="card-body h5">
+                        <i class="fas fa-chart-pie"></i> {{ trans('billing-by-customer-groups') }}
+                    </div>
+                    <div class="canva">
+                        <canvas id="chartsBillingGroups"></canvas>
+                    </div>
+                    <div class="table-responsive" id="chartsListBillingGroups">
+                        <table class="table mb-0 table-sm">
+                            <thead>
+                            <tr>
+                                <th></th>
+                                <th>{{ trans('groups') }}</th>
+                                <th class="porc">%</th>
+                                <th class="total">{{ trans('total') }}</th>
+                            </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>           
+
+
+             
+
+
+        </div>
+
+
+
+
+
+    </div>
+{% endblock %}
+
+{% block css %}
+    {{ parent() }}
+
+    <style>
+        .canva {
+            height: 300px;
+        }
+
+        .card-header .fa {
+            transition: .3s transform ease-in-out;
+        }
+
+        .card-header .collapsed .fa {
+            transform: rotate(90deg);
+        }
+
+        #selectExercise {
+            max-width: 300px;
+        }
+
+        table .porc, table .total, table .month {
+            white-space: nowrap;
+            text-align: right;
+        }
+
+        table .title {
+            width: 15%;
+        }
+
+        table .porc {
+            width: 6%;
+        }
+
+        tr.subfamily {
+            background: #e6f0ff;
+            border-top: 1px solid #000;
+            border-bottom: 1px solid #000;
+        }
+
+        span.msg-click {
+            font-size: 0.7rem;
+        }
+        
+        .card-header-selectors {
+            gap: 8px;
+        }
+    </style>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script src="{{ asset('node_modules/chart.js/dist/Chart.min.js') }}"></script>
+
+    <script>                                      
+        let billingGroupsChart;                
+        let resumeChart;        
+        let cliGrpChart;
+        let billingLocationReport = false;
+        let unpaidClientsReport = false;
+
+        $(document).ready(function () {
+
+            function initPage() {
+                
+                if (billingLocationReport) {
+                    $('#showBillingLocation').click();
+                }
+                $('#billingLocationReport .card-body').html('');
+
+                if (unpaidClientsReport) {
+                    $('#showUnpaidClients').click();
+                }
+                $('#unpaidClientsReport .card-body').html('');
+                
+
+                let formData = new FormData();
+                formData.append('action', 'load-summary');
+                sendForm(formData);
+            }
+
+            function sendForm(formData) {
+                animateSpinner('add');
+
+                formData.append('codejercicio', $('#selectExercise option:selected').val());
+                formData.append('codpais', $('#selectCountry option:selected').val());
+                formData.append('provincia', $('#selectProvince option:selected').val());
+                
+
+                fetch('{{ fsc.url() }}', {
+                    method: 'POST',
+                    body: formData
+                }).then(function (response) {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    return Promise.reject(response);
+                }).then(function (data) {                    
+
+                    if (data.summary && data.summary !== '') {
+                        $('#summaryData').html(data.summary);
+                        setCharts(data.charts);
+                    }
+                    
+                    if (data.billing && data.billing !== '') {
+                        $('#billingLocationReport  .card-body').html(data.billing);                        
+                    }
+                    
+                    if (data.unpaid && data.unpaid !== '') {
+                        $('#unpaidClientsReport  .card-body').html(data.unpaid);                       
+                    }                    
+                
+                    if (Array.isArray(data.messages)) {
+                        data.messages.forEach(item => alert(item.message));
+                    }
+
+                    animateSpinner('remove', true);
+                }).catch(function (error) {
+                    alert('error');                    
+                    animateSpinner('remove', false);
+                });
+
+                return false;
+            }
+
+            
+
+            $(document).on('change', '#selectExercise', function () {
+                initPage();
+            });
+            
+            $(document).on('change', '#selectCountry', function () {
+                initPage();
+            });
+
+            $(document).on('change', '#selectProvince', function () {
+                initPage();
+            });            
+          
+            $(document).on('click', '#showBillingLocation', function () {
+                billingLocationReport = handleReportToggle('#billingLocation', billingLocationReport, 'load-billing');
+            });           
+            
+            $(document).on('click', '#showUnpaidClients', function () {
+                unpaidClientsReport = handleReportToggle('#unpaidClients', unpaidClientsReport, 'load-unpaid');
+            });
+
+            
+            function handleReportToggle(reportElementId, reportFlag, action, additionalAction) {
+                const reportElement = $(reportElementId);
+                reportElement.find('svg').toggleClass('fa-plus fa-minus');
+                reportFlag = !reportFlag;
+
+                if (reportFlag) {
+                    let formData = new FormData();
+                    formData.append('action', action);
+                    if (additionalAction) {
+                        formData.append(additionalAction.key, additionalAction.value);
+                    }
+                    sendForm(formData);
+                }
+
+                $(reportElementId + 'Report').collapse('toggle');
+                return reportFlag;
+            }
+               
+            $(document).on('click', '.click-celda-impago', function () {
+
+                $('.tr-unpaid-clients').remove();
+
+                const month = $(this).data('month');                
+                const year = $(this).data('year');
+
+                let formData = new FormData();
+                formData.append('action', 'load-unpaid-details');
+                formData.append('month', month);
+                formData.append('year', year);                
+                formData.append('codpais', $('#selectCountry option:selected').val());
+                formData.append('provincia', $('#selectProvince option:selected').val());
+
+                getDataUnpaid(formData);
+
+            });
+
+            function getDataUnpaid(formData) {
+                animateSpinner('add');
+
+                formData.append('codejercicio', $('#selectExercise option:selected').val());
+                
+
+                fetch('{{ fsc.url() }}', {
+                    method: 'POST',
+                    body: formData
+                }).then(function (response) {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    return Promise.reject(response);
+                }).then(data => {
+                    if (data.unpaid_clients_details) {
+                        
+                        let newRow = document.createElement('tr');
+
+                        newRow.classList.add('tr-unpaid-clients');
+                        
+                        let newCell = document.createElement('td');
+                        newCell.setAttribute('colspan', '9'); 
+                        
+                        newCell.innerHTML = data.unpaid_clients_details;
+                        
+                        newRow.appendChild(newCell);
+                        
+                        let unpaidClientsTbody = document.querySelector('.tbody-unpaid-clients');
+                        
+                        unpaidClientsTbody.appendChild(newRow);
+                    } else {
+                        
+                        console.log('No se encontraron detalles de clientes impagos.');
+                    }
+                    animateSpinner('remove', true);
+                }).catch(error => {
+                    console.error(error);
+                    animateSpinner('remove', false);
+                });
+
+                return false;
+            }
+
+            initPage();          
+            
+            
+            function setCharts(charts) {               
+                
+                $('#chartsListBillingGroups table tbody').html(charts['Grupos']['table']);
+                let seriesTable = charts['Grupos-Clientes']['table'].replace(/ €/g, '');                            
+                $('#chartsListClientsGroups table tbody').html(seriesTable);
+
+                window.chartColors = {
+                    red: 'rgb(255, 99, 132)',
+                    orange: 'rgb(255, 159, 64)',
+                    yellow: 'rgb(255, 205, 86)',
+                    green: 'rgb(75, 192, 192)',
+                    blue: 'rgb(54, 162, 235)',
+                    purple: 'rgb(153, 102, 255)',
+                    grey: 'rgb(231,233,237)'
+                };
+                let dataResume = {
+                    labels: [
+                        "{{ trans('january') }}",
+                        "{{ trans('february') }}",
+                        "{{ trans('march') }}",
+                        "{{ trans('april') }}",
+                        "{{ trans('may') }}",
+                        "{{ trans('june') }}",
+                        "{{ trans('july') }}",
+                        "{{ trans('august') }}",
+                        "{{ trans('september') }}",
+                        "{{ trans('october') }}",
+                        "{{ trans('november') }}",
+                        "{{ trans('december') }}"],
+                    datasets: [{
+                        type: 'line',
+                        label: 'euros',
+                        borderColor: window.chartColors.green,
+                        borderWidth: 2,
+                        fill: false,
+                        data: charts['totales']['ventas']
+                    }]
+                };    
+
+                let dataBillingGroups = {
+                    labels: charts['Grupos']['labels'],
+                    datasets: [{
+                        data: charts['Grupos']['porc'],
+                        data2: charts['Grupos']['totales'],
+                        backgroundColor: charts['Grupos']['colors'],
+                        hoverBackgroundColor: charts['Grupos']['colors']
+                    }]
+                };
+
+                let dataClientsGroups = {
+                    labels: charts['Grupos-Clientes']['labels'],
+                    datasets: [{
+                        data: charts['Grupos-Clientes']['porc'],
+                        data2: charts['Grupos-Clientes']['totales'],
+                        backgroundColor: charts['Grupos-Clientes']['colors'],
+                        hoverBackgroundColor: charts['Grupos-Clientes']['colors']
+                    }]
+                };
+
+                if (resumeChart != null) {
+                    resumeChart.destroy();
+                }
+
+                if (billingGroupsChart != null) {
+                    billingGroupsChart.destroy();
+                }
+
+                if (cliGrpChart != null) {
+                    cliGrpChart.destroy();
+                }
+
+                let canvaResume = document.getElementById("chartsResume");
+                let canvaPagos = document.getElementById("chartsBillingGroups");
+                let canvaSeries = document.getElementById("chartsClientsGroups");
+
+                resumeChart = Chart.Line(canvaResume.getContext("2d"), {
+                    data: dataResume,
+                    options: {
+                        maintainAspectRatio: false,
+                        showAllTooltips: false,
+                        responsive: true,
+                        hoverMode: 'index',
+                        stacked: false,
+                        title: {
+                            display: false,
+                            text: '{{ trans('charts-per-month') }}'
+                        },
+                        tooltips: {
+                            mode: 'index',
+                            intersect: true
+                        }
+                    }
+                });
+
+                billingGroupsChart = new Chart(canvaPagos.getContext("2d"), {
+                    type: 'pie',
+                    data: dataBillingGroups,
+                    options: {
+                        maintainAspectRatio: false,
+                        showAllTooltips: false,
+                        cutoutPercentage: 40,
+                        responsive: true,
+                        animation: {
+                            animateRotate: true,
+                            animateScale: true
+                        },
+                        legend: {
+                            display: false
+                        },
+                        tooltips: {
+                            mode: 'index',
+                            intersect: true,
+                            callbacks: {
+                                label: function (tooltipItem, data) {
+                                    let allData = data.datasets[tooltipItem.datasetIndex].data;
+                                    let allData2 = data.datasets[tooltipItem.datasetIndex].data2;
+                                    let tooltipLabel = data.labels[tooltipItem.index];
+                                    let tooltipData = allData[tooltipItem.index];
+                                    let tooltipData2 = allData2[tooltipItem.index];
+                                    let total = 0;
+                                    for (let i in allData) {
+                                        total += allData[i];
+                                    }
+                                    let tooltipPercentage = Math.round((tooltipData / total) * 100);
+                                    return tooltipLabel + ': ' + tooltipData2 + ' (' + tooltipPercentage + '%)';
+                                }
+                            }
+                        }
+                    }
+                });                
+                                   
+                cliGrpChart = new Chart(canvaSeries.getContext("2d"), {
+                    type: 'pie',
+                    data: dataClientsGroups,
+                    options: {
+                        maintainAspectRatio: false,
+                        showAllTooltips: false,
+                        cutoutPercentage: 40,
+                        responsive: true,
+                        animation: {
+                            animateRotate: true,
+                            animateScale: true
+                        },
+                        legend: {
+                            display: false
+                        },
+                        tooltips: {
+                            mode: 'index',
+                            intersect: true,
+                            callbacks: {
+                                label: function (tooltipItem, data) {
+                                    let allData = data.datasets[tooltipItem.datasetIndex].data;
+                                    let allData2 = data.datasets[tooltipItem.datasetIndex].data2;
+                                    let tooltipLabel = data.labels[tooltipItem.index];
+                                    let tooltipData = allData[tooltipItem.index];
+                                    let tooltipData2 = allData2[tooltipItem.index];
+                                    let total = 0;
+                                    for (let i in allData) {
+                                        total += allData[i];
+                                    }
+                                    let tooltipPercentage = Math.round((tooltipData / total) * 100);
+                                    return tooltipLabel + ': ' + tooltipData2 + ' (' + tooltipPercentage + '%)';
+                                }
+                            }
+                        }
+                    }
+                });
+
+                
+            }
+
+        });
+    </script>
+{% endblock %}
