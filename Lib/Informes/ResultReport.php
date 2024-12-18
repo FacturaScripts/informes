@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022-2023 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -52,7 +52,7 @@ class ResultReport
     protected static $compras;
     protected static $year;
 
-    protected static function apply(array $formData)
+    protected static function apply(array $formData): void
     {
         $eje = new Ejercicio();
         $eje->loadFromCode($formData['codejercicio']);
@@ -88,21 +88,21 @@ class ResultReport
         switch ($formData['action']) {
             case 'load-account':
             case 'load-purchases':
-                self::purchases_build_year(self::$year, self::$codejercicio);
-                self::purchases_build_year(self::$lastyear, self::$codejercicio_ant);
+                self::purchasesBuildYear(self::$year, self::$codejercicio);
+                self::purchasesBuildYear(self::$lastyear, self::$codejercicio_ant);
                 break;
 
             case 'load-family-sales':
             case 'load-family-purchases':
             case 'load-sales':
             case 'load-purchases-product':
-                self::sales_purchases_build_year(self::$year, self::$codejercicio, $formData['action']);
-                self::sales_purchases_build_year(self::$lastyear, self::$codejercicio_ant, $formData['action']);
+                self::salesPurchasesBuildYear(self::$year, self::$codejercicio, $formData['action']);
+                self::salesPurchasesBuildYear(self::$lastyear, self::$codejercicio_ant, $formData['action']);
                 break;
 
             case 'load-summary':
-                self::summary_build_year(self::$year, self::$codejercicio);
-                self::summary_build_year(self::$lastyear, self::$codejercicio_ant);
+                self::summaryBuildYear(self::$year, self::$codejercicio);
+                self::summaryBuildYear(self::$lastyear, self::$codejercicio_ant);
                 break;
         }
     }
@@ -215,7 +215,7 @@ class ResultReport
         return $ventas;
     }
 
-    protected static function days_in_month($month, $year)
+    protected static function daysInMonth($month, $year): int
     {
         // calculate number of days in a month CALC_GREGORIAN
         return $month == 2 ? ($year % 4 ? 28 : ($year % 100 ? 29 : ($year % 400 ? 28 : 29))) : (($month - 1) % 7 % 2 ? 30 : 31);
@@ -272,7 +272,7 @@ class ResultReport
         return self::getCuentaGastosPadre($cuenta->parent_idcuenta);
     }
 
-    protected static function purchases_build_year($year, $codejercicio)
+    protected static function purchasesBuildYear($year, $codejercicio): void
     {
         $dataBase = new DataBase();
 
@@ -309,7 +309,7 @@ class ResultReport
             $gastos['total_mes'][$mes] = 0;
 
             if ($year) {
-                $dia_mes = ResultReport::days_in_month($mes, $year);
+                $dia_mes = ResultReport::daysInMonth($mes, $year);
                 $date['desde'] = date('01-' . $mes . '-' . $year);
                 $date['hasta'] = date($dia_mes . '-' . $mes . '-' . $year);
 
@@ -485,7 +485,7 @@ class ResultReport
         return $ventas;
     }
 
-    protected static function setGastos(DataBase $dataBase, string $codejercicio, array $date, int $asiento_regularizacion, int $mes, float &$gastos_total_meses, array &$gastos)
+    protected static function setGastos(DataBase $dataBase, string $codejercicio, array $date, int $asiento_regularizacion, int $mes, float &$gastos_total_meses, array &$gastos): void
     {
         // si no existe la tabla partidas, no hacemos nada
         if (false === $dataBase->tableExists('partidas')) {
@@ -641,11 +641,11 @@ class ResultReport
         return $gastos;
     }
 
-    protected static function summary_build_year($year, $codejercicio)
+    protected static function summaryBuildYear($year, $codejercicio): void
     {
-        self::sales_purchases_build_year($year, $codejercicio, "load-sales");
-        self::sales_purchases_build_year($year, $codejercicio, "load-purchases");
-        self::purchases_build_year($year, $codejercicio);
+        self::salesPurchasesBuildYear($year, $codejercicio, "load-sales");
+        self::salesPurchasesBuildYear($year, $codejercicio, "load-purchases");
+        self::purchasesBuildYear($year, $codejercicio);
 
         $resultado = array(
             'total_mes' => [],
@@ -670,7 +670,7 @@ class ResultReport
              *  RESULTADOS
              * *****************************************************************
              */
-            $resultado['total_mes'][$mes] = round(self::$ventas[$year]['total_mes'][$mes] - self::$gastos[$year]['total_mes'][$mes], FS_NF0);
+            $resultado['total_mes'][$mes] = round(self::$ventas[$year]['total_mes'][$mes] - max(self::$gastos[$year]['total_mes'][$mes], self::$compras[$year]['total_mes'][$mes]), FS_NF0);
         }
 
         if (!isset(self::$ventas[$year]['total_mes'][0])) {
@@ -685,14 +685,14 @@ class ResultReport
          *  TOTALES GLOBALES
          * *****************************************************************
          */
-        $resultado['total_mes'][0] = round(self::$ventas[$year]['total_mes'][0] - self::$gastos[$year]['total_mes'][0], FS_NF0);
-        $resultado['total_mes']['media'] = round((self::$ventas[$year]['total_mes']['media'] - self::$gastos[$year]['total_mes']['media']), FS_NF0);
+        $resultado['total_mes'][0] = round(self::$ventas[$year]['total_mes'][0] - max(self::$gastos[$year]['total_mes'][0], self::$compras[$year]['total_mes'][0]), FS_NF0);
+        $resultado['total_mes']['media'] = round((self::$ventas[$year]['total_mes']['media'] - max(self::$gastos[$year]['total_mes']['media'], self::$compras[$year]['total_mes']['media'])), FS_NF0);
 
         // Variables globales para usar en la vista
         self::$resultado[$year] = $resultado;
     }
 
-    protected static function sales_purchases_build_year(string $year, string $codejercicio, string $action): void
+    protected static function salesPurchasesBuildYear(string $year, string $codejercicio, string $action): void
     {
 
         $key = ($action == "load-sales" or $action == "load-family-sales") ? "ventas" : "compras";
@@ -739,7 +739,7 @@ class ResultReport
             ${$key}['total_mes'][$mes] = 0;
 
             if ($year) {
-                $dia_mes = ResultReport::days_in_month($mes, $year);
+                $dia_mes = ResultReport::daysInMonth($mes, $year);
                 $date['desde'] = date('01-' . $mes . '-' . $year);
                 $date['hasta'] = date($dia_mes . '-' . $mes . '-' . $year);
 

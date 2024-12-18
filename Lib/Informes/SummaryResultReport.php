@@ -34,7 +34,7 @@ class SummaryResultReport extends ResultReport
     public static function render(array $formData): string
     {
         self::apply($formData);
-        self::charts_build();
+        self::chartsBuild();
 
         $monthNames = ['total', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
         $categories = ['ventas' => 'sales', 'compras' => "purchases", 'gastos' => 'expenses', 'resultado' => 'result'];
@@ -99,7 +99,7 @@ class SummaryResultReport extends ResultReport
         return $html;
     }
 
-    protected static function charts_build()
+    protected static function chartsBuild(): void
     {
         /**
          * CHARTS
