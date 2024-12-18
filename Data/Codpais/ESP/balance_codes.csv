@@ -344,3 +344,5 @@ PG-C-B-15;C) RESULTADO ANTES DE IMPUESTOS;B) RESULTADO FINANCIERO;15. Variación
 PG-C-B-16;C) RESULTADO ANTES DE IMPUESTOS;B) RESULTADO FINANCIERO;16. Diferencias de cambio;;681;C;B;16;;PG;pymes
 PG-C-B-17;C) RESULTADO ANTES DE IMPUESTOS;B) RESULTADO FINANCIERO;17. Deterioro y resultado por enajenaciones de instrumentos financieros;;682;C;B;17;;PG;pymes
 PG-D-18;D) RESULTADO DEL EJERCICIO;18. Impuestos sobre beneficios;;;683;D;18;;;PG;pymes
+IG-A;A) Grupo 7;;;;684;A;;;;IG;pymes
+IG-B;B) Grupo 6;;;;685;B;;;;IG;pymes
