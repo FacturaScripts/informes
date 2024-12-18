@@ -57,6 +57,45 @@ abstract class Chart
             $sources[$comparedReport->name] = $dataBase->select($this->getSql($comparedReport));
         }
 
+        // si solo hay un elemento, devolvemos
+        if (count($sources) < 2) {
+            return $sources;
+        }
+
+        $values = [];
+        foreach ($sources[$this->report->name] as $row) {
+            $values[] = $row['xcol'];
+        }
+
+        foreach ($sources[$comparedReport->name] as $row) {
+            if (!in_array($row['xcol'], $values)) {
+                $values[] = $row['xcol'];
+            }
+        }
+
+        $key = 'difference';
+        $sources[$key] = [];
+        foreach ($values as $index) {
+            $sources[$key][$index] = [
+                'xcol' => $index,
+                'ycol' => 0,
+            ];
+
+            foreach ($sources[$this->report->name] as $row) {
+                if ($row['xcol'] === $index) {
+                    $sources[$key][$index]['ycol'] = $row['ycol'];
+                    break;
+                }
+            }
+
+            foreach ($sources[$comparedReport->name] as $row) {
+                if ($row['xcol'] === $index) {
+                    $sources[$key][$index]['ycol'] -= $row['ycol'];
+                    break;
+                }
+            }
+        }
+
         return $sources;
     }
 
