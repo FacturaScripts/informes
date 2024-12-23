@@ -102,7 +102,7 @@
             <div class="col-12">
                 <div class="card shadow mt-4">
                     <div class="card-body h5">
-                        <i class="fas fa-chart-line"></i> {{ trans('billing') }}
+                        <i class="fas fa-chart-line"></i> {{ trans('new-clients') }}
                     </div>
                     <div class="canva">
                         <canvas id="chartsResume"></canvas>
@@ -375,11 +375,11 @@
                         "{{ trans('december') }}"],
                     datasets: [{
                         type: 'line',
-                        label: 'euros',
+                        label: 'Nuevos clientes',
                         borderColor: window.chartColors.green,
                         borderWidth: 2,
                         fill: false,
-                        data: charts['totales']['ventas']
+                        data: charts['totales']['nuevos_clientes']
                     }]
                 };
 
