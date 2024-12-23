@@ -50,7 +50,7 @@ class ReportClients
     
     protected static function applyStartBuild(array $formData)
     {
-        $eje = new Ejercicio();
+        $eje = new Ejercicio(); 
         $eje->loadFromCode($formData['codejercicio']);
 
         $year = date('Y', strtotime($eje->fechafin));

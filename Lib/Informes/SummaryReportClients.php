@@ -30,7 +30,7 @@ class SummaryReportClients extends ReportClients
             $html .= self::generateCategoryRow($key, $category);
         }
 
-        $html .= '</tbody></table></div>';
+        $html .= '</tbody></table></div>'; 
         return $html;
     }
 
