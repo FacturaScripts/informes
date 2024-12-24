@@ -41,7 +41,8 @@ class ReportClients
     protected static $clientes = [];
     protected static $activos = [];
     protected static $inactivos = [];
-    
+    protected static $nuevos = [];
+
     protected static $billing = [];
     protected static $unpaid = [];
     protected static $codpais  = [];
@@ -49,7 +50,7 @@ class ReportClients
     
     protected static function applyStartBuild(array $formData)
     {
-        $eje = new Ejercicio();
+        $eje = new Ejercicio(); 
         $eje->loadFromCode($formData['codejercicio']);
 
         $year = date('Y', strtotime($eje->fechafin));
@@ -366,6 +367,49 @@ class ReportClients
 
     }
 
+    protected static function countNewClients($mes, $year, $dataBase)
+    {
+        $nuevos['total_mes'][$mes]=0;
+        $dia_mes = ReportClients::days_in_month($mes, $year);
+        $date['desde'] = date('01-' . $mes . '-' . $year);
+        $date['hasta'] = date($dia_mes . '-' . $mes . '-' . $year);
+
+        $sql = "SELECT COUNT(cli.codcliente) AS new_clientes
+                FROM clientes AS cli
+                WHERE cli.fechaalta >= " . $dataBase->var2str($date['desde']) . "
+                AND cli.fechaalta <= " . $dataBase->var2str($date['hasta']) ;
+
+        $result = $dataBase->select($sql);
+
+        return !empty($result) ? (int)$result[0]['new_clientes'] : 0;
+
+    }
+
+    protected static function countNewClientsPerCountry($mes, $year, $dataBase)
+    {
+        $nuevos['total_mes'][$mes]=0;
+        $dia_mes = ReportClients::days_in_month($mes, $year);
+        $date['desde'] = date('01-' . $mes . '-' . $year);
+        $date['hasta'] = date($dia_mes . '-' . $mes . '-' . $year);
+
+        $sql = "SELECT COUNT(*) AS new_clientes
+        FROM (
+            SELECT cli.codcliente, contactos_paises.codigo_pais
+            FROM clientes AS cli
+            LEFT JOIN " . self::getContactosPaises($dataBase, self::$codpais, self::$provincia) . " ON cli.codcliente=contactos_paises.codcliente 
+            					 
+            WHERE cli.fechaalta >= " . $dataBase->var2str($date['desde']) . "
+            AND cli.fechaalta <= " . $dataBase->var2str($date['hasta']) . "            
+            AND contactos_paises.codigo_pais IS NOT NULL 
+        ) AS clientes_con_esp";
+
+        $result = $dataBase->select($sql);
+
+        return !empty($result) ? (int)$result[0]['new_clientes'] : 0;
+
+    }
+
+
     
     protected static function countInactiveClients($mes, $year, $dataBase)
     {
@@ -461,10 +505,12 @@ class ReportClients
                 $clientes['total_mes'][$mes] = self::countTotalClients($mes, $year, $dataBase);
                 $activos['total_mes'][$mes] = self::countActiveClients($mes, $year, $dataBase);
                 $inactivos['total_mes'][$mes] = self::countInactiveClients($mes, $year, $dataBase);    
+                $nuevos['total_mes'][$mes] = self::countNewClients($mes, $year, $dataBase);
             }else{
                 $clientes['total_mes'][$mes] = self::countTotalClientsPerCountry($mes, $year, $dataBase);
-                $activos['total_mes'][$mes] = self::countActiveClientsPerCountry($mes, $year, $dataBase);
+                $activos['total_mes'][$mes] = self::countActiveClientsPerCountry($mes, $year, $dataBase);                
                 $inactivos['total_mes'][$mes] = self::countInactiveClientsPerCountry($mes, $year, $dataBase);
+                $nuevos['total_mes'][$mes] = self::countNewClientsPerCountry($mes, $year, $dataBase);
             }                        
 
         }
@@ -493,7 +539,12 @@ class ReportClients
         $inactivos['total_mes'][0] = array_sum($inactivos['total_mes']); 
         $inactivos['total_mes']['media'] = round($inactivos['total_mes'][0] / 12, FS_NF0); 
         
-        self::$inactivos[$year] = $inactivos;       
+        self::$inactivos[$year] = $inactivos;     
+        
+        $nuevos['total_mes'][0] = array_sum($nuevos['total_mes']); 
+        $nuevos['total_mes']['media'] = round($nuevos['total_mes'][0] / 12, FS_NF0); 
+        
+        self::$nuevos[$year] = $nuevos;
          
         $resultado['total_mes'][0] = round(self::$ventas[$year]['total_mes'][0] - self::$gastos[$year]['total_mes'][0], FS_NF0);
         $resultado['total_mes']['media'] = round((self::$ventas[$year]['total_mes']['media'] - self::$gastos[$year]['total_mes']['media']), FS_NF0);
