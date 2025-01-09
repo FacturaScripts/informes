@@ -26,7 +26,17 @@
                 {% for item in source %}
                     <tr>
                         <td>{{ item.xcol }}</td>
-                        <td>{{ item.ycol }}</td>
+                        <td>
+                            {% if s_name != 'difference' %}
+                                {{ item.ycol }}
+                            {% elseif item.ycol > 0 %}
+                                <span class="text-success">{{ item.ycol }}</span>
+                            {% elseif item.ycol < 0 %}
+                                <span class="text-danger">{{ item.ycol }}</span>
+                            {% else %}
+                                {{ item.ycol }}
+                            {% endif %}
+                        </td>
                     </tr>
                 {% endfor %}
                 </tbody>

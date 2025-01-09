@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -73,8 +73,10 @@ abstract class Chart
             }
         }
 
+        // calculamos la diferencia
         $key = 'difference';
         $sources[$key] = [];
+        sort($values);
         foreach ($values as $index) {
             $sources[$key][$index] = [
                 'xcol' => $index,
