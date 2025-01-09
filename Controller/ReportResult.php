@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -36,6 +36,7 @@ class ReportResult extends Controller
     /** @var string */
     public $codejercicio;
 
+    /** @var array */
     private $logLevels = ['critical', 'error', 'info', 'notice', 'warning'];
 
     public function getCompanies(): array
@@ -46,9 +47,9 @@ class ReportResult extends Controller
     public function getPageData(): array
     {
         $data = parent::getPageData();
-        $data["menu"] = "reports";
-        $data["title"] = "result-report";
-        $data["icon"] = "fa-solid fa-poll";
+        $data['menu'] = 'reports';
+        $data['title'] = 'result-report';
+        $data['icon'] = 'fa-solid fa-poll';
         return $data;
     }
 
@@ -130,7 +131,7 @@ class ReportResult extends Controller
     protected function loadSalesPurchases(string $action): void
     {
         $this->setTemplate(false);
-        $key = ($action == "load-sales") ? "sales" : "purchasesProduct";
+        $key = ($action == 'load-sales') ? 'sales' : 'purchasesProduct';
 
         $content = [
             $key => SalesPurchasesResultReport::render($this->request->request->all()),

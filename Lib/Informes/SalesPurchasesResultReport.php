@@ -64,7 +64,7 @@ class SalesPurchasesResultReport extends ResultReport
             for ($x = 0; $x <= 12; $x++) {
                 $css = $x == 0 ? 'total' : 'month';
                 $money = self::${$varName}[self::$year]['total_mes'][$x];
-                $lastmoney = self::${$varName}[self::$lastyear]['total_mes'][$x] ?? 0;
+                $lastmoney = self::${$varName}[self::$last_year]['total_mes'][$x] ?? 0;
                 $html .= '<td class="' . $css . '">';
                 $html .= $money ? Tools::money($money) : self::defaultMoney();
                 $html .= '<div class="small">';

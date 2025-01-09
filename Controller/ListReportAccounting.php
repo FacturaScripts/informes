@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2017-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2017-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -83,15 +83,14 @@ class ListReportAccounting extends ListController
      */
     protected function createViewsAmount(string $viewName = 'ListReportAmount'): void
     {
-        $this->addView($viewName, 'ReportAmount', 'sums-and-balances', 'fa-solid fa-calculator');
-        $this->addOrderBy($viewName, ['name'], 'name');
-        $this->addOrderBy($viewName, ['idcompany', 'name'], 'company');
-        $this->addSearchFields($viewName, ['name']);
+        $this->addView($viewName, 'ReportAmount', 'sums-and-balances', 'fa-solid fa-calculator')
+            ->addOrderBy(['name'], 'name')
+            ->addOrderBy(['idcompany', 'name'], 'company')
+            ->addSearchFields(['name'])
+            ->setSettings('btnPrint', false);
+
         $this->addCommonFilters($viewName);
         $this->addGenerateButton($viewName);
-
-        // desactivamos el botón de imprimir
-        $this->setSettings($viewName, 'btnPrint', false);
     }
 
     /**
@@ -101,15 +100,14 @@ class ListReportAccounting extends ListController
      */
     protected function createViewsBalance(string $viewName = 'ListReportBalance'): void
     {
-        $this->addView($viewName, 'ReportBalance', 'balances', 'fa-solid fa-book');
-        $this->addOrderBy($viewName, ['name'], 'name');
-        $this->addOrderBy($viewName, ['idcompany', 'name'], 'company');
-        $this->addSearchFields($viewName, ['name']);
+        $this->addView($viewName, 'ReportBalance', 'balances', 'fa-solid fa-book')
+            ->addOrderBy(['name'], 'name')
+            ->addOrderBy(['idcompany', 'name'], 'company')
+            ->addSearchFields(['name'])
+            ->setSettings('btnPrint', false);
+
         $this->addCommonFilters($viewName);
         $this->addGenerateButton($viewName);
-
-        // desactivamos el botón de imprimir
-        $this->setSettings($viewName, 'btnPrint', false);
     }
 
     /**
@@ -119,15 +117,14 @@ class ListReportAccounting extends ListController
      */
     protected function createViewsLedger(string $viewName = 'ListReportLedger'): void
     {
-        $this->addView($viewName, 'ReportLedger', 'ledger', 'fa-solid fa-file-alt');
-        $this->addOrderBy($viewName, ['name'], 'name');
-        $this->addOrderBy($viewName, ['idcompany', 'name'], 'company');
-        $this->addSearchFields($viewName, ['name']);
+        $this->addView($viewName, 'ReportLedger', 'ledger', 'fa-solid fa-file-alt')
+            ->addOrderBy(['name'], 'name')
+            ->addOrderBy(['idcompany', 'name'], 'company')
+            ->addSearchFields(['name'])
+            ->setSettings('btnPrint', false);
+
         $this->addCommonFilters($viewName);
         $this->addGenerateButton($viewName);
-
-        // desactivamos el botón de imprimir
-        $this->setSettings($viewName, 'btnPrint', false);
     }
 
     /**
@@ -137,32 +134,30 @@ class ListReportAccounting extends ListController
      */
     protected function createViewsPreferences(string $viewName = 'ListBalanceCode'): void
     {
-        $this->addView($viewName, 'BalanceCode', 'balance-codes', 'fa-solid fa-cogs');
-        $this->addOrderBy($viewName, ['subtype', 'codbalance'], 'code', 1);
-        $this->addOrderBy($viewName, ['description1'], 'description-1');
-        $this->addOrderBy($viewName, ['description2'], 'description-2');
-        $this->addOrderBy($viewName, ['description3'], 'description-3');
-        $this->addOrderBy($viewName, ['description4'], 'description-4');
-        $this->addSearchFields($viewName, [
-            'codbalance', 'nature', 'description1', 'description2', 'description3', 'description4'
-        ]);
+        $this->addView($viewName, 'BalanceCode', 'balance-codes', 'fa-solid fa-cogs')
+            ->addOrderBy(['subtype', 'codbalance'], 'code', 1)
+            ->addOrderBy(['description1'], 'description-1')
+            ->addOrderBy(['description2'], 'description-2')
+            ->addOrderBy(['description3'], 'description-3')
+            ->addOrderBy(['description4'], 'description-4')
+            ->addSearchFields(['codbalance', 'nature', 'description1', 'description2', 'description3', 'description4']);
 
-        // añadimos filtro de nature
+        // añadimos filtros
         $i18n = Tools::lang();
-        $this->addFilterSelect($viewName, 'nature', 'nature', 'nature', [
-            ['code' => '', 'description' => '------'],
-            ['code' => 'A', 'description' => $i18n->trans('asset')],
-            ['code' => 'P', 'description' => $i18n->trans('liabilities')],
-            ['code' => 'PG', 'description' => $i18n->trans('profit-and-loss')],
-            ['code' => 'IG', 'description' => $i18n->trans('income-and-expenses')]
-        ]);
-
-        // añadimos filtro de subtype
         $subTypes = $this->codeModel->all('balance_codes', 'subtype', 'subtype');
         foreach ($subTypes as $subtype) {
             $subtype->description = $i18n->trans($subtype->description);
         }
-        $this->addFilterSelect($viewName, 'subtype', 'sub-type', 'subtype', $subTypes);
+
+        $this->listView($viewName)
+            ->addFilterSelect('nature', 'nature', 'nature', [
+                ['code' => '', 'description' => '------'],
+                ['code' => 'A', 'description' => $i18n->trans('asset')],
+                ['code' => 'P', 'description' => $i18n->trans('liabilities')],
+                ['code' => 'PG', 'description' => $i18n->trans('profit-and-loss')],
+                ['code' => 'IG', 'description' => $i18n->trans('income-and-expenses')]
+            ])
+            ->addFilterSelect('subtype', 'sub-type', 'subtype', $subTypes);
     }
 
     /**
@@ -183,8 +178,7 @@ class ListReportAccounting extends ListController
     protected function generateBalancesAction(): bool
     {
         $total = 0;
-        $ejercicioModel = new Ejercicio();
-        foreach ($ejercicioModel->all() as $eje) {
+        foreach (Ejercicio::all() as $eje) {
             $this->generateBalances($total, $eje);
         }
 

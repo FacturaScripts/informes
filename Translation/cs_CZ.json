@@ -18,7 +18,7 @@
     "customers-pending-collection": "Clientes pendientes de cobro",
     "debit-not-match-account": "Existují nesrovnalosti v položkách na účtu %account%.",
     "does-not-have-a-value": "Nemá hodnotu",
-    "doughnut": "Kobliha",
+    "doughnut": "Donut",
     "empty-report-board": "La pizarra está vacía. Añade algunos gráficos desde la pestaña gráficos.",
     "expenses-charges": "Gastos y cobros",
     "expenses-pending-payment": "Gastos pendientes de pago",
@@ -75,5 +75,5 @@
     "treasury": "Tesorería",
     "treemap": "Stromová mapa",
     "voluntary-reserves": "Reservas voluntarias",
-    "y-operation": "Operace na Y"
+    "y-operation": "Operace na Y."
 }

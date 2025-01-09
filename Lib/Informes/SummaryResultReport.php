@@ -64,9 +64,9 @@ class SummaryResultReport extends ResultReport
         for ($x = 0; $x <= 12; $x++) {
             $css = $x == 0 ? 'porc' : 'month';
             $money = self::${$categoryKey}[self::$year]['total_mes'][$x];
-            $lastmoney = self::${$categoryKey}[self::$lastyear]['total_mes'][$x] ?? 0;
+            $last_money = self::${$categoryKey}[self::$last_year]['total_mes'][$x] ?? 0;
 
-            $html .= self::generateTableCell($money, $lastmoney, $css);
+            $html .= self::generateTableCell($money, $last_money, $css);
         }
 
         $html .= '</tr>';
@@ -115,7 +115,7 @@ class SummaryResultReport extends ResultReport
         self::$charts['families']['table'] = '';
         arsort(self::$ventas[self::$year]['porc_fam']);
         foreach (self::$ventas[self::$year]['porc_fam'] as $codfamilia => $porc) {
-            $totalaux = round(self::$ventas[self::$year]['total_fam'][$codfamilia], FS_NF0);
+            $total_aux = round(self::$ventas[self::$year]['total_fam'][$codfamilia], FS_NF0);
             $fam_desc = Tools::lang()->trans('no-family');
             if ($codfamilia != 'SIN_FAMILIA' && isset(self::$ventas[self::$year]['descripciones'][$codfamilia])) {
                 $fam_desc = self::$ventas[self::$year]['descripciones'][$codfamilia];
@@ -126,14 +126,14 @@ class SummaryResultReport extends ResultReport
             self::$charts['families']['labels'][] = $fam_desc;
             self::$charts['families']['porc'][] = $porc;
             self::$charts['families']['colors'][] = $color;
-            self::$charts['families']['totales'][] = $totalaux;
+            self::$charts['families']['totales'][] = $total_aux;
 
             self::$charts['families']['table'] .= ''
                 . '<tr>'
                 . '<td class="align-middle"><span style="color: ' . $color . '"><i class="fa-solid fa-square"></i></span></td>'
                 . '<td>' . $fam_desc . '</td>'
                 . '<td class="porc align-middle">' . $porc . ' %</td>'
-                . '<td class="total align-middle">' . Tools::money($totalaux) . '</td>'
+                . '<td class="total align-middle">' . Tools::money($total_aux) . '</td>'
                 . '</tr>';
         }
 
@@ -141,19 +141,19 @@ class SummaryResultReport extends ResultReport
         arsort(self::$ventas[self::$year]['porc_ser']);
         foreach (self::$ventas[self::$year]['porc_ser'] as $codserie => $porc) {
             $color = '#' . self::randomColor();
-            $totalaux = round(self::$ventas[self::$year]['total_ser'][$codserie], FS_NF0);
+            $total_aux = round(self::$ventas[self::$year]['total_ser'][$codserie], FS_NF0);
             self::$charts['series']['codserie'][] = $codserie;
             self::$charts['series']['labels'][] = self::$ventas[self::$year]['series'][$codserie]['descripcion'];
             self::$charts['series']['porc'][] = $porc;
             self::$charts['series']['colors'][] = $color;
-            self::$charts['series']['totales'][] = $totalaux;
+            self::$charts['series']['totales'][] = $total_aux;
 
             self::$charts['series']['table'] .= ''
                 . '<tr>'
                 . '<td class="align-middle"><span style="color: ' . $color . '"><i class="fa-solid fa-square"></i></span></td>'
                 . '<td>' . self::$ventas[self::$year]['series'][$codserie]['descripcion'] . '</td>'
                 . '<td class="porc align-middle">' . $porc . ' %</td>'
-                . '<td class="total align-middle">' . Tools::money($totalaux) . '</td>'
+                . '<td class="total align-middle">' . Tools::money($total_aux) . '</td>'
                 . '</tr>';
         }
 
@@ -161,19 +161,19 @@ class SummaryResultReport extends ResultReport
         arsort(self::$ventas[self::$year]['porc_pag']);
         foreach (self::$ventas[self::$year]['porc_pag'] as $codpago => $porc) {
             $color = '#' . self::randomColor();
-            $totalaux = round(self::$ventas[self::$year]['total_pag'][$codpago], FS_NF0);
+            $total_aux = round(self::$ventas[self::$year]['total_pag'][$codpago], FS_NF0);
             self::$charts['pagos']['codpago'][] = $codpago;
             self::$charts['pagos']['labels'][] = self::$ventas[self::$year]['pagos'][$codpago]['descripcion'];
             self::$charts['pagos']['porc'][] = $porc;
             self::$charts['pagos']['colors'][] = $color;
-            self::$charts['pagos']['totales'][] = $totalaux;
+            self::$charts['pagos']['totales'][] = $total_aux;
 
             self::$charts['pagos']['table'] .= ''
                 . '<tr>'
                 . '<td class="align-middle"><span style="color: ' . $color . '"><i class="fa-solid fa-square"></i></span></td>'
                 . '<td>' . self::$ventas[self::$year]['pagos'][$codpago]['descripcion'] . '</td>'
                 . '<td class="porc align-middle">' . $porc . ' %</td>'
-                . '<td class="total align-middle">' . Tools::money($totalaux) . '</td>'
+                . '<td class="total align-middle">' . Tools::money($total_aux) . '</td>'
                 . '</tr>';
         }
 
@@ -181,19 +181,19 @@ class SummaryResultReport extends ResultReport
         arsort(self::$ventas[self::$year]['porc_age']);
         foreach (self::$ventas[self::$year]['porc_age'] as $codagente => $porc) {
             $color = '#' . self::randomColor();
-            $totalaux = round(self::$ventas[self::$year]['total_age'][$codagente], FS_NF0);
+            $total_aux = round(self::$ventas[self::$year]['total_age'][$codagente], FS_NF0);
             self::$charts['agentes']['codagente'][] = $codagente;
             self::$charts['agentes']['labels'][] = self::$ventas[self::$year]['agentes'][$codagente]['descripcion'];
             self::$charts['agentes']['porc'][] = $porc;
             self::$charts['agentes']['colors'][] = $color;
-            self::$charts['agentes']['totales'][] = $totalaux;
+            self::$charts['agentes']['totales'][] = $total_aux;
 
             self::$charts['agentes']['table'] .= ''
                 . '<tr>'
                 . '<td class="align-middle"><span style="color: ' . $color . '"><i class="fa-solid fa-square"></i></span></td>'
                 . '<td>' . self::$ventas[self::$year]['agentes'][$codagente]['descripcion'] . '</td>'
                 . '<td class="porc align-middle">' . $porc . ' %</td>'
-                . '<td class="total align-middle">' . Tools::money($totalaux) . '</td>'
+                . '<td class="total align-middle">' . Tools::money($total_aux) . '</td>'
                 . '</tr>';
         }
     }

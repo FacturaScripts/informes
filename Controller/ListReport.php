@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -50,32 +50,26 @@ class ListReport extends ListController
             ->addOrderBy(['name'], 'name')
             ->addSearchFields(['name', 'table', 'xcolumn', 'ycolumn']);
 
-        // añadimos filtro de tipos
         $types = $this->codeModel->all('reports', 'type', 'type');
-        $this->addFilterSelect($viewName, 'type', 'type', 'type', $types);
 
-        // añadimos filtro de tablas
         $tables = [new CodeModel()];
         foreach ($this->dataBase->getTables() as $table) {
             $tables[] = new CodeModel(['code' => $table, 'description' => $table]);
         }
-        $this->addFilterSelect($viewName, 'table', 'table', 'table', $tables);
 
-        // añadimos filtro de columna x
         $columnX = $this->codeModel->all('reports', 'xcolumn', 'xcolumn');
-        $this->addFilterSelect($viewName, 'xcolumn', 'x-column', 'xcolumn', $columnX);
-
-        // añadimos filtro de operación x
         $operationX = $this->codeModel->all('reports', 'xoperation', 'xoperation');
-        $this->addFilterSelect($viewName, 'xoperation', 'x-operation', 'xoperation', $operationX);
-
-        // añadimos filtro de columna y
         $columnY = $this->codeModel->all('reports', 'ycolumn', 'ycolumn');
-        $this->addFilterSelect($viewName, 'ycolumn', 'y-column', 'ycolumn', $columnY);
-
-        // añadimos filtro de operación y
         $operationY = $this->codeModel->all('reports', 'yoperation', 'yoperation');
-        $this->addFilterSelect($viewName, 'yoperation', 'y-operation', 'yoperation', $operationY);
+
+        // filtros
+        $this->listView($viewName)
+            ->addFilterSelect('type', 'type', 'type', $types)
+            ->addFilterSelect('table', 'table', 'table', $tables)
+            ->addFilterSelect('xcolumn', 'x-column', 'xcolumn', $columnX)
+            ->addFilterSelect('xoperation', 'x-operation', 'xoperation', $operationX)
+            ->addFilterSelect('ycolumn', 'y-column', 'ycolumn', $columnY)
+            ->addFilterSelect('yoperation', 'y-operation', 'yoperation', $operationY);
     }
 
     protected function createViewsReportBoard(string $viewName = 'ListReportBoard'): void

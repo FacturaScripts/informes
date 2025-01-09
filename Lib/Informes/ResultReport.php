@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -41,15 +41,34 @@ use FacturaScripts\Dinamic\Model\Variante;
  */
 class ResultReport
 {
+    /** @var string */
     protected static $codejercicio;
+
+    /** @var string */
     protected static $codejercicio_ant;
+
+    /** @var array */
     protected static $gastos;
-    protected static $lastyear;
+
+    /** @var string */
+    protected static $last_year;
+
+    /** @var string */
     protected static $parent_codcuenta;
+
+    /** @var string */
     protected static $parent_codfamilia;
+
+    /** @var array */
     protected static $resultado;
+
+    /** @var array */
     protected static $ventas;
+
+    /** @var array */
     protected static $compras;
+
+    /** @var string */
     protected static $year;
 
     protected static function apply(array $formData): void
@@ -60,22 +79,20 @@ class ResultReport
         $year = date('Y', strtotime($eje->fechafin));
 
         // seleccionamos el año anterior
-        self::$codejercicio = FALSE;
-        self::$codejercicio_ant = FALSE;
-        self::$lastyear = FALSE;
-        self::$year = FALSE;
+        self::$codejercicio = '';
+        self::$codejercicio_ant = '';
+        self::$last_year = '';
+        self::$year = '';
 
-        $modelEjerc = new Ejercicio();
         $where = [new DataBaseWhere('idempresa', $eje->idempresa)];
-        $order = ['fechainicio' => 'desc'];
-
-        foreach ($modelEjerc->all($where, $order, 0, 0) as $eje) {
+        $orderBy = ['fechainicio' => 'desc'];
+        foreach (Ejercicio::all($where, $orderBy, 0, 0) as $eje) {
             if ($eje->codejercicio == $formData['codejercicio'] or date('Y', strtotime($eje->fechafin)) == $year) {
                 self::$codejercicio = $eje->codejercicio;
                 self::$year = date('Y', strtotime($eje->fechafin));
             } else if (self::$year) {
                 self::$codejercicio_ant = $eje->codejercicio;
-                self::$lastyear = date('Y', strtotime($eje->fechafin));
+                self::$last_year = date('Y', strtotime($eje->fechafin));
                 break;
             }
         }
@@ -89,7 +106,7 @@ class ResultReport
             case 'load-account':
             case 'load-purchases':
                 self::purchasesBuildYear(self::$year, self::$codejercicio);
-                self::purchasesBuildYear(self::$lastyear, self::$codejercicio_ant);
+                self::purchasesBuildYear(self::$last_year, self::$codejercicio_ant);
                 break;
 
             case 'load-family-sales':
@@ -97,19 +114,19 @@ class ResultReport
             case 'load-sales':
             case 'load-purchases-product':
                 self::salesPurchasesBuildYear(self::$year, self::$codejercicio, $formData['action']);
-                self::salesPurchasesBuildYear(self::$lastyear, self::$codejercicio_ant, $formData['action']);
+                self::salesPurchasesBuildYear(self::$last_year, self::$codejercicio_ant, $formData['action']);
                 break;
 
             case 'load-summary':
                 self::summaryBuildYear(self::$year, self::$codejercicio);
-                self::summaryBuildYear(self::$lastyear, self::$codejercicio_ant);
+                self::summaryBuildYear(self::$last_year, self::$codejercicio_ant);
                 break;
         }
     }
 
     protected static function build_data($dl): array
     {
-        $pvptotal = round($dl['pvptotal'], FS_NF0);
+        $pvp_total = round($dl['pvptotal'], FS_NF0);
         $referencia = $dl['referencia'];
         $producto = new Producto();
         $variante = new Variante();
@@ -143,18 +160,17 @@ class ResultReport
             $familia = 'SIN_FAMILIA';
         }
 
-        return array(
+        return [
             'ref' => $referencia,
             'art_desc' => $art_desc,
             'codfamilia' => $codfamilia,
             'familia' => $familia,
-            'pvptotal' => $pvptotal
-        );
+            'pvptotal' => $pvp_total
+        ];
     }
 
     protected static function dataInvoices(array $ventas, array $date, string $codejercicio, int $mes, float &$ventas_total_ser_meses, float &$ventas_total_pag_meses, float &$ventas_total_age_meses, $modelFacturas): array
     {
-
         $where = [
             new DataBaseWhere('fecha', $date['desde'], '>='),
             new DataBaseWhere('fecha', $date['hasta'], '<='),
@@ -175,7 +191,7 @@ class ResultReport
                 $ventas['total_ser'][$factura->codserie] = $factura->neto;
             }
 
-            $ventas['series'][$factura->codserie][$mes] = array('pvptotal' => $factura->neto);
+            $ventas['series'][$factura->codserie][$mes] = ['pvptotal' => $factura->neto];
             $ventas_total_ser_meses = $factura->neto + $ventas_total_ser_meses;
 
             // Pagos
@@ -191,7 +207,7 @@ class ResultReport
                 $ventas['total_pag'][$factura->codpago] = $factura->neto;
             }
 
-            $ventas['pagos'][$factura->codpago][$mes] = array('pvptotal' => $factura->neto);
+            $ventas['pagos'][$factura->codpago][$mes] = ['pvptotal' => $factura->neto];
             $ventas_total_pag_meses = $factura->neto + $ventas_total_pag_meses;
 
             // Agentes
@@ -208,7 +224,7 @@ class ResultReport
                 $ventas['total_age'][$codagente] = $factura->neto;
             }
 
-            $ventas['agentes'][$codagente][$mes] = array('pvptotal' => $factura->neto);
+            $ventas['agentes'][$codagente][$mes] = ['pvptotal' => $factura->neto];
             $ventas_total_age_meses = $factura->neto + $ventas_total_age_meses;
         }
 
@@ -274,14 +290,14 @@ class ResultReport
 
     protected static function purchasesBuildYear($year, $codejercicio): void
     {
-        $dataBase = new DataBase();
+        $db = new DataBase();
 
-        $date = array(
+        $date = [
             'desde' => '',
             'hasta' => '',
-        );
+        ];
 
-        $gastos = array(
+        $gastos = [
             'cuentas' => [],
             'total_cuenta' => [],
             'total_cuenta_mes' => [],
@@ -289,7 +305,7 @@ class ResultReport
             'total_mes' => [],
             'porc_cuenta' => [],
             'porc_subcuenta' => [],
-        );
+        ];
 
         $gastos_total_meses = 0;
 
@@ -298,7 +314,7 @@ class ResultReport
             new DataBaseWhere('codejercicio', $codejercicio),
             new DataBaseWhere('operacion', 'R')
         ];
-        $asiento_regularizacion = $asiento->loadFromCode('', $where) ? intval($asiento->numero) : 0;
+        $asiento_reg = $asiento->loadFromCode('', $where) ? intval($asiento->numero) : 0;
 
         // necesitamos el número de meses para calcular la media
         $countMonth = 0;
@@ -313,7 +329,7 @@ class ResultReport
                 $date['desde'] = date('01-' . $mes . '-' . $year);
                 $date['hasta'] = date($dia_mes . '-' . $mes . '-' . $year);
 
-                self::setGastos($dataBase, $codejercicio, $date, $asiento_regularizacion, $mes, $gastos_total_meses, $gastos);
+                self::setGastos($db, $codejercicio, $date, $asiento_reg, $mes, $gastos_total_meses, $gastos);
 
                 // Las descripciones solo las necesitamos en el año seleccionado,
                 // en el año anterior se omite
@@ -338,7 +354,6 @@ class ResultReport
         } else {
             $gastos['total_mes']['media'] = round($gastos_total_meses, FS_NF0);
         }
-
 
         /**
          *  PORCENTAJES
@@ -365,23 +380,23 @@ class ResultReport
             // solo al desplegar una cuenta
             if (self::$parent_codcuenta === (string)$codcuenta) {
                 $gastos = self::setDescriptionSubaccount($gastos, $arraycuenta, $codejercicio);
-            } else {
-                $gastos['descripciones'][$codcuenta] = '-';
-                $subcuenta = new Subcuenta();
-                $where = [
-                    new DataBaseWhere('codsubcuenta', $arraycuenta['codsubcuenta']),
-                    new DataBaseWhere('codejercicio', $codejercicio)
-                ];
-                if (false === $subcuenta->loadFromCode('', $where)) {
-                    continue;
-                }
+                continue;
+            }
 
-                $cuenta = new Cuenta();
-                $where = [new DataBaseWhere('codcuenta', $subcuenta->codcuenta),];
+            $gastos['descripciones'][$codcuenta] = '-';
+            $subcuenta = new Subcuenta();
+            $where = [
+                new DataBaseWhere('codsubcuenta', $arraycuenta['codsubcuenta']),
+                new DataBaseWhere('codejercicio', $codejercicio)
+            ];
+            if (false === $subcuenta->loadFromCode('', $where)) {
+                continue;
+            }
 
-                if ($cuenta->loadFromCode('', $where)) {
-                    $gastos['descripciones'][$codcuenta] = $codcuenta . ' - ' . $cuenta->descripcion;
-                }
+            $cuenta = new Cuenta();
+            $where = [new DataBaseWhere('codcuenta', $subcuenta->codcuenta),];
+            if ($cuenta->loadFromCode('', $where)) {
+                $gastos['descripciones'][$codcuenta] = $codcuenta . ' - ' . $cuenta->descripcion;
             }
         }
 
@@ -485,10 +500,10 @@ class ResultReport
         return $ventas;
     }
 
-    protected static function setGastos(DataBase $dataBase, string $codejercicio, array $date, int $asiento_regularizacion, int $mes, float &$gastos_total_meses, array &$gastos): void
+    protected static function setGastos(DataBase $db, string $codejercicio, array $date, int $asiento_reg, int $mes, float &$gastos_total_meses, array &$gastos): void
     {
         // si no existe la tabla partidas, no hacemos nada
-        if (false === $dataBase->tableExists('partidas')) {
+        if (false === $db->tableExists('partidas')) {
             return;
         }
 
@@ -507,18 +522,18 @@ class ResultReport
         // Gastos: Consulta de las partidas y asientos del grupo 6
         $sql = "select * from partidas as par"
             . " LEFT JOIN asientos as asi ON par.idasiento = asi.idasiento"
-            . " where asi.fecha >= " . $dataBase->var2str($date['desde'])
-            . " AND asi.fecha <= " . $dataBase->var2str($date['hasta'])
-            . " AND asi.codejercicio = " . $dataBase->var2str($codejercicio)
+            . " where asi.fecha >= " . $db->var2str($date['desde'])
+            . " AND asi.fecha <= " . $db->var2str($date['hasta'])
+            . " AND asi.codejercicio = " . $db->var2str($codejercicio)
             . " AND codsubcuenta LIKE '" . $cuentaGastos->codcuenta . "%'";
 
-        if ($asiento_regularizacion) {
-            $sql .= " AND asi.numero <> " . $dataBase->var2str($asiento_regularizacion);
+        if ($asiento_reg) {
+            $sql .= " AND asi.numero <> " . $db->var2str($asiento_reg);
         }
 
         $sql .= " ORDER BY codsubcuenta";
 
-        $partidas = $dataBase->select($sql);
+        $partidas = $db->select($sql);
         if (empty($partidas)) {
             return;
         }
@@ -526,40 +541,40 @@ class ResultReport
         foreach ($partidas as $p) {
             $codsubcuenta = $p['codsubcuenta'];
             $codcuenta = substr($codsubcuenta, 0, 3);
-            $pvptotal = (float)$p['debe'] - (float)$p['haber'];
+            $pvp_total = (float)$p['debe'] - (float)$p['haber'];
 
             // Array con los datos a mostrar
             if (isset($gastos['total_cuenta_mes'][$codcuenta][$mes])) {
-                $gastos['total_cuenta_mes'][$codcuenta][$mes] += $pvptotal;
+                $gastos['total_cuenta_mes'][$codcuenta][$mes] += $pvp_total;
             } else {
-                $gastos['total_cuenta_mes'][$codcuenta][$mes] = $pvptotal;
+                $gastos['total_cuenta_mes'][$codcuenta][$mes] = $pvp_total;
             }
 
             if (isset($gastos['total_cuenta'][$codcuenta])) {
-                $gastos['total_cuenta'][$codcuenta] += $pvptotal;
+                $gastos['total_cuenta'][$codcuenta] += $pvp_total;
             } else {
-                $gastos['total_cuenta'][$codcuenta] = $pvptotal;
+                $gastos['total_cuenta'][$codcuenta] = $pvp_total;
             }
 
             if (isset($gastos['total_mes'][$mes])) {
-                $gastos['total_mes'][$mes] += $pvptotal;
+                $gastos['total_mes'][$mes] += $pvp_total;
             } else {
-                $gastos['total_mes'][$mes] = $pvptotal;
+                $gastos['total_mes'][$mes] = $pvp_total;
             }
 
-            $gastos_total_meses = $pvptotal + $gastos_total_meses;
+            $gastos_total_meses = $pvp_total + $gastos_total_meses;
 
             if (self::$parent_codcuenta === $codcuenta) {
                 if (isset($gastos['total_subcuenta'][$codcuenta][$codsubcuenta])) {
-                    $gastos['total_subcuenta'][$codcuenta][$codsubcuenta] += $pvptotal;
+                    $gastos['total_subcuenta'][$codcuenta][$codsubcuenta] += $pvp_total;
                 } else {
-                    $gastos['total_subcuenta'][$codcuenta][$codsubcuenta] = $pvptotal;
+                    $gastos['total_subcuenta'][$codcuenta][$codsubcuenta] = $pvp_total;
                 }
 
                 if (isset($gastos['cuentas'][$codcuenta][$codsubcuenta][$mes])) {
-                    $gastos['cuentas'][$codcuenta][$codsubcuenta][$mes]['pvptotal'] += $pvptotal;
+                    $gastos['cuentas'][$codcuenta][$codsubcuenta][$mes]['pvptotal'] += $pvp_total;
                 } else {
-                    $gastos['cuentas'][$codcuenta][$codsubcuenta][$mes]['pvptotal'] = $pvptotal;
+                    $gastos['cuentas'][$codcuenta][$codsubcuenta][$mes]['pvptotal'] = $pvp_total;
                 }
             } else {
                 $gastos['cuentas'][$codcuenta]['codsubcuenta'] = $codsubcuenta;
@@ -647,9 +662,9 @@ class ResultReport
         self::salesPurchasesBuildYear($year, $codejercicio, "load-purchases");
         self::purchasesBuildYear($year, $codejercicio);
 
-        $resultado = array(
+        $resultado = [
             'total_mes' => [],
-        );
+        ];
 
         // Recorremos los meses y ejecutamos una consulta filtrando por el mes
         for ($mes = 1; $mes <= 12; $mes++) {
@@ -694,15 +709,14 @@ class ResultReport
 
     protected static function salesPurchasesBuildYear(string $year, string $codejercicio, string $action): void
     {
-
         $key = ($action == "load-sales" or $action == "load-family-sales") ? "ventas" : "compras";
 
-        $date = array(
+        $date = [
             'desde' => '',
             'hasta' => '',
-        );
+        ];
 
-        ${$key} = array(
+        ${$key} = [
             'agentes' => [],
             'descripciones' => [],
             'familias' => [],
@@ -723,7 +737,7 @@ class ResultReport
             'porc_pag' => [],
             'porc_age' => [],
             'porc_ref' => [],
-        );
+        ];
 
         $ventas_total_fam_meses = 0;
         $ventas_total_ser_meses = 0;
@@ -749,11 +763,11 @@ class ResultReport
                  * *****************************************************************
                  */
 
-                $tablename = ($action == "load-sales" or $action == "load-family-sales") ? "facturascli" : "facturasprov";
+                $table_name = ($action == "load-sales" or $action == "load-family-sales") ? "facturascli" : "facturasprov";
                 $model = ($action == "load-sales" or $action == "load-family-sales") ? new FacturaCliente() : new FacturaProveedor();
 
 
-                ${$key} = self::invoiceLines(${$key}, $date, $codejercicio, $mes, $ventas_total_fam_meses, $countMonth, $tablename);
+                ${$key} = self::invoiceLines(${$key}, $date, $codejercicio, $mes, $ventas_total_fam_meses, $countMonth, $table_name);
                 // Recorremos las facturas
                 ${$key} = self::dataInvoices(${$key}, $date, $codejercicio, $mes, $ventas_total_ser_meses, $ventas_total_pag_meses, $ventas_total_age_meses, $model);
 
@@ -797,58 +811,57 @@ class ResultReport
 
     protected static function invoiceLines(array $ventas, array $date, string $codejercicio, int $mes, float &$ventas_total_fam_meses, int &$countMonth, string $tablename): array
     {
-        $dataBase = new DataBase();
-
+        $db = new DataBase();
         $sql = "select lfc.referencia, sum(lfc.pvptotal) as pvptotal from lineas{$tablename} as lfc"
             . " LEFT JOIN {$tablename} as fc ON lfc.idfactura = fc.idfactura"
-            . " where fc.fecha >= " . $dataBase->var2str($date['desde'])
-            . " AND fc.fecha <= " . $dataBase->var2str($date['hasta'])
-            . " AND fc.codejercicio = " . $dataBase->var2str($codejercicio)
+            . " where fc.fecha >= " . $db->var2str($date['desde'])
+            . " AND fc.fecha <= " . $db->var2str($date['hasta'])
+            . " AND fc.codejercicio = " . $db->var2str($codejercicio)
             . " group by lfc.referencia";
 
         // VENTAS: Recorremos lineasfacturascli y montamos arrays
-        $lineas = $dataBase->select($sql);
+        $lineas = $db->select($sql);
         foreach ($lineas as $dl) {
             $data = self::build_data($dl);
-            $pvptotal = (float)$data['pvptotal'];
+            $pvp_total = (float)$data['pvptotal'];
             $referencia = $data['ref'];
             $codfamilia = $data['codfamilia'];
 
             // Familias
             if (isset($ventas['total_fam_mes'][$codfamilia][$mes])) {
-                $ventas['total_fam_mes'][$codfamilia][$mes] += $pvptotal;
+                $ventas['total_fam_mes'][$codfamilia][$mes] += $pvp_total;
             } else {
-                $ventas['total_fam_mes'][$codfamilia][$mes] = $pvptotal;
+                $ventas['total_fam_mes'][$codfamilia][$mes] = $pvp_total;
             }
 
             if (isset($ventas['total_fam'][$codfamilia])) {
-                $ventas['total_fam'][$codfamilia] += $pvptotal;
+                $ventas['total_fam'][$codfamilia] += $pvp_total;
             } else {
-                $ventas['total_fam'][$codfamilia] = $pvptotal;
+                $ventas['total_fam'][$codfamilia] = $pvp_total;
             }
 
             // Solo al pinchar en una familia
             if (self::$parent_codfamilia === (string)$codfamilia) {
                 // Productos
                 if (isset($ventas['total_ref'][$codfamilia][$referencia])) {
-                    $ventas['total_ref'][$codfamilia][$referencia] += $pvptotal;
+                    $ventas['total_ref'][$codfamilia][$referencia] += $pvp_total;
                 } else {
-                    $ventas['total_ref'][$codfamilia][$referencia] = $pvptotal;
+                    $ventas['total_ref'][$codfamilia][$referencia] = $pvp_total;
                 }
 
                 if (isset($ventas['familias'][$codfamilia][$referencia][$mes])) {
-                    $ventas['familias'][$codfamilia][$referencia][$mes]['pvptotal'] += $pvptotal;
+                    $ventas['familias'][$codfamilia][$referencia][$mes]['pvptotal'] += $pvp_total;
                 } else {
-                    $ventas['familias'][$codfamilia][$referencia][$mes]['pvptotal'] = $pvptotal;
+                    $ventas['familias'][$codfamilia][$referencia][$mes]['pvptotal'] = $pvp_total;
                 }
             }
 
             // Totales
-            $ventas['total_mes'][$mes] = $pvptotal + $ventas['total_mes'][$mes];
-            $ventas_total_fam_meses = $pvptotal + $ventas_total_fam_meses;
+            $ventas['total_mes'][$mes] = $pvp_total + $ventas['total_mes'][$mes];
+            $ventas_total_fam_meses = $pvp_total + $ventas_total_fam_meses;
 
             // Array temporal con los totales (falta añadir descripción familia)
-            $ventas['familias'][$codfamilia][$referencia][$mes] = array('pvptotal' => $pvptotal);
+            $ventas['familias'][$codfamilia][$referencia][$mes] = ['pvptotal' => $pvp_total];
         }
 
         if ($ventas['total_mes'][$mes] > 0) {

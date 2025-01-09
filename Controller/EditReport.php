@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -121,11 +121,9 @@ class EditReport extends EditController
     {
         $this->addListView($viewName, 'Report', 'related', 'fa-solid fa-chart-pie')
             ->addOrderBy(['name'], 'name', 1)
-            ->addSearchFields(['name']);
-
-        // desactivamos los botones de añadir y eliminar
-        $this->setSettings($viewName, 'btnNew', false);
-        $this->setSettings($viewName, 'btnDelete', false);
+            ->addSearchFields(['name'])
+            ->setSettings('btnNew', false)
+            ->setSettings('btnDelete', false);
     }
 
     protected function execPreviousAction($action)
@@ -143,8 +141,8 @@ class EditReport extends EditController
      */
     protected function loadData($viewName, $view): void
     {
-        $mainViewName = $this->getMainViewName();
-        $id = $this->getViewModelValue($mainViewName, 'id');
+        $mvn = $this->getMainViewName();
+        $id = $this->getViewModelValue($mvn, 'id');
 
         switch ($viewName) {
             case 'EditReportFilter':
@@ -173,7 +171,7 @@ class EditReport extends EditController
                 break;
 
             case 'ListReport':
-                $table = $this->getViewModelValue($mainViewName, 'table');
+                $table = $this->getViewModelValue($mvn, 'table');
                 $where = [
                     new DataBaseWhere('table', $table),
                     new DataBaseWhere('id', $id, '!='),
@@ -181,7 +179,7 @@ class EditReport extends EditController
                 $view->loadData('', $where);
                 break;
 
-            case $mainViewName:
+            case $mvn:
                 parent::loadData($viewName, $view);
                 $this->loadWidgetValues($viewName);
                 if ($view->model->exists()) {

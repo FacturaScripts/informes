@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2017-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2017-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -69,24 +69,18 @@ class EditReportBalance extends EditController
 
     protected function createViewsBalanceCodes(string $viewName = 'ListBalanceCode'): void
     {
-        $this->addListView($viewName, 'BalanceCode', 'balance-codes');
-        $this->views[$viewName]->addOrderBy(['codbalance'], 'code');
-        $this->views[$viewName]->addOrderBy(['description1'], 'description-1');
-        $this->views[$viewName]->addOrderBy(['description2'], 'description-2');
-        $this->views[$viewName]->addOrderBy(['description3'], 'description-3');
-        $this->views[$viewName]->addOrderBy(['description4'], 'description-4');
-        $this->views[$viewName]->addSearchFields([
-            'codbalance', 'description1', 'description2', 'description3', 'description4'
-        ]);
-
-        // ocultamos las columnas nature y sub-type
-        $this->views[$viewName]->disableColumn('nature');
-        $this->views[$viewName]->disableColumn('sub-type');
-
-        // desactivamos los botones
-        $this->setSettings($viewName, 'btnDelete', false);
-        $this->setSettings($viewName, 'btnNew', false);
-        $this->setSettings($viewName, 'checkBoxes', false);
+        $this->addListView($viewName, 'BalanceCode', 'balance-codes')
+            ->addOrderBy(['codbalance'], 'code')
+            ->addOrderBy(['description1'], 'description-1')
+            ->addOrderBy(['description2'], 'description-2')
+            ->addOrderBy(['description3'], 'description-3')
+            ->addOrderBy(['description4'], 'description-4')
+            ->addSearchFields(['codbalance', 'description1', 'description2', 'description3', 'description4'])
+            ->disableColumn('nature')
+            ->disableColumn('sub-type')
+            ->setSettings('btnDelete', false)
+            ->setSettings('btnNew', false)
+            ->setSettings('checkBoxes', false);
     }
 
     protected function execAfterAction($action)
@@ -276,9 +270,8 @@ class EditReportBalance extends EditController
     {
         $codes = [];
 
-        $balanceModel = new BalanceCode();
         $where = $this->getPreferencesWhere();
-        foreach ($balanceModel->all($where, ['codbalance' => 'ASC'], 0, 0) as $balance) {
+        foreach (BalanceCode::all($where, ['codbalance' => 'ASC'], 0, 0) as $balance) {
             $codes[] = $balance->id;
         }
 
@@ -319,14 +312,15 @@ class EditReportBalance extends EditController
      */
     protected function loadData($viewName, $view)
     {
-        $mainViewName = $this->getMainViewName();
+        $mvn = $this->getMainViewName();
+
         switch ($viewName) {
             case 'ListBalanceCode':
                 $where = $this->getPreferencesWhere();
                 $view->loadData('', $where);
                 break;
 
-            case $mainViewName:
+            case $mvn:
                 parent::loadData($viewName, $view);
                 if (false === $view->model->exists()) {
                     break;

@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -21,7 +21,6 @@ namespace FacturaScripts\Plugins\Informes\Controller;
 
 use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Core\DataSrc\Empresas;
-use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\Ejercicio;
 use FacturaScripts\Dinamic\Model\Subcuenta;
 
@@ -46,19 +45,19 @@ class ReportTreasury extends Controller
     public $codejercicio_ant = null;
 
     /** @var array */
-    public $da_gastoscobros = [];
+    public $da_gastos_cobros = [];
 
     /** @var array */
     public $da_impuestos = [];
 
     /** @var array */
-    public $da_reservasresultados = [];
+    public $da_reservas_resultados = [];
 
     /** @var array */
-    public $da_resultadoejercicioactual = [];
+    public $da_resultado_actual = [];
 
     /** @var array */
-    public $da_resultadosituacion = [];
+    public $da_resultado_situacion = [];
 
     /** @var array */
     public $da_tesoreria = [];
@@ -83,9 +82,9 @@ class ReportTreasury extends Controller
     public function getPageData(): array
     {
         $data = parent::getPageData();
-        $data["menu"] = "reports";
-        $data["title"] = "treasury";
-        $data["icon"] = "fa-solid fa-balance-scale-left";
+        $data['menu'] = 'reports';
+        $data['title'] = 'treasury';
+        $data['icon'] = 'fa-solid fa-balance-scale-left';
         return $data;
     }
 
@@ -96,28 +95,20 @@ class ReportTreasury extends Controller
         $this->loadTreasury();
     }
 
-    public function show_precio($price): string
+    protected function cuadroTesoreria(): void
     {
-        $priceFormat = Tools::money($price);
-        return $price < 0 ? '<span class="text-danger">' . $priceFormat . '</span>' : $priceFormat;
-    }
-
-    protected function cuadro_tesoreria(): void
-    {
-        /**
-         * Cuadro de tesorería.
-         */
-        $this->da_tesoreria = array(
+        $this->da_tesoreria = [
             'total_cajas' => 0,
             'total_bancos' => 0,
             'total_tesoreria' => 0,
-        );
-        $this->get_bancos();
+        ];
+
+        $this->loadBancos();
         foreach ($this->bancos as $banco) {
             $this->da_tesoreria["total_bancos"] += $banco->saldo;
         }
 
-        $this->get_cajas();
+        $this->loadCajas();
         foreach ($this->cajas as $caja) {
             $this->da_tesoreria["total_cajas"] += $caja->saldo;
         }
@@ -125,63 +116,64 @@ class ReportTreasury extends Controller
         $this->da_tesoreria["total_tesoreria"] = $this->da_tesoreria["total_cajas"] + $this->da_tesoreria["total_bancos"];
     }
 
-    protected function cuadro_gastos_y_cobros(): void
+    protected function cuadroGastosCobros(): void
     {
-        /**
-         * Cuadro gastos y cobros.
-         */
-        $this->da_gastoscobros = array(
-            'gastospdtepago' => -1 * $this->get_gastos_pendientes(),
-            'clientespdtecobro' => $this->get_cobros_pendientes(),
-            'nominaspdtepago' => $this->saldo_cuenta('465%', $this->desde, $this->hasta),
-            'segsocialpdtepago' => $this->saldo_cuenta('476%', $this->desde, $this->hasta),
-            'segsocialpdtecobro' => $this->saldo_cuenta('471%', $this->desde, $this->hasta),
+        $this->da_gastos_cobros = [
+            'gastospdtepago' => -1 * $this->getGastosPendientes(),
+            'clientespdtecobro' => $this->getCobrosPendientes(),
+            'nominaspdtepago' => $this->saldoCuenta('465%', $this->desde, $this->hasta),
+            'segsocialpdtepago' => $this->saldoCuenta('476%', $this->desde, $this->hasta),
+            'segsocialpdtecobro' => $this->saldoCuenta('471%', $this->desde, $this->hasta),
             'total_gastoscobros' => 0,
-        );
+        ];
 
-        $this->da_gastoscobros["total_gastoscobros"] = $this->da_gastoscobros["gastospdtepago"] + $this->da_gastoscobros["clientespdtecobro"] + $this->da_gastoscobros["nominaspdtepago"] + $this->da_gastoscobros["segsocialpdtepago"] + $this->da_gastoscobros["segsocialpdtecobro"];
+        $this->da_gastos_cobros["total_gastoscobros"] = $this->da_gastos_cobros["gastospdtepago"]
+            + $this->da_gastos_cobros["clientespdtecobro"]
+            + $this->da_gastos_cobros["nominaspdtepago"]
+            + $this->da_gastos_cobros["segsocialpdtepago"]
+            + $this->da_gastos_cobros["segsocialpdtecobro"];
     }
 
-    protected function cuadro_impuestos(): void
+    protected function cuadroImpuestos(): void
     {
-        /**
-         * Cuadro de impuestos.
-         */
-        $this->da_impuestos = array(
-            'irpf-mod111' => $this->saldo_cuenta('4751%', $this->desde, $this->hasta),
+        $this->da_impuestos = [
+            'irpf-mod111' => $this->saldoCuenta('4751%', $this->desde, $this->hasta),
             'irpf-mod115' => 0,
-            'iva-repercutido' => $this->saldo_cuenta('477%', $this->desde, $this->hasta),
-            'iva-soportado' => $this->saldo_cuenta('472%', $this->desde, $this->hasta),
-            'iva-devolver' => $this->saldo_cuenta('4700%', $this->desde, $this->hasta),
+            'iva-repercutido' => $this->saldoCuenta('477%', $this->desde, $this->hasta),
+            'iva-soportado' => $this->saldoCuenta('472%', $this->desde, $this->hasta),
+            'iva-devolver' => $this->saldoCuenta('4700%', $this->desde, $this->hasta),
             'resultado_iva-mod303' => 0,
-            'ventas_totales' => $this->get_ventas_totales(),
-            'gastos_totales' => -1 * $this->saldo_cuenta('6%', $this->desde, $this->hasta),
+            'ventas_totales' => $this->getVentasTotales(),
+            'gastos_totales' => -1 * $this->saldoCuenta('6%', $this->desde, $this->hasta),
             'resultado' => 0,
             'sociedades' => 0,
-            'pago-ant' => $this->saldo_cuenta('473%', $this->desde, $this->hasta),
+            'pago-ant' => $this->saldoCuenta('473%', $this->desde, $this->hasta),
             'pagofraccionado-mod202' => 0,
-            'resultado_ejanterior' => -1 * $this->saldo_cuenta('129%', $this->desde, $this->hasta),
-            'resultado_negotros' => -1 * $this->saldo_cuenta('121%', $this->desde, $this->hasta),
+            'resultado_ejanterior' => -1 * $this->saldoCuenta('129%', $this->desde, $this->hasta),
+            'resultado_negotros' => -1 * $this->saldoCuenta('121%', $this->desde, $this->hasta),
             'total' => 0,
             'sociedades_ant' => 0,
-            'sociedades_adelantos' => -1 * $this->saldo_cuenta('4709%', $this->desde, $this->hasta),
+            'sociedades_adelantos' => -1 * $this->saldoCuenta('4709%', $this->desde, $this->hasta),
             'total-mod200' => 0,
-        );
+        ];
 
         // cogemos las cuentas del alquiler de la configuración para generar el mod-115
         $sql = "SELECT * FROM subcuentas WHERE idcuenta IN "
             . "(SELECT idcuenta FROM cuentas WHERE codcuentaesp = " . $this->dataBase->var2str('IRPFA')
-            . " AND codejercicio = " . $this->dataBase->var2str($this->codejercicio) . ") ORDER BY codsubcuenta ASC;";
+            . " AND codejercicio = " . $this->dataBase->var2str($this->codejercicio)
+            . ") ORDER BY codsubcuenta ASC;";
 
-        $cuentasalquiler = $this->dataBase->select($sql);
-        foreach ($cuentasalquiler as $cuentaalquiler) {
-            if ($cuentaalquiler) {
-                $this->da_impuestos["irpf-mod115"] += $this->saldo_cuenta($cuentaalquiler, $this->desde, $this->hasta);
-                $this->da_impuestos["irpf-mod111"] -= $this->saldo_cuenta($cuentaalquiler, $this->desde, $this->hasta);
+        $cuentas_alquiler = $this->dataBase->select($sql);
+        foreach ($cuentas_alquiler as $cta_alquiler) {
+            if ($cta_alquiler) {
+                $this->da_impuestos["irpf-mod115"] += $this->saldoCuenta($cta_alquiler, $this->desde, $this->hasta);
+                $this->da_impuestos["irpf-mod111"] -= $this->saldoCuenta($cta_alquiler, $this->desde, $this->hasta);
             }
         }
 
-        $this->da_impuestos["resultado_iva-mod303"] = $this->da_impuestos["iva-repercutido"] + $this->da_impuestos["iva-soportado"] + $this->da_impuestos["iva-devolver"];
+        $this->da_impuestos["resultado_iva-mod303"] = $this->da_impuestos["iva-repercutido"]
+            + $this->da_impuestos["iva-soportado"]
+            + $this->da_impuestos["iva-devolver"];
 
         $this->da_impuestos["resultado"] = $this->da_impuestos["ventas_totales"] + $this->da_impuestos["gastos_totales"];
 
@@ -206,77 +198,76 @@ class ReportTreasury extends Controller
         $this->da_impuestos["total-mod200"] = $this->da_impuestos["sociedades_ant"] - $this->da_impuestos["sociedades_adelantos"];
     }
 
-    protected function cuadro_resultados_situacion_corto(): void
+    protected function cuadroResultadosSituacionCorto(): void
     {
-        $this->da_resultadosituacion["total"] = $this->da_tesoreria["total_tesoreria"] + $this->da_gastoscobros["total_gastoscobros"] +
-            $this->da_impuestos["irpf-mod111"] + $this->da_impuestos["irpf-mod115"] + $this->da_impuestos["resultado_iva-mod303"] +
-            $this->da_impuestos["pagofraccionado-mod202"] + $this->da_impuestos["total-mod200"];
+        $this->da_resultado_situacion["total"] = $this->da_tesoreria["total_tesoreria"]
+            + $this->da_gastos_cobros["total_gastoscobros"]
+            + $this->da_impuestos["irpf-mod111"]
+            + $this->da_impuestos["irpf-mod115"]
+            + $this->da_impuestos["resultado_iva-mod303"]
+            + $this->da_impuestos["pagofraccionado-mod202"]
+            + $this->da_impuestos["total-mod200"];
     }
 
-    protected function cuadro_reservas(): void
+    protected function cuadroReservas(): void
     {
-        /**
-         * Cuadro reservas + resultados
-         */
-        $this->da_reservasresultados = array(
-            'reservalegal' => -1 * $this->saldo_cuenta('112%', $this->desde, $this->hasta),
-            'reservasvoluntarias' => -1 * $this->saldo_cuenta('113%', $this->desde, $this->hasta),
-            'resultadoejercicioanterior' => abs($this->saldo_cuenta('129%', $this->desde, $this->hasta)) - $this->saldo_cuenta('121%', $this->desde, $this->hasta),
+        $this->da_reservas_resultados = [
+            'reservalegal' => -1 * $this->saldoCuenta('112%', $this->desde, $this->hasta),
+            'reservasvoluntarias' => -1 * $this->saldoCuenta('113%', $this->desde, $this->hasta),
+            'resultadoejercicioanterior' => abs($this->saldoCuenta('129%', $this->desde, $this->hasta)) - $this->saldoCuenta('121%', $this->desde, $this->hasta),
             'total_reservas' => 0,
-        );
+        ];
 
-        $this->da_reservasresultados["total_reservas"] = $this->da_reservasresultados["reservalegal"] + $this->da_reservasresultados["reservasvoluntarias"] + $this->da_reservasresultados["resultadoejercicioanterior"];
+        $this->da_reservas_resultados["total_reservas"] = $this->da_reservas_resultados["reservalegal"]
+            + $this->da_reservas_resultados["reservasvoluntarias"]
+            + $this->da_reservas_resultados["resultadoejercicioanterior"];
     }
 
-    protected function cuadro_resultado_actual(): void
+    protected function cuadroResultadoActual(): void
     {
-        /**
-         * Cuadro resultado ejercicio actual
-         */
-        $this->da_resultadoejercicioactual = array(
-            'total_ventas' => $this->get_ventas_totales(),
-            'total_gastos' => -1 * $this->saldo_cuenta('6%', $this->desde, $this->hasta),
+        $this->da_resultado_actual = [
+            'total_ventas' => $this->getVentasTotales(),
+            'total_gastos' => -1 * $this->saldoCuenta('6%', $this->desde, $this->hasta),
             'resultadoexplotacion' => 0,
-            'amortizacioninmovintang' => $this->saldo_cuenta('680%', $this->desde, $this->hasta),
-            'amortizacioninmovmat' => $this->saldo_cuenta('681%', $this->desde, $this->hasta),
+            'amortizacioninmovintang' => $this->saldoCuenta('680%', $this->desde, $this->hasta),
+            'amortizacioninmovmat' => $this->saldoCuenta('681%', $this->desde, $this->hasta),
             'total_amort' => 0,
             'resultado_antes_impuestos' => 0,
             'impuesto_sociedades' => 0,
             'resultado_despues_impuestos' => 0,
-        );
+        ];
 
-        $this->da_resultadoejercicioactual["resultadoexplotacion"] = $this->da_resultadoejercicioactual["total_ventas"] + $this->da_resultadoejercicioactual["total_gastos"];
-        $this->da_resultadoejercicioactual["total_amort"] = $this->da_resultadoejercicioactual["amortizacioninmovintang"] + $this->da_resultadoejercicioactual["amortizacioninmovmat"];
-        $this->da_resultadoejercicioactual["resultado_antes_impuestos"] = $this->da_resultadoejercicioactual["resultadoexplotacion"] + $this->da_resultadoejercicioactual["total_amort"];
+        $this->da_resultado_actual["resultadoexplotacion"] = $this->da_resultado_actual["total_ventas"] + $this->da_resultado_actual["total_gastos"];
+        $this->da_resultado_actual["total_amort"] = $this->da_resultado_actual["amortizacioninmovintang"] + $this->da_resultado_actual["amortizacioninmovmat"];
+        $this->da_resultado_actual["resultado_antes_impuestos"] = $this->da_resultado_actual["resultadoexplotacion"] + $this->da_resultado_actual["total_amort"];
 
-        if ($this->da_resultadoejercicioactual["resultado_antes_impuestos"] < 0) {
-            $this->da_resultadoejercicioactual["impuesto_sociedades"] = 0;
+        if ($this->da_resultado_actual["resultado_antes_impuestos"] < 0) {
+            $this->da_resultado_actual["impuesto_sociedades"] = 0;
         } else {
             $sociedades = $this->ejercicio->impsociedades;
-            $this->da_resultadoejercicioactual["impuesto_sociedades"] = -1 * $this->da_resultadoejercicioactual["resultado_antes_impuestos"] * $sociedades / 100;
+            $this->da_resultado_actual["impuesto_sociedades"] = -1 * $this->da_resultado_actual["resultado_antes_impuestos"] * $sociedades / 100;
         }
 
-        $this->da_resultadoejercicioactual["resultado_despues_impuestos"] = $this->da_resultadoejercicioactual["resultado_antes_impuestos"] + $this->da_resultadoejercicioactual["impuesto_sociedades"];
+        $this->da_resultado_actual["resultado_despues_impuestos"] = $this->da_resultado_actual["resultado_antes_impuestos"]
+            + $this->da_resultado_actual["impuesto_sociedades"];
     }
 
-    protected function get_bancos(): void
+    protected function loadBancos(): void
     {
-        $this->bancos = array();
+        $this->bancos = [];
 
         $sql = "SELECT * FROM subcuentas WHERE codcuenta = '572' AND codejercicio = "
             . $this->dataBase->var2str($this->codejercicio) . ";";
 
         $data = $this->dataBase->select($sql);
-        if ($data) {
-            foreach ($data as $d) {
-                $this->bancos[] = new subcuenta($d);
-            }
+        foreach ($data as $d) {
+            $this->bancos[] = new subcuenta($d);
         }
     }
 
-    protected function get_cajas(): void
+    protected function loadCajas(): void
     {
-        $this->cajas = array();
+        $this->cajas = [];
 
         $sql = "SELECT * FROM subcuentas WHERE idcuenta IN "
             . "(SELECT idcuenta FROM cuentas WHERE codcuentaesp = " . $this->dataBase->var2str('CAJA')
@@ -288,7 +279,7 @@ class ReportTreasury extends Controller
         }
     }
 
-    protected function get_gastos_pendientes(): float
+    protected function getGastosPendientes(): float
     {
         $total = 0.0;
 
@@ -301,7 +292,7 @@ class ReportTreasury extends Controller
         return $total;
     }
 
-    protected function get_cobros_pendientes(): float
+    protected function getCobrosPendientes(): float
     {
         $total = 0.0;
 
@@ -314,26 +305,12 @@ class ReportTreasury extends Controller
         return $total;
     }
 
-    protected function get_ventas_totales(): float
+    protected function getVentasTotales(): float
     {
         $total = 0.0;
 
         $sql = "SELECT SUM(neto) as total FROM facturascli WHERE fecha >= " . $this->dataBase->var2str($this->desde)
             . " AND fecha <= " . $this->dataBase->var2str($this->hasta) . ';';
-        $data = $this->dataBase->select($sql);
-        if ($data) {
-            $total = floatval($data[0]['total']);
-        }
-
-        return $total;
-    }
-
-    protected function get_compras_totales(): float
-    {
-        $total = 0.0;
-
-        $sql = "SELECT SUM(neto) as total FROM facturasprov WHERE fecha >= " . $this->empresa->var2str($this->desde)
-            . " AND fecha <= " . $this->empresa->var2str($this->hasta) . ';';
         $data = $this->dataBase->select($sql);
         if ($data) {
             $total = floatval($data[0]['total']);
@@ -353,8 +330,7 @@ class ReportTreasury extends Controller
         $this->hasta = date('31-12-Y');
 
         // seleccionamos el ejercicio actual
-        $ejercicio = new Ejercicio();
-        foreach ($ejercicio->all([], ['idempresa' => 'ASC', 'fechainicio' => 'DESC'], 0, 0) as $eje) {
+        foreach (Ejercicio::all([], ['idempresa' => 'ASC', 'fechainicio' => 'DESC'], 0, 0) as $eje) {
             // si ya tenemos ejercicio, pero no tiene la misma empresa, paramos
             if ($this->ejercicio->exists() && $this->ejercicio->idempresa !== $eje->idempresa) {
                 break;
@@ -383,42 +359,23 @@ class ReportTreasury extends Controller
             return;
         }
 
-        $this->cuadro_tesoreria();
-        $this->cuadro_gastos_y_cobros();
-        $this->cuadro_reservas();
-        $this->cuadro_resultado_actual();
-        $this->cuadro_impuestos();
-        $this->cuadro_resultados_situacion_corto();
+        $this->cuadroTesoreria();
+        $this->cuadroGastosCobros();
+        $this->cuadroReservas();
+        $this->cuadroResultadoActual();
+        $this->cuadroImpuestos();
+        $this->cuadroResultadosSituacionCorto();
     }
 
-    protected function saldo_cuenta(string $cuenta, string $desde, string $hasta): float
+    protected function saldoCuenta(string $cuenta, string $desde, string $hasta): float
     {
         $saldo = 0.0;
 
         if ($this->dataBase->tableExists('partidas')) {
-            /// calculamos el saldo de todos aquellos asientos que afecten a caja
+            // calculamos el saldo de todos aquellos asientos que afecten a caja
             $sql = "select sum(debe-haber) as total from partidas where codsubcuenta LIKE '" . $cuenta . "' and idasiento"
                 . " in (select idasiento from asientos where fecha >= " . $this->dataBase->var2str($desde)
                 . " and fecha <= " . $this->dataBase->var2str($hasta) . ");";
-
-            $data = $this->dataBase->select($sql);
-            if ($data) {
-                $saldo = floatval($data[0]['total']);
-            }
-        }
-
-        return $saldo;
-    }
-
-    protected function saldo_cuenta_asiento_regularizacion($cuenta, $desde, $hasta, $numasientoregularizacion): float
-    {
-        $saldo = 0.0;
-
-        if ($this->dataBase->tableExists('co_partidas')) {
-            /// calculamos el saldo de todos aquellos asientos que afecten a caja
-            $sql = "select sum(debe-haber) as total from co_partidas where codsubcuenta LIKE '" . $cuenta . "' and idasiento"
-                . " in (select idasiento from co_asientos where fecha >= " . $this->empresa->var2str($desde)
-                . " and fecha <= " . $this->empresa->var2str($hasta) . " and numero = " . $numasientoregularizacion . ");";
 
             $data = $this->dataBase->select($sql);
             if ($data) {

@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -66,9 +66,9 @@ class ReportTransport extends Controller
     public function getPageData(): array
     {
         $data = parent::getPageData();
-        $data["menu"] = "reports";
-        $data["title"] = "report-transport";
-        $data["icon"] = "fa-solid fa-truck-loading";
+        $data['menu'] = 'reports';
+        $data['title'] = 'report-transport';
+        $data['icon'] = 'fa-solid fa-truck-loading';
         return $data;
     }
 
@@ -84,6 +84,7 @@ class ReportTransport extends Controller
     public function privateCore(&$response, $user, $permissions)
     {
         parent::privateCore($response, $user, $permissions);
+
         $this->date = $this->request->get('date', date('Y-m-d'));
 
         if ('export' === $this->request->request->get('action', '')) {
@@ -91,7 +92,7 @@ class ReportTransport extends Controller
         }
     }
 
-    protected function exportAction()
+    protected function exportAction(): void
     {
         $data = $this->getReportData();
         if (empty($data)) {

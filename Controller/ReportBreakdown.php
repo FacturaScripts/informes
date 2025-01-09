@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -32,23 +32,58 @@ use FacturaScripts\Dinamic\Model\Proveedor;
  */
 class ReportBreakdown extends Controller
 {
+    /** @var Contacto */
     public $billingAddress;
+
+    /** @var Cliente */
     public $cliente;
+
+    /** @var string */
     public $codagente;
+
+    /** @var string */
     public $codalmacen;
+
+    /** @var string */
     public $coddivisa;
+
+    /** @var string */
     public $codpais;
+
+    /** @var string */
     public $codpago;
+
+    /** @var string */
     public $codserie;
+
+    /** @var string */
     public $desde;
+
+    /** @var string */
     public $hasta;
+
+    /** @var int */
     public $idempresa;
+
+    /** @var Proveedor */
     public $proveedor;
+
+    /** @var string */
     public $provincia;
+
+    /** @var float */
     public $purchase_minimo;
+
+    /** @var bool */
     public $purchase_unidades;
+
+    /** @var float */
     public $sale_minimo;
+
+    /** @var bool */
     public $sale_unidades;
+
+    /** @var Contacto */
     public $shippingAddress;
 
     public function getAddress($contacto): string
@@ -134,12 +169,12 @@ class ReportBreakdown extends Controller
         $this->setTemplate(false);
 
         $list = [];
-        $contactoModel = new Contacto();
         $where = [
             new DataBaseWhere('codcliente', $this->request->get('customer')),
             new DataBaseWhere('direccion', $this->request->get('query'), 'LIKE')
         ];
-        foreach ($contactoModel->all($where, ['apellidos' => 'ASC', 'nombre' => 'ASC'], 0, 0) as $contacto) {
+        $orderBy = ['apellidos' => 'ASC', 'nombre' => 'ASC'];
+        foreach (Contacto::all($where, $orderBy, 0, 0) as $contacto) {
             $list[] = [
                 'key' => Tools::fixHtml($contacto->idcontacto),
                 'value' => Tools::fixHtml($this->getAddress($contacto))
@@ -667,41 +702,41 @@ class ReportBreakdown extends Controller
     {
         $this->desde = $this->request->get('desde', Date('Y') . '-01-01');
         $this->hasta = $this->request->get('hasta', Date('Y') . '-12-31');
-        $this->idempresa = $this->request->get('idempresa', false);
-        $this->codpais = $this->request->get('codpais', false);
-        $this->codserie = $this->request->get('codserie', false);
-        $this->codpago = $this->request->get('codpago', false);
-        $this->codagente = $this->request->get('codagente', false);
-        $this->codalmacen = $this->request->get('codalmacen', false);
+        $this->idempresa = $this->request->get('idempresa');
+        $this->codpais = $this->request->get('codpais');
+        $this->codserie = $this->request->get('codserie');
+        $this->codpago = $this->request->get('codpago');
+        $this->codagente = $this->request->get('codagente');
+        $this->codalmacen = $this->request->get('codalmacen');
         $this->coddivisa = $this->request->get('coddivisa', Tools::settings('default', 'coddivisa'));
 
-        $this->cliente = FALSE;
+        $this->cliente = null;
         if ($this->request->get('codcliente')) {
             $this->cliente = new Cliente();
             $this->cliente->loadFromCode($this->request->get('codcliente'));
         }
 
-        $this->shippingAddress = FALSE;
+        $this->shippingAddress = null;
         if ($this->request->get('idcontactoenv')) {
             $this->shippingAddress = new Contacto();
             $this->shippingAddress->loadFromCode($this->request->get('idcontactoenv'));
         }
 
-        $this->billingAddress = FALSE;
+        $this->billingAddress = null;
         if ($this->request->get('idcontactofact')) {
             $this->billingAddress = new Contacto();
             $this->billingAddress->loadFromCode($this->request->get('idcontactofact'));
         }
 
-        $this->proveedor = FALSE;
+        $this->proveedor = null;
         if ($this->request->get('codproveedor')) {
             $this->proveedor = new Proveedor();
             $this->proveedor->loadFromCode($this->request->get('codproveedor'));
         }
 
-        $this->purchase_minimo = $this->request->get('purchase-minimo', false);
+        $this->purchase_minimo = (float)$this->request->get('purchase-minimo', false);
         $this->purchase_unidades = (bool)$this->request->get('purchase-unidades', '0');
-        $this->sale_minimo = $this->request->get('sale-minimo', false);
+        $this->sale_minimo = (float)$this->request->get('sale-minimo', false);
         $this->sale_unidades = (bool)$this->request->get('sale-unidades', '0');
         $this->provincia = $this->request->get('provincia', false);
     }

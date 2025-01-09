@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -67,18 +67,17 @@ class EditReportBoard extends EditController
 
     protected function createViewsLines(string $viewName = 'EditReportBoardLine'): void
     {
-        $this->addEditListView($viewName, 'ReportBoardLine', 'charts', 'fa-solid fa-chart-pie');
-
-        // ponemos la vista compacta
-        $this->views[$viewName]->setInLine(true);
+        $this->addEditListView($viewName, 'ReportBoardLine', 'charts', 'fa-solid fa-chart-pie')
+            ->setInLine(true);
     }
 
     protected function loadData($viewName, $view)
     {
         $mvn = $this->getMainViewName();
+        $code = $this->getViewModelValue($mvn, 'id');
+
         switch ($viewName) {
             case 'EditReportBoardLine':
-                $code = $this->getViewModelValue($mvn, 'id');
                 $where = [new DataBaseWhere('idreportboard', $code)];
                 $orderBy = ['sort' => 'ASC'];
                 $view->loadData('', $where, $orderBy);
