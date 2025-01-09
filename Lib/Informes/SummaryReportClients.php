@@ -1,21 +1,4 @@
 <?php
-/**
- * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2024 Carlos Garcia Gomez <carlos@facturascripts.com>
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- */
 
 namespace FacturaScripts\Plugins\Informes\Lib\Informes;
 
@@ -33,7 +16,7 @@ class SummaryReportClients extends ReportClients
         self::charts_build();
 
         $monthNames = ['total', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
-        $categories = ['activos' => 'active', 'inactivos' => 'inactive', 'clientes' => 'all'];
+        $categories = ['nuevos' => 'new', 'activos' => 'active', 'inactivos' => 'inactive', 'clientes' => 'all'];
 
         $html = '<div class="table-responsive"><table class="table table-hover mb-0"><thead><tr><th class="title"><b>' . Tools::lang()->trans('status') . '</b></th>';
 
@@ -47,7 +30,7 @@ class SummaryReportClients extends ReportClients
             $html .= self::generateCategoryRow($key, $category);
         }
 
-        $html .= '</tbody></table></div>';
+        $html .= '</tbody></table></div>'; 
         return $html;
     }
 
@@ -72,6 +55,8 @@ class SummaryReportClients extends ReportClients
     private static function getRowClass($categoryName): string
     {        
         switch ($categoryName) {
+            case 'new':
+                return 'table-info';
             case 'active':
                 return 'table-success';
             case 'inactive':
@@ -85,7 +70,7 @@ class SummaryReportClients extends ReportClients
 
     private static function generateTableCell($money, $lastmoney, $css, $categoryKey = ''): string
     {
-        if ($categoryKey === 'clientes' || $categoryKey === 'activos' || $categoryKey === 'inactivos') {
+        if ($categoryKey === 'clientes' || $categoryKey === 'activos' || $categoryKey === 'inactivos' || $categoryKey === 'nuevos') {
             $html = '<td class="' . $css . '">'
                 . ($money ? ($money < 0 ? '<span class="text-danger">' : '') . number_format($money, 0) . ($money < 0 ? '</span>' : '') : '0')
                 . '<div class="small">'
@@ -102,10 +87,10 @@ class SummaryReportClients extends ReportClients
     }
 
     protected static function charts_build()
-    {
+    {          
         for ($mes = 1; $mes <= 12; $mes++) {
-            self::$charts['totales']['ventas'][$mes - 1] = round(self::$ventas[self::$year]['total_mes'][$mes], FS_NF0);            
-        }       
+            self::$charts['totales']['nuevos_clientes'][$mes - 1] = self::$nuevos[self::$year]['total_mes'][$mes];
+        }  
         
         self::$charts['Grupos-Clientes']['table'] = '';
         arsort(self::$ventas[self::$year]['porc_ser']);
