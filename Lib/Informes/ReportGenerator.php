@@ -32,13 +32,13 @@ use FacturaScripts\Plugins\Informes\Model\ReportBoard;
 
 class ReportGenerator
 {
-    /** @var array */
+    /** @var Report[] */
     private static $agent_reports = [];
 
     /** @var DataBase */
     private static $db;
 
-    /** @var array */
+    /** @var Report[] */
     private static $table_reports = [];
 
     public static function generate(): int
@@ -120,13 +120,13 @@ class ReportGenerator
 
         // pizarras por tabla
         foreach (self::$table_reports as $table_name => $reports) {
-            $report_names = [];
+            $report_tags = [];
             foreach ($reports as $report) {
-                $report_names[] = $report->name;
+                $report_tags[] = $report->tag;
             }
 
             $name = Tools::lang()->trans('b-' . $table_name);
-            $done = static::generateBoard($name, $report_names);
+            $done = static::generateBoard($name, $report_tags);
             if ($done) {
                 $total++;
             }
@@ -134,9 +134,9 @@ class ReportGenerator
 
         // pizarras por agente
         foreach (self::$agent_reports as $codagente => $reports) {
-            $report_names = [];
+            $report_tags = [];
             foreach ($reports as $report) {
-                $report_names[] = $report->name;
+                $report_tags[] = $report->tag;
             }
 
             // no reemplazar por Agentes::get() hasta resolver bug con esa función
@@ -146,7 +146,7 @@ class ReportGenerator
             }
 
             $name = Tools::lang()->trans('b-agent', ['%name%' => $agent->nombre]);
-            $done = static::generateBoard($name, $report_names);
+            $done = static::generateBoard($name, $report_tags);
             if ($done) {
                 $total++;
             }
@@ -155,7 +155,7 @@ class ReportGenerator
         return $total;
     }
 
-    protected static function generateBoard(string $name, array $report_names): bool
+    protected static function generateBoard(string $name, array $report_tags): bool
     {
         // comprobamos si ya existe la pizarra
         $board = new ReportBoard();
@@ -172,11 +172,10 @@ class ReportGenerator
 
         // añadimos los informes
         $pos = 1;
-        foreach ($report_names as $r_name) {
+        foreach ($report_tags as $tag) {
             $report = new Report();
-            $report_name = Tools::lang()->trans($r_name);
-            $whereName = [new DataBaseWhere('name', $report_name)];
-            if (false === $report->loadFromCode('', $whereName)) {
+            $whereTag = [new DataBaseWhere('tag', $tag)];
+            if (false === $report->loadFromCode('', $whereTag)) {
                 return false;
             }
 
@@ -203,15 +202,16 @@ class ReportGenerator
 
             // comprobamos si ya existe el informe
             $report = new Report();
-            $name = Tools::lang()->trans('r-' . $table_name . '-total-agent', ['%name%' => $agent->nombre]);
-            $where = [new DataBaseWhere('name', $name)];
+            $tag = 'r-' . $table_name . '-total-agent-' . $agent->codagente;
+            $where = [new DataBaseWhere('tag', $tag)];
             if ($report->loadFromCode('', $where)) {
                 continue;
             }
 
             // creamos el informe
-            $report->name = $name;
+            $report->name = Tools::lang()->trans('r-' . $table_name . '-total-agent', ['%name%' => $agent->nombre]);
             $report->table = $table_name;
+            $report->tag = $tag;
             $report->xcolumn = 'fecha';
             $report->xoperation = 'MONTHS';
             $report->ycolumn = 'total';
@@ -239,15 +239,16 @@ class ReportGenerator
         foreach (Series::all() as $serie) {
             // comprobamos si ya existe el informe
             $report = new Report();
-            $name = Tools::lang()->trans('r-' . $table_name . '-total-serie', ['%serie%' => $serie->descripcion]);
-            $where = [new DataBaseWhere('name', $name)];
+            $tag = 'r-' . $table_name . '-total-serie-' . $serie->codserie;
+            $where = [new DataBaseWhere('tag', $tag)];
             if ($report->loadFromCode('', $where)) {
                 continue;
             }
 
             // creamos el informe
-            $report->name = $name;
+            $report->name = Tools::lang()->trans('r-' . $table_name . '-total-serie', ['%serie%' => $serie->descripcion]);
             $report->table = $table_name;
+            $report->tag = $tag;
             $report->xcolumn = 'fecha';
             $report->xoperation = 'MONTHS';
             $report->ycolumn = 'total';
@@ -280,15 +281,16 @@ class ReportGenerator
         foreach (Almacenes::all() as $warehouse) {
             // comprobamos si ya existe el informe
             $report = new Report();
-            $name = Tools::lang()->trans('r-' . $table_name . '-total-warehouse', ['%name%' => $warehouse->nombre]);
-            $where = [new DataBaseWhere('name', $name)];
+            $tag = 'r-' . $table_name . '-total-warehouse-' . $warehouse->codalmacen;
+            $where = [new DataBaseWhere('tag', $tag)];
             if ($report->loadFromCode('', $where)) {
                 continue;
             }
 
             // creamos el informe
-            $report->name = $name;
+            $report->name = Tools::lang()->trans('r-' . $table_name . '-total-warehouse', ['%name%' => $warehouse->nombre]);
             $report->table = $table_name;
+            $report->tag = $tag;
             $report->xcolumn = 'fecha';
             $report->xoperation = 'MONTHS';
             $report->ycolumn = 'total';
@@ -331,15 +333,16 @@ class ReportGenerator
         foreach (EstadoDocumento::all($where, [], 0, 0) as $status) {
             // comprobamos si ya existe el informe
             $report = new Report();
-            $name = Tools::lang()->trans('r-' . $table_name . '-total-status', ['%name%' => $status->nombre]);
-            $where = [new DataBaseWhere('name', $name)];
+            $tag = 'r-' . $table_name . '-total-status-' . $status->idestado;
+            $where = [new DataBaseWhere('tag', $tag)];
             if ($report->loadFromCode('', $where)) {
                 continue;
             }
 
             // creamos el informe
-            $report->name = $name;
+            $report->name = Tools::lang()->trans('r-' . $table_name . '-total-status', ['%name%' => $status->nombre]);
             $report->table = $table_name;
+            $report->tag = $tag;
             $report->xcolumn = 'fecha';
             $report->xoperation = 'MONTHS';
             $report->ycolumn = 'total';
@@ -363,15 +366,16 @@ class ReportGenerator
     {
         // comprobamos si ya existe el informe
         $report = new Report();
-        $name = Tools::lang()->trans('r-' . $table_name . '-countries');
-        $where = [new DataBaseWhere('name', $name)];
+        $tag = 'r-' . $table_name . '-countries';
+        $where = [new DataBaseWhere('tag', $tag)];
         if ($report->loadFromCode('', $where)) {
             return 0;
         }
 
         // creamos el informe
-        $report->name = $name;
+        $report->name = Tools::lang()->trans('r-' . $table_name . '-countries');
         $report->table = $table_name;
+        $report->tag = $tag;
         $report->type = 'map';
         $report->xcolumn = 'codpais';
         if (false === $report->save()) {
@@ -390,15 +394,16 @@ class ReportGenerator
 
         // comprobamos si ya existe el informe
         $reportMonths = new Report();
-        $name = Tools::lang()->trans('r-' . $table_name . '-new-months');
-        $where = [new DataBaseWhere('name', $name)];
+        $tag = 'r-' . $table_name . '-new-months';
+        $where = [new DataBaseWhere('tag', $tag)];
         if ($reportMonths->loadFromCode('', $where)) {
             return $total;
         }
 
         // creamos el informe mensual
-        $reportMonths->name = $name;
+        $reportMonths->name = Tools::lang()->trans('r-' . $table_name . '-new-months');
         $reportMonths->table = $table_name;
+        $reportMonths->tag = $tag;
         $reportMonths->xcolumn = 'fechaalta';
         $reportMonths->xoperation = 'MONTHS';
         if (false === $reportMonths->save()) {
@@ -411,6 +416,7 @@ class ReportGenerator
         $reportYears = new Report();
         $reportYears->name = Tools::lang()->trans('r-' . $table_name . '-new-years');
         $reportYears->table = $table_name;
+        $reportYears->tag = 'r-' . $table_name . '-new-years';
         $reportYears->xcolumn = 'fechaalta';
         $reportYears->xoperation = 'YEAR';
         if (false === $reportYears->save()) {
@@ -432,15 +438,16 @@ class ReportGenerator
 
         // comprobamos si ya existe el informe
         $reportMonths = new Report();
-        $name = Tools::lang()->trans('r-' . $table_name . '-total-months');
-        $where = [new DataBaseWhere('name', $name)];
+        $tag = 'r-' . $table_name . '-total-months';
+        $where = [new DataBaseWhere('tag', $tag)];
         if ($reportMonths->loadFromCode('', $where)) {
             return $total;
         }
 
         // creamos el informe mensual
-        $reportMonths->name = $name;
+        $reportMonths->name = Tools::lang()->trans('r-' . $table_name . '-total-months');
         $reportMonths->table = $table_name;
+        $reportMonths->tag = $tag;
         $reportMonths->xcolumn = 'fecha';
         $reportMonths->xoperation = 'MONTHS';
         $reportMonths->ycolumn = 'total';
@@ -455,6 +462,7 @@ class ReportGenerator
         $reportYears = new Report();
         $reportYears->name = Tools::lang()->trans('r-' . $table_name . '-total-years');
         $reportYears->table = $table_name;
+        $reportYears->tag = 'r-' . $table_name . '-total-years';
         $reportYears->xcolumn = 'fecha';
         $reportYears->xoperation = 'YEAR';
         $reportYears->ycolumn = 'total';

@@ -50,7 +50,7 @@ class ListReport extends ListController
     {
         $this->addView($viewName, 'Report', 'charts', 'fa-solid fa-chart-pie')
             ->addOrderBy(['name'], 'name')
-            ->addSearchFields(['name', 'table', 'xcolumn', 'ycolumn']);
+            ->addSearchFields(['name', 'table', 'tag', 'xcolumn', 'ycolumn']);
 
         $types = $this->codeModel->all('reports', 'type', 'type');
 

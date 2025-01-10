@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -46,6 +46,9 @@ class Report extends Base\ModelClass
 
     /** @var string */
     public $table;
+
+    /** @var string */
+    public $tag;
 
     /** @var string */
     public $type;
@@ -144,6 +147,7 @@ class Report extends Base\ModelClass
     {
         $this->name = Tools::noHtml($this->name);
         $this->table = Tools::noHtml($this->table);
+        $this->tag = Tools::noHtml($this->tag);
         $this->type = Tools::noHtml($this->type);
         $this->xcolumn = Tools::noHtml($this->xcolumn);
         $this->xoperation = Tools::noHtml($this->xoperation);
