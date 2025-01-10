@@ -22,7 +22,10 @@ namespace FacturaScripts\Plugins\Informes\Lib\Informes;
 use FacturaScripts\Core\Base\DataBase;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\DataSrc\Agentes;
+use FacturaScripts\Core\DataSrc\Almacenes;
+use FacturaScripts\Core\DataSrc\Series;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Dinamic\Model\Agente;
 use FacturaScripts\Dinamic\Model\EstadoDocumento;
 use FacturaScripts\Plugins\Informes\Model\Report;
 use FacturaScripts\Plugins\Informes\Model\ReportBoard;
@@ -69,7 +72,8 @@ class ReportGenerator
         $total = 0;
 
         // ventas mensuales
-        $done = static::generateBoard('b-monthly-sales', [
+        $name = Tools::lang()->trans('b-monthly-sales');
+        $done = static::generateBoard($name, [
             'r-contactos-new-months', 'r-clientes-new-months', 'r-facturascli-total-months',
             'r-albaranescli-total-months', 'r-pedidoscli-total-months', 'r-presupuestoscli-total-months',
         ]);
@@ -78,7 +82,8 @@ class ReportGenerator
         }
 
         // compras mensuales
-        $done = static::generateBoard('b-monthly-purchases', [
+        $name = Tools::lang()->trans('b-monthly-purchases');
+        $done = static::generateBoard($name, [
             'r-proveedores-new-months', 'r-facturasprov-total-months',
             'r-albaranesprov-total-months', 'r-pedidosprov-total-months', 'r-presupuestosprov-total-months',
         ]);
@@ -87,7 +92,8 @@ class ReportGenerator
         }
 
         // ventas anuales
-        $done = static::generateBoard('b-annual-sales', [
+        $name = Tools::lang()->trans('b-annual-sales');
+        $done = static::generateBoard($name, [
             'r-contactos-new-years', 'r-clientes-new-years',
             'r-contactos-countries', 'r-facturascli-countries',
             'r-facturascli-total-years',
@@ -100,7 +106,8 @@ class ReportGenerator
         }
 
         // compras anuales
-        $done = static::generateBoard('b-annual-purchases', [
+        $name = Tools::lang()->trans('b-annual-purchases');
+        $done = static::generateBoard($name, [
             'r-proveedores-new-years',
             'r-facturasprov-total-years',
             'r-albaranesprov-total-years',
@@ -118,7 +125,8 @@ class ReportGenerator
                 $report_names[] = $report->name;
             }
 
-            $done = static::generateBoard('b-' . $table_name, $report_names);
+            $name = Tools::lang()->trans('b-' . $table_name);
+            $done = static::generateBoard($name, $report_names);
             if ($done) {
                 $total++;
             }
@@ -131,7 +139,12 @@ class ReportGenerator
                 $report_names[] = $report->name;
             }
 
-            $agent = Agentes::get($codagente);
+            // no reemplazar por Agentes::get() hasta resolver bug con esa función
+            $agent = new Agente();
+            if (false === $agent->loadFromCode($codagente) || !empty($agent->fechabaja)) {
+                continue;
+            }
+
             $name = Tools::lang()->trans('b-agent', ['%name%' => $agent->nombre]);
             $done = static::generateBoard($name, $report_names);
             if ($done) {
@@ -144,8 +157,6 @@ class ReportGenerator
 
     protected static function generateBoard(string $name, array $report_names): bool
     {
-        $name = Tools::lang()->trans($name);
-
         // comprobamos si ya existe la pizarra
         $board = new ReportBoard();
         $where = [new DataBaseWhere('name', $name)];
@@ -220,7 +231,84 @@ class ReportGenerator
         return $total;
     }
 
-    protected static function generateReportsTotalByStatus(string $table_name, int &$total): int
+    protected static function generateReportsTotalBySerie(string $table_name): int
+    {
+        $total = 0;
+
+        // recorremos todas las series
+        foreach (Series::all() as $serie) {
+            // comprobamos si ya existe el informe
+            $report = new Report();
+            $name = Tools::lang()->trans('r-' . $table_name . '-total-serie', ['%serie%' => $serie->descripcion]);
+            $where = [new DataBaseWhere('name', $name)];
+            if ($report->loadFromCode('', $where)) {
+                continue;
+            }
+
+            // creamos el informe
+            $report->name = $name;
+            $report->table = $table_name;
+            $report->xcolumn = 'fecha';
+            $report->xoperation = 'MONTHS';
+            $report->ycolumn = 'total';
+            $report->yoperation = 'SUM';
+            if (false === $report->save()) {
+                break;
+            }
+
+            // añadimos el filtro
+            $report->addFilter('codserie', '=', $serie->codserie);
+            $total++;
+
+            // guardamos el informe para futuras referencias
+            self::$table_reports[$table_name][] = $report;
+        }
+
+        return $total;
+    }
+
+    protected static function generateReportsTotalByWarehouse(string $table_name): int
+    {
+        $total = 0;
+
+        // si solamente hay un almacén, no es necesario crear informes por almacén
+        if (count(Almacenes::all()) <= 1) {
+            return $total;
+        }
+
+        // recorremos todos los almacenes
+        foreach (Almacenes::all() as $warehouse) {
+            // comprobamos si ya existe el informe
+            $report = new Report();
+            $name = Tools::lang()->trans('r-' . $table_name . '-total-warehouse', ['%name%' => $warehouse->nombre]);
+            $where = [new DataBaseWhere('name', $name)];
+            if ($report->loadFromCode('', $where)) {
+                continue;
+            }
+
+            // creamos el informe
+            $report->name = $name;
+            $report->table = $table_name;
+            $report->xcolumn = 'fecha';
+            $report->xoperation = 'MONTHS';
+            $report->ycolumn = 'total';
+            $report->yoperation = 'SUM';
+            if (false === $report->save()) {
+                break;
+            }
+
+            // añadimos el filtro
+            $report->addFilter('codalmacen', '=', $warehouse->codalmacen);
+            $total++;
+
+            // guardamos el informe para futuras referencias
+            self::$table_reports[$table_name][] = $report;
+        }
+
+        return $total;
+    }
+
+    protected static function generateReportsTotalByStatus(string $table_name): int
     {
         $total = 0;
 
@@ -405,10 +493,22 @@ class ReportGenerator
             $total += static::generateReportsFechaTotal($name);
         }
 
+        if (in_array('codalmacen', $columns) &&
+            in_array('fecha', $columns) &&
+            in_array('total', $columns)) {
+            $total += static::generateReportsTotalByWarehouse($name);
+        }
+
+        if (in_array('codserie', $columns) &&
+            in_array('fecha', $columns) &&
+            in_array('total', $columns)) {
+            $total += static::generateReportsTotalBySerie($name);
+        }
+
         if (in_array('idestado', $columns) &&
             in_array('fecha', $columns) &&
             in_array('total', $columns)) {
-            $total += static::generateReportsTotalByStatus($name, $total);
+            $total += static::generateReportsTotalByStatus($name);
         }
 
         if (in_array('codagente', $columns) &&
