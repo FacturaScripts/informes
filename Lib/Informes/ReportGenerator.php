@@ -324,32 +324,52 @@ class ReportGenerator
     {
         $total = 0;
 
-        // comprobamos si ya existe el informe
+        // comprobamos si ya existe el informe mensual
         $report = new Report();
         $tag = 'r-' . $table_name . '-total-agent-' . $agent->codagente;
         $where = [new DataBaseWhere('tag', $tag)];
-        if ($report->loadFromCode('', $where)) {
-            return $total;
+        if (false === $report->loadFromCode('', $where)) {
+            // creamos el informe
+            $report->name = Tools::lang()->trans('r-' . $table_name . '-total-agent', ['%name%' => $agent->nombre]);
+            $report->table = $table_name;
+            $report->tag = $tag;
+            $report->xcolumn = 'fecha';
+            $report->xoperation = 'MONTHS';
+            $report->ycolumn = 'total';
+            $report->yoperation = 'SUM';
+            if ($report->save()) {
+                // añadimos el filtro
+                $report->addFilter('codagente', '=', $agent->codagente);
+                $total++;
+
+                // guardamos el informe para futuras referencias
+                self::$agent_reports[$agent->codagente][] = $report;
+            }
         }
 
-        // creamos el informe
-        $report->name = Tools::lang()->trans('r-' . $table_name . '-total-agent', ['%name%' => $agent->nombre]);
-        $report->table = $table_name;
-        $report->tag = $tag;
-        $report->xcolumn = 'fecha';
-        $report->xoperation = 'MONTHS';
-        $report->ycolumn = 'total';
-        $report->yoperation = 'SUM';
-        if (false === $report->save()) {
-            return $total;
+        // comprobamos si ya existe el informe anual
+        $reportYear = new Report();
+        $tag = 'r-' . $table_name . '-total-agent-' . $agent->codagente . '-year';
+        $where = [new DataBaseWhere('tag', $tag)];
+        if (false === $reportYear->loadFromCode('', $where)) {
+            // creamos el informe
+            $reportYear->name = Tools::lang()->trans('r-' . $table_name . '-total-agent-year', ['%name%' => $agent->nombre]);
+            $reportYear->table = $table_name;
+            $reportYear->tag = $tag;
+            $reportYear->type = Report::TYPE_BAR;
+            $reportYear->xcolumn = 'fecha';
+            $reportYear->xoperation = 'YEAR';
+            $reportYear->ycolumn = 'total';
+            $reportYear->yoperation = 'SUM';
+            if ($reportYear->save()) {
+                // añadimos el filtro
+                $reportYear->addFilter('codagente', '=', $agent->codagente);
+                $total++;
+
+                // guardamos el informe para futuras referencias
+                self::$agent_reports[$agent->codagente][] = $reportYear;
+            }
         }
-
-        // añadimos el filtro
-        $report->addFilter('codagente', '=', $agent->codagente);
-        $total++;
-
-        // guardamos el informe para futuras referencias
-        self::$agent_reports[$agent->codagente][] = $report;
 
         return $total;
     }
@@ -358,32 +378,52 @@ class ReportGenerator
     {
         $total = 0;
 
-        // comprobamos si ya existe el informe
+        // comprobamos si ya existe el informe mensual
         $report = new Report();
         $tag = 'r-' . $table_name . '-total-customer-' . $customer->codcliente;
         $where = [new DataBaseWhere('tag', $tag)];
-        if ($report->loadFromCode('', $where)) {
-            return $total;
+        if (false === $report->loadFromCode('', $where)) {
+            // creamos el informe
+            $report->name = Tools::lang()->trans('r-' . $table_name . '-total-customer', ['%name%' => $customer->nombre]);
+            $report->table = $table_name;
+            $report->tag = $tag;
+            $report->xcolumn = 'fecha';
+            $report->xoperation = 'MONTHS';
+            $report->ycolumn = 'total';
+            $report->yoperation = 'SUM';
+            if ($report->save()) {
+                // añadimos el filtro
+                $report->addFilter('codcliente', '=', $customer->codcliente);
+                $total++;
+
+                // guardamos el informe para futuras referencias
+                self::$customer_reports[$customer->codcliente][] = $report;
+            }
         }
 
-        // creamos el informe
-        $report->name = Tools::lang()->trans('r-' . $table_name . '-total-customer', ['%name%' => $customer->nombre]);
-        $report->table = $table_name;
-        $report->tag = $tag;
-        $report->xcolumn = 'fecha';
-        $report->xoperation = 'MONTHS';
-        $report->ycolumn = 'total';
-        $report->yoperation = 'SUM';
-        if (false === $report->save()) {
-            return $total;
+        // comprobamos si ya existe el informe anual
+        $reportYear = new Report();
+        $tag = 'r-' . $table_name . '-total-customer-' . $customer->codcliente . '-year';
+        $where = [new DataBaseWhere('tag', $tag)];
+        if (false === $reportYear->loadFromCode('', $where)) {
+            // creamos el informe
+            $reportYear->name = Tools::lang()->trans('r-' . $table_name . '-total-customer-year', ['%name%' => $customer->nombre]);
+            $reportYear->table = $table_name;
+            $reportYear->tag = $tag;
+            $reportYear->type = Report::TYPE_BAR;
+            $reportYear->xcolumn = 'fecha';
+            $reportYear->xoperation = 'YEAR';
+            $reportYear->ycolumn = 'total';
+            $reportYear->yoperation = 'SUM';
+            if ($reportYear->save()) {
+                // añadimos el filtro
+                $reportYear->addFilter('codcliente', '=', $customer->codcliente);
+                $total++;
+
+                // guardamos el informe para futuras referencias
+                self::$customer_reports[$customer->codcliente][] = $reportYear;
+            }
         }
-
-        // añadimos el filtro
-        $report->addFilter('codcliente', '=', $customer->codcliente);
-        $total++;
-
-        // guardamos el informe para futuras referencias
-        self::$customer_reports[$customer->codcliente][] = $report;
 
         return $total;
     }
@@ -394,32 +434,52 @@ class ReportGenerator
 
         // recorremos todas las series
         foreach (Series::all() as $serie) {
-            // comprobamos si ya existe el informe
+            // comprobamos si ya existe el informe mensual
             $report = new Report();
             $tag = 'r-' . $table_name . '-total-serie-' . $serie->codserie;
             $where = [new DataBaseWhere('tag', $tag)];
-            if ($report->loadFromCode('', $where)) {
-                continue;
+            if (false === $report->loadFromCode('', $where)) {
+                // creamos el informe
+                $report->name = Tools::lang()->trans('r-' . $table_name . '-total-serie', ['%serie%' => $serie->descripcion]);
+                $report->table = $table_name;
+                $report->tag = $tag;
+                $report->xcolumn = 'fecha';
+                $report->xoperation = 'MONTHS';
+                $report->ycolumn = 'total';
+                $report->yoperation = 'SUM';
+                if ($report->save()) {
+                    // añadimos el filtro
+                    $report->addFilter('codserie', '=', $serie->codserie);
+                    $total++;
+
+                    // guardamos el informe para futuras referencias
+                    self::$table_reports[$table_name][] = $report;
+                }
             }
 
-            // creamos el informe
-            $report->name = Tools::lang()->trans('r-' . $table_name . '-total-serie', ['%serie%' => $serie->descripcion]);
-            $report->table = $table_name;
-            $report->tag = $tag;
-            $report->xcolumn = 'fecha';
-            $report->xoperation = 'MONTHS';
-            $report->ycolumn = 'total';
-            $report->yoperation = 'SUM';
-            if (false === $report->save()) {
-                break;
+            // comprobamos si ya existe el informe anual
+            $reportYear = new Report();
+            $tag = 'r-' . $table_name . '-total-serie-' . $serie->codserie . '-year';
+            $where = [new DataBaseWhere('tag', $tag)];
+            if (false === $reportYear->loadFromCode('', $where)) {
+                // creamos el informe
+                $reportYear->name = Tools::lang()->trans('r-' . $table_name . '-total-serie-year', ['%serie%' => $serie->descripcion]);
+                $reportYear->table = $table_name;
+                $reportYear->tag = $tag;
+                $reportYear->type = Report::TYPE_BAR;
+                $reportYear->xcolumn = 'fecha';
+                $reportYear->xoperation = 'YEAR';
+                $reportYear->ycolumn = 'total';
+                $reportYear->yoperation = 'SUM';
+                if ($reportYear->save()) {
+                    // añadimos el filtro
+                    $reportYear->addFilter('codserie', '=', $serie->codserie);
+                    $total++;
+
+                    // guardamos el informe para futuras referencias
+                    self::$table_reports[$table_name][] = $reportYear;
+                }
             }
-
-            // añadimos el filtro
-            $report->addFilter('codserie', '=', $serie->codserie);
-            $total++;
-
-            // guardamos el informe para futuras referencias
-            self::$table_reports[$table_name][] = $report;
         }
 
         return $total;
@@ -429,32 +489,52 @@ class ReportGenerator
     {
         $total = 0;
 
-        // comprobamos si ya existe el informe
+        // comprobamos si ya existe el informe mensual
         $report = new Report();
         $tag = 'r-' . $table_name . '-total-supplier-' . $supplier->codproveedor;
         $where = [new DataBaseWhere('tag', $tag)];
-        if ($report->loadFromCode('', $where)) {
-            return $total;
+        if (false === $report->loadFromCode('', $where)) {
+            // creamos el informe
+            $report->name = Tools::lang()->trans('r-' . $table_name . '-total-supplier', ['%name%' => $supplier->nombre]);
+            $report->table = $table_name;
+            $report->tag = $tag;
+            $report->xcolumn = 'fecha';
+            $report->xoperation = 'MONTHS';
+            $report->ycolumn = 'total';
+            $report->yoperation = 'SUM';
+            if ($report->save()) {
+                // añadimos el filtro
+                $report->addFilter('codproveedor', '=', $supplier->codproveedor);
+                $total++;
+
+                // guardamos el informe para futuras referencias
+                self::$supplier_reports[$supplier->codproveedor][] = $report;
+            }
         }
 
-        // creamos el informe
-        $report->name = Tools::lang()->trans('r-' . $table_name . '-total-supplier', ['%name%' => $supplier->nombre]);
-        $report->table = $table_name;
-        $report->tag = $tag;
-        $report->xcolumn = 'fecha';
-        $report->xoperation = 'MONTHS';
-        $report->ycolumn = 'total';
-        $report->yoperation = 'SUM';
-        if (false === $report->save()) {
-            return $total;
+        // comprobamos si ya existe el informe anual
+        $reportYear = new Report();
+        $tag = 'r-' . $table_name . '-total-supplier-' . $supplier->codproveedor . '-year';
+        $where = [new DataBaseWhere('tag', $tag)];
+        if (false === $reportYear->loadFromCode('', $where)) {
+            // creamos el informe
+            $reportYear->name = Tools::lang()->trans('r-' . $table_name . '-total-supplier-year', ['%name%' => $supplier->nombre]);
+            $reportYear->table = $table_name;
+            $reportYear->tag = $tag;
+            $reportYear->type = Report::TYPE_BAR;
+            $reportYear->xcolumn = 'fecha';
+            $reportYear->xoperation = 'YEAR';
+            $reportYear->ycolumn = 'total';
+            $reportYear->yoperation = 'SUM';
+            if ($reportYear->save()) {
+                // añadimos el filtro
+                $reportYear->addFilter('codproveedor', '=', $supplier->codproveedor);
+                $total++;
+
+                // guardamos el informe para futuras referencias
+                self::$supplier_reports[$supplier->codproveedor][] = $reportYear;
+            }
         }
-
-        // añadimos el filtro
-        $report->addFilter('codproveedor', '=', $supplier->codproveedor);
-        $total++;
-
-        // guardamos el informe para futuras referencias
-        self::$supplier_reports[$supplier->codproveedor][] = $report;
 
         return $total;
     }
@@ -463,32 +543,52 @@ class ReportGenerator
     {
         $total = 0;
 
-        // comprobamos si ya existe el informe
+        // comprobamos si ya existe el informe mensual
         $report = new Report();
         $tag = 'r-' . $table_name . '-total-user-' . $user->nick;
         $where = [new DataBaseWhere('tag', $tag)];
-        if ($report->loadFromCode('', $where)) {
-            return $total;
+        if (false === $report->loadFromCode('', $where)) {
+            // creamos el informe
+            $report->name = Tools::lang()->trans('r-' . $table_name . '-total-user', ['%name%' => $user->nick]);
+            $report->table = $table_name;
+            $report->tag = $tag;
+            $report->xcolumn = 'fecha';
+            $report->xoperation = 'MONTHS';
+            $report->ycolumn = 'total';
+            $report->yoperation = 'SUM';
+            if ($report->save()) {
+                // añadimos el filtro
+                $report->addFilter('nick', '=', $user->nick);
+                $total++;
+
+                // guardamos el informe para futuras referencias
+                self::$user_reports[$user->nick][] = $report;
+            }
         }
 
-        // creamos el informe
-        $report->name = Tools::lang()->trans('r-' . $table_name . '-total-user', ['%name%' => $user->nick]);
-        $report->table = $table_name;
-        $report->tag = $tag;
-        $report->xcolumn = 'fecha';
-        $report->xoperation = 'MONTHS';
-        $report->ycolumn = 'total';
-        $report->yoperation = 'SUM';
-        if (false === $report->save()) {
-            return $total;
+        // comprobamos si ya existe el informe anual
+        $reportYear = new Report();
+        $tag = 'r-' . $table_name . '-total-user-' . $user->nick . '-year';
+        $where = [new DataBaseWhere('tag', $tag)];
+        if (false === $reportYear->loadFromCode('', $where)) {
+            // creamos el informe
+            $reportYear->name = Tools::lang()->trans('r-' . $table_name . '-total-user-year', ['%name%' => $user->nick]);
+            $reportYear->table = $table_name;
+            $reportYear->tag = $tag;
+            $reportYear->type = Report::TYPE_BAR;
+            $reportYear->xcolumn = 'fecha';
+            $reportYear->xoperation = 'YEAR';
+            $reportYear->ycolumn = 'total';
+            $reportYear->yoperation = 'SUM';
+            if ($reportYear->save()) {
+                // añadimos el filtro
+                $reportYear->addFilter('nick', '=', $user->nick);
+                $total++;
+
+                // guardamos el informe para futuras referencias
+                self::$user_reports[$user->nick][] = $reportYear;
+            }
         }
-
-        // añadimos el filtro
-        $report->addFilter('nick', '=', $user->nick);
-        $total++;
-
-        // guardamos el informe para futuras referencias
-        self::$user_reports[$user->nick][] = $report;
 
         return $total;
     }
@@ -504,32 +604,52 @@ class ReportGenerator
 
         // recorremos todos los almacenes
         foreach (Almacenes::all() as $warehouse) {
-            // comprobamos si ya existe el informe
+            // comprobamos si ya existe el informe mensual
             $report = new Report();
             $tag = 'r-' . $table_name . '-total-warehouse-' . $warehouse->codalmacen;
             $where = [new DataBaseWhere('tag', $tag)];
-            if ($report->loadFromCode('', $where)) {
-                continue;
+            if (false === $report->loadFromCode('', $where)) {
+                // creamos el informe
+                $report->name = Tools::lang()->trans('r-' . $table_name . '-total-warehouse', ['%name%' => $warehouse->nombre]);
+                $report->table = $table_name;
+                $report->tag = $tag;
+                $report->xcolumn = 'fecha';
+                $report->xoperation = 'MONTHS';
+                $report->ycolumn = 'total';
+                $report->yoperation = 'SUM';
+                if ($report->save()) {
+                    // añadimos el filtro
+                    $report->addFilter('codalmacen', '=', $warehouse->codalmacen);
+                    $total++;
+
+                    // guardamos el informe para futuras referencias
+                    self::$table_reports[$table_name][] = $report;
+                }
             }
 
-            // creamos el informe
-            $report->name = Tools::lang()->trans('r-' . $table_name . '-total-warehouse', ['%name%' => $warehouse->nombre]);
-            $report->table = $table_name;
-            $report->tag = $tag;
-            $report->xcolumn = 'fecha';
-            $report->xoperation = 'MONTHS';
-            $report->ycolumn = 'total';
-            $report->yoperation = 'SUM';
-            if (false === $report->save()) {
-                break;
+            // comprobamos si ya existe el informe anual
+            $reportYear = new Report();
+            $tag = 'r-' . $table_name . '-total-warehouse-' . $warehouse->codalmacen . '-year';
+            $where = [new DataBaseWhere('tag', $tag)];
+            if (false === $reportYear->loadFromCode('', $where)) {
+                // creamos el informe
+                $reportYear->name = Tools::lang()->trans('r-' . $table_name . '-total-warehouse-year', ['%name%' => $warehouse->nombre]);
+                $reportYear->table = $table_name;
+                $reportYear->tag = $tag;
+                $reportYear->type = Report::TYPE_BAR;
+                $reportYear->xcolumn = 'fecha';
+                $reportYear->xoperation = 'YEAR';
+                $reportYear->ycolumn = 'total';
+                $reportYear->yoperation = 'SUM';
+                if ($reportYear->save()) {
+                    // añadimos el filtro
+                    $reportYear->addFilter('codalmacen', '=', $warehouse->codalmacen);
+                    $total++;
+
+                    // guardamos el informe para futuras referencias
+                    self::$table_reports[$table_name][] = $reportYear;
+                }
             }
-
-            // añadimos el filtro
-            $report->addFilter('codalmacen', '=', $warehouse->codalmacen);
-            $total++;
-
-            // guardamos el informe para futuras referencias
-            self::$table_reports[$table_name][] = $report;
         }
 
         return $total;
@@ -556,32 +676,52 @@ class ReportGenerator
         // recorre todos los estados del tipo
         $where = [new DataBaseWhere('tipodoc', $type[$table_name])];
         foreach (EstadoDocumento::all($where, [], 0, 0) as $status) {
-            // comprobamos si ya existe el informe
+            // comprobamos si ya existe el informe mensual
             $report = new Report();
             $tag = 'r-' . $table_name . '-total-status-' . $status->idestado;
             $where = [new DataBaseWhere('tag', $tag)];
-            if ($report->loadFromCode('', $where)) {
-                continue;
+            if (false === $report->loadFromCode('', $where)) {
+                // creamos el informe
+                $report->name = Tools::lang()->trans('r-' . $table_name . '-total-status', ['%name%' => $status->nombre]);
+                $report->table = $table_name;
+                $report->tag = $tag;
+                $report->xcolumn = 'fecha';
+                $report->xoperation = 'MONTHS';
+                $report->ycolumn = 'total';
+                $report->yoperation = 'SUM';
+                if ($report->save()) {
+                    // añadimos el filtro
+                    $report->addFilter('idestado', '=', $status->idestado);
+                    $total++;
+
+                    // guardamos el informe para futuras referencias
+                    self::$table_reports[$table_name][] = $report;
+                }
             }
 
-            // creamos el informe
-            $report->name = Tools::lang()->trans('r-' . $table_name . '-total-status', ['%name%' => $status->nombre]);
-            $report->table = $table_name;
-            $report->tag = $tag;
-            $report->xcolumn = 'fecha';
-            $report->xoperation = 'MONTHS';
-            $report->ycolumn = 'total';
-            $report->yoperation = 'SUM';
-            if (false === $report->save()) {
-                break;
+            // comprobamos si ya existe el informe anual
+            $reportYear = new Report();
+            $tag = 'r-' . $table_name . '-total-status-' . $status->idestado . '-year';
+            $where = [new DataBaseWhere('tag', $tag)];
+            if (false === $reportYear->loadFromCode('', $where)) {
+                // creamos el informe
+                $reportYear->name = Tools::lang()->trans('r-' . $table_name . '-total-status-year', ['%name%' => $status->nombre]);
+                $reportYear->table = $table_name;
+                $reportYear->tag = $tag;
+                $reportYear->type = Report::TYPE_BAR;
+                $reportYear->xcolumn = 'fecha';
+                $reportYear->xoperation = 'YEAR';
+                $reportYear->ycolumn = 'total';
+                $reportYear->yoperation = 'SUM';
+                if ($reportYear->save()) {
+                    // añadimos el filtro
+                    $reportYear->addFilter('idestado', '=', $status->idestado);
+                    $total++;
+
+                    // guardamos el informe para futuras referencias
+                    self::$table_reports[$table_name][] = $reportYear;
+                }
             }
-
-            // añadimos el filtro
-            $report->addFilter('idestado', '=', $status->idestado);
-            $total++;
-
-            // guardamos el informe para futuras referencias
-            self::$table_reports[$table_name][] = $report;
         }
 
         return $total;
@@ -617,42 +757,44 @@ class ReportGenerator
     {
         $total = 0;
 
-        // comprobamos si ya existe el informe
+        // comprobamos si ya existe el informe mensual
         $reportMonths = new Report();
         $tag = 'r-' . $table_name . '-new-months';
         $where = [new DataBaseWhere('tag', $tag)];
-        if ($reportMonths->loadFromCode('', $where)) {
-            return $total;
+        if (false === $reportMonths->loadFromCode('', $where)) {
+            // creamos el informe mensual
+            $reportMonths->name = Tools::lang()->trans('r-' . $table_name . '-new-months');
+            $reportMonths->table = $table_name;
+            $reportMonths->tag = $tag;
+            $reportMonths->xcolumn = 'fechaalta';
+            $reportMonths->xoperation = 'MONTHS';
+            if ($reportMonths->save()) {
+                $total++;
+
+                // guardamos los informes para futuras referencias
+                self::$table_reports[$table_name][] = $reportMonths;
+            }
         }
 
-        // creamos el informe mensual
-        $reportMonths->name = Tools::lang()->trans('r-' . $table_name . '-new-months');
-        $reportMonths->table = $table_name;
-        $reportMonths->tag = $tag;
-        $reportMonths->xcolumn = 'fechaalta';
-        $reportMonths->xoperation = 'MONTHS';
-        if (false === $reportMonths->save()) {
-            return $total;
-        }
-
-        $total++;
-
-        // creamos el informe anual
+        // comprobamos si ya existe el informe anual
         $reportYears = new Report();
-        $reportYears->name = Tools::lang()->trans('r-' . $table_name . '-new-years');
-        $reportYears->table = $table_name;
-        $reportYears->tag = 'r-' . $table_name . '-new-years';
-        $reportYears->xcolumn = 'fechaalta';
-        $reportYears->xoperation = 'YEAR';
-        if (false === $reportYears->save()) {
-            return $total;
+        $tag = 'r-' . $table_name . '-new-years';
+        $where = [new DataBaseWhere('tag', $tag)];
+        if (false === $reportYears->loadFromCode('', $where)) {
+            // creamos el informe anual
+            $reportYears->name = Tools::lang()->trans('r-' . $table_name . '-new-years');
+            $reportYears->table = $table_name;
+            $reportYears->tag = 'r-' . $table_name . '-new-years';
+            $reportYears->type = Report::TYPE_BAR;
+            $reportYears->xcolumn = 'fechaalta';
+            $reportYears->xoperation = 'YEAR';
+            if ($reportYears->save()) {
+                $total++;
+
+                // guardamos los informes para futuras referencias
+                self::$table_reports[$table_name][] = $reportYears;
+            }
         }
-
-        $total++;
-
-        // guardamos los informes para futuras referencias
-        self::$table_reports[$table_name][] = $reportYears;
-        self::$table_reports[$table_name][] = $reportMonths;
 
         return $total;
     }
@@ -661,46 +803,48 @@ class ReportGenerator
     {
         $total = 0;
 
-        // comprobamos si ya existe el informe
+        // comprobamos si ya existe el informe mensual
         $reportMonths = new Report();
         $tag = 'r-' . $table_name . '-total-months';
         $where = [new DataBaseWhere('tag', $tag)];
-        if ($reportMonths->loadFromCode('', $where)) {
-            return $total;
+        if (false === $reportMonths->loadFromCode('', $where)) {
+            // creamos el informe mensual
+            $reportMonths->name = Tools::lang()->trans('r-' . $table_name . '-total-months');
+            $reportMonths->table = $table_name;
+            $reportMonths->tag = $tag;
+            $reportMonths->xcolumn = 'fecha';
+            $reportMonths->xoperation = 'MONTHS';
+            $reportMonths->ycolumn = 'total';
+            $reportMonths->yoperation = 'SUM';
+            if ($reportMonths->save()) {
+                $total++;
+
+                // guardamos los informes para futuras referencias
+                self::$table_reports[$table_name][] = $reportMonths;
+            }
         }
 
-        // creamos el informe mensual
-        $reportMonths->name = Tools::lang()->trans('r-' . $table_name . '-total-months');
-        $reportMonths->table = $table_name;
-        $reportMonths->tag = $tag;
-        $reportMonths->xcolumn = 'fecha';
-        $reportMonths->xoperation = 'MONTHS';
-        $reportMonths->ycolumn = 'total';
-        $reportMonths->yoperation = 'SUM';
-        if (false === $reportMonths->save()) {
-            return $total;
-        }
-
-        $total++;
-
-        // creamos el informe anual
+        // comprobamos si ya existe el informe anual
         $reportYears = new Report();
-        $reportYears->name = Tools::lang()->trans('r-' . $table_name . '-total-years');
-        $reportYears->table = $table_name;
-        $reportYears->tag = 'r-' . $table_name . '-total-years';
-        $reportYears->xcolumn = 'fecha';
-        $reportYears->xoperation = 'YEAR';
-        $reportYears->ycolumn = 'total';
-        $reportYears->yoperation = 'SUM';
-        if (false === $reportYears->save()) {
-            return $total;
+        $tag = 'r-' . $table_name . '-total-years';
+        $where = [new DataBaseWhere('tag', $tag)];
+        if (false === $reportYears->loadFromCode('', $where)) {
+            // creamos el informe anual
+            $reportYears->name = Tools::lang()->trans('r-' . $table_name . '-total-years');
+            $reportYears->table = $table_name;
+            $reportYears->tag = 'r-' . $table_name . '-total-years';
+            $reportYears->type = Report::TYPE_BAR;
+            $reportYears->xcolumn = 'fecha';
+            $reportYears->xoperation = 'YEAR';
+            $reportYears->ycolumn = 'total';
+            $reportYears->yoperation = 'SUM';
+            if ($reportYears->save()) {
+                $total++;
+
+                // guardamos los informes para futuras referencias
+                self::$table_reports[$table_name][] = $reportYears;
+            }
         }
-
-        $total++;
-
-        // guardamos los informes para futuras referencias
-        self::$table_reports[$table_name][] = $reportYears;
-        self::$table_reports[$table_name][] = $reportMonths;
 
         return $total;
     }

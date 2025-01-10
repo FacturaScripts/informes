@@ -34,6 +34,11 @@ class Report extends Base\ModelClass
     use Base\ModelTrait;
 
     public const DEFAULT_TYPE = 'area';
+    public const TYPE_BAR = 'bar';
+    public const TYPE_DOUGHNUT = 'doughnut';
+    public const TYPE_MAP = 'map';
+    public const TYPE_PIE = 'pie';
+    public const TYPE_TREE_MAP = 'treemap';
 
     /** @var int */
     public $compared;
