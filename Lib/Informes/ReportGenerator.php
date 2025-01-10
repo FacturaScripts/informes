@@ -21,12 +21,14 @@ namespace FacturaScripts\Plugins\Informes\Lib\Informes;
 
 use FacturaScripts\Core\Base\DataBase;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
-use FacturaScripts\Core\DataSrc\Agentes;
 use FacturaScripts\Core\DataSrc\Almacenes;
 use FacturaScripts\Core\DataSrc\Series;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\Agente;
+use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\EstadoDocumento;
+use FacturaScripts\Dinamic\Model\Proveedor;
+use FacturaScripts\Dinamic\Model\User;
 use FacturaScripts\Plugins\Informes\Model\Report;
 use FacturaScripts\Plugins\Informes\Model\ReportBoard;
 
@@ -35,25 +37,163 @@ class ReportGenerator
     /** @var Report[] */
     private static $agent_reports = [];
 
+    /** @var Report[] */
+    private static $customer_reports = [];
+
     /** @var DataBase */
     private static $db;
 
     /** @var Report[] */
+    private static $supplier_reports = [];
+
+    /** @var Report[] */
     private static $table_reports = [];
+
+    /** @var Report[] */
+    private static $user_reports = [];
 
     public static function generate(): int
     {
         $total = 0;
 
         // creamos los informes
-        $tables = ['contactos', 'clientes', 'proveedores', 'facturascli', 'facturasprov', 'albaranescli',
-            'albaranesprov', 'pedidoscli', 'pedidosprov', 'presupuestoscli', 'presupuestosprov'];
+        $tables = ['contactos', 'clientes', 'facturascli', 'albaranescli', 'pedidoscli', 'presupuestoscli', 'serviciosat',
+            'proveedores', 'facturasprov', 'albaranesprov', 'pedidosprov', 'presupuestosprov'];
         foreach ($tables as $table) {
             $total += static::generateTableReport($table);
         }
 
         // creamos las pizarras
         $total += static::generateBoards();
+
+        return $total;
+    }
+
+    public static function generateForAgent(string $codagente): int
+    {
+        $total = 0;
+
+        // comprobamos si el agente existe
+        $agent = new Agente();
+        if (false === $agent->loadFromCode($codagente)) {
+            return $total;
+        }
+
+        // creamos los informes
+        $tables = ['facturascli', 'albaranescli', 'pedidoscli', 'presupuestoscli'];
+        foreach ($tables as $table) {
+            $total += static::generateReportsTotalByAgent($table, $agent);
+        }
+
+        // creamos la pizarra
+        $report_tags = [];
+        foreach (self::$agent_reports[$codagente] as $report) {
+            $report_tags[] = $report->tag;
+        }
+
+        $name = Tools::lang()->trans('b-agent', ['%name%' => $agent->nombre]);
+        $tag = 'b-agent-' . $codagente;
+        $done = static::generateBoard($name, $tag, $report_tags);
+        if ($done) {
+            $total++;
+        }
+
+        return $total;
+    }
+
+    public static function generateForCustomer(string $codcliente): int
+    {
+        $total = 0;
+
+        // comprobamos si el cliente existe
+        $customer = new Cliente();
+        if (false === $customer->loadFromCode($codcliente)) {
+            return $total;
+        }
+
+        // creamos los informes
+        $tables = ['facturascli', 'albaranescli', 'pedidoscli', 'presupuestoscli'];
+        foreach ($tables as $table) {
+            $total += static::generateReportsTotalByCustomer($table, $customer);
+        }
+
+        // creamos la pizarra
+        $report_tags = [];
+        foreach (self::$customer_reports[$codcliente] as $report) {
+            $report_tags[] = $report->tag;
+        }
+
+        $name = Tools::lang()->trans('b-customer', ['%name%' => $customer->nombre]);
+        $tag = 'b-customer-' . $codcliente;
+        $done = static::generateBoard($name, $tag, $report_tags);
+        if ($done) {
+            $total++;
+        }
+
+        return $total;
+    }
+
+    public static function generateForSupplier(string $codproveedor): int
+    {
+        $total = 0;
+
+        // comprobamos si el proveedor existe
+        $supplier = new Proveedor();
+        if (false === $supplier->loadFromCode($codproveedor)) {
+            return $total;
+        }
+
+        // creamos los informes
+        $tables = ['facturasprov', 'albaranesprov', 'pedidosprov', 'presupuestosprov'];
+        foreach ($tables as $table) {
+            $total += static::generateReportsTotalBySupplier($table, $supplier);
+        }
+
+        // creamos la pizarra
+        $report_tags = [];
+        foreach (self::$supplier_reports[$codproveedor] as $report) {
+            $report_tags[] = $report->tag;
+        }
+
+        $name = Tools::lang()->trans('b-supplier', ['%name%' => $supplier->nombre]);
+        $tag = 'b-supplier-' . $codproveedor;
+        $done = static::generateBoard($name, $tag, $report_tags);
+        if ($done) {
+            $total++;
+        }
+
+        return $total;
+    }
+
+    public static function generateForUser(string $username): int
+    {
+        $total = 0;
+
+        // comprobamos si el usuario existe
+        $user = new User();
+        if (false === $user->loadFromCode($username)) {
+            return $total;
+        }
+
+        // creamos los informes
+        $tables = ['facturascli', 'albaranescli', 'pedidoscli', 'presupuestoscli', 'facturasprov', 'albaranesprov',
+            'pedidosprov', 'presupuestosprov'];
+        foreach ($tables as $table) {
+            $total += static::generateReportsTotalByUser($table, $user);
+        }
+
+        // creamos la pizarra
+        $report_tags = [];
+        foreach (self::$user_reports[$username] as $report) {
+            $report_tags[] = $report->tag;
+        }
+
+        $name = Tools::lang()->trans('b-user', ['%name%' => $user->nick]);
+        $tag = 'b-user-' . $username;
+        $done = static::generateBoard($name, $tag, $report_tags);
+        if ($done) {
+            $total++;
+        }
 
         return $total;
     }
@@ -71,53 +211,6 @@ class ReportGenerator
     {
         $total = 0;
 
-        // ventas mensuales
-        $name = Tools::lang()->trans('b-monthly-sales');
-        $done = static::generateBoard($name, [
-            'r-contactos-new-months', 'r-clientes-new-months', 'r-facturascli-total-months',
-            'r-albaranescli-total-months', 'r-pedidoscli-total-months', 'r-presupuestoscli-total-months',
-        ]);
-        if ($done) {
-            $total++;
-        }
-
-        // compras mensuales
-        $name = Tools::lang()->trans('b-monthly-purchases');
-        $done = static::generateBoard($name, [
-            'r-proveedores-new-months', 'r-facturasprov-total-months',
-            'r-albaranesprov-total-months', 'r-pedidosprov-total-months', 'r-presupuestosprov-total-months',
-        ]);
-        if ($done) {
-            $total++;
-        }
-
-        // ventas anuales
-        $name = Tools::lang()->trans('b-annual-sales');
-        $done = static::generateBoard($name, [
-            'r-contactos-new-years', 'r-clientes-new-years',
-            'r-contactos-countries', 'r-facturascli-countries',
-            'r-facturascli-total-years',
-            'r-albaranescli-total-years',
-            'r-pedidoscli-total-years',
-            'r-presupuestoscli-total-years',
-        ]);
-        if ($done) {
-            $total++;
-        }
-
-        // compras anuales
-        $name = Tools::lang()->trans('b-annual-purchases');
-        $done = static::generateBoard($name, [
-            'r-proveedores-new-years',
-            'r-facturasprov-total-years',
-            'r-albaranesprov-total-years',
-            'r-pedidosprov-total-years',
-            'r-presupuestosprov-total-years',
-        ]);
-        if ($done) {
-            $total++;
-        }
-
         // pizarras por tabla
         foreach (self::$table_reports as $table_name => $reports) {
             $report_tags = [];
@@ -126,55 +219,93 @@ class ReportGenerator
             }
 
             $name = Tools::lang()->trans('b-' . $table_name);
-            $done = static::generateBoard($name, $report_tags);
+            $tag = 'b-' . $table_name;
+            $done = static::generateBoard($name, $tag, $report_tags);
             if ($done) {
                 $total++;
             }
         }
 
-        // pizarras por agente
-        foreach (self::$agent_reports as $codagente => $reports) {
-            $report_tags = [];
-            foreach ($reports as $report) {
-                $report_tags[] = $report->tag;
-            }
+        // ventas anuales
+        $name = Tools::lang()->trans('b-annual-sales');
+        $tag = 'b-annual-sales';
+        $done = static::generateBoard(
+            $name,
+            $tag, ['r-contactos-new-years', 'r-clientes-new-years', 'r-contactos-countries', 'r-facturascli-countries',
+            'r-facturascli-total-years', 'r-albaranescli-total-years', 'r-pedidoscli-total-years',
+            'r-presupuestoscli-total-years'],
+            true
+        );
+        if ($done) {
+            $total++;
+        }
 
-            // no reemplazar por Agentes::get() hasta resolver bug con esa función
-            $agent = new Agente();
-            if (false === $agent->loadFromCode($codagente) || !empty($agent->fechabaja)) {
-                continue;
-            }
+        // ventas mensuales
+        $name = Tools::lang()->trans('b-monthly-sales');
+        $tag = 'b-monthly-sales';
+        $done = static::generateBoard(
+            $name,
+            $tag,
+            ['r-contactos-new-months', 'r-clientes-new-months', 'r-facturascli-total-months',
+                'r-albaranescli-total-months', 'r-pedidoscli-total-months', 'r-presupuestoscli-total-months'],
+            true
+        );
+        if ($done) {
+            $total++;
+        }
 
-            $name = Tools::lang()->trans('b-agent', ['%name%' => $agent->nombre]);
-            $done = static::generateBoard($name, $report_tags);
-            if ($done) {
-                $total++;
-            }
+        // compras anuales
+        $name = Tools::lang()->trans('b-annual-purchases');
+        $tag = 'b-annual-purchases';
+        $done = static::generateBoard(
+            $name,
+            $tag, ['r-proveedores-new-years', 'r-facturasprov-total-years', 'r-albaranesprov-total-years',
+            'r-pedidosprov-total-years', 'r-presupuestosprov-total-years'],
+            true
+        );
+        if ($done) {
+            $total++;
+        }
+
+        // compras mensuales
+        $name = Tools::lang()->trans('b-monthly-purchases');
+        $tag = 'b-monthly-purchases';
+        $done = static::generateBoard(
+            $name,
+            $tag,
+            ['r-proveedores-new-months', 'r-facturasprov-total-months', 'r-albaranesprov-total-months',
+                'r-pedidosprov-total-months', 'r-presupuestosprov-total-months'],
+            true
+        );
+        if ($done) {
+            $total++;
         }
 
         return $total;
     }
 
-    protected static function generateBoard(string $name, array $report_tags): bool
+    protected static function generateBoard(string $name, string $tag, array $report_tags, bool $featured = false): bool
     {
         // comprobamos si ya existe la pizarra
         $board = new ReportBoard();
-        $where = [new DataBaseWhere('name', $name)];
+        $where = [new DataBaseWhere('tag', $tag)];
         if ($board->loadFromCode('', $where)) {
             return false;
         }
 
         // creamos la pizarra
+        $board->featured = $featured;
         $board->name = $name;
+        $board->tag = $tag;
         if (false === $board->save()) {
             return false;
         }
 
         // añadimos los informes
         $pos = 1;
-        foreach ($report_tags as $tag) {
+        foreach ($report_tags as $r_tag) {
             $report = new Report();
-            $whereTag = [new DataBaseWhere('tag', $tag)];
+            $whereTag = [new DataBaseWhere('tag', $r_tag)];
             if (false === $report->loadFromCode('', $whereTag)) {
                 return false;
             }
@@ -189,44 +320,70 @@ class ReportGenerator
         return true;
     }
 
-    protected static function generateReportsTotalByAgent(string $table_name): int
+    protected static function generateReportsTotalByAgent(string $table_name, Agente $agent): int
     {
         $total = 0;
 
-        // recorre todos los agentes
-        foreach (Agentes::all() as $agent) {
-            // comprobamos si está dado de baja
-            if (!empty($agent->fechabaja)) {
-                continue;
-            }
-
-            // comprobamos si ya existe el informe
-            $report = new Report();
-            $tag = 'r-' . $table_name . '-total-agent-' . $agent->codagente;
-            $where = [new DataBaseWhere('tag', $tag)];
-            if ($report->loadFromCode('', $where)) {
-                continue;
-            }
-
-            // creamos el informe
-            $report->name = Tools::lang()->trans('r-' . $table_name . '-total-agent', ['%name%' => $agent->nombre]);
-            $report->table = $table_name;
-            $report->tag = $tag;
-            $report->xcolumn = 'fecha';
-            $report->xoperation = 'MONTHS';
-            $report->ycolumn = 'total';
-            $report->yoperation = 'SUM';
-            if (false === $report->save()) {
-                break;
-            }
-
-            // añadimos el filtro
-            $report->addFilter('codagente', '=', $agent->codagente);
-            $total++;
-
-            // guardamos el informe para futuras referencias
-            self::$agent_reports[$agent->codagente][] = $report;
+        // comprobamos si ya existe el informe
+        $report = new Report();
+        $tag = 'r-' . $table_name . '-total-agent-' . $agent->codagente;
+        $where = [new DataBaseWhere('tag', $tag)];
+        if ($report->loadFromCode('', $where)) {
+            return $total;
         }
+
+        // creamos el informe
+        $report->name = Tools::lang()->trans('r-' . $table_name . '-total-agent', ['%name%' => $agent->nombre]);
+        $report->table = $table_name;
+        $report->tag = $tag;
+        $report->xcolumn = 'fecha';
+        $report->xoperation = 'MONTHS';
+        $report->ycolumn = 'total';
+        $report->yoperation = 'SUM';
+        if (false === $report->save()) {
+            return $total;
+        }
+
+        // añadimos el filtro
+        $report->addFilter('codagente', '=', $agent->codagente);
+        $total++;
+
+        // guardamos el informe para futuras referencias
+        self::$agent_reports[$agent->codagente][] = $report;
+
+        return $total;
+    }
+
+    protected static function generateReportsTotalByCustomer(string $table_name, Cliente $customer): int
+    {
+        $total = 0;
+
+        // comprobamos si ya existe el informe
+        $report = new Report();
+        $tag = 'r-' . $table_name . '-total-customer-' . $customer->codcliente;
+        $where = [new DataBaseWhere('tag', $tag)];
+        if ($report->loadFromCode('', $where)) {
+            return $total;
+        }
+
+        // creamos el informe
+        $report->name = Tools::lang()->trans('r-' . $table_name . '-total-customer', ['%name%' => $customer->nombre]);
+        $report->table = $table_name;
+        $report->tag = $tag;
+        $report->xcolumn = 'fecha';
+        $report->xoperation = 'MONTHS';
+        $report->ycolumn = 'total';
+        $report->yoperation = 'SUM';
+        if (false === $report->save()) {
+            return $total;
+        }
+
+        // añadimos el filtro
+        $report->addFilter('codcliente', '=', $customer->codcliente);
+        $total++;
+
+        // guardamos el informe para futuras referencias
+        self::$customer_reports[$customer->codcliente][] = $report;
 
         return $total;
     }
@@ -264,6 +421,74 @@ class ReportGenerator
             // guardamos el informe para futuras referencias
             self::$table_reports[$table_name][] = $report;
         }
+
+        return $total;
+    }
+
+    protected static function generateReportsTotalBySupplier(string $table_name, Proveedor $supplier): int
+    {
+        $total = 0;
+
+        // comprobamos si ya existe el informe
+        $report = new Report();
+        $tag = 'r-' . $table_name . '-total-supplier-' . $supplier->codproveedor;
+        $where = [new DataBaseWhere('tag', $tag)];
+        if ($report->loadFromCode('', $where)) {
+            return $total;
+        }
+
+        // creamos el informe
+        $report->name = Tools::lang()->trans('r-' . $table_name . '-total-supplier', ['%name%' => $supplier->nombre]);
+        $report->table = $table_name;
+        $report->tag = $tag;
+        $report->xcolumn = 'fecha';
+        $report->xoperation = 'MONTHS';
+        $report->ycolumn = 'total';
+        $report->yoperation = 'SUM';
+        if (false === $report->save()) {
+            return $total;
+        }
+
+        // añadimos el filtro
+        $report->addFilter('codproveedor', '=', $supplier->codproveedor);
+        $total++;
+
+        // guardamos el informe para futuras referencias
+        self::$supplier_reports[$supplier->codproveedor][] = $report;
+
+        return $total;
+    }
+
+    protected static function generateReportsTotalByUser(string $table_name, User $user): int
+    {
+        $total = 0;
+
+        // comprobamos si ya existe el informe
+        $report = new Report();
+        $tag = 'r-' . $table_name . '-total-user-' . $user->nick;
+        $where = [new DataBaseWhere('tag', $tag)];
+        if ($report->loadFromCode('', $where)) {
+            return $total;
+        }
+
+        // creamos el informe
+        $report->name = Tools::lang()->trans('r-' . $table_name . '-total-user', ['%name%' => $user->nick]);
+        $report->table = $table_name;
+        $report->tag = $tag;
+        $report->xcolumn = 'fecha';
+        $report->xoperation = 'MONTHS';
+        $report->ycolumn = 'total';
+        $report->yoperation = 'SUM';
+        if (false === $report->save()) {
+            return $total;
+        }
+
+        // añadimos el filtro
+        $report->addFilter('nick', '=', $user->nick);
+        $total++;
+
+        // guardamos el informe para futuras referencias
+        self::$user_reports[$user->nick][] = $report;
 
         return $total;
     }
@@ -517,12 +742,6 @@ class ReportGenerator
             in_array('fecha', $columns) &&
             in_array('total', $columns)) {
             $total += static::generateReportsTotalByStatus($name);
-        }
-
-        if (in_array('codagente', $columns) &&
-            in_array('fecha', $columns) &&
-            in_array('total', $columns)) {
-            $total += static::generateReportsTotalByAgent($name);
         }
 
         if (in_array('codpais', $columns)) {

@@ -76,5 +76,8 @@
                 <values source="reports" fieldcode="id" fieldtitle="name"/>
             </widget>
         </column>
+        <column name="creation-date" display="none" order="180">
+            <widget type="datetime" fieldname="creationdate"/>
+        </column>
     </columns>
 </view>

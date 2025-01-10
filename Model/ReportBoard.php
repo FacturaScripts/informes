@@ -34,11 +34,17 @@ class ReportBoard extends ModelClass
     /** @var string */
     public $creationdate;
 
+    /** @var bool */
+    public $featured;
+
     /** @var int */
     public $id;
 
     /** @var string */
     public $name;
+
+    /** @var string */
+    public $tag;
 
     public function addLine(Report $report, int $pos = 1): bool
     {
@@ -63,6 +69,7 @@ class ReportBoard extends ModelClass
     {
         parent::clear();
         $this->creationdate = Tools::dateTime();
+        $this->featured = false;
     }
 
     public function getLines(): array
@@ -91,6 +98,7 @@ class ReportBoard extends ModelClass
     {
         // escapamos el html
         $this->name = Tools::noHtml($this->name);
+        $this->tag = Tools::noHtml($this->tag);
 
         return parent::test();
     }

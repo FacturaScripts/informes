@@ -79,6 +79,9 @@
                     <values title="minimum">MINIMUM</values>
                 </widget>
             </column>
+            <column name="creation-date" display="none" order="150">
+                <widget type="datetime" fieldname="creationdate" readonly="true"/>
+            </column>
         </group>
     </columns>
 </view>

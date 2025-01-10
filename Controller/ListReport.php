@@ -50,6 +50,7 @@ class ListReport extends ListController
     {
         $this->addView($viewName, 'Report', 'charts', 'fa-solid fa-chart-pie')
             ->addOrderBy(['name'], 'name')
+            ->addOrderBy(['id', 'creationdate'], 'creation-date', 2)
             ->addSearchFields(['name', 'table', 'tag', 'xcolumn', 'ycolumn']);
 
         $types = $this->codeModel->all('reports', 'type', 'type');
@@ -85,8 +86,9 @@ class ListReport extends ListController
     protected function createViewsReportBoard(string $viewName = 'ListReportBoard'): void
     {
         $this->addView($viewName, 'ReportBoard', 'reports-board', 'fa-solid fa-chalkboard')
-            ->addOrderBy(['name'], 'name')
-            ->addSearchFields(['name']);
+            ->addOrderBy(['featured', 'name'], 'name')
+            ->addOrderBy(['featured', 'creationdate'], 'creation-date', 2)
+            ->addSearchFields(['name', 'tag']);
 
         // botones
         $this->addButton($viewName, [

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
  * 'This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -25,10 +25,18 @@
                 <widget type="text" fieldname="id"/>
             </column>
             <column name="name" order="110">
-                <widget type="text" fieldname="name"/>
+                <widget type="text" fieldname="name" maxlength="100" required="true"/>
             </column>
-            <column name="creation-date" order="120">
+            <column name="tag" display="none" order="120">
+                <widget type="text" fieldname="tag" maxlength="100" readonly="true"/>
+            </column>
+            <column name="creation-date" order="130">
                 <widget type="datetime" fieldname="creationdate" readonly="true"/>
+            </column>
+        </group>
+        <group name="advanced" numcolumns="12">
+            <column name="featured" order="100">
+                <widget type="checkbox" fieldname="featured"/>
             </column>
         </group>
     </columns>

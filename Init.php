@@ -31,7 +31,11 @@ final class Init extends InitClass
 {
     public function init(): void
     {
+        $this->loadExtension(new Extension\Controller\EditAgente());
+        $this->loadExtension(new Extension\Controller\EditCliente());
         $this->loadExtension(new Extension\Controller\EditCuenta());
+        $this->loadExtension(new Extension\Controller\EditProveedor());
+        $this->loadExtension(new Extension\Controller\EditUser());
     }
 
     public function uninstall(): void

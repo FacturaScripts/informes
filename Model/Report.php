@@ -38,6 +38,9 @@ class Report extends Base\ModelClass
     /** @var int */
     public $compared;
 
+    /** @var string */
+    public $creationdate;
+
     /** @var int */
     public $id;
 
@@ -78,6 +81,7 @@ class Report extends Base\ModelClass
     public function clear(): void
     {
         parent::clear();
+        $this->creationdate = Tools::dateTime();
         $this->type = self::DEFAULT_TYPE;
     }
 
