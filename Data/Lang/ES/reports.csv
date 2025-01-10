@@ -1,7 +1,0 @@
-name;table;type;xcolumn;xoperation;ycolumn;yoperation
-"Importe compras / mes";"facturasprov";"area";"fecha";"MONTH";"total";"SUM"
-"Importe facturas / mes";"facturascli";"area";"fecha";"MONTH";"total";"SUM"
-"Importe albaranes / mes";"albaranescli";"area";"fecha";"MONTH";"total";"SUM"
-"Importe pedidos / mes";"pedidoscli";"area";"fecha";"MONTH";"total";"SUM"
-"Importe presupuestos / mes";"presupuestoscli";"area";"fecha";"MONTH";"total";"SUM"
-"Nuevos clientes";"clientes";"area";"fechaalta";"MONTH";"";"SUM"

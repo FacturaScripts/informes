@@ -62,6 +62,16 @@ class Report extends Base\ModelClass
     /** @var string */
     public $yoperation;
 
+    public function addFilter(string $table_column, string $operator, string $value): bool
+    {
+        $filter = new ReportFilter();
+        $filter->id_report = $this->id;
+        $filter->operator = $operator;
+        $filter->table_column = $table_column;
+        $filter->value = $value;
+        return $filter->save();
+    }
+
     public function clear(): void
     {
         parent::clear();

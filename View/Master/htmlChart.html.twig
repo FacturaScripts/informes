@@ -38,6 +38,10 @@
                             {% endif %}
                         </td>
                     </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="2" class="table-warning">{{ trans('no-data') }}</td>
+                    </tr>
                 {% endfor %}
                 </tbody>
             </table>

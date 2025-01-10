@@ -182,6 +182,8 @@ class EditReport extends EditController
             case $mvn:
                 parent::loadData($viewName, $view);
                 $this->loadWidgetValues($viewName);
+
+                // si existe, añadimos un botón para copiar el informe
                 if ($view->model->exists()) {
                     $this->addButton($viewName, [
                         'action' => $view->model->url() . '&action=copy&multireqtoken=' . $this->multiRequestProtection->newToken(),
@@ -189,7 +191,14 @@ class EditReport extends EditController
                         'label' => 'copy',
                         'type' => 'link',
                     ]);
+                    break;
                 }
+
+                // no existe, ocultamos algunas columnas
+                $view->disableColumn('x-column')
+                    ->disableColumn('x-operation')
+                    ->disableColumn('y-column')
+                    ->disableColumn('y-operation');
                 break;
 
             default:

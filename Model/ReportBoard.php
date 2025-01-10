@@ -40,6 +40,25 @@ class ReportBoard extends ModelClass
     /** @var string */
     public $name;
 
+    public function addLine(Report $report, int $pos = 1): bool
+    {
+        // comprobamos si ya existe la linea
+        $line = new ReportBoardLine();
+        $where = [
+            new DataBaseWhere('idreportboard', $this->id),
+            new DataBaseWhere('idreport', $report->id),
+        ];
+        if ($line->loadFromCode('', $where)) {
+            return false;
+        }
+
+        // la añadimos
+        $line->idreport = $report->id;
+        $line->idreportboard = $this->id;
+        $line->sort = $pos;
+        return $line->save();
+    }
+
     public function clear()
     {
         parent::clear();
@@ -48,15 +67,14 @@ class ReportBoard extends ModelClass
 
     public function getLines(): array
     {
-        $lines = new ReportBoardLine();
         $where = [new DataBaseWhere('idreportboard', $this->id)];
         $orderBy = ['sort' => 'ASC'];
-        return $lines->all($where, $orderBy, 0, 0);
+        return ReportBoardLine::all($where, $orderBy, 0, 0);
     }
 
     public static function primaryColumn(): string
     {
-        return "id";
+        return 'id';
     }
 
     public function primaryDescriptionColumn(): string
@@ -66,7 +84,7 @@ class ReportBoard extends ModelClass
 
     public static function tableName(): string
     {
-        return "reports_boards";
+        return 'reports_boards';
     }
 
     public function test(): bool

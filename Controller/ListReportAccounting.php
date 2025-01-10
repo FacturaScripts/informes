@@ -60,7 +60,7 @@ class ListReportAccounting extends ListController
         $this->addButton($viewName, [
             'action' => 'generate-balances',
             'confirm' => true,
-            'icon' => 'fa-solid fa-magic',
+            'icon' => 'fa-solid fa-wand-magic-sparkles',
             'label' => 'generate'
         ]);
     }
@@ -167,9 +167,8 @@ class ListReportAccounting extends ListController
      */
     protected function execPreviousAction($action)
     {
-        switch ($action) {
-            case 'generate-balances':
-                return $this->generateBalancesAction();
+        if ($action == 'generate-balances') {
+            return $this->generateBalancesAction();
         }
 
         return parent::execPreviousAction($action);
@@ -177,6 +176,13 @@ class ListReportAccounting extends ListController
 
     protected function generateBalancesAction(): bool
     {
+        if (false === $this->permissions->allowUpdate) {
+            Tools::log()->warning('permission-denied');
+            return true;
+        } elseif (false === $this->validateFormToken()) {
+            return true;
+        }
+
         $total = 0;
         foreach (Ejercicio::all() as $eje) {
             $this->generateBalances($total, $eje);

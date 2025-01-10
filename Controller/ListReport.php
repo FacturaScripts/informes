@@ -20,7 +20,9 @@
 namespace FacturaScripts\Plugins\Informes\Controller;
 
 use FacturaScripts\Core\Lib\ExtendedController\ListController;
+use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\CodeModel;
+use FacturaScripts\Plugins\Informes\Lib\Informes\ReportGenerator;
 
 /**
  * Description of ListReport
@@ -70,6 +72,14 @@ class ListReport extends ListController
             ->addFilterSelect('xoperation', 'x-operation', 'xoperation', $operationX)
             ->addFilterSelect('ycolumn', 'y-column', 'ycolumn', $columnY)
             ->addFilterSelect('yoperation', 'y-operation', 'yoperation', $operationY);
+
+        // botones
+        $this->addButton($viewName, [
+            'action' => 'generate-boards',
+            'confirm' => true,
+            'icon' => 'fa-solid fa-wand-magic-sparkles',
+            'label' => 'generate',
+        ]);
     }
 
     protected function createViewsReportBoard(string $viewName = 'ListReportBoard'): void
@@ -77,5 +87,37 @@ class ListReport extends ListController
         $this->addView($viewName, 'ReportBoard', 'reports-board', 'fa-solid fa-chalkboard')
             ->addOrderBy(['name'], 'name')
             ->addSearchFields(['name']);
+
+        // botones
+        $this->addButton($viewName, [
+            'action' => 'generate-boards',
+            'confirm' => true,
+            'icon' => 'fa-solid fa-wand-magic-sparkles',
+            'label' => 'generate',
+        ]);
+    }
+
+    protected function execPreviousAction($action)
+    {
+        if ('generate-boards' === $action) {
+            return $this->generateBoardsAction();
+        }
+
+        return parent::execPreviousAction($action);
+    }
+
+    protected function generateBoardsAction(): bool
+    {
+        if (false === $this->permissions->allowUpdate) {
+            Tools::log()->warning('permission-denied');
+            return true;
+        } elseif (false === $this->validateFormToken()) {
+            return true;
+        }
+
+        $total = ReportGenerator::generate();
+
+        Tools::log()->notice('items-added-correctly', ['%num%' => $total]);
+        return true;
     }
 }
