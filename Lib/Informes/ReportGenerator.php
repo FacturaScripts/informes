@@ -87,8 +87,10 @@ class ReportGenerator
 
         // creamos la pizarra
         $report_tags = [];
-        foreach (self::$agent_reports[$codagente] as $report) {
-            $report_tags[] = $report->tag;
+        if (array_key_exists($codagente, self::$agent_reports)) {
+            foreach (self::$agent_reports[$codagente] as $report) {
+                $report_tags[] = $report->tag;
+            }
         }
 
         $name = Tools::lang()->trans('b-agent', ['%name%' => $agent->nombre]);
@@ -119,8 +121,10 @@ class ReportGenerator
 
         // creamos la pizarra
         $report_tags = [];
-        foreach (self::$customer_reports[$codcliente] as $report) {
-            $report_tags[] = $report->tag;
+        if (array_key_exists($codcliente, self::$customer_reports)) {
+            foreach (self::$customer_reports[$codcliente] as $report) {
+                $report_tags[] = $report->tag;
+            }
         }
 
         $name = Tools::lang()->trans('b-customer', ['%name%' => $customer->nombre]);
@@ -151,8 +155,10 @@ class ReportGenerator
 
         // creamos la pizarra
         $report_tags = [];
-        foreach (self::$supplier_reports[$codproveedor] as $report) {
-            $report_tags[] = $report->tag;
+        if (array_key_exists($codproveedor, self::$supplier_reports)) {
+            foreach (self::$supplier_reports[$codproveedor] as $report) {
+                $report_tags[] = $report->tag;
+            }
         }
 
         $name = Tools::lang()->trans('b-supplier', ['%name%' => $supplier->nombre]);
@@ -184,8 +190,10 @@ class ReportGenerator
 
         // creamos la pizarra
         $report_tags = [];
-        foreach (self::$user_reports[$username] as $report) {
-            $report_tags[] = $report->tag;
+        if (array_key_exists($username, self::$user_reports)) {
+            foreach (self::$user_reports[$username] as $report) {
+                $report_tags[] = $report->tag;
+            }
         }
 
         $name = Tools::lang()->trans('b-user', ['%name%' => $user->nick]);
@@ -324,6 +332,11 @@ class ReportGenerator
     {
         $total = 0;
 
+        // comprobamos si la tabla existe
+        if (!self::db()->tableExists($table_name)) {
+            return $total;
+        }
+
         // comprobamos si ya existe el informe mensual
         $report = new Report();
         $tag = 'r-' . $table_name . '-total-agent-' . $agent->codagente;
@@ -377,6 +390,11 @@ class ReportGenerator
     protected static function generateReportsTotalByCustomer(string $table_name, Cliente $customer): int
     {
         $total = 0;
+
+        // comprobamos si la tabla existe
+        if (!self::db()->tableExists($table_name)) {
+            return $total;
+        }
 
         // comprobamos si ya existe el informe mensual
         $report = new Report();
@@ -489,6 +507,11 @@ class ReportGenerator
     {
         $total = 0;
 
+        // comprobamos si la tabla existe
+        if (!self::db()->tableExists($table_name)) {
+            return $total;
+        }
+
         // comprobamos si ya existe el informe mensual
         $report = new Report();
         $tag = 'r-' . $table_name . '-total-supplier-' . $supplier->codproveedor;
@@ -542,6 +565,11 @@ class ReportGenerator
     protected static function generateReportsTotalByUser(string $table_name, User $user): int
     {
         $total = 0;
+
+        // comprobamos si la tabla existe
+        if (!self::db()->tableExists($table_name)) {
+            return $total;
+        }
 
         // comprobamos si ya existe el informe mensual
         $report = new Report();
@@ -854,6 +882,9 @@ class ReportGenerator
         $total = 0;
 
         // comprobamos la tabla
+        if (false === static::db()->tableExists($name)) {
+            return $total;
+        }
         $columns = [];
         foreach (static::db()->getColumns($name) as $column) {
             $columns[] = $column['name'];
