@@ -325,13 +325,17 @@ class EditReportBalance extends EditController
                 if (false === $view->model->exists()) {
                     break;
                 }
-                // añadimos el botón para encontrar problemas
-                $this->addButton($viewName, [
-                    'action' => 'find-problems',
-                    'color' => 'warning',
-                    'icon' => 'fa-solid fa-search',
-                    'label' => 'find-problems'
-                ]);
+
+                // añadimos el botón para encontrar problemas, solo en modo debug
+                if (Tools::config('FS_DEBUG', false)) {
+                    $this->addButton($viewName, [
+                        'action' => 'find-problems',
+                        'color' => 'warning',
+                        'icon' => 'fa-solid fa-search',
+                        'label' => 'find-problems'
+                    ]);
+                }
+
                 break;
         }
     }
