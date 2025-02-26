@@ -58,13 +58,15 @@ class EditReportBalance extends EditController
     protected function createViews()
     {
         parent::createViews();
+
+        $this->setTabsPosition('bottom');
+
         // ocultamos la columna empresa si solo hay una
         if ($this->empresa->count() < 2) {
             $this->views[$this->getMainViewName()]->disableColumn('company');
         }
 
         $this->createViewsBalanceCodes();
-        $this->setTabsPosition('bottom');
     }
 
     protected function createViewsBalanceCodes(string $viewName = 'ListBalanceCode'): void
@@ -106,6 +108,7 @@ class EditReportBalance extends EditController
         $this->setTemplate(false);
         $view = $this->views[$this->getMainViewName()];
         $this->exportManager->newDoc($format, $model->name);
+        $this->exportManager->setCompany($model->idcompany);
         $this->exportManager->addModelPage($view->model, $view->getColumns(), Tools::lang()->trans('accounting-reports'));
 
         foreach ($pages as $data) {

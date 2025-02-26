@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2017-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2017-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -69,6 +69,7 @@ class EditReportLedger extends EditController
         $this->setTemplate(false);
         $view = $this->views[$this->getMainViewName()];
         $this->exportManager->newDoc($format, $model->name);
+        $this->exportManager->setCompany($model->idcompany);
 
         if ($format === 'PDF') {
             $this->exportManager->addModelPage($view->model, $view->getColumns(), Tools::lang()->trans('accounting-reports'));
