@@ -22,7 +22,7 @@ namespace FacturaScripts\Plugins\Informes\Controller;
 use FacturaScripts\Core\Lib\ExtendedController\ListController;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\CodeModel;
-use FacturaScripts\Plugins\Informes\Lib\Informes\ReportGenerator;
+use FacturaScripts\Dinamic\Lib\Informes\ReportGenerator;
 
 /**
  * Description of ListReport

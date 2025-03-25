@@ -22,11 +22,11 @@ namespace FacturaScripts\Plugins\Informes\Controller;
 use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Core\DataSrc\Empresas;
 use FacturaScripts\Core\Tools;
-use FacturaScripts\Plugins\Informes\Lib\Informes\AccountResultReport;
-use FacturaScripts\Plugins\Informes\Lib\Informes\FamilyResultReport;
-use FacturaScripts\Plugins\Informes\Lib\Informes\PurchasesResultReport;
-use FacturaScripts\Plugins\Informes\Lib\Informes\SalesPurchasesResultReport;
-use FacturaScripts\Plugins\Informes\Lib\Informes\SummaryResultReport;
+use FacturaScripts\Dinamic\Lib\Informes\AccountResultReport;
+use FacturaScripts\Dinamic\Lib\Informes\FamilyResultReport;
+use FacturaScripts\Dinamic\Lib\Informes\PurchasesResultReport;
+use FacturaScripts\Dinamic\Lib\Informes\SalesPurchasesResultReport;
+use FacturaScripts\Dinamic\Lib\Informes\SummaryResultReport;
 
 /**
  * @author Daniel Fernández Giménez <hola@danielfg.es>

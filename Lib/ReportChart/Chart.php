@@ -21,7 +21,7 @@ namespace FacturaScripts\Plugins\Informes\Lib\ReportChart;
 
 use FacturaScripts\Core\Base\DataBase;
 use FacturaScripts\Core\Tools;
-use FacturaScripts\Plugins\Informes\Model\Report;
+use FacturaScripts\Dinamic\Model\Report;
 
 /**
  * Description of AreaChart
