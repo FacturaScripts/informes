@@ -58,13 +58,15 @@ class EditReportBalance extends EditController
     protected function createViews()
     {
         parent::createViews();
+
+        $this->setTabsPosition('bottom');
+
         // ocultamos la columna empresa si solo hay una
         if ($this->empresa->count() < 2) {
             $this->views[$this->getMainViewName()]->disableColumn('company');
         }
 
         $this->createViewsBalanceCodes();
-        $this->setTabsPosition('bottom');
     }
 
     protected function createViewsBalanceCodes(string $viewName = 'ListBalanceCode'): void
@@ -106,6 +108,7 @@ class EditReportBalance extends EditController
         $this->setTemplate(false);
         $view = $this->views[$this->getMainViewName()];
         $this->exportManager->newDoc($format, $model->name);
+        $this->exportManager->setCompany($model->idcompany);
         $this->exportManager->addModelPage($view->model, $view->getColumns(), Tools::lang()->trans('accounting-reports'));
 
         foreach ($pages as $data) {
@@ -325,13 +328,17 @@ class EditReportBalance extends EditController
                 if (false === $view->model->exists()) {
                     break;
                 }
-                // añadimos el botón para encontrar problemas
-                $this->addButton($viewName, [
-                    'action' => 'find-problems',
-                    'color' => 'warning',
-                    'icon' => 'fa-solid fa-search',
-                    'label' => 'find-problems'
-                ]);
+
+                // añadimos el botón para encontrar problemas, solo en modo debug
+                if (Tools::config('FS_DEBUG', false)) {
+                    $this->addButton($viewName, [
+                        'action' => 'find-problems',
+                        'color' => 'warning',
+                        'icon' => 'fa-solid fa-search',
+                        'label' => 'find-problems'
+                    ]);
+                }
+
                 break;
         }
     }
