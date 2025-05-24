@@ -309,13 +309,6 @@ class ResultReport
 
         $gastos_total_meses = 0;
 
-        $asiento = new Asiento;
-        $where = [
-            new DataBaseWhere('codejercicio', $codejercicio),
-            new DataBaseWhere('operacion', 'R')
-        ];
-        $asiento_reg = $asiento->loadFromCode('', $where) ? intval($asiento->numero) : 0;
-
         // necesitamos el número de meses para calcular la media
         $countMonth = 0;
 
@@ -329,7 +322,7 @@ class ResultReport
                 $date['desde'] = date('01-' . $mes . '-' . $year);
                 $date['hasta'] = date($dia_mes . '-' . $mes . '-' . $year);
 
-                self::setGastos($db, $codejercicio, $date, $asiento_reg, $mes, $gastos_total_meses, $gastos);
+                self::setGastos($db, $codejercicio, $date, $mes, $gastos_total_meses, $gastos);
 
                 // Las descripciones solo las necesitamos en el año seleccionado,
                 // en el año anterior se omite
@@ -500,7 +493,7 @@ class ResultReport
         return $ventas;
     }
 
-    protected static function setGastos(DataBase $db, string $codejercicio, array $date, int $asiento_reg, int $mes, float &$gastos_total_meses, array &$gastos): void
+    protected static function setGastos(DataBase $db, string $codejercicio, array $date, int $mes, float &$gastos_total_meses, array &$gastos): void
     {
         // si no existe la tabla partidas, no hacemos nada
         if (false === $db->tableExists('partidas')) {
@@ -519,19 +512,15 @@ class ResultReport
          *  GASTOS
          * *****************************************************************
          */
-        // Gastos: Consulta de las partidas y asientos del grupo 6
+        // Gastos: Consulta de las partidas y asientos del grupo 6 (sin regularizacion)
         $sql = "select * from partidas as par"
             . " LEFT JOIN asientos as asi ON par.idasiento = asi.idasiento"
             . " where asi.fecha >= " . $db->var2str($date['desde'])
             . " AND asi.fecha <= " . $db->var2str($date['hasta'])
             . " AND asi.codejercicio = " . $db->var2str($codejercicio)
-            . " AND codsubcuenta LIKE '" . $cuentaGastos->codcuenta . "%'";
-
-        if ($asiento_reg) {
-            $sql .= " AND asi.numero <> " . $db->var2str($asiento_reg);
-        }
-
-        $sql .= " ORDER BY codsubcuenta";
+            . " AND COALESCE(asi.operacion, '') <> 'R'"
+            . " AND codsubcuenta LIKE '" . $cuentaGastos->codcuenta . "%'"
+            . " ORDER BY codsubcuenta";
 
         $partidas = $db->select($sql);
         if (empty($partidas)) {
