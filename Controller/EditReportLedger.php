@@ -22,7 +22,7 @@ namespace FacturaScripts\Plugins\Informes\Controller;
 use FacturaScripts\Core\Lib\ExtendedController\EditController;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Lib\Accounting\Ledger;
-use FacturaScripts\Plugins\Informes\Model\ReportLedger;
+use FacturaScripts\Dinamic\Model\ReportLedger;
 
 /**
  * Description of EditReportLedger

@@ -28,9 +28,9 @@ use FacturaScripts\Dinamic\Model\Agente;
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\EstadoDocumento;
 use FacturaScripts\Dinamic\Model\Proveedor;
+use FacturaScripts\Dinamic\Model\Report;
+use FacturaScripts\Dinamic\Model\ReportBoard;
 use FacturaScripts\Dinamic\Model\User;
-use FacturaScripts\Plugins\Informes\Model\Report;
-use FacturaScripts\Plugins\Informes\Model\ReportBoard;
 
 class ReportGenerator
 {

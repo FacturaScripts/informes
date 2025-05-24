@@ -26,12 +26,12 @@ use FacturaScripts\Core\Model\Subcuenta;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\Cuenta;
 use FacturaScripts\Dinamic\Model\Ejercicio;
-use FacturaScripts\Plugins\Informes\Lib\Accounting\BalanceSheet;
-use FacturaScripts\Plugins\Informes\Lib\Accounting\IncomeAndExpenditure;
-use FacturaScripts\Plugins\Informes\Lib\Accounting\ProfitAndLoss;
-use FacturaScripts\Plugins\Informes\Model\BalanceAccount;
-use FacturaScripts\Plugins\Informes\Model\BalanceCode;
-use FacturaScripts\Plugins\Informes\Model\ReportBalance;
+use FacturaScripts\Dinamic\Lib\Accounting\BalanceSheet;
+use FacturaScripts\Dinamic\Lib\Accounting\IncomeAndExpenditure;
+use FacturaScripts\Dinamic\Lib\Accounting\ProfitAndLoss;
+use FacturaScripts\Dinamic\Model\BalanceAccount;
+use FacturaScripts\Dinamic\Model\BalanceCode;
+use FacturaScripts\Dinamic\Model\ReportBalance;
 
 /**
  * Description of EditReportBalance

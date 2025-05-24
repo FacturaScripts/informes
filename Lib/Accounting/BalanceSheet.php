@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2017-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2017-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -23,10 +23,10 @@ use FacturaScripts\Core\Base\DataBase;
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Model\Asiento;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Dinamic\Model\BalanceAccount;
+use FacturaScripts\Dinamic\Model\BalanceCode;
 use FacturaScripts\Dinamic\Model\Ejercicio;
 use FacturaScripts\Dinamic\Model\Partida;
-use FacturaScripts\Plugins\Informes\Model\BalanceAccount;
-use FacturaScripts\Plugins\Informes\Model\BalanceCode;
 
 /**
  * Description of BalanceSheet
