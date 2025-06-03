@@ -21,8 +21,8 @@ namespace FacturaScripts\Plugins\Informes\Controller;
 
 use FacturaScripts\Core\Lib\ExtendedController\EditController;
 use FacturaScripts\Core\Tools;
-use FacturaScripts\Plugins\Informes\Lib\Accounting\BalanceAmounts;
-use FacturaScripts\Plugins\Informes\Model\ReportAmount;
+use FacturaScripts\Dinamic\Lib\Accounting\BalanceAmounts;
+use FacturaScripts\Dinamic\Model\ReportAmount;
 
 /**
  * Description of EditReportAmount
