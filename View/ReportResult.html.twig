@@ -731,7 +731,11 @@
                 }
             });
 
-            initPage();
+            // Only lunch the load data if there are less than 2 companies
+            const select = document.getElementById('selectExercise');
+            if (select && select.getElementsByTagName('optgroup').length < 2) {
+                initPage();
+            }
         });
     </script>
 {% endblock %}
