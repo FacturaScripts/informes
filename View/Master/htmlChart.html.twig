@@ -9,9 +9,10 @@
     {{ chart.render() | raw }}
 </div>
 
-<div class="card-deck">
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
     {% for s_name, source in chart.getDataSources() %}
-        <div class="card shadow mb-4">
+        <div class="col">
+            <div class="card shadow mb-4">
             <div class="card-body">
                 <h3 class="h5 mb-0 text-center">{{ trans(s_name) }}</h3>
             </div>
@@ -45,6 +46,7 @@
                 {% endfor %}
                 </tbody>
             </table>
+            </div>
         </div>
     {% endfor %}
 </div>

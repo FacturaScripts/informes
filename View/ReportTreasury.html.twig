@@ -28,7 +28,7 @@
     </div>
     <div class="pb-5">
         <div class="h5 text-success text-center">{{ trans('exercise') }}</div>
-        <select class="form-select ml-auto mr-auto" id="selectExercise">
+        <select class="form-select mx-auto" id="selectExercise">
             {% for company in fsc.getCompanies() %}
                 <optgroup label="{{ company.nombrecorto }}">
                     {% for exercise in company.getExercises() %}
