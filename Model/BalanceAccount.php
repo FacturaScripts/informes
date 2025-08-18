@@ -48,7 +48,7 @@ class BalanceAccount extends ModelClass
     public function getBalanceCode(): BalanceCode
     {
         $balanceCode = new DinBalanceCode();
-        $balanceCode->loadFromCode($this->idbalance);
+        $balanceCode->load($this->idbalance);
         return $balanceCode;
     }
 
@@ -60,7 +60,7 @@ class BalanceAccount extends ModelClass
             $where[] = new DataBaseWhere('codejercicio', $codejercicio);
         }
         $orderBy = ['codejercicio' => 'DESC'];
-        $cuenta->loadFromCode('', $where, $orderBy);
+        $cuenta->loadWhere($where, $orderBy);
         return $cuenta;
     }
 

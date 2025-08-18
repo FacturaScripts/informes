@@ -54,7 +54,7 @@ class ReportBoard extends ModelClass
             new DataBaseWhere('idreportboard', $this->id),
             new DataBaseWhere('idreport', $report->id),
         ];
-        if ($line->loadFromCode('', $where)) {
+        if ($line->loadWhere($where)) {
             return false;
         }
 

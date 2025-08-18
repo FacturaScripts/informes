@@ -21,7 +21,6 @@ namespace FacturaScripts\Plugins\Informes\Model;
 
 use FacturaScripts\Core\Template\ModelClass;
 use FacturaScripts\Core\Template\ModelTrait;
-use FacturaScripts\Core\Tools;
 
 
 /**
@@ -60,7 +59,7 @@ class ReportBoardLine extends ModelClass
     public function getBoard(): ReportBoard
     {
         $board = new ReportBoard();
-        $board->loadFromCode($this->idreportboard);
+        $board->load($this->idreportboard);
         return $board;
     }
 
