@@ -19,8 +19,9 @@
 
 namespace FacturaScripts\Plugins\Informes\Model;
 
-use FacturaScripts\Core\Model\Base\ModelClass;
-use FacturaScripts\Core\Model\Base\ModelTrait;
+use FacturaScripts\Core\Template\ModelClass;
+use FacturaScripts\Core\Template\ModelTrait;
+
 
 /**
  * @author Daniel Fernández Giménez <hola@danielfg.es>
@@ -47,7 +48,7 @@ class ReportBoardLine extends ModelClass
     /** @var int */
     public $sort;
 
-    public function clear()
+    public function clear(): void
     {
         parent::clear();
         $this->columns = 6;
@@ -58,7 +59,7 @@ class ReportBoardLine extends ModelClass
     public function getBoard(): ReportBoard
     {
         $board = new ReportBoard();
-        $board->loadFromCode($this->idreportboard);
+        $board->load($this->idreportboard);
         return $board;
     }
 

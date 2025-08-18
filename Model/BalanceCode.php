@@ -19,8 +19,8 @@
 
 namespace FacturaScripts\Plugins\Informes\Model;
 
-use FacturaScripts\Core\Model\Base\ModelClass;
-use FacturaScripts\Core\Model\Base\ModelTrait;
+use FacturaScripts\Core\Template\ModelClass;
+use FacturaScripts\Core\Template\ModelTrait;
 use FacturaScripts\Core\Tools;
 
 /**
@@ -85,7 +85,7 @@ class BalanceCode extends ModelClass
         }
     }
 
-    public function clear()
+    public function clear(): void
     {
         parent::clear();
         $this->nature = 'A';

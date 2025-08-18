@@ -37,14 +37,14 @@ class AccountResultReport extends ResultReport
             $html .= ''
                 . '<tr class="subaccount">'
                 . '<td class="title">' . self::$gastos[self::$year]['descripciones'][$key] . '</td>'
-                . '<td class="porc text-right align-middle">';
+                . '<td class="porc text-end align-middle">';
 
             $percentage = (float)self::$gastos[self::$year]['porc_subcuenta'][self::$parent_codcuenta][$key];
             $html .= $percentage > 0 ? $percentage . ' %' : self::defaultPerc();
 
             $html .= ''
                 . '</td>'
-                . '<td class="total text-right align-middle">';
+                . '<td class="total text-end align-middle">';
 
             $money = self::$gastos[self::$year]['total_subcuenta'][self::$parent_codcuenta][$key];
             $html .= $money ? Tools::money($money) : self::defaultMoney();
@@ -54,7 +54,7 @@ class AccountResultReport extends ResultReport
 
             for ($x = 1; $x <= 12; $x++) {
                 $title = Tools::lang()->trans(strtolower(date("F", mktime(0, 0, 0, $x, 10))));
-                $html .= '<td title="' . $title . '" class="month text-right align-middle">';
+                $html .= '<td title="' . $title . '" class="month text-end align-middle">';
                 $html .= isset(self::$gastos[self::$year]['cuentas'][self::$parent_codcuenta][$key][$x]['pvptotal']) ?
                     Tools::money(self::$gastos[self::$year]['cuentas'][self::$parent_codcuenta][$key][$x]['pvptotal']) :
                     self::defaultMoney();

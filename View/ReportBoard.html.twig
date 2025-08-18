@@ -3,10 +3,10 @@
 
 {% set lines = fsc.getLines() %}
 {% if lines is empty %}
-    <div class="alert alert-info">{{ trans('empty-report-board') }}</div>
+    <div class="alert alert-dismissible alert-info">{{ trans('empty-report-board') }}</div>
 {% else %}
     <div class="card shadow">
-        <div class="form-row">
+        <div class="row">
             {% for line in lines %}
                 {% set report = line.getReport() %}
                 <div class="col-md-{{ line.columns }} my-2" style="height: {{ line.height }}px">

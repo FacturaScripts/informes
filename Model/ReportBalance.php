@@ -20,8 +20,8 @@
 namespace FacturaScripts\Plugins\Informes\Model;
 
 use FacturaScripts\Core\DataSrc\Empresas;
-use FacturaScripts\Core\Model\Base\ModelClass;
-use FacturaScripts\Core\Model\Base\ModelTrait;
+use FacturaScripts\Core\Template\ModelClass;
+use FacturaScripts\Core\Template\ModelTrait;
 use FacturaScripts\Core\Tools;
 
 /**
@@ -68,7 +68,7 @@ class ReportBalance extends ModelClass
     /** @var string */
     public $subtype;
 
-    public function clear()
+    public function clear(): void
     {
         parent::clear();
         $this->comparative = true;
