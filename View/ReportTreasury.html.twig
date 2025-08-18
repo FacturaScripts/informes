@@ -18,17 +18,17 @@
                 </div>
             </div>
 
-            <div class="col-md-5 text-right">
+            <div class="col-md-5 text-end">
                 <h1 class="h4 mb-0 d-none d-md-inline-block">
                     {% set title = trans(fsc.getPageData()['title']) | capitalize %}
-                    {{ title }}<i class="{{ fsc.getPageData()['icon'] }} ml-3" aria-hidden="true"></i>
+                    {{ title }}<i class="{{ fsc.getPageData()['icon'] }} ms-3" aria-hidden="true"></i>
                 </h1>
             </div>
         </div>
     </div>
     <div class="pb-5">
         <div class="h5 text-success text-center">{{ trans('exercise') }}</div>
-        <select class="form-control ml-auto mr-auto" id="selectExercise">
+        <select class="form-select ml-auto mr-auto" id="selectExercise">
             {% for company in fsc.getCompanies() %}
                 <optgroup label="{{ company.nombrecorto }}">
                     {% for exercise in company.getExercises() %}
@@ -46,7 +46,7 @@
 {% block body %}
     {{ parent() }}
     <div class="container-fluid" style="margin-top: -50px;">
-        <div class="form-row">
+        <div class="row">
             <div class="col-sm-6">
                 <div class="card border-info shadow mb-3">
                     <div class="card-header bg-info text-white text-center">
@@ -111,7 +111,7 @@
                 </div>
             </div>
         </div>
-        <div class="form-row">
+        <div class="row">
             <div class="col-sm-6">
                 <div class="card border-warning shadow mb-3">
                     <div class="card-header bg-warning text-white text-center">

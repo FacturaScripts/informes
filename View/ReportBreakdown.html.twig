@@ -25,51 +25,51 @@
                         <i class="{{ fsc.getPageData().icon }}"></i> {{ fsc.title }}
                     </h1>
                     <p class="text-muted mb-4">{{ trans('report-breakdown-p') }}</p>
-                    <div class="form-row">
+                    <div class="row">
                         <div class="col-12 col-md-3">
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label class="mb-1">{{ trans('from-date') }}</label>
                                 <input type="date" name="desde" class="form-control" value="{{ fsc.desde }}"/>
                             </div>
                         </div>
                         <div class="col-12 col-md-3">
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label class="mb-1">{{ trans('until-date') }}</label>
                                 <input type="date" name="hasta" class="form-control" value="{{ fsc.hasta }}"/>
                             </div>
                         </div>
                         <div class="col-12 col-md-3">
-                            <div class="form-group">
+                            <div class="mb-3">
                                 {{ forms.simpleSelect('idempresa', 'idempresa', fsc.idempresa,
                                     fsc.getSelectValues('empresas', 'idempresa', 'nombrecorto', false), trans('company')) }}
                             </div>
                         </div>
                         <div class="col-12 col-md-3">
-                            <div class="form-group">
+                            <div class="mb-3">
                                 {{ forms.simpleSelect('codalmacen', 'codalmacen', fsc.codalmacen,
                                     fsc.getSelectValues('almacenes', 'codalmacen', 'nombre', true), trans('warehouse')) }}
                             </div>
                         </div>
                         <div class="col-12 col-md-3">
-                            <div class="form-group">
+                            <div class="mb-3">
                                 {{ forms.simpleSelect('codserie', 'codserie', fsc.codserie,
                                     fsc.getSelectValues('series', 'codserie', 'descripcion', true), trans('serie')) }}
                             </div>
                         </div>
                         <div class="col-12 col-md-3">
-                            <div class="form-group">
+                            <div class="mb-3">
                                 {{ forms.simpleSelect('codpago', 'codpago', fsc.codpago,
                                     fsc.getSelectValues('formaspago', 'codpago', 'descripcion', true), trans('method-payment')) }}
                             </div>
                         </div>
                         <div class="col-12 col-md-3">
-                            <div class="form-group">
+                            <div class="mb-3">
                                 {{ forms.simpleSelect('coddivisa', 'coddivisa', fsc.coddivisa,
                                     fsc.getSelectValues('divisas', 'coddivisa', 'descripcion', false), trans('currency')) }}
                             </div>
                         </div>
                         <div class="col-12 col-md-3">
-                            <div class="form-group">
+                            <div class="mb-3">
                                 {{ forms.simpleSelect('codagente', 'codagente', fsc.codagente,
                                     fsc.getSelectValues('agentes', 'codagente', 'nombre', true), trans('agent')) }}
                             </div>
@@ -78,13 +78,13 @@
 
                     <ul class="nav nav-pills mt-3 mb-3" role="tablist">
                         <li class="nav-item" role="presentation">
-                            <a id="tabVentas" class="nav-link active" data-toggle="tab" role="tab" aria-selected="true"
+                            <a id="tabVentas" class="nav-link active" data-bs-toggle="tab" role="tab" aria-selected="true"
                                aria-controls="contentSaleReport" href="#contentSaleReport">
                                 {{ trans('sales') }}
                             </a>
                         </li>
                         <li id="tabCompras" class="nav-item" role="presentation">
-                            <a class="nav-link" data-toggle="tab" role="tab" aria-selected="false"
+                            <a class="nav-link" data-bs-toggle="tab" role="tab" aria-selected="false"
                                aria-controls="contentPurchaseReport" href="#contentPurchaseReport">
                                 {{ trans('purchases') }}
                             </a>
@@ -94,21 +94,21 @@
                     <div class="tab-content">
                         <div class="tab-pane fade show active" id="contentSaleReport"
                              aria-labelledby="contentSaleReport-tab" role="tabpanel">
-                            <div class="form-row">
+                            <div class="row">
                                 <div class="col-12 col-md-4">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         {{ forms.simpleSelect('codpais', 'codpais', fsc.codpais,
                                             fsc.getSelectValues('paises', 'codpais', 'nombre', true), trans('country')) }}
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-4">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label class="mb-1">{{ trans('province') }}</label>
-                                        <select name="provincia" class="form-control" id="provinces"></select>
+                                        <select name="provincia" class="form-select" id="provinces"></select>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-4">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label class="mb-1">{{ trans('minimum-amount') }}</label>
                                         <input type="number" class="form-control" name="sale-minimo"
                                                placeholder="{{ trans('optional') }}"
@@ -116,59 +116,53 @@
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-4">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label class="mb-1">{{ trans('customer') }}</label>
                                         <div class="input-group">
                                             <input type="text" class="form-control" id="customer"
                                                    placeholder="{{ trans('any-customer') }}"
                                                    value="{{ fsc.cliente.nombre }}">
                                             <input type="hidden" name="codcliente" value="{{ fsc.cliente.codcliente }}">
-                                            <div class="input-group-append">
-                                                <button class="btn btn-secondary" type="button"
+                                            <button class="btn btn-secondary" type="button"
                                                         onclick="cleanCustomer()">
                                                     <span class="fa fa-times"></span>
                                                 </button>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-4">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label class="mb-1">{{ trans('billing-address') }}</label>
                                         <div class="input-group">
                                             <input type="text" class="form-control" id="billingAddress"
                                                    placeholder="{{ trans('any-address') }}"
                                                    value="{{ fsc.getAddress(fsc.billingAddress) }}">
                                             <input type="hidden" name="idcontactofact" value="{{ fsc.billingAddress.idcontacto }}">
-                                            <div class="input-group-append">
-                                                <button class="btn btn-secondary" type="button"
+                                            <button class="btn btn-secondary" type="button"
                                                         onclick="cleanBillingAddress()">
                                                     <span class="fa fa-times"></span>
                                                 </button>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-4">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label class="mb-1">{{ trans('shipping-address') }}</label>
                                         <div class="input-group">
                                             <input type="text" class="form-control" id="shippingAddress"
                                                    placeholder="{{ trans('any-address') }}"
                                                    value="{{ fsc.getAddress(fsc.shippingAddress) }}">
                                             <input type="hidden" name="idcontactoenv" value="{{ fsc.shippingAddress.idcontacto }}">
-                                            <div class="input-group-append">
-                                                <button class="btn btn-secondary" type="button"
+                                            <button class="btn btn-secondary" type="button"
                                                         onclick="cleanShippingAddress()">
                                                     <span class="fa fa-times"></span>
                                                 </button>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-12">
                                     <p class="text-muted">{{ trans('sale-report-legend') }}</p>
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         {{ trans('type') }}
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" name="sale-unidades"
@@ -193,9 +187,9 @@
 
                         <div class="tab-pane" id="contentPurchaseReport" aria-labelledby="contentPurchaseReport-tab"
                              role="tabpanel">
-                            <div class="form-row">
+                            <div class="row">
                                 <div class="col-12 col-md-3">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         {{ trans('supplier') }}
                                         <div class="input-group">
                                             <input type="text" class="form-control" id="supplier"
@@ -203,17 +197,15 @@
                                                    value="{{ fsc.proveedor.nombre }}">
                                             <input type="hidden" name="codproveedor"
                                                    value="{{ fsc.proveedor.codproveedor }}">
-                                            <div class="input-group-append">
-                                                <button class="btn btn-secondary" type="button"
+                                            <button class="btn btn-secondary" type="button"
                                                         onclick="cleanSupplier()">
                                                     <span class="fa fa-times"></span>
                                                 </button>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-3">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         {{ trans('minimum-amount') }}
                                         <input type="number" class="form-control" name="purchase-minimo"
                                                placeholder="{{ trans('optional') }}"
@@ -222,7 +214,7 @@
                                 </div>
                                 <div class="col-md-12">
                                     <p class="text-muted">{{ trans('purchase-report-legend') }}</p>
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         {{ trans('type') }}
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" name="purchase-unidades"
@@ -246,9 +238,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="card-footer text-right">
+                <div class="card-footer text-end">
                     <button type="submit" class="btn btn-primary">
-                        <i class="fa-solid fa-eye mr-2"></i>{{ trans('show') }}
+                        <i class="fa-solid fa-eye me-2"></i>{{ trans('show') }}
                     </button>
                 </div>
             </div>

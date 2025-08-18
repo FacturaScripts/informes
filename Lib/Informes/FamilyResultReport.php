@@ -43,14 +43,14 @@ class FamilyResultReport extends ResultReport
             $html .= ''
                 . '<tr class="subfamily">'
                 . '<td class="title">' . self::${$varName}[self::$year]['descripciones'][$key] . '</td>'
-                . '<td class="porc text-right align-middle">';
+                . '<td class="porc text-end align-middle">';
 
             $percentage = (float)self::${$varName}[self::$year]['porc_ref'][self::$parent_codfamilia][$key];
             $html .= $percentage > 0 ? $percentage . ' %' : self::defaultPerc();
 
             $html .= ''
                 . '</td>'
-                . '<td class="total text-right align-middle">';
+                . '<td class="total text-end align-middle">';
 
             $money = self::${$varName}[self::$year]['total_ref'][self::$parent_codfamilia][$key];
             $html .= $money ? Tools::money($money) : self::defaultMoney();
@@ -60,7 +60,7 @@ class FamilyResultReport extends ResultReport
 
             for ($x = 1; $x <= 12; $x++) {
                 $title = Tools::lang()->trans(strtolower(date("F", mktime(0, 0, 0, $x, 10))));
-                $html .= '<td title="' . $title . '" class="month text-right align-middle">';
+                $html .= '<td title="' . $title . '" class="month text-end align-middle">';
                 $html .= isset(self::${$varName}[self::$year]['familias'][self::$parent_codfamilia][$key][$x]['pvptotal']) ?
                     Tools::money(self::${$varName}[self::$year]['familias'][self::$parent_codfamilia][$key][$x]['pvptotal']) :
                     self::defaultMoney();

@@ -23,10 +23,10 @@
                 </div>
             </div>
 
-            <div class="col-md-5 text-right">
+            <div class="col-md-5 text-end">
                 <h1 class="h4 mb-0 d-none d-md-inline-block">
                     {% set title = trans(fsc.getPageData()['title']) | capitalize %}
-                    {{ title }}<i class="{{ fsc.getPageData()['icon'] }} ml-3" aria-hidden="true"></i>
+                    {{ title }}<i class="{{ fsc.getPageData()['icon'] }} ms-3" aria-hidden="true"></i>
                 </h1>
             </div>
         </div>
@@ -37,7 +37,7 @@
             <div class="col-sm-12">
                 <div class="card border-primary shadow mt-4">
                     <div class="card-header bg-primary text-white d-flex flex-row">
-                        <select class="form-control" id="selectExercise">
+                        <select class="form-select" id="selectExercise">
                             {% for company in fsc.getCompanies() %}
                                 <optgroup label="{{ company.nombrecorto }}">
                                     {% for exercise in company.getExercises() %}
@@ -61,7 +61,7 @@
                 <div class="card border-success shadow mt-4">
                     <h5 class="card-header bg-success text-white pointer" id="showSales">
                         {{ trans('sales') }}
-                        <button class="btn btn-success btn-sm btn-spin-action float-right">
+                        <button class="btn btn-success btn-sm btn-spin-action float-end">
                             <i class="fa fa-plus"></i>
                         </button>
                     </h5>
@@ -73,7 +73,7 @@
                 <div class="card border-warning shadow mt-4">
                     <h5 class="card-header bg-warning text-white pointer" id="showPurchasesProductReport">
                         {{ trans('purchases') }}
-                        <button class="btn btn-warning btn-sm btn-spin-action float-right">
+                        <button class="btn btn-warning btn-sm btn-spin-action float-end">
                             <i class="fa fa-plus"></i>
                         </button>
                     </h5>
@@ -85,7 +85,7 @@
                 <div class="card border-danger shadow mt-4">
                     <h5 class="card-header bg-danger text-white pointer" id="showPurchases">
                         {{ trans('expenses') }}
-                        <button class="btn btn-danger btn-sm btn-spin-action float-right">
+                        <button class="btn btn-danger btn-sm btn-spin-action float-end">
                             <i class="fa fa-plus"></i>
                         </button>
                     </h5>
@@ -95,7 +95,7 @@
                 </div>
             </div>
         </div>
-        <div class="form-row">
+        <div class="row">
             <div class="col-12">
                 <div class="card shadow mt-4">
                     <div class="card-body h5">

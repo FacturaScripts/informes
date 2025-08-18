@@ -20,8 +20,8 @@
 namespace FacturaScripts\Plugins\Informes\Model;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
-use FacturaScripts\Core\Model\Base\ModelClass;
-use FacturaScripts\Core\Model\Base\ModelTrait;
+use FacturaScripts\Core\Template\ModelClass;
+use FacturaScripts\Core\Template\ModelTrait;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\BalanceCode as DinBalanceCode;
 use FacturaScripts\Dinamic\Model\Cuenta;
