@@ -26,7 +26,7 @@
                         <i class="{{ fsc.getPageData().icon }}"></i> {{ fsc.title }}
                     </h1>
                     <p class="text-muted mb-4">{{ trans('report-transport-p') }}</p>
-                    <div class="row">
+                    <div class="row g-2">
                         <div class="col-12 col-md">
                             <div class="mb-3">
                                 {{ forms.simpleSelect('modelname', 'modelname', fsc.modelname,
@@ -36,7 +36,8 @@
                         <div class="col-12 col-md">
                             <div class="mb-3">
                                 <label class="mb-1" for="date">{{ trans('date') }}</label>
-                                <input type="date" id="date" name="date" value="{{ fsc.date }}" class="form-control" required>
+                                <input type="date" id="date" name="date" value="{{ fsc.date }}" class="form-control"
+                                       required>
                             </div>
                         </div>
                         <div class="col-12 col-md">

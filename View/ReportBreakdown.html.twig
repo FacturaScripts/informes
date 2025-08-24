@@ -25,7 +25,7 @@
                         <i class="{{ fsc.getPageData().icon }}"></i> {{ fsc.title }}
                     </h1>
                     <p class="text-muted mb-4">{{ trans('report-breakdown-p') }}</p>
-                    <div class="row">
+                    <div class="row g-2">
                         <div class="col-12 col-md-3">
                             <div class="mb-3">
                                 <label class="mb-1">{{ trans('from-date') }}</label>
@@ -78,8 +78,8 @@
 
                     <ul class="nav nav-pills mt-3 mb-3" role="tablist">
                         <li class="nav-item" role="presentation">
-                            <a id="tabVentas" class="nav-link active" data-bs-toggle="tab" role="tab" aria-selected="true"
-                               aria-controls="contentSaleReport" href="#contentSaleReport">
+                            <a id="tabVentas" class="nav-link active" data-bs-toggle="tab" role="tab"
+                               aria-selected="true" aria-controls="contentSaleReport" href="#contentSaleReport">
                                 {{ trans('sales') }}
                             </a>
                         </li>
@@ -94,7 +94,7 @@
                     <div class="tab-content">
                         <div class="tab-pane fade show active" id="contentSaleReport"
                              aria-labelledby="contentSaleReport-tab" role="tabpanel">
-                            <div class="row">
+                            <div class="row g-2">
                                 <div class="col-12 col-md-4">
                                     <div class="mb-3">
                                         {{ forms.simpleSelect('codpais', 'codpais', fsc.codpais,
@@ -111,8 +111,7 @@
                                     <div class="mb-3">
                                         <label class="mb-1">{{ trans('minimum-amount') }}</label>
                                         <input type="number" class="form-control" name="sale-minimo"
-                                               placeholder="{{ trans('optional') }}"
-                                               value="{{ fsc.sale_minimo }}">
+                                               placeholder="{{ trans('optional') }}" value="{{ fsc.sale_minimo }}">
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-4">
@@ -123,10 +122,9 @@
                                                    placeholder="{{ trans('any-customer') }}"
                                                    value="{{ fsc.cliente.nombre }}">
                                             <input type="hidden" name="codcliente" value="{{ fsc.cliente.codcliente }}">
-                                            <button class="btn btn-secondary" type="button"
-                                                        onclick="cleanCustomer()">
-                                                    <span class="fa fa-times"></span>
-                                                </button>
+                                            <button class="btn btn-secondary" type="button" onclick="cleanCustomer()">
+                                                <span class="fa fa-times"></span>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -137,11 +135,12 @@
                                             <input type="text" class="form-control" id="billingAddress"
                                                    placeholder="{{ trans('any-address') }}"
                                                    value="{{ fsc.getAddress(fsc.billingAddress) }}">
-                                            <input type="hidden" name="idcontactofact" value="{{ fsc.billingAddress.idcontacto }}">
+                                            <input type="hidden" name="idcontactofact"
+                                                   value="{{ fsc.billingAddress.idcontacto }}">
                                             <button class="btn btn-secondary" type="button"
-                                                        onclick="cleanBillingAddress()">
-                                                    <span class="fa fa-times"></span>
-                                                </button>
+                                                    onclick="cleanBillingAddress()">
+                                                <span class="fa fa-times"></span>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -152,11 +151,12 @@
                                             <input type="text" class="form-control" id="shippingAddress"
                                                    placeholder="{{ trans('any-address') }}"
                                                    value="{{ fsc.getAddress(fsc.shippingAddress) }}">
-                                            <input type="hidden" name="idcontactoenv" value="{{ fsc.shippingAddress.idcontacto }}">
+                                            <input type="hidden" name="idcontactoenv"
+                                                   value="{{ fsc.shippingAddress.idcontacto }}">
                                             <button class="btn btn-secondary" type="button"
-                                                        onclick="cleanShippingAddress()">
-                                                    <span class="fa fa-times"></span>
-                                                </button>
+                                                    onclick="cleanShippingAddress()">
+                                                <span class="fa fa-times"></span>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -187,7 +187,7 @@
 
                         <div class="tab-pane" id="contentPurchaseReport" aria-labelledby="contentPurchaseReport-tab"
                              role="tabpanel">
-                            <div class="row">
+                            <div class="row g-2">
                                 <div class="col-12 col-md-3">
                                     <div class="mb-3">
                                         {{ trans('supplier') }}
@@ -198,9 +198,9 @@
                                             <input type="hidden" name="codproveedor"
                                                    value="{{ fsc.proveedor.codproveedor }}">
                                             <button class="btn btn-secondary" type="button"
-                                                        onclick="cleanSupplier()">
-                                                    <span class="fa fa-times"></span>
-                                                </button>
+                                                    onclick="cleanSupplier()">
+                                                <span class="fa fa-times"></span>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -208,8 +208,7 @@
                                     <div class="mb-3">
                                         {{ trans('minimum-amount') }}
                                         <input type="number" class="form-control" name="purchase-minimo"
-                                               placeholder="{{ trans('optional') }}"
-                                               value="{{ fsc.purchase_minimo }}">
+                                               placeholder="{{ trans('optional') }}" value="{{ fsc.purchase_minimo }}">
                                     </div>
                                 </div>
                                 <div class="col-md-12">
@@ -256,7 +255,6 @@
 {% block javascripts %}
     {{ parent() }}
     <script src="{{ asset('node_modules/jquery-ui-dist/jquery-ui.min.js') }}"></script>
-
     <script>
         function cleanBillingAddress() {
             $('#billingAddress, input[name="idcontactofact"]').val('')
