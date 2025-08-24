@@ -73,11 +73,6 @@ class ReportFilter extends ModelClass
         ];
     }
 
-    public static function primaryColumn(): string
-    {
-        return "id";
-    }
-
     public static function tableName(): string
     {
         return "reports_filters";

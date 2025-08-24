@@ -31,7 +31,7 @@ class FamilyResultReport extends ResultReport
     {
         self::apply($formData);
         $varName = ($formData['action'] == "load-sales" or $formData['action'] == "load-family-sales") ? "ventas" : "compras";
-        
+
         $html = '';
 
         asort(self::${$varName}[self::$year]['descripciones']);

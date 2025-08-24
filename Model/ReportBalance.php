@@ -83,11 +83,6 @@ class ReportBalance extends ModelClass
             self::SUBTYPE_PYMES;
     }
 
-    public static function primaryColumn(): string
-    {
-        return 'id';
-    }
-
     public function primaryDescriptionColumn(): string
     {
         return 'name';

@@ -92,11 +92,6 @@ class BalanceCode extends ModelClass
         $this->subtype = 'normal';
     }
 
-    public static function primaryColumn(): string
-    {
-        return 'id';
-    }
-
     public static function tableName(): string
     {
         return 'balance_codes';

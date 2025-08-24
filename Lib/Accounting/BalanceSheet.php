@@ -67,6 +67,7 @@ class BalanceSheet
     public function __construct()
     {
         $this->dataBase = new DataBase();
+        $this->dataBase->connect();
 
         // needed dependencies
         new Partida();
@@ -91,7 +92,7 @@ class BalanceSheet
             new DataBaseWhere('fechafin', $this->dateToPrev, '>='),
             new DataBaseWhere('idempresa', $idcompany)
         ];
-        $this->exercisePrev->loadFromCode('', $where);
+        $this->exercisePrev->loadWhere($where);
         $this->format = $params['format'] ?? 'pdf';
 
         $return = [
@@ -119,9 +120,8 @@ class BalanceSheet
             return;
         }
 
-        $balAccount = new BalanceAccount();
         $where = [new DataBaseWhere('idbalance', $balance->id)];
-        foreach ($balAccount->all($where, [], 0, 0) as $model) {
+        foreach (BalanceAccount::all($where, [], 0, 0) as $model) {
             $total = $this->getAccountAmounts($balance, $model, $codejercicio, $params);
 
             // si no tiene saldo, no lo mostramos
@@ -187,7 +187,8 @@ class BalanceSheet
                 if ($this->format === 'PDF') {
                     return $prefix . Tools::number($value) . $suffix;
                 }
-                return number_format($value, FS_NF0, '.', '');
+                $nf0 = Tools::settings('default', 'decimals', 2);
+                return number_format($value, $nf0, '.', '');
 
             default:
                 if ($this->format === 'PDF') {
@@ -253,9 +254,8 @@ class BalanceSheet
             return $total;
         }
 
-        $balAccount = new BalanceAccount();
         $where = [new DataBaseWhere('idbalance', $balance->id)];
-        foreach ($balAccount->all($where, [], 0, 0) as $model) {
+        foreach (BalanceAccount::all($where, [], 0, 0) as $model) {
             $total += $this->getAccountAmounts($balance, $model, $codejercicio, $params);
         }
 
@@ -269,14 +269,13 @@ class BalanceSheet
         $code2 = $this->exercisePrev->codejercicio ?? '-';
 
         // get balance codes
-        $balance = new BalanceCode();
         $where = [
             new DataBaseWhere('nature', $nature),
             new DataBaseWhere('subtype', $params['subtype'] ?? 'normal'),
             new DataBaseWhere('level1', '', '!=')
         ];
         $order = ['level1' => 'ASC', 'level2' => 'ASC', 'level3' => 'ASC', 'level4' => 'ASC'];
-        $balances = $balance->all($where, $order, 0, 0);
+        $balances = BalanceCode::all($where, $order, 0, 0);
 
         // get amounts
         $amountsE1 = [];

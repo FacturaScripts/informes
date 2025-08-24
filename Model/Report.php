@@ -20,7 +20,8 @@
 namespace FacturaScripts\Plugins\Informes\Model;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
-use FacturaScripts\Core\Model\Base;
+use FacturaScripts\Core\Template\ModelClass;
+use FacturaScripts\Core\Template\ModelTrait;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Core\Where;
 
@@ -29,9 +30,9 @@ use FacturaScripts\Core\Where;
  *
  * @author Carlos Garcia Gomez <carlos@facturascripts.com>
  */
-class Report extends Base\ModelClass
+class Report extends ModelClass
 {
-    use Base\ModelTrait;
+    use ModelTrait;
 
     public const DEFAULT_TYPE = 'area';
     public const TYPE_BAR = 'bar';
@@ -135,11 +136,6 @@ class Report extends Base\ModelClass
         }
 
         return ' WHERE ' . Where::multiSql($where);
-    }
-
-    public static function primaryColumn(): string
-    {
-        return 'id';
     }
 
     public function primaryDescriptionColumn(): string

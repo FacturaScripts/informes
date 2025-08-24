@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2017-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2017-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -54,6 +54,7 @@ class BalanceAmounts
     public function __construct()
     {
         $this->dataBase = new DataBase();
+        $this->dataBase->connect();
 
         // needed dependencies
         new Partida();
@@ -73,12 +74,10 @@ class BalanceAmounts
         $level = (int)($params['level'] ?? '0');
 
         // obtenemos las cuentas
-        $cuenta = new Cuenta();
-        $accounts = $cuenta->all($this->getAccountWhere($params), ['codcuenta' => 'ASC'], 0, 0);
+        $accounts = Cuenta::all($this->getAccountWhere($params), ['codcuenta' => 'ASC'], 0, 0);
 
         // obtenemos las subcuentas
-        $subcuenta = new Subcuenta();
-        $subaccounts = $subcuenta->all($this->getSubAccountWhere($params), [], 0, 0);
+        $subaccounts = Subcuenta::all($this->getSubAccountWhere($params), [], 0, 0);
 
         // obtenemos los importes por subcuenta
         $amounts = $this->getData($params);
@@ -210,7 +209,8 @@ class BalanceAmounts
                 if ($this->format === 'PDF') {
                     return $prefix . Tools::number($value) . $suffix;
                 }
-                return number_format($value, FS_NF0, '.', '');
+                $nf0 = Tools::settings('default', 'decimals', 2);
+                return number_format($value, $nf0, '.', '');
 
             default:
                 if ($this->format === 'PDF') {

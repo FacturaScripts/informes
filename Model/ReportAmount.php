@@ -77,11 +77,6 @@ class ReportAmount extends ModelClass
         $this->startdate = date('01-01-Y');
     }
 
-    public static function primaryColumn(): string
-    {
-        return 'id';
-    }
-
     public function primaryDescriptionColumn(): string
     {
         return 'name';

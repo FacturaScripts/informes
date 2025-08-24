@@ -79,11 +79,6 @@ class ReportBoard extends ModelClass
         return ReportBoardLine::all($where, $orderBy, 0, 0);
     }
 
-    public static function primaryColumn(): string
-    {
-        return 'id';
-    }
-
     public function primaryDescriptionColumn(): string
     {
         return 'name';
