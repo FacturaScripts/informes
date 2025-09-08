@@ -56,7 +56,7 @@ final class ReportTest extends TestCase
     public function testTableName(): void
     {
         $report = new Report();
-        $this->assertEquals('report', $report->tableName());
+        $this->assertEquals('reports', $report->tableName());
     }
 
     protected function tearDown(): void
