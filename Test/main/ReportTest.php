@@ -44,7 +44,7 @@ final class ReportTest extends TestCase
     public function testGetSqlFilters(): void
     {
         $report = new Report();
-        $this->assertStringContainsString('WHERE', $report->getSqlFilters());
+        $this->assertStringStartsWith(' WHERE', $report->getSqlFilters());
     }
 
     public function testPrimaryDescriptionColumn(): void
