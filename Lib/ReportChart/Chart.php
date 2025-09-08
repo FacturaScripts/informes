@@ -21,7 +21,8 @@ namespace FacturaScripts\Plugins\Informes\Lib\ReportChart;
 
 use FacturaScripts\Core\Base\DataBase;
 use FacturaScripts\Core\Tools;
-use FacturaScripts\Dinamic\Model\Report;
+use FacturaScripts\Dinamic\Model\Report as DinReport;
+use FacturaScripts\Plugins\Informes\Model\Report;
 
 /**
  * Description of AreaChart
@@ -52,7 +53,7 @@ abstract class Chart
 
         $sources = [$this->report->name => $dataBase->select($sql)];
 
-        $comparedReport = new Report();
+        $comparedReport = new DinReport();
         if (!empty($this->report->compared) && $comparedReport->loadFromCode($this->report->compared)) {
             $sources[$comparedReport->name] = $dataBase->select($this->getSql($comparedReport));
         }
@@ -134,7 +135,8 @@ abstract class Chart
             return '';
         }
 
-        return strtolower(FS_DB_TYPE) == 'postgresql' ?
+        $db_type = Tools::config('db_type');
+        return strtolower($db_type) == 'postgresql' ?
             $this->getSqlPostgreSQL($report) :
             $this->getSqlMySQL($report);
     }
