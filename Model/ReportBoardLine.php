@@ -69,6 +69,13 @@ class ReportBoardLine extends ModelClass
         return $report;
     }
 
+    public function install(): string
+    {
+        new ReportBoard();
+        new Report();
+        return parent::install();
+    }
+
     public static function tableName(): string
     {
         return "reports_boards_lines";

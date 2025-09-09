@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2024 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2025 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -15,47 +15,51 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- *
- * @author Antonio Palma <desarrolloweb@antoniojosepalma.es>
  */
 
-namespace FacturaScripts\Plugins\Informes\Model;
+namespace FacturaScripts\Test\Plugins;
 
-use FacturaScripts\Core\Template\ModelClass;
-use FacturaScripts\Core\Template\ModelTrait;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Test\Traits\LogErrorsTrait;
+use FacturaScripts\Plugins\Informes\Model\ReportFilter;
+use PHPUnit\Framework\TestCase;
 
-/**
- * @author Daniel Fernández Giménez <hola@danielfg.es>
- */
-class ReportFilter extends ModelClass
+final class ReportFilterTest extends TestCase
 {
-    use ModelTrait;
+    use LogErrorsTrait;
 
-    /** @var int */
-    public $id;
-
-    /** @var int */
-    public $id_report;
-
-    /** @var string */
-    public $operator;
-
-    /** @var string */
-    public $table_column;
-
-    /** @var string */
-    public $value;
-
-    public static function getDynamicValue(string $value): string
+    public function testCreateAndDelete(): void
     {
-        $values = self::getDynamicValues();
-        return $values[trim($value)] ?? $value;
+        $reportFilter = new ReportFilter();
+        $reportFilter->id = 9999;
+        $reportFilter->operator = '=';
+        $reportFilter->table_column = 'column';
+        $reportFilter->value = 'value';
+
+        $this->assertTrue($reportFilter->save());
+        $this->assertTrue($reportFilter->exists());
+        $this->assertTrue($reportFilter->delete());
     }
 
-    public static function getDynamicValues(): array
+    public function testGetDynamicValueWithExistingValue(): void
     {
-        return [
+        $reportFilter = new ReportFilter();
+
+        $this->assertEquals(Tools::dateTime(), $reportFilter->getDynamicValue('{now}'));
+    }
+
+    public function testGetDynamicValueWithNonExistingValue(): void
+    {
+        $reportFilter = new ReportFilter();
+
+        $this->assertEquals('value', $reportFilter->getDynamicValue('value'));
+    }
+
+    public function testGetDynamicValues(): void
+    {
+        $reportFilter = new ReportFilter();
+
+        $expectedValues = [
             '{now}' => Tools::dateTime(),
             '{-1 hour}' => Tools::dateTime('-1 hour'),
             '{-6 hours}' => Tools::dateTime('-6 hours'),
@@ -71,25 +75,12 @@ class ReportFilter extends ModelClass
             '{-1 year}' => Tools::date('-1 year'),
             '{-2 years}' => Tools::date('-2 years'),
         ];
+
+        $this->assertEquals($expectedValues, $reportFilter->getDynamicValues());
     }
 
-    public function install(): string
+    protected function tearDown(): void
     {
-        new Report();
-        return parent::install();
-    }
-
-    public static function tableName(): string
-    {
-        return "reports_filters";
-    }
-
-    public function test(): bool
-    {
-        // escapamos el html
-        $this->table_column = Tools::noHtml($this->table_column);
-        $this->value = Tools::noHtml($this->value);
-
-        return parent::test();
+        $this->logErrors();
     }
 }
