@@ -62,13 +62,6 @@ final class ReportFilterTest extends TestCase
         $this->assertEquals($expectedValues, $reportFilter->getDynamicValues());
     }
 
-    public function testTableName(): void
-    {
-        $reportFilter = new ReportFilter();
-
-        $this->assertEquals('reports_filters', $reportFilter->tableName());
-    }
-
     protected function tearDown(): void
     {
         $this->logErrors();

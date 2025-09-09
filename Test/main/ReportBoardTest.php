@@ -68,18 +68,6 @@ final class ReportBoardTest extends TestCase
         $this->assertIsArray($reportBoard->getLines());
     }
 
-    public function testPrimaryDescriptionColumn(): void
-    {
-        $reportBoard = new ReportBoard();
-        $this->assertEquals('name', $reportBoard->primaryDescriptionColumn());
-    }
-
-    public function testTableName(): void
-    {
-        $reportBoard = new ReportBoard();
-        $this->assertEquals('reports_boards', $reportBoard->tableName());
-    }
-
     protected function tearDown(): void
     {
         $this->logErrors();

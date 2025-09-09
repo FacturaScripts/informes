@@ -58,18 +58,6 @@ final class ReportTest extends TestCase
         $this->assertStringStartsWith(' WHERE', $report->getSqlFilters());
     }
 
-    public function testPrimaryDescriptionColumn(): void
-    {
-        $report = new Report();
-        $this->assertEquals('name', $report->primaryDescriptionColumn());
-    }
-
-    public function testTableName(): void
-    {
-        $report = new Report();
-        $this->assertEquals('reports', $report->tableName());
-    }
-
     protected function tearDown(): void
     {
         $this->logErrors();

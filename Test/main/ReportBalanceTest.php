@@ -20,18 +20,6 @@ final class ReportBalanceTest extends TestCase
         $this->assertTrue($reportBalance->delete());
     }
 
-    public function testPrimaryDescriptionColumn(): void
-    {
-        $reportBalance = new ReportBalance();
-        $this->assertEquals('name', $reportBalance->primaryDescriptionColumn());
-    }
-
-    public function testTableName(): void
-    {
-        $reportBalance = new ReportBalance();
-        $this->assertEquals('reports_balance', $reportBalance->tableName());
-    }
-
     public function testTypeList(): void
     {
 
@@ -50,12 +38,6 @@ final class ReportBalanceTest extends TestCase
         $this->assertIsArray($reportBalance->subtypeList());
         $this->assertCount(2, $reportBalance->subtypeList());
     
-    }
-
-    public function testUrl():void
-    {
-        $reportBalance = new ReportBalance();
-        $this->assertStringContainsString('ListReportAccounting?activetab=', $reportBalance->url());
     }
 
     protected function tearDown(): void

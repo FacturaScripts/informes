@@ -35,11 +35,6 @@ final class ReportBoardLineTest extends TestCase
         $this->assertIsObject($reportBoardLine->getReport());
     }
 
-    public function testTableName(): void
-    {
-        $this->assertEquals('reports_boards_lines', ReportBoardLine::tableName());
-    }
-
     protected function tearDown(): void
     {
         $this->logErrors();

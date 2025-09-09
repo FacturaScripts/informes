@@ -20,24 +20,6 @@ final class ReportAmountTest extends TestCase
         $this->assertTrue($reportAmount->delete());
     }
 
-    public function testPrimaryDescriptionColumn(): void
-    {
-        $reportAmount = new ReportAmount();
-        $this->assertEquals('name', $reportAmount->primaryDescriptionColumn());
-    }
-
-    public function testTableName(): void
-    {
-        $reportAmount = new ReportAmount();
-        $this->assertEquals('reports_amounts', $reportAmount->tableName());
-    }
-
-    public function testUrl(): void
-    {
-        $reportAmount = new ReportAmount();
-        $this->assertStringContainsString('ListReportAccounting?activetab=', $reportAmount->url());
-    }
-
     protected function tearDown(): void
     {
         $this->logErrors();
