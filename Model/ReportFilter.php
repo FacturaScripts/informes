@@ -75,7 +75,9 @@ class ReportFilter extends ModelClass
 
     public function install(): string
     {
+        // dependencia
         new Report();
+
         return parent::install();
     }
 

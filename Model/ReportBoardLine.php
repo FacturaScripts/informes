@@ -71,8 +71,10 @@ class ReportBoardLine extends ModelClass
 
     public function install(): string
     {
+        // dependencias
         new ReportBoard();
         new Report();
+
         return parent::install();
     }
 

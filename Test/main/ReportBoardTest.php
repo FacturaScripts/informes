@@ -30,50 +30,61 @@ final class ReportBoardTest extends TestCase
 
     public function testCreateAndDelete(): void
     {
+        // creamos un tablero de reportes
         $reportBoard = new ReportBoard();
         $reportBoard->name = 'report board';
-
         $this->assertTrue($reportBoard->save());
+
+        // comprobamos que existe
         $this->assertTrue($reportBoard->exists());
+
+        // lo eliminamos
         $this->assertTrue($reportBoard->delete());
     }
 
     public function testAddLineTrue(): void
     {
+        // creamos un tablero de reportes
         $reportBoard = new ReportBoard();
-
-        $reportBoard->id = 9999;
         $reportBoard->name = 'Test board';
         $this->assertTrue($reportBoard->save());
 
+        // creamos un reporte
         $report = new Report();
-        $this->assertFalse($report->load('nobalance'));
+        $report->name = 'Test Report';
+        $report->table = 'test_table';
+        $report->type = Report::DEFAULT_TYPE;
+        $this->assertTrue($report->save());
+
+        // comprobamos que se puede añadir una línea al tablero
         $this->assertTrue($reportBoard->addLine($report));
 
+        // lo eliminamos
         $this->assertTrue($reportBoard->delete());
+        $this->assertTrue($report->delete());
     }
 
     public function testAddLineFalse(): void
     {
+        // creamos un tablero de reportes
         $reportBoard = new ReportBoard();
-
-        $reportBoard->id = 9998;
         $reportBoard->name = 'Test board';
         $this->assertTrue($reportBoard->save());
 
+        // creamos un reporte válido
         $report = new Report();
-        
-        $report->id = 999999;
         $report->name = 'Test report';
         $report->table = 'test_table';
         $report->type = Report::DEFAULT_TYPE;
         $this->assertTrue($report->save());
 
+        // creamos un reporte inválido (sin guardar)
         $report2 = new Report();
-        $report2->id = 999998;
 
+        // comprobamos que no se puede añadir un reporte inválido
         $this->assertFalse($reportBoard->addLine($report2));
-        
+
+        // lo eliminamos
         $this->assertTrue($reportBoard->delete());
         $this->assertTrue($report->delete());
     }
@@ -82,7 +93,50 @@ final class ReportBoardTest extends TestCase
     {
         $reportBoard = new ReportBoard();
 
+        // comprobamos que getLines() retorna un array
         $this->assertIsArray($reportBoard->getLines());
+    }
+
+    public function testDeleteBoardDeletesLines(): void
+    {
+        // creamos el primer reporte
+        $report1 = new Report();
+        $report1->name = 'Test Report 1';
+        $report1->table = 'test_table';
+        $report1->type = Report::DEFAULT_TYPE;
+        $this->assertTrue($report1->save());
+
+        // creamos el segundo reporte
+        $report2 = new Report();
+        $report2->name = 'Test Report 2';
+        $report2->table = 'test_table';
+        $report2->type = Report::DEFAULT_TYPE;
+        $this->assertTrue($report2->save());
+
+        // creamos un tablero de reportes
+        $reportBoard = new ReportBoard();
+        $reportBoard->name = 'Test Board';
+        $this->assertTrue($reportBoard->save());
+
+        // añadimos varias líneas al tablero
+        $this->assertTrue($reportBoard->addLine($report1, 1));
+        $this->assertTrue($reportBoard->addLine($report2, 2));
+        
+        // comprobamos que el tablero tiene líneas
+        $lines = $reportBoard->getLines();
+        $this->assertCount(2, $lines);
+        
+        // eliminamos el tablero
+        $this->assertTrue($reportBoard->delete());
+        
+        // comprobamos que las líneas se han eliminado automáticamente
+        foreach ($lines as $line) {
+            $this->assertFalse($line->exists());
+        }
+        
+        // lo eliminamos
+        $this->assertTrue($report1->delete());
+        $this->assertTrue($report2->delete());
     }
 
     protected function tearDown(): void

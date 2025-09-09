@@ -29,30 +29,46 @@ final class ReportTest extends TestCase
 
     public function testCreateAndDelete(): void
     {
+        // creamos un reporte
         $report = new Report();
         $report->name = 'report';
         $report->table = 'test';
 
+        // comprobamos que se puede guardar
         $this->assertTrue($report->save());
+        // comprobamos que existe
         $this->assertTrue($report->exists());
+        // lo eliminamos
         $this->assertTrue($report->delete());
     }
 
     public function testAddFilter(): void
     {
+        // creamos un reporte
         $report = new Report();
+        $report->id = 9999;
+        $report->name = 'Test Report';
+        $report->table = 'test_table';
+        $report->type = Report::DEFAULT_TYPE;
+        $this->assertTrue($report->save());
+
+        // comprobamos que se puede añadir un filtro
         $this->assertTrue($report->addFilter('table_column', '=', 'value'));
+        // lo eliminamos
+        $this->assertTrue($report->delete());
     }
 
     public function testAddFilterInvalidOperator(): void
     {
         $report = new Report();
+        // comprobamos que no se puede añadir un filtro con operador inválido
         $this->assertFalse($report->addFilter('table_column', 'invalid_operator', 'value'));
     }
 
     public function testGetChartClassExists(): void
     {
         $report = new Report();
+        // comprobamos que getChart() retorna un objeto cuando la clase existe
         $this->assertNotEquals('', $report->getChart());
     }
 
@@ -60,19 +76,61 @@ final class ReportTest extends TestCase
     {
         $report = new Report();
         $report->type = 'nonexistent_type';
+        // comprobamos que getChart() retorna vacío cuando la clase no existe
         $this->assertEquals('', $report->getChart());
     }
 
     public function testGetFilters(): void
     {
         $report = new Report();
+        // comprobamos que getFilters() retorna un array
         $this->assertIsArray($report->getFilters());
     }
 
     public function testGetSqlFilters(): void
     {
+        // creamos un reporte
         $report = new Report();
+        $report->id = 9998;
+        $report->name = 'Test Report';
+        $report->table = 'test_table';
+        $report->type = Report::DEFAULT_TYPE;
+        $this->assertTrue($report->save());
+
+        // añadimos un filtro
+        $this->assertTrue($report->addFilter('test_column', '=', 'test_value'));
+        // comprobamos que getSqlFilters() genera la cláusula WHERE
         $this->assertStringStartsWith(' WHERE', $report->getSqlFilters());
+
+        // lo eliminamos
+        $this->assertTrue($report->delete());
+    }
+
+    public function testDeleteReportDeletesFilters(): void
+    {
+        // creamos un reporte
+        $report = new Report();
+        $report->id = 9997;
+        $report->name = 'Test Report';
+        $report->table = 'test_table';
+        $report->type = Report::DEFAULT_TYPE;
+        $this->assertTrue($report->save());
+
+        // añadimos varios filtros
+        $this->assertTrue($report->addFilter('column1', '=', 'value1'));
+        $this->assertTrue($report->addFilter('column2', '>', 'value2'));
+
+        // comprobamos que el reporte tiene filtros
+        $filters = $report->getFilters();
+        $this->assertCount(2, $filters);
+
+        // eliminamos el reporte
+        $this->assertTrue($report->delete());
+
+        // comprobamos que los filtros se han eliminado automáticamente
+        foreach ($filters as $filter) {
+            $this->assertFalse($filter->exists());
+        }
     }
 
     protected function tearDown(): void
