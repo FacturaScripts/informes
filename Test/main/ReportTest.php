@@ -10,6 +10,17 @@ final class ReportTest extends TestCase
 {
     use LogErrorsTrait;
 
+    public function testCreateAndDelete(): void
+    {
+        $report = new Report();
+        $report->name = 'report';
+        $report->table = 'test';
+
+        $this->assertTrue($report->save());
+        $this->assertTrue($report->exists());
+        $this->assertTrue($report->delete());
+    }
+
     public function testAddFilter(): void
     {
         $report = new Report();

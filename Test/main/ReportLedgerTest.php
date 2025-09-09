@@ -10,6 +10,16 @@ final class ReportLedgerTest extends TestCase
 {
     use LogErrorsTrait;
 
+    public function testCreateAndDelete(): void
+    {
+        $reportLedger = new ReportLedger();
+        $reportLedger->name = 'report ledger';
+
+        $this->assertTrue($reportLedger->save());
+        $this->assertTrue($reportLedger->exists());
+        $this->assertTrue($reportLedger->delete());
+    }
+
     public function testPrimaryDescriptionColumn(): void
     {
         $reportLedger = new ReportLedger();

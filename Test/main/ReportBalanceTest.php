@@ -10,6 +10,16 @@ final class ReportBalanceTest extends TestCase
 {
     use LogErrorsTrait;
 
+    public function testCreateAndDelete(): void
+    {
+        $reportBalance = new ReportBalance();
+        $reportBalance->name = 'report balance';
+
+        $this->assertTrue($reportBalance->save());
+        $this->assertTrue($reportBalance->exists());
+        $this->assertTrue($reportBalance->delete());
+    }
+
     public function testPrimaryDescriptionColumn(): void
     {
         $reportBalance = new ReportBalance();

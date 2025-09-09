@@ -11,6 +11,16 @@ final class ReportBoardTest extends TestCase
 {
     use LogErrorsTrait;
 
+    public function testCreateAndDelete(): void
+    {
+        $reportBoard = new ReportBoard();
+        $reportBoard->name = 'report board';
+
+        $this->assertTrue($reportBoard->save());
+        $this->assertTrue($reportBoard->exists());
+        $this->assertTrue($reportBoard->delete());
+    }
+
     public function testAddLineTrue(): void
     {
         $reportBoard = new ReportBoard();

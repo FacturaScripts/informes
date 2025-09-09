@@ -11,6 +11,19 @@ final class ReportFilterTest extends TestCase
 {
     use LogErrorsTrait;
 
+    public function testCreateAndDelete(): void
+    {
+        $reportFilter = new ReportFilter();
+        $reportFilter->id = 9999;
+        $reportFilter->operator = '=';
+        $reportFilter->table_column = 'column';
+        $reportFilter->value = 'value';
+
+        $this->assertTrue($reportFilter->save());
+        $this->assertTrue($reportFilter->exists());
+        $this->assertTrue($reportFilter->delete());
+    }
+
     public function testGetDynamicValueWithExistingValue(): void
     {
         $reportFilter = new ReportFilter();
