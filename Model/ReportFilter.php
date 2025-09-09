@@ -73,6 +73,12 @@ class ReportFilter extends ModelClass
         ];
     }
 
+    public function install(): string
+    {
+        new Report();
+        return parent::install();
+    }
+
     public static function tableName(): string
     {
         return "reports_filters";
