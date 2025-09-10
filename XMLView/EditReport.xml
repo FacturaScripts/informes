@@ -58,6 +58,7 @@
                     <values title="has-a-value">HAS_A_VALUE</values>
                     <values title="does-not-have-a-value">DOES_NOT_HAVE_A_VALUE</values>
                     <values title="group-by-day">DAY</values>
+                    <values title="group-by-hour">HOUR</values>
                     <values title="group-by-week">WEEK</values>
                     <values title="group-by-month">MONTH</values>
                     <values title="group-by-months">MONTHS</values>
