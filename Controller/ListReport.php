@@ -92,6 +92,13 @@ class ListReport extends ListController
 
         // botones
         $this->addButton($viewName, [
+            'action' => 'EditReports',
+            'icon' => 'fa-solid fa-plus',
+            'label' => 'new-reports',
+            'type' => 'link'
+        ]);
+
+        $this->addButton($viewName, [
             'action' => 'generate-boards',
             'confirm' => true,
             'icon' => 'fa-solid fa-wand-magic-sparkles',
