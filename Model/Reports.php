@@ -50,11 +50,6 @@ class Reports extends ModelClass
         $this->creationdate = Tools::dateTime();
     }
 
-    public function loadFromCode($code, array $where = [], array $order = []): bool
-    {
-        return true;
-    }
-
     public static function tableName(): string
     {
         return 'report';
