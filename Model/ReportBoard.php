@@ -98,7 +98,7 @@ class ReportBoard extends ModelClass
         return parent::test();
     }
 
-    public function url(string $type = 'auto', string $list = 'ListReport?activetab=List'): string
+    public function url(string $type = 'auto', string $list = 'ListReports?activetab=List'): string
     {
         return parent::url($type, $list);
     }

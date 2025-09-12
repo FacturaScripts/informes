@@ -25,11 +25,11 @@ use FacturaScripts\Dinamic\Model\CodeModel;
 use FacturaScripts\Dinamic\Lib\Informes\ReportGenerator;
 
 /**
- * Description of ListReport
+ * Description of ListReports
  *
  * @author Carlos Garcia Gomez <carlos@facturascripts.com>
  */
-class ListReport extends ListController
+class ListReports extends ListController
 {
     public function getPageData(): array
     {
