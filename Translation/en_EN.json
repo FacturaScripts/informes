@@ -212,5 +212,8 @@
     "treasury": "Treasury",
     "treemap": "Tree map",
     "voluntary-reserves": "Voluntary reserves",
-    "y-operation": "Y operation"
+    "y-operation": "Y operation",
+    "field-can-not-be-null": "The %fieldName% field cannot be empty.",
+    "table-not-found": "Table %tableName% not found.",
+    "no-data-found": "No data found."
 }

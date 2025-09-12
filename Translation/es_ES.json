@@ -212,5 +212,8 @@
     "treasury": "Tesorería",
     "treemap": "Mapa de árbol",
     "voluntary-reserves": "Reservas voluntarias",
-    "y-operation": "Operación sobre Y"
+    "y-operation": "Operación sobre Y",
+    "field-can-not-be-null": "El campo %fieldName% no puede estar vacío.",
+    "table-not-found": "No se ha encontrado la tabla %tableName%.",
+    "no-data-found": "No se han encontrado datos."
 }
