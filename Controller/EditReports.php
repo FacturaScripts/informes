@@ -33,18 +33,6 @@ class EditReports extends EditController
         $field = $this->request->get('field', '');
 
         switch ($field) {
-            // case 'table':
-            //     // Devuelve la lista de tablas disponibles
-            //     $results = [];
-            //     foreach ($this->dataBase->getTables() as $tbl) {
-            //         $results[] = ['key' => $tbl, 'value' => $tbl];
-            //     }
-
-            //     if (empty($results)) {
-            //         $results[] = ['key' => null, 'value' => Tools::trans('no-data')];
-            //     }
-            //     return $results;
-
             case 'column':
                 // para enviar los datos al widget column (es dinámico así que va en cada request diferente)
                 // term contiene el valor del parent (tabla seleccionada)
