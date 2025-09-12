@@ -22,6 +22,8 @@ namespace FacturaScripts\Plugins\Informes\Model;
 use FacturaScripts\Core\Template\ModelClass;
 use FacturaScripts\Core\Template\ModelTrait;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Plugins\Informes\Model\ReportBoard;
+use FacturaScripts\Plugins\Informes\Model\ReportBoardLine;
 
 /**
  * Description of Reports
@@ -53,6 +55,40 @@ class Reports extends ModelClass
     public static function tableName(): string
     {
         return 'report';
+    }
+
+    public function save(): bool
+    {
+
+        $agrupar = ['HOUR', 'MONTH', 'MONTHS', 'YEAR'];
+        $reportid = [];
+        //crea los graficos
+        for ($i=0; $i < count($agrupar); $i++) { 
+            $report = new Report();
+            $reportid[] = $report->id;
+            $report->name = 'prueba';
+            $report->table = $this->table;
+            $report->type = Report::DEFAULT_TYPE;
+            $report->xcolumn = $this->column;
+            $report->xoperation = $agrupar[$i];
+            $report->save();
+        }
+
+        //crea una pizarra
+        $board = new ReportBoard();
+        $board->name = 'Tablero de ' . $report->name;
+        $board->idreport = $report->id;
+        $board->save();
+
+        //crea una linea en la pizarra
+        for ($i=0; $i < count($reportid); $i++) { 
+            $line = new ReportBoardLine();
+            $line->idreportboard = $board->id;
+            $line->idreport = $reportid[$i];
+            $line->save();
+        }
+
+        return parent::save();
     }
 
     public function test(): bool

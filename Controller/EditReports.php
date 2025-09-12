@@ -4,6 +4,8 @@ namespace FacturaScripts\Plugins\Informes\Controller;
 
 use FacturaScripts\Core\Lib\ExtendedController\EditController;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Plugins\Informes\Model\ReportBoard;
+use FacturaScripts\Plugins\Informes\Model\ReportBoardLine;
 
 /**
  * Este es un controlador específico para ediciones. Permite una o varias pestañas.
