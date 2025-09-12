@@ -57,8 +57,35 @@ class Reports extends ModelClass
 
     public function test(): bool
     {
+        // Sanitizar entradas
         $this->table = Tools::noHtml($this->table);
         $this->column = Tools::noHtml($this->column);
+
+        if(empty($this->table)) {
+            Tools::log()->warning('field-can-not-be-null', ['%fieldName%' => 'table', '%tableName%' => static::tableName()]);
+            return false;
+        }
+
+        // Validación: la tabla debe existir en la BD
+        if (false === static::$dataBase->tableExists($this->table)) {
+            Tools::log()->warning('table-not-found', ['%tableName%' => $this->table]);
+            return false;
+        }
+
+        // Validación opcional: si se informa columna, que exista y sea DATE
+        if (!empty($this->column)) {
+            $cols = static::$dataBase->getColumns($this->table);
+            if (!isset($cols[$this->column])) {
+                Tools::log()->warning('no-data-found');
+                return false;
+            }
+
+            $type = strtolower($cols[$this->column]['type'] ?? '');
+            if ($type !== 'date') {
+                Tools::log()->warning('no-data-found');
+                return false;
+            }
+        }
 
         return parent::test();
     }
