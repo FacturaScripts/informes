@@ -28,25 +28,64 @@ class EditReports extends EditController
         return $data;
     }
 
+    protected function selectAction(): array
+    {
+        $field = $this->request->get('field', '');
+
+        switch ($field) {
+            // case 'table':
+            //     // Devuelve la lista de tablas disponibles
+            //     $results = [];
+            //     foreach ($this->dataBase->getTables() as $tbl) {
+            //         $results[] = ['key' => $tbl, 'value' => $tbl];
+            //     }
+
+            //     if (empty($results)) {
+            //         $results[] = ['key' => null, 'value' => Tools::trans('no-data')];
+            //     }
+            //     return $results;
+
+            case 'column':
+                // para enviar los datos al widget column (es dinámico así que va en cada request diferente)
+                // term contiene el valor del parent (tabla seleccionada)
+                $table = (string)$this->request->get('term', '');
+                if (empty($table) || false === $this->dataBase->tableExists($table)) {
+                    return [['key' => null, 'value' => Tools::trans('no-data')]];
+                }
+
+                // únicamente columnas de tipo DATE
+                $dateColumns = [];
+                foreach ($this->dataBase->getColumns($table) as $colName => $colData) {
+                    $type = strtolower($colData['type'] ?? '');
+                    if ($type === 'date') {
+                        $dateColumns[] = $colName;
+                    }
+                }
+                sort($dateColumns);
+
+                $results = [];
+                foreach ($dateColumns as $col) {
+                    $results[] = ['key' => $col, 'value' => $col];
+                }
+
+                if (empty($results)) {
+                    $results[] = ['key' => null, 'value' => Tools::trans('no-data')];
+                }
+                return $results;
+        }
+
+        // Fallback a la lógica genérica
+        return parent::selectAction();
+    }
+
     protected function loadData($viewName, $view)
     {
         parent::loadData($viewName, $view);
 
-        $table = $this->dataBase->getTables();
+        // cargar las tablas en el widget de tablas (es estática, no cambia, así que se le pasan los datos directamente)
+        $tables = $this->dataBase->getTables();
         $columnTable = $this->tab($viewName)->columnForName('table');
-
-        if ($columnTable && $columnTable->widget->getType() === 'select') {
-            $columnTable->widget->setValuesFromArray($table);
-        }
-
-        $tableName = $this->views[$viewName]->model->table;
-        $columns = empty($tableName) || !$this->dataBase->tableExists($tableName) ? [] : array_keys($this->dataBase->getColumns($tableName));
-        sort($columns);
-
-        $columnX = $this->views[$viewName]->columnForField('column');
-        if ($columnX && count($columns) > 0 && $columnX->widget->getType() === 'select') {
-            $columnX->widget->setValuesFromArray($columns);
-        }
+        $columnTable->widget->setValuesFromArray($tables);
 
     }
 }
