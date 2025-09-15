@@ -76,6 +76,9 @@ class EditReports extends EditController
         $tables = $this->dataBase->getTables();
         $columnTable = $this->tab($viewName)->columnForName('table');
         $columnTable->widget->setValuesFromArray($tables);
-
+        // establecer valor por defecto para el nombre si no viene informado
+        if (property_exists($view->model, 'nombre') && empty($view->model->nombre)) {
+            $view->model->nombre = 'tablero de prueba';
+        }
     }
 }

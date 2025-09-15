@@ -2,10 +2,13 @@
 <view>
     <columns>
         <group name="data" numcolumns="12">
-            <column name="table" display="left" order="100">
+            <column name="nombre" display="left" order="100">
+                <widget type="text" fieldname="nombre" value="tablero de prueba"/>
+            </column>
+            <column name="table" display="left" order="110">
                 <widget type="select" fieldname="table" required="true"/>
             </column>
-            <column name="column" display="left" order="100">
+            <column name="column" display="left" order="120">
                 <widget type="select" fieldname="column" parent="table"/>
             </column>
         </group>

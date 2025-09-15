@@ -39,7 +39,10 @@ class Reports extends ModelClass
 
     /** @var int */
     public $id;
-
+    
+    /** @var string */
+    public $nombre;
+    
     /** @var string */
     public $table;
 
@@ -50,6 +53,7 @@ class Reports extends ModelClass
     {
         parent::clear();
         $this->creationdate = Tools::dateTime();
+        $this->nombre = 'tablero de prueba';
     }
 
     public static function tableName(): string
@@ -62,11 +66,14 @@ class Reports extends ModelClass
 
         $agrupar = ['HOUR', 'MONTH', 'MONTHS', 'YEAR'];
         $reportid = [];
+
+        $nombre = empty($this->nombre) ? 'tablero de prueba' : $this->nombre;
+
         //crea los graficos
         for ($i=0; $i < count($agrupar); $i++) { 
             $report = new Report();
             $reportid[] = $report->id;
-            $report->name = 'prueba';
+            $report->name = $nombre;
             $report->table = $this->table;
             $report->type = Report::DEFAULT_TYPE;
             $report->xcolumn = $this->column;
@@ -76,7 +83,7 @@ class Reports extends ModelClass
 
         //crea una pizarra
         $board = new ReportBoard();
-        $board->name = 'Tablero de ' . $report->name;
+        $board->name = 'Tablero - ' . $nombre;
         $board->idreport = $report->id;
         $board->save();
 
@@ -96,6 +103,17 @@ class Reports extends ModelClass
         // Sanitizar entradas
         $this->table = Tools::noHtml($this->table);
         $this->column = Tools::noHtml($this->column);
+        $this->nombre = Tools::noHtml($this->nombre);
+
+        // Validar nombre:
+        if (empty($this->nombre)) {
+            $this->nombre = 'tablero de prueba';
+        }
+
+        // limitar longitud a 100 caracteres para nombre de reportes/tableros
+        if (mb_strlen($this->nombre) > 100) {
+            $this->nombre = mb_substr($this->nombre, 0, 100);
+        }
 
         if(empty($this->table)) {
             Tools::log()->warning('field-can-not-be-null', ['%fieldName%' => 'table', '%tableName%' => static::tableName()]);
