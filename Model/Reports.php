@@ -68,6 +68,16 @@ class Reports extends ModelClass
         $reportid = [];
 
         $nombre = empty($this->nombre) ? 'tablero de prueba' : $this->nombre;
+        $primaryColName = 'id';
+
+        // obtener primary column
+        $tableData = static::$dataBase->getColumns($this->table);
+        foreach ($tableData as $colName => $colData) {
+            if ($colData['key'] === 'PRI') {
+                $primaryColName = $colName;
+                break;
+            }
+        }
 
         //crea los graficos
         for ($i=0; $i < count($agrupar); $i++) { 
@@ -77,6 +87,7 @@ class Reports extends ModelClass
             $report->table = $this->table;
             $report->type = Report::DEFAULT_TYPE;
             $report->xcolumn = $this->column;
+            $report->ycolumn = $primaryColName;
             $report->xoperation = $agrupar[$i];
             $report->save();
         }
