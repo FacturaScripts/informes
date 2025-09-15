@@ -148,6 +148,11 @@ class Report extends ModelClass
         return 'reports';
     }
 
+    public function url(string $type = 'auto', string $list = 'ListReports?activetab=List'): string
+    {
+        return parent::url($type, $list);
+    }
+
     public function test(): bool
     {
         $this->name = Tools::noHtml($this->name);
