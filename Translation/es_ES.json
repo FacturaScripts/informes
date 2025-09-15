@@ -51,6 +51,7 @@
     "featured": "Destacado",
     "fractional-payment-corporation-tax": "Pago fraccionado Imp. Sociedades",
     "group-by-months": "Agrupar por meses",
+    "group-by-hour": "Agrupar por hora",
     "has-a-value": "Tiene valor",
     "income-book": "Libro de ingresos",
     "income-book-description": "Registra todas las facturas emitidas",
@@ -242,5 +243,8 @@
     "active-customers": "Clientes activos",
     "active-customers-year": "Clientes activos este año",
     "inactive-customers": "Clientes dados de baja",
-    "total-customers": "Clientes totales"
+    "total-customers": "Clientes totales",
+    "field-can-not-be-null": "El campo %fieldName% no puede estar vacío.",
+    "table-not-found": "No se ha encontrado la tabla %tableName%.",
+    "no-data-found": "No se han encontrado datos."
 }

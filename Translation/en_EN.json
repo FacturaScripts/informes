@@ -51,6 +51,7 @@
     "featured": "Featured",
     "fractional-payment-corporation-tax": "Fractional payment Corporate Tax",
     "group-by-months": "Group by months",
+    "group-by-hour": "Group by hour",
     "has-a-value": "Has a value",
     "income-book": "Income ledger",
     "income-book-description": "Registers all issued invoices",
@@ -242,5 +243,8 @@
     "active-customers": "Active customers",
     "active-customers-year": "Active customers this year",
     "inactive-customers": "Deregistered customers",
-    "total-customers": "Total customers"
+    "total-customers": "Total customers",
+    "field-can-not-be-null": "The %fieldName% field cannot be empty.",
+    "table-not-found": "Table %tableName% not found.",
+    "no-data-found": "No data found."
 }
