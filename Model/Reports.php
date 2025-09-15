@@ -82,8 +82,7 @@ class Reports extends ModelClass
         //crea los graficos
         for ($i=0; $i < count($agrupar); $i++) { 
             $report = new Report();
-            $reportid[] = $report->id;
-            $report->name = $nombre;
+            $report->name = $nombre . ' ' . $i;
             $report->table = $this->table;
             $report->type = Report::DEFAULT_TYPE;
             $report->xcolumn = $this->column;
@@ -91,6 +90,7 @@ class Reports extends ModelClass
             $report->xoperation = $agrupar[$i];
             $report->yoperation = 'SUM';
             $report->save();
+            $reportid[] = $report->id;
         }
 
         //crea una pizarra
