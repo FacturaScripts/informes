@@ -154,7 +154,7 @@ abstract class Chart
                 $xCol = "CASE WHEN " . $report->xcolumn . " IS NULL THEN '" . Tools::lang()->trans('has-a-value')
                     . "' ELSE '" . Tools::lang()->trans('does-not-have-a-value') . "' END";
                 break;
-            
+
             case 'HOUR':
                 $xCol = "DATE_FORMAT(" . $report->xcolumn . ", '%H')";
                 break;
@@ -233,6 +233,10 @@ abstract class Chart
             case 'DOES_NOT_HAVE_A_VALUE':
                 $xCol = "CASE WHEN " . $report->xcolumn . " IS NULL THEN '" . Tools::lang()->trans('has-a-value')
                     . "' ELSE '" . Tools::lang()->trans('does-not-have-a-value') . "' END";
+                break;
+
+            case 'HOUR':
+                $xCol = "to_char(" . $report->xcolumn . ", 'HH24')";
                 break;
 
             case 'DAY':

@@ -89,6 +89,7 @@ class Reports extends ModelClass
             $report->xcolumn = $this->column;
             $report->ycolumn = $primaryColName;
             $report->xoperation = $agrupar[$i];
+            $report->yoperation = 'SUM';
             $report->save();
         }
 
