@@ -63,7 +63,6 @@ class Reports extends ModelClass
 
     public function save(): bool
     {
-
         $agrupar = ['HOUR', 'MONTH', 'MONTHS', 'YEAR'];
         $reportid = [];
 
