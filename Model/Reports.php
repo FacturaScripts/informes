@@ -82,7 +82,7 @@ class Reports extends ModelClass
         //crea los graficos
         for ($i=0; $i < count($agrupar); $i++) { 
             $report = new Report();
-            $report->name = $nombre . ' ' . $i;
+            $report->name = $nombre . ' ' . Tools::trans(strtolower($agrupar[$i]));
             $report->table = $this->table;
             $report->type = Report::DEFAULT_TYPE;
             $report->xcolumn = $this->column;
