@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : report.xml
+    Author     : Carlos Garcia Gomez
+    Description:
+        Structure for the report table.
+-->
+<table>
+    <column>
+        <name>creationdate</name>
+        <type>timestamp</type>
+    </column>
+    <column>
+        <name>id</name>
+        <type>serial</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>table</name>
+        <type>character varying(100)</type>
+        <null>NO</null>
+    </column>
+    <column>
+        <name>column</name>
+        <type>character varying(100)</type>
+    </column>
+    <constraint>
+        <name>report_pkey</name>
+        <type>PRIMARY KEY (id)</type>
+    </constraint>
+</table>

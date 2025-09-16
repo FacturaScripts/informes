@@ -44,6 +44,7 @@
     "featured": "Destacado",
     "fractional-payment-corporation-tax": "Pago fraccionado Imp. Sociedades",
     "group-by-months": "Agrupar por meses",
+    "group-by-hour": "Agrupar por hora",
     "has-a-value": "Tiene valor",
     "input-tax": "IVA soportado",
     "legal-reserve": "Reserva legal",
@@ -54,6 +55,7 @@
     "monthly-average": "Media mensual",
     "negative": "Negativo",
     "negative-results-other-exercises": "Resultado negativo otros ejercicios",
+    "new-reports": "Nuevos informes",
     "no-agent": "Sin agente",
     "no-family": "Sin familia",
     "passed-tax": "IVA repercutido",
@@ -211,5 +213,8 @@
     "treasury": "Tesorería",
     "treemap": "Mapa de árbol",
     "voluntary-reserves": "Reservas voluntarias",
-    "y-operation": "Operación sobre Y"
+    "y-operation": "Operación sobre Y",
+    "field-can-not-be-null": "El campo %fieldName% no puede estar vacío.",
+    "table-not-found": "No se ha encontrado la tabla %tableName%.",
+    "no-data-found": "No se han encontrado datos."
 }

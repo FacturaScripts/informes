@@ -25,11 +25,11 @@ use FacturaScripts\Dinamic\Model\CodeModel;
 use FacturaScripts\Dinamic\Lib\Informes\ReportGenerator;
 
 /**
- * Description of ListReport
+ * Description of ListReports
  *
  * @author Carlos Garcia Gomez <carlos@facturascripts.com>
  */
-class ListReport extends ListController
+class ListReports extends ListController
 {
     public function getPageData(): array
     {
@@ -91,6 +91,13 @@ class ListReport extends ListController
             ->addSearchFields(['name', 'tag']);
 
         // botones
+        $this->addButton($viewName, [
+            'action' => 'EditReports',
+            'icon' => 'fa-solid fa-plus',
+            'label' => 'new-reports',
+            'type' => 'link'
+        ]);
+
         $this->addButton($viewName, [
             'action' => 'generate-boards',
             'confirm' => true,
