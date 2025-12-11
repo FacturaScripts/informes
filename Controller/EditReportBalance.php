@@ -24,13 +24,13 @@ use FacturaScripts\Core\Lib\ExtendedController\BaseView;
 use FacturaScripts\Core\Lib\ExtendedController\EditController;
 use FacturaScripts\Core\Model\Subcuenta;
 use FacturaScripts\Core\Tools;
-use FacturaScripts\Dinamic\Model\Cuenta;
-use FacturaScripts\Dinamic\Model\Ejercicio;
 use FacturaScripts\Dinamic\Lib\Accounting\BalanceSheet;
 use FacturaScripts\Dinamic\Lib\Accounting\IncomeAndExpenditure;
 use FacturaScripts\Dinamic\Lib\Accounting\ProfitAndLoss;
 use FacturaScripts\Dinamic\Model\BalanceAccount;
 use FacturaScripts\Dinamic\Model\BalanceCode;
+use FacturaScripts\Dinamic\Model\Cuenta;
+use FacturaScripts\Dinamic\Model\Ejercicio;
 use FacturaScripts\Dinamic\Model\ReportBalance;
 
 /**
@@ -66,12 +66,13 @@ class EditReportBalance extends EditController
             $this->views[$this->getMainViewName()]->disableColumn('company');
         }
 
+        $this->createViewsPrint();
         $this->createViewsBalanceCodes();
     }
 
     protected function createViewsBalanceCodes(string $viewName = 'ListBalanceCode'): void
     {
-        $this->addListView($viewName, 'BalanceCode', 'balance-codes')
+        $this->addListView($viewName, 'BalanceCode', 'balance-codes', 'fa-solid fa-cogs')
             ->addOrderBy(['codbalance'], 'code')
             ->addOrderBy(['description1'], 'description-1')
             ->addOrderBy(['description2'], 'description-2')
@@ -83,6 +84,11 @@ class EditReportBalance extends EditController
             ->setSettings('btnDelete', false)
             ->setSettings('btnNew', false)
             ->setSettings('checkBoxes', false);
+    }
+
+    protected function createViewsPrint(string $viewName = 'ReportPrint'): void
+    {
+        $this->addHtmlView($viewName, $viewName, 'ReportBalance', 'print', 'fa-solid fa-print');
     }
 
     protected function execAfterAction($action)
@@ -109,7 +115,7 @@ class EditReportBalance extends EditController
         $view = $this->views[$this->getMainViewName()];
         $this->exportManager->newDoc($format, $model->name);
         $this->exportManager->setCompany($model->idcompany);
-        $this->exportManager->addModelPage($view->model, $view->getColumns(), Tools::lang()->trans('accounting-reports'));
+        $this->exportManager->addModelPage($view->model, $view->getColumns(), Tools::trans('accounting-reports'));
 
         foreach ($pages as $data) {
             $headers = empty($data) ? [] : array_keys($data[0]);
@@ -135,8 +141,7 @@ class EditReportBalance extends EditController
         }
 
         // recorremos todas las cuentas
-        $accountModel = new Cuenta();
-        $accounts = $accountModel->all([], [], 0, 0);
+        $accounts = Cuenta::all();
         foreach ($accounts as $account) {
             if (empty($account->parent_codcuenta)) {
                 continue;
@@ -150,9 +155,8 @@ class EditReportBalance extends EditController
         }
 
         // recorremos todas las subcuentas del ejercicio
-        $subAccountModel = new Subcuenta();
         $where = [new DataBaseWhere('codejercicio', $exercise->codejercicio)];
-        foreach ($subAccountModel->all($where, [], 0, 0) as $subAccount) {
+        foreach (Subcuenta::all($where) as $subAccount) {
             // comprobamos que el campo codcuenta son los primeros caracteres del campo codsubcuenta
             $len = strlen($subAccount->codcuenta);
             if (substr($subAccount->codsubcuenta, 0, $len) !== $subAccount->codcuenta) {
@@ -237,7 +241,7 @@ class EditReportBalance extends EditController
             // si no existe la relación, avisamos
             Tools::log()->info('account-missing-in-balance', [
                 '%codcuenta%' => $cuenta->codcuenta,
-                '%saldo%' => round($saldo, FS_NF0)
+                '%saldo%' => Tools::round($saldo)
             ]);
         }
     }
@@ -330,7 +334,7 @@ class EditReportBalance extends EditController
                 }
 
                 // añadimos el botón para encontrar problemas, solo en modo debug
-                if (Tools::config('FS_DEBUG', false)) {
+                if (Tools::config('debug', false)) {
                     $this->addButton($viewName, [
                         'action' => 'find-problems',
                         'color' => 'warning',
@@ -338,7 +342,6 @@ class EditReportBalance extends EditController
                         'label' => 'find-problems'
                     ]);
                 }
-
                 break;
         }
     }
