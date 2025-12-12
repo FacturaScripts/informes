@@ -162,7 +162,7 @@
     "r-presupuestoscli-total-serie": "Rozpočty prodeje (serie %serie%) (celkem \/ měsíc)",
     "r-presupuestoscli-total-serie-year": "Rozpočty prodeje (série %serie%) (celkem \/ rok)",
     "r-presupuestoscli-total-status": "Odhady prodeje (%name%) (celkem \/ měsíc)",
-    "r-presupuestoscli-total-status-year": "Nabídky prodeje (%name%) (celkem \/ rok)",
+    "r-presupuestoscli-total-status-year": "Prodejní nabídky (%name%) (celkem \/ rok)",
     "r-presupuestoscli-total-user": "Rozpočty prodeje (uživatel %name%) (celkem \/ měsíc)",
     "r-presupuestoscli-total-user-year": "Nabídky (uživatel %name%) (celkem \/ rok)",
     "r-presupuestoscli-total-warehouse": "Rozpočty prodeje (sklad %name%) (celkem \/ měsíc)",

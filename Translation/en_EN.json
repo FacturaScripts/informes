@@ -29,8 +29,6 @@
     "banks": "Banks",
     "bars": "Bars",
     "charts-per-month": "Result chart per month",
-    "click-print-to-generate-balance": "Click the print button to generate the balance",
-    "click-print-to-generate-balance-p": "Use the print button at the top to generate and view the balance report.",
     "corporate-tax": "Corporate tax",
     "corporate-tax-advances": "Corporate tax advances",
     "credit-not-match-account": "There is a mismatch in the site id of your account %account%",

@@ -1,0 +1,81 @@
+{#
+* Copyright (C) 2025 Carlos Garcia Gomez <carlos@facturascripts.com>
+#}
+
+{% extends "Master/MenuBghTemplate.html.twig" %}
+{% import 'Macro/Forms.html.twig' as forms %}
+
+{% block bodyHeaderOptions %}
+    {{ parent() }}
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+{% endblock %}
+
+{% block body %}
+    {{ parent() }}
+    <div class="container" style="margin-top: -70px;">
+        <form action="{{ fsc.url() }}" method="post">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h1 class="h3 mb-1">
+                        <i class="{{ fsc.getPageData().icon }}"></i> {{ fsc.title }}
+                    </h1>
+                    <p class="text-muted mb-4">{{ trans('books-p') }}</p>
+                    <div class="row g-2">
+                        <div class="col-12 col-md-4">
+                            <div class="mb-3">
+                                {{ forms.simpleSelect('idempresa', 'idempresa', fsc.idempresa,
+                                    fsc.getSelectValues('empresas', 'idempresa', 'nombrecorto', false), trans('company')) }}
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="mb-3">
+                                <label class="mb-1">{{ trans('from-date') }}</label>
+                                <input type="date" name="desde" class="form-control" value="{{ fsc.desde }}" required/>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="mb-3">
+                                <label class="mb-1">{{ trans('until-date') }}</label>
+                                <input type="date" name="hasta" class="form-control" value="{{ fsc.hasta }}" required/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mt-4">
+                        <div class="col-12">
+                            <label class="mb-2"><strong>{{ trans('book-type') }}</strong></label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="generar" id="libroIngresos"
+                                       value="libro_ingresos" checked>
+                                <label class="form-check-label" for="libroIngresos">
+                                    <strong>{{ trans('income-book') }}</strong>
+                                </label>
+                                <div class="text-muted ms-4 mt-1">
+                                    {{ trans('income-book-description') }}
+                                </div>
+                            </div>
+                            <div class="form-check mt-3">
+                                <input class="form-check-input" type="radio" name="generar" id="libroGastos"
+                                       value="libro_gastos">
+                                <label class="form-check-label" for="libroGastos">
+                                    <strong>{{ trans('expenses-book') }}</strong>
+                                </label>
+                                <div class="text-muted ms-4 mt-1">
+                                    {{ trans('expenses-book-description') }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer text-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-download me-2"></i>{{ trans('generate') }}
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}
