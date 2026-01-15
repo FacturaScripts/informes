@@ -31,6 +31,8 @@
     "books": "Libros",
     "books-p": "Libros contables para autónomos",
     "charts-per-month": "Gráfico de resultados por mes",
+    "click-print-to-generate-balance": "Pulsa el botón imprimir para obtener el balance",
+    "click-print-to-generate-balance-p": "Utiliza el botón de impresión situado en la parte superior para generar y visualizar el informe de balance.",
     "corporate-tax": "Impuesto sociedades",
     "corporate-tax-advances": "Adelantos impuestos sociedades",
     "credit-not-match-account": "Hay descuadres en los asientos de la cuenta %account%. Haber: %credit% VS %sum%",

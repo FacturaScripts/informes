@@ -283,7 +283,7 @@ class ReportTreasury extends Controller
     {
         $total = 0.0;
 
-        $sql = "SELECT SUM(total) as total FROM facturasprov WHERE pagada = false"
+        $sql = "SELECT SUM(importe) as total FROM recibospagosprov WHERE pagado = false"
             . " AND fecha >= " . $this->dataBase->var2str($this->desde)
             . " AND fecha <= " . $this->dataBase->var2str($this->hasta) . ";";
         $data = $this->dataBase->select($sql);
@@ -298,7 +298,7 @@ class ReportTreasury extends Controller
     {
         $total = 0.0;
 
-        $sql = "SELECT SUM(total) as total FROM facturascli WHERE pagada = false"
+        $sql = "SELECT SUM(importe) as total FROM recibospagoscli WHERE pagado = false"
             . " AND fecha >= " . $this->dataBase->var2str($this->desde)
             . " AND fecha <= " . $this->dataBase->var2str($this->hasta) . ";";
         $data = $this->dataBase->select($sql);
