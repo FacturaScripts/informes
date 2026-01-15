@@ -244,7 +244,7 @@ class ReportTreasury extends Controller
         if ($this->da_resultado_actual["resultado_antes_impuestos"] < 0) {
             $this->da_resultado_actual["impuesto_sociedades"] = 0;
         } else {
-            $sociedades = $this->ejercicio->impsociedades;
+            $sociedades = isset($this->ejercicio->impsociedades) ? floatval($this->ejercicio->impsociedades) : 0;
             $this->da_resultado_actual["impuesto_sociedades"] = -1 * $this->da_resultado_actual["resultado_antes_impuestos"] * $sociedades / 100;
         }
 
@@ -261,7 +261,7 @@ class ReportTreasury extends Controller
 
         $data = $this->dataBase->select($sql);
         foreach ($data as $d) {
-            $this->bancos[] = new subcuenta($d);
+            $this->bancos[] = new Subcuenta($d);
         }
     }
 
@@ -275,7 +275,7 @@ class ReportTreasury extends Controller
 
         $data = $this->dataBase->select($sql);
         foreach ($data as $sc) {
-            $this->cajas[] = (object)$sc;
+            $this->cajas[] = new Subcuenta($sc);
         }
     }
 
@@ -283,9 +283,11 @@ class ReportTreasury extends Controller
     {
         $total = 0.0;
 
-        $sql = "SELECT SUM(total) as total FROM facturasprov WHERE pagada = false;";
+        $sql = "SELECT SUM(total) as total FROM facturasprov WHERE pagada = false"
+            . " AND fecha >= " . $this->dataBase->var2str($this->desde)
+            . " AND fecha <= " . $this->dataBase->var2str($this->hasta) . ";";
         $data = $this->dataBase->select($sql);
-        if ($data) {
+        if ($data && $data[0]['total'] !== null) {
             $total = floatval($data[0]['total']);
         }
 
@@ -296,9 +298,11 @@ class ReportTreasury extends Controller
     {
         $total = 0.0;
 
-        $sql = "SELECT SUM(total) as total FROM facturascli WHERE pagada = false;";
+        $sql = "SELECT SUM(total) as total FROM facturascli WHERE pagada = false"
+            . " AND fecha >= " . $this->dataBase->var2str($this->desde)
+            . " AND fecha <= " . $this->dataBase->var2str($this->hasta) . ";";
         $data = $this->dataBase->select($sql);
-        if ($data) {
+        if ($data && $data[0]['total'] !== null) {
             $total = floatval($data[0]['total']);
         }
 
@@ -312,7 +316,7 @@ class ReportTreasury extends Controller
         $sql = "SELECT SUM(neto) as total FROM facturascli WHERE fecha >= " . $this->dataBase->var2str($this->desde)
             . " AND fecha <= " . $this->dataBase->var2str($this->hasta) . ';';
         $data = $this->dataBase->select($sql);
-        if ($data) {
+        if ($data && $data[0]['total'] !== null) {
             $total = floatval($data[0]['total']);
         }
 
@@ -324,10 +328,13 @@ class ReportTreasury extends Controller
         $this->code = $this->request->get('code', '');
         $this->codejercicio = null;
         $this->codejercicio_ant = null;
-        $this->desde = date('01-01-Y');
+        $this->desde = date('Y-01-01');
         $this->ejercicio = new Ejercicio();
         $this->ejercicio_ant = new Ejercicio();
-        $this->hasta = date('31-12-Y');
+        $this->hasta = date('Y-12-31');
+
+        // Inicializamos los arrays con valores por defecto
+        $this->initializeDataArrays();
 
         // seleccionamos el ejercicio actual
         foreach (Ejercicio::all([], ['idempresa' => 'ASC', 'fechainicio' => 'DESC'], 0, 0) as $eje) {
@@ -367,18 +374,80 @@ class ReportTreasury extends Controller
         $this->cuadroResultadosSituacionCorto();
     }
 
+    protected function initializeDataArrays(): void
+    {
+        $this->da_tesoreria = [
+            'total_cajas' => 0.0,
+            'total_bancos' => 0.0,
+            'total_tesoreria' => 0.0,
+        ];
+
+        $this->da_gastos_cobros = [
+            'gastospdtepago' => 0.0,
+            'clientespdtecobro' => 0.0,
+            'nominaspdtepago' => 0.0,
+            'segsocialpdtepago' => 0.0,
+            'segsocialpdtecobro' => 0.0,
+            'total_gastoscobros' => 0.0,
+        ];
+
+        $this->da_impuestos = [
+            'irpf-mod111' => 0.0,
+            'irpf-mod115' => 0.0,
+            'iva-repercutido' => 0.0,
+            'iva-soportado' => 0.0,
+            'iva-devolver' => 0.0,
+            'resultado_iva-mod303' => 0.0,
+            'ventas_totales' => 0.0,
+            'gastos_totales' => 0.0,
+            'resultado' => 0.0,
+            'sociedades' => 0.0,
+            'pago-ant' => 0.0,
+            'pagofraccionado-mod202' => 0.0,
+            'resultado_ejanterior' => 0.0,
+            'resultado_negotros' => 0.0,
+            'total' => 0.0,
+            'sociedades_ant' => 0.0,
+            'sociedades_adelantos' => 0.0,
+            'total-mod200' => 0.0,
+        ];
+
+        $this->da_reservas_resultados = [
+            'reservalegal' => 0.0,
+            'reservasvoluntarias' => 0.0,
+            'resultadoejercicioanterior' => 0.0,
+            'total_reservas' => 0.0,
+        ];
+
+        $this->da_resultado_actual = [
+            'total_ventas' => 0.0,
+            'total_gastos' => 0.0,
+            'resultadoexplotacion' => 0.0,
+            'amortizacioninmovintang' => 0.0,
+            'amortizacioninmovmat' => 0.0,
+            'total_amort' => 0.0,
+            'resultado_antes_impuestos' => 0.0,
+            'impuesto_sociedades' => 0.0,
+            'resultado_despues_impuestos' => 0.0,
+        ];
+
+        $this->da_resultado_situacion = [
+            'total' => 0.0,
+        ];
+    }
+
     protected function saldoCuenta(string $cuenta, string $desde, string $hasta): float
     {
         $saldo = 0.0;
 
         if ($this->dataBase->tableExists('partidas')) {
             // calculamos el saldo de todos aquellos asientos que afecten a caja
-            $sql = "select sum(debe-haber) as total from partidas where codsubcuenta LIKE '" . $cuenta . "' and idasiento"
-                . " in (select idasiento from asientos where fecha >= " . $this->dataBase->var2str($desde)
+            $sql = "select sum(debe-haber) as total from partidas where codsubcuenta LIKE " . $this->dataBase->var2str($cuenta)
+                . " and idasiento in (select idasiento from asientos where fecha >= " . $this->dataBase->var2str($desde)
                 . " and fecha <= " . $this->dataBase->var2str($hasta) . ");";
 
             $data = $this->dataBase->select($sql);
-            if ($data) {
+            if ($data && $data[0]['total'] !== null) {
                 $saldo = floatval($data[0]['total']);
             }
         }
