@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2025 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2025-2026 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -81,12 +81,12 @@ class ReportBooks extends Controller
     protected function libroIngresos(): void
     {
         $sql = "SELECT f.fecha, f.numero, f.codigo, f.cifnif, f.nombrecliente,"
-            . " f.neto, f.totaliva, f.totalrecargo, f.total"
+            . " f.observaciones, f.neto, f.totaliva, f.totalrecargo, f.total"
             . " FROM facturascli f"
             . " WHERE f.fecha >= " . $this->dataBase->var2str($this->desde)
             . " AND f.fecha <= " . $this->dataBase->var2str($this->hasta)
             . " AND f.idempresa = " . $this->dataBase->var2str($this->idempresa)
-            . " ORDER BY f.fecha ASC, f.numero ASC;";
+            . " ORDER BY f.fecha ASC, CAST(f.numero AS UNSIGNED) ASC;";
 
         $data = $this->dataBase->select($sql);
         if (empty($data)) {
@@ -101,11 +101,12 @@ class ReportBooks extends Controller
 
         // Cabeceras del libro de ingresos
         echo Tools::trans('date') . ';'
-            . Tools::trans('number') . ';'
-            . Tools::trans('code') . ';'
-            . Tools::trans('cifnif') . ';'
-            . Tools::trans('name') . ';'
-            . Tools::trans('net') . ';'
+            . Tools::trans('invoice-number') . ';'
+            . Tools::trans('document') . ';'
+            . 'NIF' . ';'
+            . Tools::trans('customer') . ';'
+            . Tools::trans('concept') . ';'
+            . Tools::trans('tax-base') . ';'
             . Tools::trans('vat') . ';'
             . Tools::trans('surcharge') . ';'
             . Tools::trans('total') . "\n";
@@ -115,6 +116,7 @@ class ReportBooks extends Controller
         $totalIva = 0;
         $totalRecargo = 0;
         $totalGeneral = 0;
+        $nfo = Tools::decimals();
 
         // Líneas del libro
         foreach ($data as $row) {
@@ -123,10 +125,11 @@ class ReportBooks extends Controller
                 . '"' . $row['codigo'] . '";'
                 . '"' . $row['cifnif'] . '";'
                 . '"' . Tools::fixHtml($row['nombrecliente']) . '";'
-                . number_format($row['neto'], FS_NF0, ',', '') . ';'
-                . number_format($row['totaliva'], FS_NF0, ',', '') . ';'
-                . number_format($row['totalrecargo'], FS_NF0, ',', '') . ';'
-                . number_format($row['total'], FS_NF0, ',', '') . "\n";
+                . '"' . Tools::fixHtml($row['observaciones']) . '";'
+                . number_format($row['neto'], $nfo, ',', '') . ';'
+                . number_format($row['totaliva'], $nfo, ',', '') . ';'
+                . number_format($row['totalrecargo'], $nfo, ',', '') . ';'
+                . number_format($row['total'], $nfo, ',', '') . "\n";
 
             $totalNeto += $row['neto'];
             $totalIva += $row['totaliva'];
@@ -135,11 +138,11 @@ class ReportBooks extends Controller
         }
 
         // Línea de totales
-        echo "\n" . strtoupper(Tools::trans('totals')) . ';;;;'
-            . number_format($totalNeto, FS_NF0, ',', '') . ';'
-            . number_format($totalIva, FS_NF0, ',', '') . ';'
-            . number_format($totalRecargo, FS_NF0, ',', '') . ';'
-            . number_format($totalGeneral, FS_NF0, ',', '') . "\n";
+        echo "\n" . strtoupper(Tools::trans('totals')) . ';;;;;;'
+            . number_format($totalNeto, $nfo, ',', '') . ';'
+            . number_format($totalIva, $nfo, ',', '') . ';'
+            . number_format($totalRecargo, $nfo, ',', '') . ';'
+            . number_format($totalGeneral, $nfo, ',', '') . "\n";
     }
 
     protected function libroGastos(): void
@@ -161,7 +164,7 @@ class ReportBooks extends Controller
             . " AND a.idempresa = " . $this->dataBase->var2str($this->idempresa)
             . " AND p.codsubcuenta LIKE '6%'"
             . " AND p.debe > 0"
-            . " ORDER BY a.fecha ASC, a.numero ASC, p.codsubcuenta ASC;";
+            . " ORDER BY a.fecha ASC, CAST(a.numero AS UNSIGNED) ASC, p.codsubcuenta ASC;";
 
         $data = $this->dataBase->select($sql);
         if (empty($data)) {
@@ -180,7 +183,7 @@ class ReportBooks extends Controller
             . Tools::trans('document') . ';'
             . Tools::trans('subaccount') . ';'
             . Tools::trans('concept') . ';'
-            . Tools::trans('cifnif') . ';'
+            . Tools::trans('nif') . ';'
             . Tools::trans('tax-base') . ';'
             . Tools::trans('vat') . ';'
             . Tools::trans('surcharge') . ';'
@@ -212,7 +215,7 @@ class ReportBooks extends Controller
         }
 
         // Línea de totales
-        echo "\n" . strtoupper(Tools::trans('totals')) . ';;;;;'
+        echo "\n" . strtoupper(Tools::trans('totals')) . ';;;;;;'
             . number_format($totalBase, FS_NF0, ',', '') . ';'
             . number_format($totalIva, FS_NF0, ',', '') . ';'
             . number_format($totalRecargo, FS_NF0, ',', '') . ';'
