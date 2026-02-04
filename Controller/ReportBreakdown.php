@@ -983,7 +983,10 @@ class ReportBreakdown extends Controller
         $this->codpago = $this->request->input('codpago');
         $this->coddivisa = $this->request->input('coddivisa', Tools::settings('default', 'coddivisa'));
         $this->codagente = $this->request->input('codagente');
-        $this->type = $this->request->input('type', 'invoice');
+        $this->type = $this->request->input('type', 'invoices');
+        if (!in_array($this->type, ['invoices', 'delivery-notes'], true)) {
+            $this->type = 'invoices';
+        }
         $this->format = $this->request->input('format', 'screen');
         $this->generar = $this->request->input('generar', 'informe_ventas');
 
