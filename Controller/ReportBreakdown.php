@@ -99,7 +99,7 @@ class ReportBreakdown extends Controller
     public $shippingAddress;
 
     /** @var string */
-    public $type = 'invoice';
+    public $type = 'invoices';
 
     /** @var Variante */
     public $variant;
