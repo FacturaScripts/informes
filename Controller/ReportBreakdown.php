@@ -925,7 +925,7 @@ class ReportBreakdown extends Controller
         $this->provincia = $this->request->input('provincia');
         $this->codpais = $this->request->input('codpais');
         if (!empty($this->codpais)) {
-            $sql = "select distinct provincia from facturascli as fc where fc.codpais = '" . $this->codpais . "'";
+            $sql = "select distinct provincia from facturascli as fc where fc.codpais = " . $this->dataBase->var2str($this->codpais);
             $lineas = $this->dataBase->select($sql);
             foreach ($lineas as $dl) {
                 if (!is_null($dl['provincia'])) {
