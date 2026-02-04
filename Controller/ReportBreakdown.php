@@ -809,7 +809,7 @@ class ReportBreakdown extends Controller
         }
 
         if (!empty($this->variant->id())) {
-            $sql .= "AND l.referencia = " . $this->dataBase->var2str($this->variant->referencia);
+            $sql .= " AND l.referencia = " . $this->dataBase->var2str($this->variant->referencia);
         }
 
         return $sql;
