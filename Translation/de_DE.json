@@ -123,7 +123,7 @@
     "r-facturascli-total-warehouse-year": "Verkaufsrechnungen (Lager %name%) (gesamt \\\/ Jahr)",
     "r-facturascli-total-years": "Verkaufsrechnungen (gesamt\/Jahr)",
     "r-facturasprov-total-months": "Einkaufsrechnungen (gesamt \\\/ Monat)",
-    "r-facturasprov-total-serie": "Einkaufsrechnungen (Serie %serie%) (gesamt \/ Monat)",
+    "r-facturasprov-total-serie": "Einkaufsrechnungen (Serie %serie%) (gesamt \\\/ Monat)",
     "r-facturasprov-total-serie-year": "Einkaufsrechnungen (Serie %serie%) (gesamt \/ Jahr)",
     "r-facturasprov-total-status": "Einkaufsrechnungen (%name%) (gesamt \/ Monat)",
     "r-facturasprov-total-status-year": "Kaufrechnungen (%name%) (gesamt \/ Jahr)",
