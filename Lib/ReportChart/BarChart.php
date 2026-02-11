@@ -34,20 +34,90 @@ class BarChart extends AreaChart
         }
 
         $num = mt_rand();
-        $canvasId = 'chart' . $num;
-        return '<canvas id="' . $canvasId . '" height="250"/>'
-            . "<script>let ctx" . $num . " = document.getElementById('" . $canvasId . "').getContext('2d');"
-            . "let myChart" . $num . " = new Chart(ctx" . $num . ", {
-    type: 'bar',
-    data: {
-        labels: ['" . implode("','", $data['labels']) . "'],
-        datasets: [" . $this->renderDatasets($data['datasets']) . "]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false
-    }
-});</script>";
+        $chartId = 'chart' . $num;
+        $chartHeight = $height > 0 ? $height : 350;
+
+        $series = [];
+        foreach ($data['datasets'] as $dataset) {
+            $series[] = [
+                'name' => $dataset['label'],
+                'data' => $dataset['data']
+            ];
+        }
+
+        return '<div id="' . $chartId . '"></div>'
+            . '<script>'
+            . 'var options' . $num . ' = {'
+            . '  series: ' . json_encode($series) . ','
+            . '  chart: {'
+            . '    height: ' . $chartHeight . ','
+            . '    type: "bar",'
+            . '  },'
+            . '  plotOptions: {'
+            . '    bar: {'
+            . '      borderRadius: 10,'
+            . '      dataLabels: {'
+            . '        position: "top",'
+            . '      },'
+            . '    }'
+            . '  },'
+            . '  dataLabels: {'
+            . '    enabled: true,'
+            . '    offsetY: -20,'
+            . '    style: {'
+            . '      fontSize: "12px",'
+            . '      colors: ["#304758"]'
+            . '    }'
+            . '  },'
+            . '  xaxis: {'
+            . '    categories: ' . json_encode($data['labels']) . ','
+            . '    position: "top",'
+            . '    axisBorder: {'
+            . '      show: false'
+            . '    },'
+            . '    axisTicks: {'
+            . '      show: false'
+            . '    },'
+            . '    crosshairs: {'
+            . '      fill: {'
+            . '        type: "gradient",'
+            . '        gradient: {'
+            . '          colorFrom: "#D8E3F0",'
+            . '          colorTo: "#BED1E6",'
+            . '          stops: [0, 100],'
+            . '          opacityFrom: 0.4,'
+            . '          opacityTo: 0.5,'
+            . '        }'
+            . '      }'
+            . '    },'
+            . '    tooltip: {'
+            . '      enabled: true,'
+            . '    }'
+            . '  },'
+            . '  yaxis: {'
+            . '    axisBorder: {'
+            . '      show: false'
+            . '    },'
+            . '    axisTicks: {'
+            . '      show: false,'
+            . '    },'
+            . '    labels: {'
+            . '      show: true'
+            . '    }'
+            . '  },'
+            . '  title: {'
+            . '    text: "' . $this->report->name . '",'
+            . '    floating: true,'
+            . '    offsetY: ' . ($chartHeight - 20) . ','
+            . '    align: "center",'
+            . '    style: {'
+            . '      color: "#444"'
+            . '    }'
+            . '  }'
+            . '};'
+            . 'var chart' . $num . ' = new ApexCharts(document.querySelector("#' . $chartId . '"), options' . $num . ');'
+            . 'chart' . $num . '.render();'
+            . '</script>';
     }
 
     protected function renderDatasets(array $datasets): string
