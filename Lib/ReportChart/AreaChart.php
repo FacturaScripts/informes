@@ -34,20 +34,66 @@ class AreaChart extends Chart
         }
 
         $num = mt_rand();
-        $canvasId = 'chart' . $num;
-        return '<canvas id="' . $canvasId . '"/>'
-            . "<script>let ctx" . $num . " = document.getElementById('" . $canvasId . "').getContext('2d');"
-            . "let myChart" . $num . " = new Chart(ctx" . $num . ", {
-    type: 'line',
-    data: {
-        labels: ['" . implode("','", $data['labels']) . "'],
-        datasets: [" . $this->renderDatasets($data['datasets']) . "]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false
-    }
-});</script>";
+        $chartId = 'chart' . $num;
+        $chartHeight = $height > 0 ? $height : 350;
+
+        $series = [];
+        foreach ($data['datasets'] as $dataset) {
+            $series[] = [
+                'name' => $dataset['label'],
+                'data' => $dataset['data']
+            ];
+        }
+
+        return '<div id="' . $chartId . '"></div>'
+            . '<script>'
+            . 'var options' . $num . ' = {'
+            . '  series: ' . json_encode($series) . ','
+            . '  chart: {'
+            . '    type: "area",'
+            . '    stacked: false,'
+            . '    height: ' . $chartHeight . ','
+            . '    zoom: {'
+            . '      type: "x",'
+            . '      enabled: true,'
+            . '      autoScaleYaxis: true'
+            . '    },'
+            . '    toolbar: {'
+            . '      autoSelected: "zoom"'
+            . '    }'
+            . '  },'
+            . '  dataLabels: {'
+            . '    enabled: false'
+            . '  },'
+            . '  markers: {'
+            . '    size: 0,'
+            . '  },'
+            . '  title: {'
+            . '    text: "' . $this->report->name . '",'
+            . '    align: "left"'
+            . '  },'
+            . '  fill: {'
+            . '    type: "gradient",'
+            . '    gradient: {'
+            . '      shadeIntensity: 1,'
+            . '      inverseColors: false,'
+            . '      opacityFrom: 0.5,'
+            . '      opacityTo: 0,'
+            . '      stops: [0, 90, 100]'
+            . '    },'
+            . '  },'
+            . '  yaxis: {'
+            . '    title: {'
+            . '      text: "' . $this->report->ycolumn . '"'
+            . '    },'
+            . '  },'
+            . '  xaxis: {'
+            . '    categories: ' . json_encode($data['labels']) . ','
+            . '  }'
+            . '};'
+            . 'var chart' . $num . ' = new ApexCharts(document.querySelector("#' . $chartId . '"), options' . $num . ');'
+            . 'chart' . $num . '.render();'
+            . '</script>';
     }
 
     protected function getData(): array
