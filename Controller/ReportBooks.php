@@ -152,10 +152,10 @@ class ReportBooks extends Controller
             . " p.codsubcuenta,"
             . " COALESCE(f.nombre, p.concepto) as concepto,"
             . " COALESCE(f.cifnif, p.cifnif) as cifnif,"
-            . " COALESCE(f.neto, p.baseimponible) as baseimponible,"
-            . " COALESCE(f.totaliva, p.iva) as iva,"
-            . " COALESCE(f.totalrecargo, p.recargo) as recargo,"
-            . " COALESCE(f.total, p.debe) as total"
+            . " COALESCE(NULLIF(p.baseimponible, 0), p.debe) as baseimponible,"
+            . " COALESCE(NULLIF(p.baseimponible, 0) * COALESCE(p.iva, 0) / 100, f.totaliva, 0) as iva,"
+            . " COALESCE(NULLIF(p.baseimponible, 0) * COALESCE(p.recargo, 0) / 100, f.totalrecargo, 0) as recargo,"
+            . " COALESCE(NULLIF(p.baseimponible, 0) * (1 + COALESCE(p.iva, 0) / 100 + COALESCE(p.recargo, 0) / 100), f.total, p.debe) as total"
             . " FROM asientos a"
             . " INNER JOIN partidas p ON a.idasiento = p.idasiento"
             . " LEFT JOIN facturasprov f ON a.idasiento = f.idasiento"
@@ -194,6 +194,7 @@ class ReportBooks extends Controller
         $totalIva = 0;
         $totalRecargo = 0;
         $totalGeneral = 0;
+        $nfo = Tools::decimals();
 
         // Líneas del libro
         foreach ($data as $row) {
@@ -203,10 +204,10 @@ class ReportBooks extends Controller
                 . '"' . $row['codsubcuenta'] . '";'
                 . '"' . Tools::fixHtml($row['concepto']) . '";'
                 . '"' . $row['cifnif'] . '";'
-                . number_format($row['baseimponible'], FS_NF0, ',', '') . ';'
-                . number_format($row['iva'], FS_NF0, ',', '') . ';'
-                . number_format($row['recargo'], FS_NF0, ',', '') . ';'
-                . number_format($row['total'], FS_NF0, ',', '') . "\n";
+                . number_format($row['baseimponible'], $nfo, ',', '') . ';'
+                . number_format($row['iva'], $nfo, ',', '') . ';'
+                . number_format($row['recargo'], $nfo, ',', '') . ';'
+                . number_format($row['total'], $nfo, ',', '') . "\n";
 
             $totalBase += $row['baseimponible'];
             $totalIva += $row['iva'];
@@ -216,10 +217,10 @@ class ReportBooks extends Controller
 
         // Línea de totales
         echo "\n" . strtoupper(Tools::trans('totals')) . ';;;;;;'
-            . number_format($totalBase, FS_NF0, ',', '') . ';'
-            . number_format($totalIva, FS_NF0, ',', '') . ';'
-            . number_format($totalRecargo, FS_NF0, ',', '') . ';'
-            . number_format($totalGeneral, FS_NF0, ',', '') . "\n";
+            . number_format($totalBase, $nfo, ',', '') . ';'
+            . number_format($totalIva, $nfo, ',', '') . ';'
+            . number_format($totalRecargo, $nfo, ',', '') . ';'
+            . number_format($totalGeneral, $nfo, ',', '') . "\n";
     }
 
     protected function iniFilters(): void
