@@ -23,60 +23,57 @@ class TreemapChart extends Chart
 {
     public function render(int $height = 0): string
     {
-        $data = $this->getData();
-        if (empty($data)) {
+        $sources = $this->getDataSources();
+        if (empty($sources)) {
             return '';
         }
 
         $num = mt_rand();
-        $divId = 'treemap' . $num;
-        return '<h2 class="h5 text-end pt-3 pe-3">' . $this->report->name . "</h2>\n"
-            . '<div id="' . $divId . '" style="height: ' . max($height - 40, 210) . 'px;"></div>' . "\n"
-            . "<script>
-      google.charts.load('current', {'packages':['treemap']});
-      google.charts.setOnLoadCallback(drawTreemap" . $num . ");
-      function drawTreemap" . $num . "() {
-        var data = google.visualization.arrayToDataTable([
-          " . $this->renderTreemapData($data) . "
-        ]);
+        $chartId = 'chart' . $num;
+        $chartHeight = $height > 0 ? $height : 350;
 
-        tree = new google.visualization.TreeMap(document.getElementById('" . $divId . "'));
+        $series = [];
+        foreach ($sources as $name => $source) {
+            $data = [];
+            foreach ($source as $row) {
+                $data[] = [
+                    'x' => $row['xcol'],
+                    'y' => round($row['ycol'], 2)
+                ];
+            }
+            $series[] = [
+                'name' => $name,
+                'data' => $data
+            ];
+        }
 
-        tree.draw(data, {
-          minColor: '#009688',
-          midColor: '#f7f7f7',
-          maxColor: '#ee8100',
-          headerHeight: 15,
-          fontColor: 'black',
-          showScale: true
-        });
-
-      }
-    </script>";
+        return '<div id="' . $chartId . '"></div>'
+            . '<script>'
+            . 'var options' . $num . ' = {'
+            . '  series: ' . json_encode($series) . ','
+            . '  legend: {'
+            . '    show: false'
+            . '  },'
+            . '  chart: {'
+            . '    height: ' . $chartHeight . ','
+            . '    type: "treemap"'
+            . '  },'
+            . '  title: {'
+            . '    text: "' . $this->report->name . '",'
+            . '    align: "center"'
+            . '  }'
+            . '};'
+            . 'var chart' . $num . ' = new ApexCharts(document.querySelector("#' . $chartId . '"), options' . $num . ');'
+            . 'chart' . $num . '.render();'
+            . '</script>';
     }
 
     protected function getData(): array
     {
-        foreach($this->getDataSources() as $source) {
+        foreach ($this->getDataSources() as $source) {
             return $source;
         }
 
         return [];
-    }
-
-    protected function renderTreemapData(array $data): string
-    {
-        $list = "['Column', 'Parent', 'Value', 'Color'],\n"
-            . "['" . $this->report->xcolumn . "', null, 0, 0],\n";
-
-        foreach ($data as $row) {
-            $label = $row['xcol'];
-            $value = round($row['ycol'], 2);
-            $list .= "['" . $label . " (" . $value . ")', '" . $this->report->xcolumn
-                . "', " . $value
-                . ", " . $value . "],\n";
-        }
-
-        return $list;
     }
 }

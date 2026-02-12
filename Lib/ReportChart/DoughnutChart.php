@@ -29,26 +29,36 @@ class DoughnutChart extends PieChart
         }
 
         $num = mt_rand();
-        $canvasId = 'chart' . $num;
-        return '<canvas id="' . $canvasId . '"/>'
-            . "<script>let ctx" . $num . " = document.getElementById('" . $canvasId . "').getContext('2d');"
-            . "let myChart" . $num . " = new Chart(ctx" . $num . ", {
-    type: 'doughnut',
-    data: {
-        labels: ['" . implode("','", $data['labels']) . "'],
-        datasets: [" . $this->renderDatasets($data['datasets']) . "]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        legend: {
-            position: 'top',
-        },
-        title: {
-            display: true,
-            text: '" . $data['datasets'][0]['label'] . "'
-        }
-    }
-});</script>";
+        $chartId = 'chart' . $num;
+        $chartHeight = $height > 0 ? $height : 350;
+
+        return '<div id="' . $chartId . '"></div>'
+            . '<script>'
+            . 'var options' . $num . ' = {'
+            . '  series: ' . json_encode($data['datasets'][0]['data']) . ','
+            . '  chart: {'
+            . '    type: "donut",'
+            . '    height: ' . $chartHeight
+            . '  },'
+            . '  labels: ' . json_encode($data['labels']) . ','
+            . '  responsive: [{'
+            . '    breakpoint: 480,'
+            . '    options: {'
+            . '      chart: {'
+              . '        width: 200'
+            . '      },'
+            . '      legend: {'
+            . '        position: "bottom"'
+            . '      }'
+            . '    }'
+            . '  }],'
+            . '  title: {'
+            . '    text: "' . $this->report->name . '",'
+            . '    align: "center"'
+            . '  }'
+            . '};'
+            . 'var chart' . $num . ' = new ApexCharts(document.querySelector("#' . $chartId . '"), options' . $num . ');'
+            . 'chart' . $num . '.render();'
+            . '</script>';
     }
 }

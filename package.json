@@ -1,0 +1,12 @@
+{
+    "name": "informes",
+    "description": "Plugin Informes de facturascripts",
+    "repository": {
+        "url": "https://facturascripts.com/plugins/informes"
+    },
+    "license": "LGPL-3.0-or-later",
+    "homepage": "https://facturascripts.com",
+    "dependencies": {
+        "apexcharts": "^5.3.6"
+    }
+}
