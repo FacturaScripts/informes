@@ -55,15 +55,15 @@ class BarChart extends AreaChart
             . '  },'
             . '  plotOptions: {'
             . '    bar: {'
-            . '      borderRadius: 10,'
+            . '      borderRadius: 0,' // si se quieren redondear las barras
             . '      dataLabels: {'
             . '        position: "top",'
             . '      },'
             . '    }'
             . '  },'
             . '  dataLabels: {'
-            . '    enabled: true,'
-            . '    offsetY: -20,'
+            . '    enabled: false,' // esto en true para activar los numeritos encima de las barras
+            . '    offsetY: 0,' // poner a -20 para que los numeritos estén encima (no queda muy bien)
             . '    style: {'
             . '      fontSize: "12px",'
             . '      colors: ["#304758"]'
@@ -118,27 +118,5 @@ class BarChart extends AreaChart
             . 'var chart' . $num . ' = new ApexCharts(document.querySelector("#' . $chartId . '"), options' . $num . ');'
             . 'chart' . $num . '.render();'
             . '</script>';
-    }
-
-    protected function renderDatasets(array $datasets): string
-    {
-        $colors = $this->getColors(count($datasets));
-
-        $items = [];
-        $num = 0;
-        foreach ($datasets as $dataset) {
-            $color = $colors[$num] ?? '255, 206, 86';
-            $num++;
-
-            $items[] = "{
-                label: '" . $dataset['label'] . "',
-                data: [" . implode(",", $dataset['data']) . "],
-                backgroundColor: 'rgba(" . $color . ", 0.2)',
-                borderColor: 'rgba(" . $color . ", 1)',
-                borderWidth: 1
-            }";
-        }
-
-        return implode(',', $items);
     }
 }

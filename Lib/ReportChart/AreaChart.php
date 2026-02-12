@@ -65,6 +65,9 @@ class AreaChart extends Chart
             . '  dataLabels: {'
             . '    enabled: false'
             . '  },'
+            . '  stroke: {' // más info: https://apexcharts.com/docs/options/stroke/
+            . '    curve: "straight"' // straight, smooth, monotoneCubic, stepline, linestep
+            . '  },'
             . '  markers: {'
             . '    size: 0,'
             . '  },'
