@@ -218,5 +218,22 @@
     "treasury": "Tesorería",
     "treemap": "Mapa de árbol",
     "voluntary-reserves": "Reservas voluntarias",
-    "y-operation": "Operación sobre Y"
+    "y-operation": "Operación sobre Y",
+    "active-year": "Activos este año",
+    "clients": "Clientes",
+    "customers": "Clientes",
+    "customers-by-country": "Clientes por país",
+    "customers-by-province": "Clientes por provincia",
+    "customers-by-group": "Clientes por grupo",
+    "debtors": "Deudores",
+    "last-12-months": "Últimos 12 meses",
+    "new-customers": "Nuevos clientes",
+    "no-results": "Sin resultados",
+    "active": "Activo",
+    "code": "Código",
+    "debt": "Deuda",
+    "inactive": "Inactivo",
+    "name": "Nombre",
+    "report": "Informe",
+    "total": "Total"
 }

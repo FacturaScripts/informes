@@ -1,0 +1,256 @@
+{% extends "Master/MenuTemplate.html.twig" %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row mt-3">
+        <div class="col-12">
+            <h1 class="h3 mb-3 text-gray-800"><i class="fa-solid fa-users"></i> {{ trans('clients') }} - {{ trans('report') }}</h1>
+        </div>
+    </div>
+
+    {# 1. KPIs #}
+    <div class="row">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">{{ trans('total') }}</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.totalCustomers }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">{{ trans('active') }}</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.activeCustomers }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-check fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-secondary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">{{ trans('inactive') }}</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.inactiveCustomers }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-slash fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">{{ trans('active-year') }}</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.activeCustomersYear }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-file-invoice-dollar fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Tendencia de Nuevos Clientes #}
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">{{ trans('new-customers') }} ({{ trans('last-12-months') }})</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="newCustomersChart" style="max-height: 250px;"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Distribución Geográfica y Grupos #}
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 text-center">
+                    <h6 class="m-0 font-weight-bold text-primary">{{ trans('customers-by-country') }}</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="countryChart" style="max-height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 text-center">
+                    <h6 class="m-0 font-weight-bold text-primary">{{ trans('customers-by-province') }} ({{ fsc.companyCountry }})</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="provinceChart" style="max-height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 text-center">
+                    <h6 class="m-0 font-weight-bold text-primary">{{ trans('customers-by-group') }}</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="groupChart" style="max-height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Deudores #}
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4 border-bottom-danger">
+                <div class="card-header py-3 bg-danger d-flex justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-white">{{ trans('debtors') }}</h6>
+                    <span class="badge bg-white text-danger">{{ fsc.totalDebtors }}</span>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <canvas id="debtorsChart" style="max-height: 350px;"></canvas>
+                        </div>
+                        <div class="col-md-7">
+                            <div class="table-responsive" style="max-height: 350px;">
+                                <table class="table table-sm table-hover">
+                                    <thead class="sticky-top bg-white">
+                                        <tr>
+                                            <th>{{ trans('code') }}</th>
+                                            <th>{{ trans('name') }}</th>
+                                            <th class="text-end">{{ trans('debt') }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for row in fsc.debtors %}
+                                        <tr>
+                                            <td><a href="{{ fsc.url() }}?page=EditCliente&codcliente={{ row.codcliente }}">{{ row.codcliente }}</a></td>
+                                            <td>{{ row.nombrecliente }}</td>
+                                            <td class="text-end text-danger">{{ row.deuda | number_format(2) }} {{ fsc.user.coddivisa }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                    <tfoot class="sticky-bottom bg-light fw-bold">
+                                        <tr>
+                                            <td colspan="2" class="text-end">{{ trans('total') }}</td>
+                                            <td class="text-end text-danger">{{ fsc.totalDebt | number_format(2) }} {{ fsc.user.coddivisa }}</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('node_modules/chart.js/dist/Chart.min.js') }}"></script>
+    <script>
+        $(document).ready(function() {
+            const colors = ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796', '#5a5c69'];
+
+            // 1. Tendencia de Nuevos Clientes
+            new Chart(document.getElementById("newCustomersChart"), {
+                type: 'line',
+                data: {
+                    labels: [{% for month, count in fsc.newCustomersByMonth %}"{{ month }}",{% endfor %}],
+                    datasets: [{
+                        label: "{{ trans('new-customers') }}",
+                        backgroundColor: "rgba(78, 115, 223, 0.05)",
+                        borderColor: "rgba(78, 115, 223, 1)",
+                        data: [{% for month, count in fsc.newCustomersByMonth %}{{ count }},{% endfor %}],
+                        lineTension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: { maintainAspectRatio: false, legend: { display: false } }
+            });
+
+            // 2. Países (Horizontal Bar)
+            new Chart(document.getElementById("countryChart"), {
+                type: 'horizontalBar',
+                data: {
+                    labels: [{% for row in fsc.customersByCountry|slice(0, 10) %}"{{ row.nombre|default(row.codpais) }}",{% endfor %}],
+                    datasets: [{
+                        data: [{% for row in fsc.customersByCountry|slice(0, 10) %}{{ row.total }},{% endfor %}],
+                        backgroundColor: colors[0]
+                    }]
+                },
+                options: { maintainAspectRatio: false, legend: { display: false } }
+            });
+
+            // 3. Provincias (Horizontal Bar)
+            new Chart(document.getElementById("provinceChart"), {
+                type: 'horizontalBar',
+                data: {
+                    labels: [{% for row in fsc.customersByProvince|slice(0, 10) %}"{{ row.provincia }}",{% endfor %}],
+                    datasets: [{
+                        data: [{% for row in fsc.customersByProvince|slice(0, 10) %}{{ row.total }},{% endfor %}],
+                        backgroundColor: colors[1]
+                    }]
+                },
+                options: { maintainAspectRatio: false, legend: { display: false } }
+            });
+
+            // 4. Grupos (Doughnut)
+            new Chart(document.getElementById("groupChart"), {
+                type: 'doughnut',
+                data: {
+                    labels: [{% for row in fsc.customersByGroup %}"{{ row.nombre }}",{% endfor %}],
+                    datasets: [{
+                        data: [{% for row in fsc.customersByGroup %}{{ row.total }},{% endfor %}],
+                        backgroundColor: colors
+                    }]
+                },
+                options: { maintainAspectRatio: false, cutoutPercentage: 70 }
+            });
+
+            // 5. Deudores (Horizontal Bar)
+            new Chart(document.getElementById("debtorsChart"), {
+                type: 'horizontalBar',
+                data: {
+                    labels: [{% for row in fsc.debtors|slice(0, 10) %}"{{ row.nombrecliente }}",{% endfor %}],
+                    datasets: [{
+                        label: "{{ trans('debt') }}",
+                        data: [{% for row in fsc.debtors|slice(0, 10) %}{{ row.deuda }},{% endfor %}],
+                        backgroundColor: colors[4]
+                    }]
+                },
+                options: { 
+                    maintainAspectRatio: false, 
+                    legend: { display: false },
+                    scales: { xAxes: [{ ticks: { callback: v => v + ' {{ fsc.user.coddivisa }}' } }] }
+                }
+            });
+        });
+    </script>
+{% endblock %}

@@ -218,5 +218,22 @@
     "treasury": "Treasury",
     "treemap": "Tree map",
     "voluntary-reserves": "Voluntary reserves",
-    "y-operation": "Y operation"
+    "y-operation": "Y operation",
+    "active-year": "Active this year",
+    "clients": "Clients",
+    "customers": "Customers",
+    "customers-by-country": "Customers by country",
+    "customers-by-province": "Customers by province",
+    "customers-by-group": "Customers by group",
+    "debtors": "Debtors",
+    "last-12-months": "Last 12 months",
+    "new-customers": "New customers",
+    "no-results": "No results",
+    "active": "Active",
+    "code": "Code",
+    "debt": "Debt",
+    "inactive": "Inactive",
+    "name": "Name",
+    "report": "Report",
+    "total": "Total"
 }
