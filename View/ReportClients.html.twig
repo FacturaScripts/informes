@@ -148,8 +148,8 @@
                                     <tbody>
                                         {% for row in fsc.debtors %}
                                         <tr>
-                                            <td><a href="{{ fsc.url() }}?page=EditCliente&codcliente={{ row.codcliente }}">{{ row.codcliente }}</a></td>
-                                            <td>{{ row.nombrecliente }}</td>
+                                            <td><a href="EditCliente?code={{ row.codcliente }}">{{ row.codcliente }}</a></td>
+                                            <td><a href="EditCliente?code={{ row.codcliente }}">{{ row.nombrecliente }}</a></td>
                                             <td class="text-end text-danger">{{ row.deuda | number_format(2) }} {{ fsc.user.coddivisa }}</td>
                                         </tr>
                                         {% endfor %}
