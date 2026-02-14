@@ -50,28 +50,42 @@
                                     fsc.getSelectValues('almacenes', 'codalmacen', 'nombre', true), trans('warehouse')) }}
                             </div>
                         </div>
-                        <div class="col-12 col-md-3">
+                        <div class="col-12 col-md">
                             <div class="mb-3">
                                 {{ forms.simpleSelect('codserie', 'codserie', fsc.codserie,
                                     fsc.getSelectValues('series', 'codserie', 'descripcion', true), trans('serie')) }}
                             </div>
                         </div>
-                        <div class="col-12 col-md-3">
+                        <div class="col-12 col-md">
                             <div class="mb-3">
                                 {{ forms.simpleSelect('codpago', 'codpago', fsc.codpago,
                                     fsc.getSelectValues('formaspago', 'codpago', 'descripcion', true), trans('method-payment')) }}
                             </div>
                         </div>
-                        <div class="col-12 col-md-3">
+                        <div class="col-12 col-md">
                             <div class="mb-3">
                                 {{ forms.simpleSelect('coddivisa', 'coddivisa', fsc.coddivisa,
                                     fsc.getSelectValues('divisas', 'coddivisa', 'descripcion', false), trans('currency')) }}
                             </div>
                         </div>
-                        <div class="col-12 col-md-3">
+                        <div class="col-12 col-md">
                             <div class="mb-3">
                                 {{ forms.simpleSelect('codagente', 'codagente', fsc.codagente,
                                     fsc.getSelectValues('agentes', 'codagente', 'nombre', true), trans('agent')) }}
+                            </div>
+                        </div>
+                        <div class="col-12 col-md">
+                            <div class="mb-3">
+                                <label class="mb-1">{{ trans('product') }}/{{ trans('variant') }}</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="variant"
+                                           placeholder="{{ trans('any-variant') }}"
+                                           value="{{ fsc.variant.referencia }}">
+                                    <input type="hidden" name="refvariant" value="{{ fsc.variant.referencia }}">
+                                    <button class="btn btn-secondary" type="button" onclick="cleanVariant()">
+                                        <span class="fa fa-times"></span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -95,6 +109,9 @@
                         <div class="tab-pane fade show active" id="contentSaleReport"
                              aria-labelledby="contentSaleReport-tab" role="tabpanel">
                             <div class="row g-2">
+                                <div class="col-12">
+                                    <p class="text-muted">{{ trans('sale-report-legend') }}</p>
+                                </div>
                                 <div class="col-12 col-md-4">
                                     <div class="mb-3">
                                         {{ forms.simpleSelect('codpais', 'codpais', fsc.codpais,
@@ -120,8 +137,9 @@
                                         <div class="input-group">
                                             <input type="text" class="form-control" id="customer"
                                                    placeholder="{{ trans('any-customer') }}"
-                                                   value="{{ fsc.cliente.nombre }}">
-                                            <input type="hidden" name="codcliente" value="{{ fsc.cliente.codcliente }}">
+                                                   value="{{ fsc.cliente.id() is not empty ? fsc.cliente.nombre : '' }}">
+                                            <input type="hidden" name="codcliente"
+                                                   value="{{ fsc.cliente.id() is not empty ? fsc.cliente.id() : '' }}">
                                             <button class="btn btn-secondary" type="button" onclick="cleanCustomer()">
                                                 <span class="fa fa-times"></span>
                                             </button>
@@ -136,7 +154,7 @@
                                                    placeholder="{{ trans('any-address') }}"
                                                    value="{{ fsc.getAddress(fsc.billingAddress) }}">
                                             <input type="hidden" name="idcontactofact"
-                                                   value="{{ fsc.billingAddress.idcontacto }}">
+                                                   value="{{ fsc.billingAddress.id() is not empty ? fsc.billingAddress.id() : '' }}">
                                             <button class="btn btn-secondary" type="button"
                                                     onclick="cleanBillingAddress()">
                                                 <span class="fa fa-times"></span>
@@ -152,33 +170,11 @@
                                                    placeholder="{{ trans('any-address') }}"
                                                    value="{{ fsc.getAddress(fsc.shippingAddress) }}">
                                             <input type="hidden" name="idcontactoenv"
-                                                   value="{{ fsc.shippingAddress.idcontacto }}">
+                                                   value="{{ fsc.shippingAddress.id() is not empty ? fsc.shippingAddress.id() : '' }}">
                                             <button class="btn btn-secondary" type="button"
                                                     onclick="cleanShippingAddress()">
                                                 <span class="fa fa-times"></span>
                                             </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-12">
-                                    <p class="text-muted">{{ trans('sale-report-legend') }}</p>
-                                    <div class="mb-3">
-                                        {{ trans('type') }}
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="sale-unidades"
-                                                   id="saleUndFalse"
-                                                   value="0" {{ fsc.sale_unidades == 0 ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="saleUndFalse">
-                                                {{ trans('net') }}
-                                            </label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="sale-unidades"
-                                                   id="saleUndTrue"
-                                                   value="1" {{ fsc.sale_unidades == 1 ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="saleUndTrue">
-                                                {{ trans('quantities') }}
-                                            </label>
                                         </div>
                                     </div>
                                 </div>
@@ -188,15 +184,18 @@
                         <div class="tab-pane" id="contentPurchaseReport" aria-labelledby="contentPurchaseReport-tab"
                              role="tabpanel">
                             <div class="row g-2">
+                                <div class="col-12">
+                                    <p class="text-muted">{{ trans('purchase-report-legend') }}</p>
+                                </div>
                                 <div class="col-12 col-md-3">
                                     <div class="mb-3">
                                         {{ trans('supplier') }}
                                         <div class="input-group">
                                             <input type="text" class="form-control" id="supplier"
                                                    placeholder="{{ trans('any-supplier') }}"
-                                                   value="{{ fsc.proveedor.nombre }}">
+                                                   value="{{ fsc.proveedor.id() is not empty ? fsc.proveedor.nombre : '' }}">
                                             <input type="hidden" name="codproveedor"
-                                                   value="{{ fsc.proveedor.codproveedor }}">
+                                                   value="{{ fsc.proveedor.id() is not empty ? fsc.proveedor.id() : '' }}">
                                             <button class="btn btn-secondary" type="button"
                                                     onclick="cleanSupplier()">
                                                 <span class="fa fa-times"></span>
@@ -211,41 +210,215 @@
                                                placeholder="{{ trans('optional') }}" value="{{ fsc.purchase_minimo }}">
                                     </div>
                                 </div>
-                                <div class="col-md-12">
-                                    <p class="text-muted">{{ trans('purchase-report-legend') }}</p>
-                                    <div class="mb-3">
-                                        {{ trans('type') }}
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="purchase-unidades"
-                                                   id="purchaseUndFalse"
-                                                   value="0" {{ fsc.purchase_unidades == 0 ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="purchaseUndFalse">
-                                                {{ trans('net') }}
-                                            </label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="purchase-unidades"
-                                                   id="purchaseUndTrue"
-                                                   value="1" {{ fsc.purchase_unidades == 1 ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="purchaseUndTrue">
-                                                {{ trans('quantities') }}
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="card-footer text-end">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fa-solid fa-eye me-2"></i>{{ trans('show') }}
-                    </button>
+                <div class="card-footer">
+                    <div class="row g-2 d-flex align-items-end">
+                        <div class="col-12 col-md">
+                            <div class="input-group">
+                                <span class="input-group-text">{{ trans('type') }}</span>
+                                <select name="type" class="form-select">
+                                    <option value="invoices" {{ fsc.type == 'invoices' ? 'selected' : '' }}>{{ trans('invoices') }}</option>
+                                    <option value="delivery-notes" {{ fsc.type == 'delivery-notes' ? 'selected' : '' }}>{{ trans('delivery-notes') }}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md">
+                            <div class="input-group">
+                                <span class="input-group-text">{{ trans('format') }}</span>
+                                <select name="format" class="form-select">
+                                    <option value="screen" {{ fsc.format == 'screen' ? 'selected' : '' }}>{{ trans('screen') }}</option>
+                                    <option value="XLS" {{ fsc.format == 'XLS' ? 'selected' : '' }}>{{ trans('excel') }}</option>
+                                    <option value="PDF" {{ fsc.format == 'PDF' ? 'selected' : '' }}>{{ trans('pdf') }}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-auto">
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa-solid fa-eye me-2"></i>{{ trans('show') }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </form>
+
+        {% if fsc.data['units'] is not empty or fsc.data['net'] is not empty or fsc.data[fsc.type] is not empty %}
+            <div class="mt-4 mb-4">
+                <nav>
+                    <div class="nav nav-tabs" id="dataNav" role="tablist">
+                        <button class="nav-link active" id="nav-units-tab" data-bs-toggle="tab"
+                                data-bs-target="#nav-units"
+                                type="button" role="tab" aria-controls="nav-units" aria-selected="true">
+                            {{ trans('units') }}
+                        </button>
+                        <button class="nav-link" id="nav-net-tab" data-bs-toggle="tab" data-bs-target="#nav-net"
+                                type="button" role="tab" aria-controls="nav-net" aria-selected="false">
+                            {{ trans('net') }}
+                        </button>
+                        <button class="nav-link" id="nav-{{ fsc.type }}-tab" data-bs-toggle="tab"
+                                data-bs-target="#nav-{{ fsc.type }}" type="button" role="tab"
+                                aria-controls="nav-{{ fsc.type }}" aria-selected="false">
+                            {{ trans(fsc.type) }}
+                        </button>
+                    </div>
+                </nav>
+                <div class="tab-content" id="dataContent">
+                    <div class="tab-pane fade show active" id="nav-units" role="tabpanel" aria-labelledby="nav-units"
+                         tabindex="0">
+                        {{ _self.showDataUnits(fsc) }}
+                    </div>
+                    <div class="tab-pane fade" id="nav-net" role="tabpanel" aria-labelledby="nav-net" tabindex="0">
+                        {{ _self.showDataNet(fsc) }}
+                    </div>
+                    <div class="tab-pane fade" id="nav-{{ fsc.type }}" role="tabpanel"
+                         aria-labelledby="nav-{{ fsc.type }}" tabindex="0">
+                        {{ _self.showDataDocument(fsc) }}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
     </div>
 {% endblock %}
+
+{% macro showDataUnits(fsc) %}
+    {% if fsc.data.units is empty %}
+        <div class="alert alert-info mt-3" role="alert">
+            {{ trans('no-data') }}
+        </div>
+    {% else %}
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>{{ trans('customer') }}</th>
+                    <th>{{ trans('product') }}</th>
+                    <th>{{ trans('year') }}</th>
+                    <th class="text-end">{{ trans('january') }}</th>
+                    <th class="text-end">{{ trans('february') }}</th>
+                    <th class="text-end">{{ trans('march') }}</th>
+                    <th class="text-end">{{ trans('april') }}</th>
+                    <th class="text-end">{{ trans('may') }}</th>
+                    <th class="text-end">{{ trans('june') }}</th>
+                    <th class="text-end">{{ trans('july') }}</th>
+                    <th class="text-end">{{ trans('august') }}</th>
+                    <th class="text-end">{{ trans('september') }}</th>
+                    <th class="text-end">{{ trans('october') }}</th>
+                    <th class="text-end">{{ trans('november') }}</th>
+                    <th class="text-end">{{ trans('december') }}</th>
+                    <th class="text-end">{{ trans('total') }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% set previousCustomer = '' %}
+                {% set previousProduct = '' %}
+                {% for customer, products in fsc.data.units %}
+                    {% for product, years in products %}
+                        {% for year, months in years %}
+                            <tr class="{{ customer != previousCustomer ? 'table-light' : '' }}">
+                                {# Mostrar cliente solo si es diferente al anterior #}
+                                <td>{{ (customer != previousCustomer ? fsc.getUrlCustomer(customer) : '')|raw }}</td>
+                                {# Mostrar producto solo si el cliente o producto son diferentes al anterior #}
+                                <td>{{ ((customer != previousCustomer or product != previousProduct) ? fsc.getUrlProduct(product) : '')|raw }}</td>
+                                <td>{{ year }}</td>
+                                {% for month, value in months %}
+                                    <td class="text-end text-nowrap">{{ number(value) }}</td>
+                                {% endfor %}
+                            </tr>
+                            {% set previousProduct = product %}
+                        {% endfor %}
+                        {% set previousCustomer = customer %}
+                    {% endfor %}
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+{% endmacro %}
+
+{% macro showDataNet(fsc) %}
+    {% if fsc.data.net is empty %}
+        <div class="alert alert-info mt-3" role="alert">
+            {{ trans('no-data') }}
+        </div>
+    {% else %}
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered">
+                <thead>
+                <tr>
+                    <th>{{ trans('customer') }}</th>
+                    <th>{{ trans('year') }}</th>
+                    <th class="text-end">{{ trans('january') }}</th>
+                    <th class="text-end">{{ trans('february') }}</th>
+                    <th class="text-end">{{ trans('march') }}</th>
+                    <th class="text-end">{{ trans('april') }}</th>
+                    <th class="text-end">{{ trans('may') }}</th>
+                    <th class="text-end">{{ trans('june') }}</th>
+                    <th class="text-end">{{ trans('july') }}</th>
+                    <th class="text-end">{{ trans('august') }}</th>
+                    <th class="text-end">{{ trans('september') }}</th>
+                    <th class="text-end">{{ trans('october') }}</th>
+                    <th class="text-end">{{ trans('november') }}</th>
+                    <th class="text-end">{{ trans('december') }}</th>
+                    <th class="text-end">{{ trans('total') }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% set previousCustomer = '' %}
+                {% for customer, years in fsc.data.net %}
+                    {% for year, months in years %}
+                        <tr>
+                            {# Mostrar cliente solo si es diferente al anterior #}
+                            <td>{{ (customer != previousCustomer ? fsc.getUrlCustomer(customer) : '')|raw }}</td>
+                            <td>{{ year }}</td>
+                            {% for month, value in months %}
+                                <td class="text-end text-nowrap">{{ money(value, fsc.coddivisa) }}</td>
+                            {% endfor %}
+                        </tr>
+                        {% set previousCustomer = customer %}
+                    {% endfor %}
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+{% endmacro %}
+
+{% macro showDataDocument(fsc) %}
+    {% if fsc.data[fsc.type] is empty %}
+        <div class="alert alert-info mt-3" role="alert">
+            {{ trans('no-data') }}
+        </div>
+    {% else %}
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered">
+                <thead>
+                <tr>
+                    <th>{{ trans('code') }}</th>
+                    <th>{{ trans('customer') }}</th>
+                    <th class="text-end text-nowrap">{{ trans('date') }}</th>
+                    <th class="text-end text-nowrap">{{ trans('total') }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for document in fsc.data[fsc.type] %}
+                    <tr>
+                        <td>{{ fsc.getUrlDocument(document.codigo)|raw }}</td>
+                        <td>{{ document.nombrecliente }}</td>
+                        <td class="text-end text-nowrap">{{ document.fecha|date('d-m-Y') }}</td>
+                        <td class="text-end text-nowrap">{{ money(document.total, fsc.coddivisa) }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+{% endmacro %}
 
 {% block css %}
     {{ parent() }}
@@ -272,6 +445,10 @@
             $('#supplier, input[name="codproveedor"]').val('')
         }
 
+        function cleanVariant() {
+            $('#variant, input[name="refvariant"]').val('')
+        }
+
         function loadProvinces() {
             let formData = {};
             formData["action"] = "get-provinces";
@@ -293,8 +470,50 @@
             });
         }
 
+        function loadWarehouses() {
+            let formData = {};
+            formData["action"] = "get-warehouses";
+            formData["idempresa"] = $("#idempresa option:selected").val();
+            $('#codalmacen').html('');
+
+            $.ajax({
+                method: "POST",
+                url: "{{ fsc.url() }}",
+                data: formData,
+                dataType: "json",
+                success: function (results) {
+                    $('#codalmacen').html(results);
+                },
+                error: function (msg) {
+                    alert(msg.status + " " + msg.responseText);
+                }
+            });
+        }
+
+        function loadPaymentMethods() {
+            let formData = {};
+            formData["action"] = "get-payment-methods";
+            formData["idempresa"] = $("#idempresa option:selected").val();
+            $('#codpago').html('');
+
+            $.ajax({
+                method: "POST",
+                url: "{{ fsc.url() }}",
+                data: formData,
+                dataType: "json",
+                success: function (results) {
+                    $('#codpago').html(results);
+                },
+                error: function (msg) {
+                    alert(msg.status + " " + msg.responseText);
+                }
+            });
+        }
+
         $(document).ready(function () {
             loadProvinces();
+            loadWarehouses();
+            loadPaymentMethods();
 
             $(document).on('click', '#tabVentas', function () {
                 $('input[name="generar"]').val('informe_ventas');
@@ -306,6 +525,11 @@
 
             $('#codpais').change(function () {
                 loadProvinces();
+            });
+
+            $('#idempresa').change(function () {
+                loadWarehouses();
+                loadPaymentMethods();
             });
 
             $("#customer").autocomplete({
@@ -475,6 +699,48 @@
                 select: function (event, ui) {
                     if (ui.item.key !== null) {
                         $('input[name="codproveedor"]').val(ui.item.key);
+
+                        let value = ui.item.value.split(" | ");
+                        if (value.length > 1) {
+                            ui.item.value = value[1];
+                        } else {
+                            ui.item.value = value[0];
+                        }
+                    }
+                }
+            });
+
+            $("#variant").autocomplete({
+                source: function (request, response) {
+                    let formData = {};
+                    formData["action"] = "autocomplete-variant";
+                    formData["query"] = $("#variant").val();
+                    $('input[name="refvariant"]').val('');
+
+                    $.ajax({
+                        method: "POST",
+                        url: "{{ fsc.url() }}",
+                        data: formData,
+                        dataType: "json",
+                        success: function (results) {
+                            let values = [];
+                            results.forEach(function (element) {
+                                if (element.key === null || element.key === element.value) {
+                                    values.push(element);
+                                } else {
+                                    values.push({key: element.key, value: element.key + " | " + element.value});
+                                }
+                            });
+                            response(values);
+                        },
+                        error: function (msg) {
+                            alert(msg.status + " " + msg.responseText);
+                        }
+                    });
+                },
+                select: function (event, ui) {
+                    if (ui.item.key !== null) {
+                        $('input[name="refvariant"]').val(ui.item.key);
 
                         let value = ui.item.value.split(" | ");
                         if (value.length > 1) {
