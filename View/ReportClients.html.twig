@@ -1,10 +1,24 @@
 {% extends "Master/MenuTemplate.html.twig" %}
+{% import "Macro/Forms.html.twig" as forms %}
 
 {% block body %}
 <div class="container-fluid">
     <div class="row mt-3">
-        <div class="col-12">
+        <div class="col-12 text-center">
             <h1 class="h3 mb-3 text-gray-800"><i class="fa-solid fa-users"></i> {{ trans('clients') }} - {{ trans('report') }}</h1>
+        </div>
+    </div>
+
+    {# Selector de Empresa Centrado #}
+    <div class="row mb-4 justify-content-center">
+        <div class="col-auto">
+            <form action="{{ fsc.url() }}" method="get" id="reportForm">
+                <div class="d-flex align-items-center p-2 bg-white rounded shadow-sm border">
+                    <div style="min-width: 300px;">
+                        {{ forms.simpleSelect('selectEmpresa', 'idempresa', fsc.idempresa, fsc.companies, null, 'fa-solid fa-building') }}
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -176,6 +190,14 @@
     <script src="{{ asset('node_modules/chart.js/dist/Chart.min.js') }}"></script>
     <script>
         $(document).ready(function() {
+            // establecer el valor actual
+            $('#selectEmpresa').val('{{fsc.idempresa}}')
+
+            // autoenviar al cambiar el valor
+            $('#selectEmpresa').on('change', function() {
+                $('#reportForm').submit();
+            });
+
             const colors = ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796', '#5a5c69'];
 
             // 1. Tendencia de Nuevos Clientes
