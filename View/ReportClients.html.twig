@@ -110,7 +110,7 @@
                     <h6 class="m-0 font-weight-bold text-primary">{{ trans('customers-by-country') }}</h6>
                 </div>
                 <div class="card-body">
-                    <canvas id="countryChart" style="max-height: 300px;"></canvas>
+                    <div id="regions_div" style="min-height: 300px;"></div>
                 </div>
             </div>
         </div>
@@ -120,7 +120,7 @@
                     <h6 class="m-0 font-weight-bold text-primary">{{ trans('customers-by-province') }} ({{ fsc.companyCountry }})</h6>
                 </div>
                 <div class="card-body">
-                    <canvas id="provinceChart" style="max-height: 300px;"></canvas>
+                    <canvas id="provinceChart" style="min-height: 300px;"></canvas>
                 </div>
             </div>
         </div>
@@ -130,7 +130,7 @@
                     <h6 class="m-0 font-weight-bold text-primary">{{ trans('customers-by-group') }}</h6>
                 </div>
                 <div class="card-body">
-                    <canvas id="groupChart" style="max-height: 300px;"></canvas>
+                    <canvas id="groupChart" style="min-height: 300px;"></canvas>
                 </div>
             </div>
         </div>
@@ -188,6 +188,7 @@
 {% block javascripts %}
     {{ parent() }}
     <script src="{{ asset('node_modules/chart.js/dist/Chart.min.js') }}"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script>
         $(document).ready(function() {
             // establecer el valor actual
@@ -217,24 +218,11 @@
                 options: { maintainAspectRatio: false, legend: { display: false } }
             });
 
-            // 2. Países (Horizontal Bar)
-            new Chart(document.getElementById("countryChart"), {
-                type: 'horizontalBar',
-                data: {
-                    labels: [{% for row in fsc.customersByCountry|slice(0, 10) %}"{{ row.nombre|default(row.codpais) }}",{% endfor %}],
-                    datasets: [{
-                        data: [{% for row in fsc.customersByCountry|slice(0, 10) %}{{ row.total }},{% endfor %}],
-                        backgroundColor: colors[0]
-                    }]
-                },
-                options: { maintainAspectRatio: false, legend: { display: false } }
-            });
-
             // 3. Provincias (Horizontal Bar)
             new Chart(document.getElementById("provinceChart"), {
                 type: 'horizontalBar',
                 data: {
-                    labels: [{% for row in fsc.customersByProvince|slice(0, 10) %}"{{ row.provincia }}",{% endfor %}],
+                    labels: [{% for row in fsc.customersByProvince|slice(0, 10) %}"{{ row.nomprovincia ? row.nomprovincia : trans('no-data') }}",{% endfor %}],
                     datasets: [{
                         data: [{% for row in fsc.customersByProvince|slice(0, 10) %}{{ row.total }},{% endfor %}],
                         backgroundColor: colors[1]
@@ -273,6 +261,27 @@
                     scales: { xAxes: [{ ticks: { callback: v => v + ' {{ fsc.user.coddivisa }}' } }] }
                 }
             });
+
+            // Google Maps
+            google.charts.load('current', {'packages':['geochart']});
+            google.charts.setOnLoadCallback(drawRegionsMap);
+
+            function drawRegionsMap() {
+                // 2. Países
+                var data = google.visualization.arrayToDataTable([
+                    ['{{ trans("country") }}', '{{ trans("total") }}'],
+                    {% for row in fsc.customersByCountry %}
+                    ['{{ row.codiso ? row.codiso : row.codpais }}', {{ row.total }}],
+                    {% endfor %}
+                ]);
+
+                var options = {
+                    colorAxis: {colors: ['#e0efff', '#4e73df']}
+                };
+
+                var chart = new google.visualization.GeoChart(document.getElementById('regions_div'));
+                chart.draw(data, options);
+            }
         });
     </script>
 {% endblock %}
