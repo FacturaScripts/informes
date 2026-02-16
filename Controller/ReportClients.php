@@ -3,7 +3,6 @@ namespace FacturaScripts\Plugins\Informes\Controller;
 
 use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Core\Base\DataBase;
-use FacturaScripts\Core\Lib\AssetManager;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\Empresa;
 use FacturaScripts\Dinamic\Model\Pais;
@@ -17,6 +16,7 @@ class ReportClients extends Controller
     public $activeCustomers;
     public $activeCustomersYear;
     public $companyCountry;
+    public $companyCountryCode;
     public $customersByCountry;
     public $customersByGroup;
     public $customersByProvince;
@@ -85,6 +85,7 @@ class ReportClients extends Controller
         $db = new DataBase();
         $currentYear = date('Y');
         $companyCountryCode = Tools::settings('default', 'codpais');
+        $this->companyCountryCode = $companyCountryCode;
 
         $country = new Pais();
         if ($country->load($companyCountryCode)) {
@@ -105,12 +106,8 @@ class ReportClients extends Controller
         $sqlTotal = "SELECT COUNT(*) as total FROM clientes" . $whereEmpresaClientes;
         $this->totalCustomers = $db->select($sqlTotal)[0]['total'];
 
-        $sqlActive = "SELECT COUNT(*) as total FROM clientes";
-        if ($this->idempresa !== 'all') {
-            $sqlActive .= " WHERE debaja = false AND codcliente IN (SELECT codcliente FROM facturascli WHERE idempresa = " . $this->idempresa . ")";
-        } else {
-            $sqlActive .= " WHERE debaja = false";
-        }
+        $oneYearAgo = date('Y-m-d', strtotime('-1 year'));
+        $sqlActive = "SELECT COUNT(DISTINCT codcliente) as total FROM facturascli WHERE fecha >= '$oneYearAgo'" . $whereEmpresaFacturas;
         $this->activeCustomers = $db->select($sqlActive)[0]['total'];
 
         $sqlInactive = "SELECT COUNT(*) as total FROM clientes";
@@ -126,18 +123,18 @@ class ReportClients extends Controller
         $this->activeCustomersYear = $db->select($sqlActiveYear)[0]['total'];
 
         // 2. By Country
-        $sqlCountries = "SELECT c.codpais, p.nombre, COUNT(*) as total 
+        $sqlCountries = "SELECT c.codpais, p.codiso, p.nombre, COUNT(*) as total 
                          FROM clientes cl 
                          LEFT JOIN contactos c ON cl.idcontactofact = c.idcontacto 
                          LEFT JOIN paises p ON c.codpais = p.codpais";
         if ($this->idempresa !== 'all') {
             $sqlCountries .= " WHERE cl.codcliente IN (SELECT codcliente FROM facturascli WHERE idempresa = " . $this->idempresa . ")";
         }
-        $sqlCountries .= " GROUP BY c.codpais, p.nombre ORDER BY total DESC";
+        $sqlCountries .= " GROUP BY c.codpais, p.codiso, p.nombre ORDER BY total DESC";
         $this->customersByCountry = $db->select($sqlCountries);
 
         // 3. By Province (of company country)
-        $sqlProvinces = "SELECT c.provincia, COUNT(*) as total 
+        $sqlProvinces = "SELECT c.provincia as nomprovincia, COUNT(*) as total 
                          FROM clientes cl 
                          LEFT JOIN contactos c ON cl.idcontactofact = c.idcontacto 
                          WHERE c.codpais = " . $db->var2str($companyCountryCode);
@@ -158,21 +155,28 @@ class ReportClients extends Controller
         $this->customersByGroup = $db->select($sqlGroups);
 
         // 5. New customers per month
+        $newByMonth = [];
+        $startYear = $currentYear - 1;
+        $dateCursor = date_create("$startYear-01-01");
+        $dateLimit = date_create();
+        while ($dateCursor <= $dateLimit) {
+            $newByMonth[$dateCursor->format('Y-m')] = 0;
+            $dateCursor->modify('+1 month');
+        }
+
         $sqlNew = "SELECT fechaalta FROM clientes";
         if ($this->idempresa !== 'all') {
-            $sqlNew .= " WHERE codcliente IN (SELECT codcliente FROM facturascli WHERE idempresa = " . $this->idempresa . ") AND fechaalta >= '" . ($currentYear - 1) . "-01-01'";
+            $sqlNew .= " WHERE codcliente IN (SELECT codcliente FROM facturascli WHERE idempresa = " . $this->idempresa . ") AND fechaalta >= '$startYear-01-01'";
         } else {
-            $sqlNew .= " WHERE fechaalta >= '" . ($currentYear - 1) . "-01-01'";
+            $sqlNew .= " WHERE fechaalta >= '$startYear-01-01'";
         }
-        $sqlNew .= " ORDER BY fechaalta DESC";
+        $sqlNew .= " ORDER BY fechaalta ASC";
         $dates = $db->select($sqlNew);
-        $newByMonth = [];
         foreach ($dates as $row) {
             $month = substr($row['fechaalta'], 0, 7); // YYYY-MM
-            if (!isset($newByMonth[$month])) {
-                $newByMonth[$month] = 0;
+            if (isset($newByMonth[$month])) {
+                $newByMonth[$month]++;
             }
-            $newByMonth[$month]++;
         }
         $this->newCustomersByMonth = $newByMonth;
 
