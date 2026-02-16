@@ -236,5 +236,9 @@
     "inactive": "Inactivo",
     "name": "Nombre",
     "report": "Informe",
-    "total": "Total"
+    "total": "Total",
+    "active-customers": "Clientes activos",
+    "active-customers-year": "Clientes activos este año",
+    "inactive-customers": "Clientes dados de baja",
+    "total-customers": "Clientes totales"
 }
