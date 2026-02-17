@@ -136,6 +136,22 @@
         </div>
     </div>
 
+    {# Clientes por provincia (Facturas) #}
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">{{ trans('customers-by-invoice-province') }}</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area" style="height: 250px;">
+                        <canvas id="invoiceProvinceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {# Deudores #}
     <div class="row">
         <div class="col-12">
@@ -242,6 +258,20 @@
                     }]
                 },
                 options: { maintainAspectRatio: false, cutoutPercentage: 70 }
+            });
+
+            // 4.5. Clientes por provincia (Facturas)
+            new Chart(document.getElementById("invoiceProvinceChart"), {
+                type: 'bar',
+                data: {
+                    labels: [{% for row in fsc.invoicesByProvince|slice(0, 20) %}"{{ row.provincia ? row.provincia : trans('no-data') }}",{% endfor %}],
+                    datasets: [{
+                        label: "{{ trans('total') }}",
+                        data: [{% for row in fsc.invoicesByProvince|slice(0, 20) %}{{ row.total }},{% endfor %}],
+                        backgroundColor: colors[0]
+                    }]
+                },
+                options: { maintainAspectRatio: false, legend: { display: false } }
             });
 
             // 5. Deudores (Horizontal Bar)

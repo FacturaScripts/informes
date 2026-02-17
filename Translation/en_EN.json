@@ -226,6 +226,7 @@
     "customers-by-country": "Customers by country",
     "customers-by-province": "Customers by province",
     "customers-by-group": "Customers by group",
+    "customers-by-invoice-province": "Customers by province (Invoicing)",
     "customers-without-group": "Customers without group",
     "debtors": "Debtors",
     "last-12-months": "Last 12 months",

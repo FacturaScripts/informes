@@ -20,6 +20,7 @@ class ReportClients extends Controller
     public $customersByCountry;
     public $customersByGroup;
     public $customersByProvince;
+    public $invoicesByProvince;
     public $debtors;
     public $inactiveCustomers;
     public $newCustomersByMonth;
@@ -182,6 +183,24 @@ class ReportClients extends Controller
             }
         }
         $this->newCustomersByMonth = $newByMonth;
+
+        // 5.5 Invoices by Province
+        $sqlInvProvince = "SELECT COALESCE(NULLIF(f.provincia, ''), c.provincia) as provincia, COUNT(DISTINCT f.codcliente) as total
+                           FROM facturascli f
+                           LEFT JOIN clientes cl ON f.codcliente = cl.codcliente
+                           LEFT JOIN contactos c ON cl.idcontactofact = c.idcontacto";
+
+        if ($this->idempresa !== 'all') {
+            $sqlInvProvince .= " WHERE f.idempresa = " . $this->idempresa;
+        }
+
+        $sqlInvProvince .= " GROUP BY provincia ORDER BY total DESC";
+        $this->invoicesByProvince = $db->select($sqlInvProvince);
+        foreach ($this->invoicesByProvince as $key => $row) {
+            if (empty($row['provincia'])) {
+                $this->invoicesByProvince[$key]['provincia'] = Tools::trans('no-data');
+            }
+        }
 
         // 6. Debtors
         $sqlDebtors = "SELECT f.codcliente, f.nombrecliente, SUM(f.total) as deuda 
