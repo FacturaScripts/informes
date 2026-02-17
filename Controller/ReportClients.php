@@ -161,26 +161,24 @@ class ReportClients extends Controller
 
         // 5. New customers per month
         $newByMonth = [];
-        $startYear = $currentYear - 1;
-        $dateCursor = date_create("$startYear-01-01");
-        $dateLimit = date_create();
-        while ($dateCursor <= $dateLimit) {
-            $newByMonth[$dateCursor->format('Y-m')] = 0;
-            $dateCursor->modify('+1 month');
+        for ($i = 11; $i >= 0; $i--) {
+            $newByMonth[date('Y-m', strtotime("first day of -$i months"))] = 0;
         }
 
-        $sqlNew = "SELECT fechaalta FROM clientes";
+        $startMonth = date('Y-m-01', strtotime("first day of -11 months"));
+        $sqlNew = "SELECT SUBSTR(fechaalta, 1, 7) as month, COUNT(*) as total FROM clientes";
+        $where = " WHERE fechaalta >= '$startMonth'";
+
         if ($this->idempresa !== 'all') {
-            $sqlNew .= " WHERE codcliente IN (SELECT codcliente FROM facturascli WHERE idempresa = " . $this->idempresa . ") AND fechaalta >= '$startYear-01-01'";
-        } else {
-            $sqlNew .= " WHERE fechaalta >= '$startYear-01-01'";
+            $where .= " AND codcliente IN (SELECT codcliente FROM facturascli WHERE idempresa = " . $this->idempresa . ")";
         }
-        $sqlNew .= " ORDER BY fechaalta ASC";
-        $dates = $db->select($sqlNew);
-        foreach ($dates as $row) {
-            $month = substr($row['fechaalta'], 0, 7); // YYYY-MM
-            if (isset($newByMonth[$month])) {
-                $newByMonth[$month]++;
+
+        $sqlNew .= $where . " GROUP BY month ORDER BY month ASC";
+
+        $results = $db->select($sqlNew);
+        foreach ($results as $row) {
+            if (isset($newByMonth[$row['month']])) {
+                $newByMonth[$row['month']] = (int)$row['total'];
             }
         }
         $this->newCustomersByMonth = $newByMonth;
