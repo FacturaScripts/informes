@@ -153,6 +153,11 @@ class ReportClients extends Controller
         }
         $sqlGroups .= " GROUP BY g.nombre ORDER BY total DESC";
         $this->customersByGroup = $db->select($sqlGroups);
+        foreach ($this->customersByGroup as $key => $row) {
+            if (empty($row['nombre'])) {
+                $this->customersByGroup[$key]['nombre'] = Tools::trans('customers-without-group');
+            }
+        }
 
         // 5. New customers per month
         $newByMonth = [];
