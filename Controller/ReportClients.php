@@ -1,38 +1,92 @@
 <?php
+/**
+ * This file is part of Informes plugin for FacturaScripts
+ * Copyright (C) 2026 Carlos Garcia Gomez <carlos@facturascripts.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 namespace FacturaScripts\Plugins\Informes\Controller;
 
 use FacturaScripts\Core\Base\Controller;
-use FacturaScripts\Core\Base\DataBase;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\Empresa;
 use FacturaScripts\Dinamic\Model\Pais;
 
 /**
- * Vista del reporte de clientes, tiene unas propiedades que son las que se exponen a la vista
+ * Controlador para generar un informe de clientes con diferentes métricas (activos, por país, por grupo, etc.)
+ *
+ * @author Abderrahim Darghal Belkacemi
  */
 class ReportClients extends Controller
 {
-    // propiedades que usa la vista twig
+    /** @var int */
     public $activeCustomers;
+
+    /** @var int */
     public $activeCustomersYear;
+
+    /** @var array todas las empresas a listar en el formulario [idEmpresa => nombre empresa] */
+    public $companies = [];
+
+    /** @var string */
     public $companyCountry;
+
+    /** @var string */
     public $companyCountryCode;
+
+    /** @var array */
     public $customersByCountry;
+
+    /** @var array */
     public $customersByGroup;
+
+    /** @var array */
     public $customersByProvince;
-    public $invoicesByProvince;
+
+    /** @var array */
     public $debtors;
-    public $inactiveCustomers;
-    public $newCustomersByMonth;
-    public $totalCustomers;
-    public $totalDebt;
-    public $totalDebtors;
-    
+
     /** @var int|string|null el idempesa sugerido por el usuario (puede ser 'all') */
     public $idempresa;
 
-    /** @var Array todas las empresas a listar en el formulario [idEmpresa => nombre empresa] */
-    public $companies = [];
+    /** @var int */
+    public $inactiveCustomers;
+
+    /** @var array */
+    public $invoicesByProvince;
+
+    /** @var array */
+    public $newCustomersByMonth;
+
+    /** @var int */
+    public $totalCustomers;
+
+    /** @var float */
+    public $totalDebt;
+
+    /** @var int */
+    public $totalDebtors;
+
+    /** @var string */
+    protected $currentYear;
+
+    /** @var string */
+    protected $whereEmpresaClientes = '';
+
+    /** @var string */
+    protected $whereEmpresaFacturas = '';
 
     public function getPageData(): array
     {
@@ -51,16 +105,79 @@ class ReportClients extends Controller
         $this->loadCompanies();
 
         // cargar datos de las gráficas
-        $this->loadReportData();
+        $this->loadData();
+        $this->loadTotalCustomers();
+        $this->loadActiveCustomers();
+        $this->loadInactiveCustomers();
+        $this->loadActiveCustomersYear();
+        $this->loadCustomersByCountry();
+        $this->loadCustomersByProvince();
+        $this->loadCustomersByGroup();
+        $this->loadNewCustomersByMonth();
+        $this->loadInvoicesByProvince();
+        $this->loadDebtors();
     }
 
-    private function loadCompanies()
+    protected function loadActiveCustomers(): void
     {
-        $empresaModel = new Empresa();
-        $rows = $empresaModel->all();
+        $oneYearAgo = date('Y-m-d', strtotime('-1 year'));
+        $sqlActive = "SELECT COUNT(DISTINCT codcliente) as total FROM facturascli WHERE fecha >= '$oneYearAgo'" . $this->whereEmpresaFacturas;
+        $this->activeCustomers = $this->dataBase->select($sqlActive)[0]['total'];
+    }
 
+    protected function loadActiveCustomersYear(): void
+    {
+        $sqlActiveYear = "SELECT COUNT(DISTINCT codcliente) as total FROM facturascli WHERE fecha >= '$this->currentYear-01-01'" . $this->whereEmpresaFacturas;
+        $this->activeCustomersYear = $this->dataBase->select($sqlActiveYear)[0]['total'];
+    }
+
+    protected function loadCustomersByCountry(): void
+    {
+        $sqlCountries = "SELECT c.codpais, p.codiso, p.nombre, COUNT(*) as total 
+                         FROM clientes cl 
+                         LEFT JOIN contactos c ON cl.idcontactofact = c.idcontacto 
+                         LEFT JOIN paises p ON c.codpais = p.codpais";
+        if ($this->idempresa !== 'all') {
+            $sqlCountries .= " WHERE cl.codcliente IN (SELECT codcliente FROM facturascli WHERE idempresa = " . $this->idempresa . ")";
+        }
+        $sqlCountries .= " GROUP BY c.codpais, p.codiso, p.nombre ORDER BY total DESC";
+        $this->customersByCountry = $this->dataBase->select($sqlCountries);
+    }
+
+    protected function loadCustomersByGroup(): void
+    {
+        $sqlGroups = "SELECT g.nombre, COUNT(*) as total 
+                      FROM clientes c 
+                      LEFT JOIN gruposclientes g ON c.codgrupo = g.codgrupo";
+        if ($this->idempresa !== 'all') {
+            $sqlGroups .= " WHERE c.codcliente IN (SELECT codcliente FROM facturascli WHERE idempresa = " . $this->idempresa . ")";
+        }
+        $sqlGroups .= " GROUP BY g.nombre ORDER BY total DESC";
+        $this->customersByGroup = $this->dataBase->select($sqlGroups);
+        foreach ($this->customersByGroup as $key => $row) {
+            if (empty($row['nombre'])) {
+                $this->customersByGroup[$key]['nombre'] = Tools::trans('customers-without-group');
+            }
+        }
+    }
+
+    protected function loadCustomersByProvince(): void
+    {
+        $sqlProvinces = "SELECT c.provincia as nomprovincia, COUNT(*) as total 
+                         FROM clientes cl 
+                         LEFT JOIN contactos c ON cl.idcontactofact = c.idcontacto 
+                         WHERE c.codpais = " . $this->dataBase->var2str($this->companyCountryCode);
+        if ($this->idempresa !== 'all') {
+            $sqlProvinces .= " AND cl.codcliente IN (SELECT codcliente FROM facturascli WHERE idempresa = " . $this->idempresa . ")";
+        }
+        $sqlProvinces .= " GROUP BY c.provincia ORDER BY total DESC";
+        $this->customersByProvince = $this->dataBase->select($sqlProvinces);
+    }
+
+    protected function loadCompanies(): void
+    {
         $this->companies = ['all' => Tools::trans('all-companies')];
-        foreach ($rows as $company) {
+        foreach (Empresa::all() as $company) {
             $this->companies[$company->idempresa] = $company->nombrecorto;
         }
 
@@ -78,89 +195,70 @@ class ReportClients extends Controller
         }
     }
 
-    /**
-     * Crea los reportes y guarda el resultado en las propiedades de la clase.
-     */
-    private function loadReportData()
+    protected function loadData(): void
     {
-        $db = new DataBase();
-        $currentYear = date('Y');
-        $companyCountryCode = Tools::settings('default', 'codpais');
-        $this->companyCountryCode = $companyCountryCode;
+        $this->currentYear = date('Y');
+        $this->companyCountryCode = Tools::settings('default', 'codpais');
 
         $country = new Pais();
-        if ($country->load($companyCountryCode)) {
-            $companyCountryName = $country->nombre;
+        if ($country->load($this->companyCountryCode)) {
+            $this->companyCountry = $country->nombre;
         } else {
-            $companyCountryName = $companyCountryCode;
+            $this->companyCountry = $this->companyCountryCode;
         }
-        $this->companyCountry = $companyCountryName;
 
-        $whereEmpresaFacturas = "";
-        $whereEmpresaClientes = "";
         if ($this->idempresa !== 'all') {
-            $whereEmpresaFacturas = " AND idempresa = " . $this->idempresa;
-            $whereEmpresaClientes = " WHERE codcliente IN (SELECT codcliente FROM facturascli WHERE idempresa = " . $this->idempresa . ")";
+            $this->whereEmpresaFacturas = " AND idempresa = " . $this->idempresa;
+            $this->whereEmpresaClientes = " WHERE codcliente IN (SELECT codcliente FROM facturascli WHERE idempresa = " . $this->idempresa . ")";
         }
+    }
 
-        // 1. Customer counts
-        $sqlTotal = "SELECT COUNT(*) as total FROM clientes" . $whereEmpresaClientes;
-        $this->totalCustomers = $db->select($sqlTotal)[0]['total'];
+    protected function loadDebtors(): void
+    {
+        $sqlDebtors = "SELECT f.codcliente, f.nombrecliente, SUM(f.total) as deuda 
+                       FROM facturascli f 
+                       WHERE f.pagada = false" . $this->whereEmpresaFacturas . "
+                       GROUP BY f.codcliente, f.nombrecliente 
+                       HAVING deuda > 0 
+                       ORDER BY deuda DESC";
+        $this->debtors = $this->dataBase->select($sqlDebtors);
+        $this->totalDebtors = count($this->debtors);
+        $this->totalDebt = array_sum(array_column($this->debtors, 'deuda'));
+    }
 
-        $oneYearAgo = date('Y-m-d', strtotime('-1 year'));
-        $sqlActive = "SELECT COUNT(DISTINCT codcliente) as total FROM facturascli WHERE fecha >= '$oneYearAgo'" . $whereEmpresaFacturas;
-        $this->activeCustomers = $db->select($sqlActive)[0]['total'];
-
+    protected function loadInactiveCustomers(): void
+    {
         $sqlInactive = "SELECT COUNT(*) as total FROM clientes";
         if ($this->idempresa !== 'all') {
             $sqlInactive .= " WHERE debaja = true AND codcliente IN (SELECT codcliente FROM facturascli WHERE idempresa = " . $this->idempresa . ")";
         } else {
             $sqlInactive .= " WHERE debaja = true";
         }
-        $this->inactiveCustomers = $db->select($sqlInactive)[0]['total'];
-        
-        // Active this year (having invoices)
-        $sqlActiveYear = "SELECT COUNT(DISTINCT codcliente) as total FROM facturascli WHERE fecha >= '$currentYear-01-01'" . $whereEmpresaFacturas;
-        $this->activeCustomersYear = $db->select($sqlActiveYear)[0]['total'];
+        $this->inactiveCustomers = $this->dataBase->select($sqlInactive)[0]['total'];
+    }
 
-        // 2. By Country
-        $sqlCountries = "SELECT c.codpais, p.codiso, p.nombre, COUNT(*) as total 
-                         FROM clientes cl 
-                         LEFT JOIN contactos c ON cl.idcontactofact = c.idcontacto 
-                         LEFT JOIN paises p ON c.codpais = p.codpais";
-        if ($this->idempresa !== 'all') {
-            $sqlCountries .= " WHERE cl.codcliente IN (SELECT codcliente FROM facturascli WHERE idempresa = " . $this->idempresa . ")";
-        }
-        $sqlCountries .= " GROUP BY c.codpais, p.codiso, p.nombre ORDER BY total DESC";
-        $this->customersByCountry = $db->select($sqlCountries);
+    protected function loadInvoicesByProvince(): void
+    {
+        $sqlInvProvince = "SELECT COALESCE(NULLIF(f.provincia, ''), c.provincia) as provincia, COUNT(DISTINCT f.codcliente) as total
+                           FROM facturascli f
+                           LEFT JOIN clientes cl ON f.codcliente = cl.codcliente
+                           LEFT JOIN contactos c ON cl.idcontactofact = c.idcontacto";
 
-        // 3. By Province (of company country)
-        $sqlProvinces = "SELECT c.provincia as nomprovincia, COUNT(*) as total 
-                         FROM clientes cl 
-                         LEFT JOIN contactos c ON cl.idcontactofact = c.idcontacto 
-                         WHERE c.codpais = " . $db->var2str($companyCountryCode);
         if ($this->idempresa !== 'all') {
-            $sqlProvinces .= " AND cl.codcliente IN (SELECT codcliente FROM facturascli WHERE idempresa = " . $this->idempresa . ")";
+            $sqlInvProvince .= " WHERE f.idempresa = " . $this->idempresa;
         }
-        $sqlProvinces .= " GROUP BY c.provincia ORDER BY total DESC";
-        $this->customersByProvince = $db->select($sqlProvinces);
 
-        // 4. By Group
-        $sqlGroups = "SELECT g.nombre, COUNT(*) as total 
-                      FROM clientes c 
-                      LEFT JOIN gruposclientes g ON c.codgrupo = g.codgrupo";
-        if ($this->idempresa !== 'all') {
-            $sqlGroups .= " WHERE c.codcliente IN (SELECT codcliente FROM facturascli WHERE idempresa = " . $this->idempresa . ")";
-        }
-        $sqlGroups .= " GROUP BY g.nombre ORDER BY total DESC";
-        $this->customersByGroup = $db->select($sqlGroups);
-        foreach ($this->customersByGroup as $key => $row) {
-            if (empty($row['nombre'])) {
-                $this->customersByGroup[$key]['nombre'] = Tools::trans('customers-without-group');
+        $sqlInvProvince .= " GROUP BY provincia ORDER BY total DESC";
+        $this->invoicesByProvince = $this->dataBase->select($sqlInvProvince);
+        foreach ($this->invoicesByProvince as $key => $row) {
+            if (empty($row['provincia'])) {
+                $this->invoicesByProvince[$key]['provincia'] = Tools::trans('no-data');
             }
         }
+    }
 
-        // 5. New customers per month
+    protected function loadNewCustomersByMonth(): void
+    {
         $newByMonth = [];
         for ($i = 11; $i >= 0; $i--) {
             $newByMonth[date('Y-m', strtotime("first day of -$i months"))] = 0;
@@ -176,42 +274,18 @@ class ReportClients extends Controller
 
         $sqlNew .= $where . " GROUP BY month ORDER BY month ASC";
 
-        $results = $db->select($sqlNew);
+        $results = $this->dataBase->select($sqlNew);
         foreach ($results as $row) {
             if (isset($newByMonth[$row['month']])) {
                 $newByMonth[$row['month']] = (int)$row['total'];
             }
         }
         $this->newCustomersByMonth = $newByMonth;
+    }
 
-        // 5.5 Invoices by Province
-        $sqlInvProvince = "SELECT COALESCE(NULLIF(f.provincia, ''), c.provincia) as provincia, COUNT(DISTINCT f.codcliente) as total
-                           FROM facturascli f
-                           LEFT JOIN clientes cl ON f.codcliente = cl.codcliente
-                           LEFT JOIN contactos c ON cl.idcontactofact = c.idcontacto";
-
-        if ($this->idempresa !== 'all') {
-            $sqlInvProvince .= " WHERE f.idempresa = " . $this->idempresa;
-        }
-
-        $sqlInvProvince .= " GROUP BY provincia ORDER BY total DESC";
-        $this->invoicesByProvince = $db->select($sqlInvProvince);
-        foreach ($this->invoicesByProvince as $key => $row) {
-            if (empty($row['provincia'])) {
-                $this->invoicesByProvince[$key]['provincia'] = Tools::trans('no-data');
-            }
-        }
-
-        // 6. Debtors
-        $sqlDebtors = "SELECT f.codcliente, f.nombrecliente, SUM(f.total) as deuda 
-                       FROM facturascli f 
-                       WHERE f.pagada = false" . $whereEmpresaFacturas . "
-                       GROUP BY f.codcliente, f.nombrecliente 
-                       HAVING deuda > 0 
-                       ORDER BY deuda DESC";
-        $debtors = $db->select($sqlDebtors);
-        $this->debtors = $debtors;
-        $this->totalDebtors = count($debtors);
-        $this->totalDebt = array_sum(array_column($debtors, 'deuda'));
+    protected function loadTotalCustomers(): void
+    {
+        $sqlTotal = "SELECT COUNT(*) as total FROM clientes" . $this->whereEmpresaClientes;
+        $this->totalCustomers = $this->dataBase->select($sqlTotal)[0]['total'];
     }
 }
