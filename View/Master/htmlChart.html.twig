@@ -11,6 +11,7 @@
 
 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
     {% for s_name, source in chart.getDataSources() %}
+        {% set total = 0 %}
         <div class="col">
             <div class="card shadow mb-4">
             <div class="card-body">
@@ -25,6 +26,7 @@
                 </thead>
                 <tbody>
                 {% for item in source %}
+                    {% set total = total + item.ycol %}
                     <tr>
                         <td>{{ item.xcol }}</td>
                         <td>
@@ -45,6 +47,14 @@
                     </tr>
                 {% endfor %}
                 </tbody>
+                {% if total > 0 %}
+                    <tfoot class="sticky-bottom bg-light fw-bold">
+                    <tr>
+                        <td>{{ trans('total') }}</td>
+                        <td>{{ number(total) }}</td>
+                    </tr>
+                    </tfoot>
+                {% endif %}
             </table>
             </div>
         </div>
