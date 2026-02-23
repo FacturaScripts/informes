@@ -23,6 +23,9 @@ use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\Empresa;
 use FacturaScripts\Dinamic\Model\Pais;
+use FacturaScripts\Plugins\Informes\Lib\ReportChart\AreaChart;
+use FacturaScripts\Plugins\Informes\Model\Report;
+use FacturaScripts\Plugins\Informes\Model\ReportFilter;
 
 /**
  * Controlador para generar un informe de clientes con diferentes métricas (activos, por país, por grupo, etc.)
@@ -37,6 +40,9 @@ class ReportClients extends Controller
     /** @var int */
     public $activeCustomersYear;
 
+    /** @var array */
+    public $charts = [];
+
     /** @var array todas las empresas a listar en el formulario [idEmpresa => nombre empresa] */
     public $companies = [];
 
@@ -49,35 +55,14 @@ class ReportClients extends Controller
     /** @var array */
     public $customersByCountry;
 
-    /** @var array */
-    public $customersByGroup;
-
-    /** @var array */
-    public $customersByProvince;
-
-    /** @var array */
-    public $debtors;
-
     /** @var int|string|null el idempesa sugerido por el usuario (puede ser 'all') */
     public $idempresa;
 
     /** @var int */
     public $inactiveCustomers;
 
-    /** @var array */
-    public $invoicesByProvince;
-
-    /** @var array */
-    public $newCustomersByMonth;
-
     /** @var int */
     public $totalCustomers;
-
-    /** @var float */
-    public $totalDebt;
-
-    /** @var int */
-    public $totalDebtors;
 
     /** @var string */
     protected $currentYear;
@@ -146,32 +131,55 @@ class ReportClients extends Controller
 
     protected function loadCustomersByGroup(): void
     {
-        $sqlGroups = "SELECT g.nombre, COUNT(*) as total 
-                      FROM clientes c 
-                      LEFT JOIN gruposclientes g ON c.codgrupo = g.codgrupo";
+        $report = new Report();
+        $report->type = Report::TYPE_DOUGHNUT;
+        $report->table = 'clientes c';
+        $report->xcolumn = "COALESCE(g.nombre, '" . Tools::trans('customers-without-group') . "')";
+        $report->ycolumn = '*';
+        $report->yoperation = 'COUNT';
+
+        // añadimos el JOIN con gruposclientes para obtener el nombre del grupo
+        Report::activateAdvancedReport(true);
+        $report->addCustomJoin('LEFT JOIN gruposclientes g ON c.codgrupo = g.codgrupo');
+
+        // aplicamos el filtro de empresa si no se están mostrando todas
         if ($this->idempresa !== 'all') {
-            $sqlGroups .= " WHERE c.codcliente IN (SELECT codcliente FROM facturascli WHERE idempresa = " . $this->idempresa . ")";
+            $report->addCustomFilter(
+                'c.codcliente',
+                'IN',
+                'SELECT codcliente FROM facturascli WHERE idempresa = ' . (int)$this->idempresa
+            );
         }
-        $sqlGroups .= " GROUP BY g.nombre ORDER BY total DESC";
-        $this->customersByGroup = $this->dataBase->select($sqlGroups);
-        foreach ($this->customersByGroup as $key => $row) {
-            if (empty($row['nombre'])) {
-                $this->customersByGroup[$key]['nombre'] = Tools::trans('customers-without-group');
-            }
-        }
+
+        $this->charts['customersByGroup'] = $report;
     }
 
     protected function loadCustomersByProvince(): void
     {
-        $sqlProvinces = "SELECT c.provincia as nomprovincia, COUNT(*) as total 
-                         FROM clientes cl 
-                         LEFT JOIN contactos c ON cl.idcontactofact = c.idcontacto 
-                         WHERE c.codpais = " . $this->dataBase->var2str($this->companyCountryCode);
+        $report = new Report();
+        $report->type = Report::TYPE_BAR;
+        $report->table = 'clientes cl';
+        $report->xcolumn = "COALESCE(NULLIF(c.provincia, ''), '" . Tools::trans('no-data') . "')";
+        $report->ycolumn = '*';
+        $report->yoperation = 'COUNT';
+
+        // añadimos el JOIN con contactos para obtener provincia y país
+        Report::activateAdvancedReport(true);
+        $report->addCustomJoin('LEFT JOIN contactos c ON cl.idcontactofact = c.idcontacto');
+
+        // filtramos por el país de la empresa para mostrar solo provincias del país
+        $report->addCustomFilter('c.codpais', '=', $this->companyCountryCode);
+
+        // aplicamos el filtro de empresa si no se están mostrando todas
         if ($this->idempresa !== 'all') {
-            $sqlProvinces .= " AND cl.codcliente IN (SELECT codcliente FROM facturascli WHERE idempresa = " . $this->idempresa . ")";
+            $report->addCustomFilter(
+                'cl.codcliente',
+                'IN',
+                'SELECT codcliente FROM facturascli WHERE idempresa = ' . (int)$this->idempresa
+            );
         }
-        $sqlProvinces .= " GROUP BY c.provincia ORDER BY total DESC";
-        $this->customersByProvince = $this->dataBase->select($sqlProvinces);
+
+        $this->charts['customersByProvince'] = $report;
     }
 
     protected function loadCompanies(): void
@@ -215,15 +223,26 @@ class ReportClients extends Controller
 
     protected function loadDebtors(): void
     {
-        $sqlDebtors = "SELECT f.codcliente, f.nombrecliente, SUM(f.total) as deuda 
-                       FROM facturascli f 
-                       WHERE f.pagada = false" . $this->whereEmpresaFacturas . "
-                       GROUP BY f.codcliente, f.nombrecliente 
-                       HAVING deuda > 0 
-                       ORDER BY deuda DESC";
-        $this->debtors = $this->dataBase->select($sqlDebtors);
-        $this->totalDebtors = count($this->debtors);
-        $this->totalDebt = array_sum(array_column($this->debtors, 'deuda'));
+        // replicamos la misma SQL usando la clase Report para el gráfico
+        $report = new Report();
+        $report->type = Report::TYPE_BAR;
+        $report->table = 'facturascli f';
+        $report->xcolumn = 'f.nombrecliente';
+        $report->ycolumn = 'f.total';
+        $report->yoperation = 'SUM';
+
+        // activamos el modo avanzado para poder usar filtros personalizados
+        Report::activateAdvancedReport(true);
+
+        // filtramos por facturas no pagadas
+        $report->addCustomFilter('f.pagada', '=', '0');
+
+        // aplicamos el filtro de empresa si no se están mostrando todas
+        if ($this->idempresa !== 'all') {
+            $report->addCustomFilter('f.idempresa', '=', (string)(int)$this->idempresa);
+        }
+
+        $this->charts['debtors'] = $report;
     }
 
     protected function loadInactiveCustomers(): void
@@ -239,48 +258,50 @@ class ReportClients extends Controller
 
     protected function loadInvoicesByProvince(): void
     {
-        $sqlInvProvince = "SELECT COALESCE(NULLIF(f.provincia, ''), c.provincia) as provincia, COUNT(DISTINCT f.codcliente) as total
-                           FROM facturascli f
-                           LEFT JOIN clientes cl ON f.codcliente = cl.codcliente
-                           LEFT JOIN contactos c ON cl.idcontactofact = c.idcontacto";
+        $report = new Report();
+        $report->type = Report::TYPE_BAR;
+        $report->table = 'facturascli f';
+        $report->xcolumn = "COALESCE(NULLIF(f.provincia, ''), c.provincia, '" . Tools::trans('no-data') . "')";
+        $report->ycolumn = 'DISTINCT f.codcliente';
+        $report->yoperation = 'COUNT';
 
+        // añadimos los JOINs necesarios para obtener la provincia del contacto
+        Report::activateAdvancedReport(true);
+        $report->addCustomJoin('LEFT JOIN clientes cl ON f.codcliente = cl.codcliente');
+        $report->addCustomJoin('LEFT JOIN contactos c ON cl.idcontactofact = c.idcontacto');
+
+        // aplicamos el filtro de empresa si no se están mostrando todas
         if ($this->idempresa !== 'all') {
-            $sqlInvProvince .= " WHERE f.idempresa = " . $this->idempresa;
+            $report->addCustomFilter('f.idempresa', '=', (int)$this->idempresa);
         }
 
-        $sqlInvProvince .= " GROUP BY provincia ORDER BY total DESC";
-        $this->invoicesByProvince = $this->dataBase->select($sqlInvProvince);
-        foreach ($this->invoicesByProvince as $key => $row) {
-            if (empty($row['provincia'])) {
-                $this->invoicesByProvince[$key]['provincia'] = Tools::trans('no-data');
-            }
-        }
+        $this->charts['invoicesByProvince'] = $report;
     }
 
     protected function loadNewCustomersByMonth(): void
     {
-        $newByMonth = [];
-        for ($i = 11; $i >= 0; $i--) {
-            $newByMonth[date('Y-m', strtotime("first day of -$i months"))] = 0;
-        }
+        $report = new Report();
+        $report->type = Report::DEFAULT_TYPE;
+        $report->table = 'clientes';
+        $report->xcolumn = 'fechaalta';
+        $report->ycolumn = 'codcliente';
+        $report->xoperation = 'MONTHS';
+        $report->yoperation = 'COUNT';
+        $report->addFieldXName('');
+        $report->addCustomFilter('fechaalta', '>=', '{-1 year}');
+        $report->addCustomFilter('fechaalta', '<=', '{today}');
 
-        $startMonth = date('Y-m-01', strtotime("first day of -11 months"));
-        $sqlNew = "SELECT SUBSTR(fechaalta, 1, 7) as month, COUNT(*) as total FROM clientes";
-        $where = " WHERE fechaalta >= '$startMonth'";
-
+        // aplicamos el filtro de empresa si no se están mostrando todas
         if ($this->idempresa !== 'all') {
-            $where .= " AND codcliente IN (SELECT codcliente FROM facturascli WHERE idempresa = " . $this->idempresa . ")";
+            Report::activateAdvancedReport(true);
+            $report->addCustomFilter(
+                'codcliente',
+                'IN',
+                'SELECT codcliente FROM facturascli WHERE idempresa = ' . (int)$this->idempresa
+            );
         }
 
-        $sqlNew .= $where . " GROUP BY month ORDER BY month ASC";
-
-        $results = $this->dataBase->select($sqlNew);
-        foreach ($results as $row) {
-            if (isset($newByMonth[$row['month']])) {
-                $newByMonth[$row['month']] = (int)$row['total'];
-            }
-        }
-        $this->newCustomersByMonth = $newByMonth;
+        $this->charts['reportTest'] = $report;
     }
 
     protected function loadTotalCustomers(): void

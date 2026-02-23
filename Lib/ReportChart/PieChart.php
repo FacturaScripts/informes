@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2023-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2023-2026 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -24,7 +24,7 @@ namespace FacturaScripts\Plugins\Informes\Lib\ReportChart;
  */
 class PieChart extends Chart
 {
-    public function render(int $height = 0): string
+    public function render(array $dataChart = []): string
     {
         $data = $this->getData();
         if (empty($data)) {
@@ -33,7 +33,7 @@ class PieChart extends Chart
 
         $num = mt_rand();
         $chartId = 'chart' . $num;
-        $chartHeight = $height > 0 ? $height : 350;
+        $chartHeight = isset($dataChart['height']) && $dataChart['height'] > 0 ? $dataChart['height'] : 350;
 
         return '<div id="' . $chartId . '"></div>'
             . '<script>'
@@ -126,34 +126,5 @@ class PieChart extends Chart
         }
 
         return ['labels' => $labels, 'datasets' => $datasets];
-    }
-
-    protected function renderDatasets(array $datasets): string
-    {
-        $colors = $this->getColors(count($datasets[0]['data']));
-
-        $items = [];
-        $num = 0;
-        foreach ($datasets as $dataset) {
-            $backgroundColor = [];
-            $borderColor = [];
-            foreach ($dataset['data'] as $data) {
-                $color = $colors[$num] ?? '255, 206, 86';
-                $num++;
-
-                $backgroundColor[] = "'rgb(" . $color . ")'";
-                $borderColor[] = "'rgb(" . $color . ")'";
-            }
-
-            $items[] = "{
-                label: '" . $dataset['label'] . "',
-                data: [" . implode(",", $dataset['data']) . "],
-                backgroundColor: [" . implode(", ", $backgroundColor) . "],
-                borderColor: [" . implode(", ", $borderColor) . "],
-                borderWidth: 1
-            }";
-        }
-
-        return implode(',', $items);
     }
 }

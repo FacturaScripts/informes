@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2024 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2024-2026 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -23,7 +23,7 @@ use FacturaScripts\Core\DataSrc\Paises;
 
 class MapChart extends Chart
 {
-    public function render(int $height = 0): string
+    public function render(array $dataChart = []): string
     {
         $data = $this->getData();
         if (empty($data)) {
@@ -32,8 +32,9 @@ class MapChart extends Chart
 
         $num = mt_rand();
         $divId = 'treemap' . $num;
+        $chartHeight = isset($dataChart['height']) && $dataChart['height'] > 0 ? $dataChart['height'] - 40 : 210;
         return '<h2 class="h5 text-center pt-3 pe-3">' . $this->report->name . "</h2>\n"
-            . '<div id="' . $divId . '" style="height: ' . max($height - 40, 210) . 'px;"></div>' . "\n"
+            . '<div id="' . $divId . '" style="height: ' . max($chartHeight, 210) . 'px;"></div>' . "\n"
             . "<script>
       google.charts.load('current', {
         'packages':['geochart'],

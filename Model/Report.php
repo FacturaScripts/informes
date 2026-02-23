@@ -34,12 +34,13 @@ class Report extends ModelClass
 {
     use ModelTrait;
 
-    public const DEFAULT_TYPE = 'area';
-    public const TYPE_BAR = 'bar';
-    public const TYPE_DOUGHNUT = 'doughnut';
-    public const TYPE_MAP = 'map';
-    public const TYPE_PIE = 'pie';
-    public const TYPE_TREE_MAP = 'treemap';
+    const DEFAULT_TYPE = 'area';
+    const TYPE_BAR = 'bar';
+    const TYPE_DOUGHNUT = 'doughnut';
+    const TYPE_LINE = 'area';
+    const TYPE_MAP = 'map';
+    const TYPE_PIE = 'pie';
+    const TYPE_TREE_MAP = 'treemap';
 
     /** @var int */
     public $compared;
@@ -74,6 +75,26 @@ class Report extends ModelClass
     /** @var string */
     public $yoperation;
 
+    /** @var bool */
+    private static $advancedReport = false;
+
+    /** @var array */
+    private $customFilters = [];
+
+    /** @var array */
+    private $customJoins = [];
+
+    /** @var string */
+    private $customSql = '';
+
+    /** @var string */
+    private $fieldXName;
+
+    public function addFieldXName(string $name): void
+    {
+        $this->fieldXName = $name;
+    }
+
     public function addFilter(string $table_column, string $operator, string $value): bool
     {
         $filter = new ReportFilter();
@@ -82,6 +103,61 @@ class Report extends ModelClass
         $filter->table_column = $table_column;
         $filter->value = $value;
         return $filter->save();
+    }
+
+    public function addCustomFilter(string $table_column, string $operator, string $value): bool
+    {
+        $filter = new ReportFilter();
+        $filter->operator = $operator;
+        $filter->table_column = $table_column;
+        $filter->value = $value;
+
+        if ($filter->testIN()) {
+            $this->customFilters[] = $filter;
+            return true;
+        }
+
+        return false;
+    }
+
+    public function addCustomJoin(string $joinClause): bool
+    {
+        if (static::getAdvancedReport()) {
+            $this->customJoins[] = $joinClause;
+            return true;
+        }
+
+        return false;
+    }
+
+    public function addCustomSql(string $sql): bool
+    {
+        if (static::getAdvancedReport()) {
+            $this->customSql = $sql;
+            return true;
+        }
+
+        return false;
+    }
+
+    public static function activateAdvancedReport(bool $status): void
+    {
+        static::$advancedReport = $status;
+    }
+
+    public static function getAdvancedReport(): bool
+    {
+        return static::$advancedReport;
+    }
+
+    public function getJoins(): array
+    {
+        return $this->customJoins;
+    }
+
+    public function getCustomSql(): string
+    {
+        return $this->customSql;
     }
 
     public function clear(): void
@@ -101,13 +177,26 @@ class Report extends ModelClass
         return new $className($this);
     }
 
-    /** @return ReportFilter[] */
+    public function getFiledXName(): string
+    {
+        return $this->fieldXName ?: $this->xcolumn;
+    }
+
     public function getFilters(): array
     {
-        $filter = new ReportFilter();
-        $where = [new DataBaseWhere('id_report', $this->id)];
-        $orderBy = ['table_column' => 'ASC'];
-        return $filter->all($where, $orderBy, 0, 0);
+        $where = [Where::eq('id_report', $this->id)];
+        $filters = array_merge($this->customFilters, ReportFilter::all($where));
+
+        if (empty($filters)) {
+            return [];
+        }
+
+        // ordenar por la tabla
+        usort($filters, function (ReportFilter $a, ReportFilter $b) {
+            return strcmp($a->table_column, $b->table_column);
+        });
+
+        return $filters;
     }
 
     public function getSqlFilters(): string
@@ -129,6 +218,13 @@ class Report extends ModelClass
                 continue;
             }
 
+            if (static::getAdvancedReport()) {
+                if (in_array($filter->operator, ['IN', 'NOT IN'])) {
+                    $where[] = Where::column($filter->table_column, $filter->value, $filter->operator);
+                    continue;
+                }
+            }
+
             // convertimos los valores dinámicos
             $filter->value = ReportFilter::getDynamicValue($filter->value);
 
@@ -136,6 +232,12 @@ class Report extends ModelClass
         }
 
         return ' WHERE ' . Where::multiSql($where);
+    }
+
+    public function getTable(): string
+    {
+        $data = explode(' ', $this->table);
+        return $data[0] ?? '';
     }
 
     public function primaryDescriptionColumn(): string
@@ -158,7 +260,6 @@ class Report extends ModelClass
         $this->xoperation = Tools::noHtml($this->xoperation);
         $this->ycolumn = Tools::noHtml($this->ycolumn);
         $this->yoperation = Tools::noHtml($this->yoperation);
-
         return parent::test();
     }
 }
