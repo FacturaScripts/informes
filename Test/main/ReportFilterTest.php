@@ -20,8 +20,9 @@
 namespace FacturaScripts\Test\Plugins;
 
 use FacturaScripts\Core\Tools;
-use FacturaScripts\Test\Traits\LogErrorsTrait;
+use FacturaScripts\Plugins\Informes\Model\Report;
 use FacturaScripts\Plugins\Informes\Model\ReportFilter;
+use FacturaScripts\Test\Traits\LogErrorsTrait;
 use PHPUnit\Framework\TestCase;
 
 final class ReportFilterTest extends TestCase
@@ -30,21 +31,36 @@ final class ReportFilterTest extends TestCase
 
     public function testCreateAndDelete(): void
     {
+        // creamos un reporte
+        $report = new Report();
+        $report->name = 'Test Report';
+        $report->table = 'test_table';
+        $report->type = Report::DEFAULT_TYPE;
+        $this->assertTrue($report->save());
+
+        // creamos un filtro asociado al reporte
         $reportFilter = new ReportFilter();
-        $reportFilter->id = 9999;
+        $reportFilter->id_report = $report->id;
         $reportFilter->operator = '=';
         $reportFilter->table_column = 'column';
         $reportFilter->value = 'value';
 
+        // comprobamos que se puede guardar
         $this->assertTrue($reportFilter->save());
+
+        // comprobamos que existe
         $this->assertTrue($reportFilter->exists());
+
+        // lo eliminamos
         $this->assertTrue($reportFilter->delete());
+        $this->assertTrue($report->delete());
     }
 
     public function testGetDynamicValueWithExistingValue(): void
     {
         $reportFilter = new ReportFilter();
 
+        // comprobamos que getDynamicValue() convierte valores dinámicos
         $this->assertEquals(Tools::dateTime(), $reportFilter->getDynamicValue('{now}'));
     }
 
@@ -52,6 +68,7 @@ final class ReportFilterTest extends TestCase
     {
         $reportFilter = new ReportFilter();
 
+        // comprobamos que getDynamicValue() retorna el valor original si no es dinámico
         $this->assertEquals('value', $reportFilter->getDynamicValue('value'));
     }
 
@@ -59,6 +76,7 @@ final class ReportFilterTest extends TestCase
     {
         $reportFilter = new ReportFilter();
 
+        // definimos los valores dinámicos esperados
         $expectedValues = [
             '{now}' => Tools::dateTime(),
             '{-1 hour}' => Tools::dateTime('-1 hour'),
@@ -76,6 +94,7 @@ final class ReportFilterTest extends TestCase
             '{-2 years}' => Tools::date('-2 years'),
         ];
 
+        // comprobamos que getDynamicValues() retorna todos los valores dinámicos
         $this->assertEquals($expectedValues, $reportFilter->getDynamicValues());
     }
 

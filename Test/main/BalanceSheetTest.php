@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -35,13 +35,13 @@ final class BalanceSheetTest extends TestCase
         self::removeTaxRegularization();
     }
 
-    public function testCreateBalanceSheet()
+    public function testCreateBalanceSheet(): void
     {
         // creamos el asiento
         $asiento = new Asiento();
         $asiento->concepto = 'Test';
         $this->assertTrue($asiento->save(), 'asiento-cant-save-1');
-        $this->assertNotNull($asiento->primaryColumnValue(), 'asiento-not-stored');
+        $this->assertNotNull($asiento->id(), 'asiento-not-stored');
         $this->assertTrue($asiento->exists(), 'asiento-cant-persist');
 
         // añadimos una línea

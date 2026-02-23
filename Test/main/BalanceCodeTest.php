@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -24,7 +24,7 @@ use PHPUnit\Framework\TestCase;
 
 final class BalanceCodeTest extends TestCase
 {
-    public function testCreate()
+    public function testCreate(): void
     {
         // creamos un balance
         $balance = new BalanceCode();
@@ -38,13 +38,13 @@ final class BalanceCodeTest extends TestCase
         $this->assertTrue($balance->delete(), 'cant-delete-balance');
     }
 
-    public function testCantCreateEmpty()
+    public function testCantCreateEmpty(): void
     {
         $balance = new BalanceCode();
         $this->assertFalse($balance->save(), 'cant-save-balance');
     }
 
-    public function testHtmlOnFields()
+    public function testHtmlOnFields(): void
     {
         $balance = new BalanceCode();
         $balance->codbalance = '<test>';

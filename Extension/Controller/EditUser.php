@@ -36,6 +36,11 @@ class EditUser
 
             // generemos los informes
             $code = $this->getModel()->primaryColumnValue();
+            if (empty($code)) {
+                Tools::log()->warning('no-user-code');
+                return;
+            }
+
             $new = ReportGenerator::generateForUser($code);
             Tools::log()->notice('items-added-correctly', ['%num%' => $new]);
 

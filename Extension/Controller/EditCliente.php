@@ -36,6 +36,11 @@ class EditCliente
 
             // generemos los informes
             $code = $this->getModel()->primaryColumnValue();
+            if (empty($code)) {
+                Tools::log()->warning('no-customer-code');
+                return;
+            }
+
             $new = ReportGenerator::generateForCustomer($code);
             Tools::log()->notice('items-added-correctly', ['%num%' => $new]);
 

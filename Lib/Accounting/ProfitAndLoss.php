@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2017-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2017-2026 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -266,7 +266,7 @@ class ProfitAndLoss
             new DataBaseWhere('subtype', $params['subtype'] ?? 'normal'),
             new DataBaseWhere('level1', '', '!=')
         ];
-        $order = ['level1 * 1' => 'ASC', 'level2 * 1' => 'ASC', 'level3 * 1' => 'ASC', 'level4 * 1' => 'ASC'];
+        $order = ['integer:level1' => 'ASC', 'integer:level2' => 'ASC', 'integer:level3' => 'ASC', 'integer:level4' => 'ASC'];
         $balances = BalanceCode::all($where, $order, 0, 0);
 
         // get amounts

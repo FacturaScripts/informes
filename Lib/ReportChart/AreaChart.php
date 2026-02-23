@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022-2024 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2026 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -26,7 +26,7 @@ namespace FacturaScripts\Plugins\Informes\Lib\ReportChart;
  */
 class AreaChart extends Chart
 {
-    public function render(int $height = 0): string
+    public function render(array $dataChart = []): string
     {
         $data = $this->getData();
         if (empty($data)) {
@@ -34,20 +34,69 @@ class AreaChart extends Chart
         }
 
         $num = mt_rand();
-        $canvasId = 'chart' . $num;
-        return '<canvas id="' . $canvasId . '"/>'
-            . "<script>let ctx" . $num . " = document.getElementById('" . $canvasId . "').getContext('2d');"
-            . "let myChart" . $num . " = new Chart(ctx" . $num . ", {
-    type: 'line',
-    data: {
-        labels: ['" . implode("','", $data['labels']) . "'],
-        datasets: [" . $this->renderDatasets($data['datasets']) . "]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false
-    }
-});</script>";
+        $chartId = 'chart' . $num;
+        $chartHeight = isset($dataChart['height']) && $dataChart['height'] > 0 ? $dataChart['height'] : 350;
+
+        $series = [];
+        foreach ($data['datasets'] as $dataset) {
+            $series[] = [
+                'name' => $dataset['label'],
+                'data' => $dataset['data']
+            ];
+        }
+
+        return '<div id="' . $chartId . '"></div>'
+            . '<script>'
+            . 'var options' . $num . ' = {'
+            . '  series: ' . json_encode($series) . ','
+            . '  chart: {'
+            . '    type: "area",'
+            . '    stacked: false,'
+            . '    height: ' . $chartHeight . ','
+            . '    zoom: {'
+            . '      type: "x",'
+            . '      enabled: true,'
+            . '      autoScaleYaxis: true'
+            . '    },'
+            . '    toolbar: {'
+            . '      autoSelected: "zoom"'
+            . '    }'
+            . '  },'
+            . '  dataLabels: {'
+            . '    enabled: false'
+            . '  },'
+            . '  stroke: {' // más info: https://apexcharts.com/docs/options/stroke/
+            . '    curve: "straight"' // straight, smooth, monotoneCubic, stepline, linestep
+            . '  },'
+            . '  markers: {'
+            . '    size: 0,'
+            . '  },'
+            . '  title: {'
+            . '    text: "' . $this->report->name . '",'
+            . '    align: "left"'
+            . '  },'
+            . '  fill: {'
+            . '    type: "gradient",'
+            . '    gradient: {'
+            . '      shadeIntensity: 1,'
+            . '      inverseColors: false,'
+            . '      opacityFrom: 0.5,'
+            . '      opacityTo: 0,'
+            . '      stops: [0, 90, 100]'
+            . '    },'
+            . '  },'
+            . '  yaxis: {'
+            . '    title: {'
+            . '      text: "' . $this->report->getFiledXName() . '"'
+            . '    },'
+            . '  },'
+            . '  xaxis: {'
+            . '    categories: ' . json_encode($data['labels']) . ','
+            . '  }'
+            . '};'
+            . 'var chart' . $num . ' = new ApexCharts(document.querySelector("#' . $chartId . '"), options' . $num . ');'
+            . 'chart' . $num . '.render();'
+            . '</script>';
     }
 
     protected function getData(): array
@@ -111,31 +160,5 @@ class AreaChart extends Chart
         }
 
         return ['labels' => $labels, 'datasets' => $datasets];
-    }
-
-    protected function renderDatasets(array $datasets): string
-    {
-        $colors = $this->getColors(count($datasets));
-
-        $items = [];
-        $num = 0;
-        foreach ($datasets as $dataset) {
-            $color = $colors[$num] ?? '255, 206, 86';
-            $num++;
-
-            $items[] = "{
-                label: '" . $dataset['label'] . "',
-                data: [" . implode(",", $dataset['data']) . "],
-                backgroundColor: [
-                    'rgba(" . $color . ", 0.2)'
-                ],
-                borderColor: [
-                    'rgba(" . $color . ", 1)'
-                ],
-                borderWidth: 1
-            }";
-        }
-
-        return implode(',', $items);
     }
 }

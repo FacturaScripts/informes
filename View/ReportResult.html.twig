@@ -1,5 +1,5 @@
 {#
-* Copyright (C) 2019-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
+* Copyright (C) 2019-2026 Carlos Garcia Gomez <carlos@facturascripts.com>
 * Author Daniel Fernández Giménez <hola@danielfg.es>
 #}
 
@@ -101,8 +101,7 @@
                     <div class="card-body h5">
                         <i class="fa-solid fa-chart-line"></i> {{ trans('annual-result') }}
                     </div>
-                    <div class="canva">
-                        <canvas id="chartsResume"></canvas>
+                    <div class="canva" id="chartsResume">
                     </div>
                 </div>
             </div>
@@ -111,8 +110,7 @@
                     <div class="card-body h5">
                         <i class="fa-solid fa-chart-pie"></i> {{ trans('sales-per-family') }}
                     </div>
-                    <div class="canva">
-                        <canvas id="chartsFamilies"></canvas>
+                    <div class="canva" id="chartsFamilies">
                     </div>
                     <div class="table-responsive" id="chartsListFamilies">
                         <table class="table mb-0 table-sm">
@@ -134,8 +132,7 @@
                     <div class="card-body h5">
                         <i class="fa-solid fa-chart-pie"></i> {{ trans('sales-per-serie') }}
                     </div>
-                    <div class="canva">
-                        <canvas id="chartsSeries"></canvas>
+                    <div class="canva" id="chartsSeries">
                     </div>
                     <div class="table-responsive" id="chartsListSeries">
                         <table class="table mb-0 table-sm">
@@ -157,8 +154,7 @@
                     <div class="card-body h5">
                         <i class="fa-solid fa-chart-pie"></i> {{ trans('sales-per-paymethod') }}
                     </div>
-                    <div class="canva">
-                        <canvas id="chartsPagos"></canvas>
+                    <div class="canva" id="chartsPagos">
                     </div>
                     <div class="table-responsive" id="chartsListPagos">
                         <table class="table mb-0 table-sm">
@@ -180,8 +176,7 @@
                     <div class="card-body h5">
                         <i class="fa-solid fa-chart-pie"></i> {{ trans('sales-per-agent') }}
                     </div>
-                    <div class="canva">
-                        <canvas id="chartsAgentes"></canvas>
+                    <div class="canva" id="chartsAgentes">
                     </div>
                     <div class="table-responsive" id="chartsListAgentes">
                         <table class="table mb-0 table-sm">
@@ -246,8 +241,7 @@
 {% block javascripts %}
     {{ parent() }}
 
-    <script src="{{ asset('node_modules/chart.js/dist/Chart.min.js') }}"></script>
-
+    <script src="{{ asset('Plugins/Informes/node_modules/apexcharts/dist/apexcharts.min.js') }}"></script>
     <script>
         let accountReport = '';
         let agentesChart;
@@ -357,94 +351,161 @@
                 $('#chartsListPagos table tbody').html(charts['pagos']['table']);
                 $('#chartsListAgentes table tbody').html(charts['agentes']['table']);
 
-                window.chartColors = {
-                    red: 'rgb(255, 99, 132)',
-                    orange: 'rgb(255, 159, 64)',
-                    yellow: 'rgb(255, 205, 86)',
-                    green: 'rgb(75, 192, 192)',
-                    blue: 'rgb(54, 162, 235)',
-                    purple: 'rgb(153, 102, 255)',
-                    grey: 'rgb(231,233,237)'
-                };
+                // Configuración del gráfico de resultado anual en formato ApexCharts
                 let dataResume = {
-                    labels: [
-                        "{{ trans('january') }}",
-                        "{{ trans('february') }}",
-                        "{{ trans('march') }}",
-                        "{{ trans('april') }}",
-                        "{{ trans('may') }}",
-                        "{{ trans('june') }}",
-                        "{{ trans('july') }}",
-                        "{{ trans('august') }}",
-                        "{{ trans('september') }}",
-                        "{{ trans('october') }}",
-                        "{{ trans('november') }}",
-                        "{{ trans('december') }}"],
-                    datasets: [{
+                    chart: {
+                        height: 350,
                         type: 'line',
-                        label: '{{ trans('sales') }}',
-                        borderColor: window.chartColors.green,
-                        borderWidth: 2,
-                        fill: false,
-                        data: charts['totales']['ventas']
-                    }, {
-                        type: 'line',
-                        label: '{{ trans('purchases') }}',
-                        borderColor: window.chartColors.orange,
-                        borderWidth: 2,
-                        fill: false,
-                        data: charts['totales']['compras']
-                    }, {
-                        type: 'line',
-                        label: '{{ trans('expenses') }}',
-                        borderColor: window.chartColors.red,
-                        borderWidth: 2,
-                        fill: false,
-                        data: charts['totales']['gastos']
-                    }, {
-                        type: 'line',
-                        label: '{{ trans('result') }}',
-                        borderColor: window.chartColors.blue,
-                        borderWidth: 4,
-                        fill: false,
-                        data: charts['totales']['resultado']
-                    }]
+                        stacked: false,
+                        toolbar: {
+                            autoSelected: 'zoom'
+                        }
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    stroke: {
+                        width: [2, 2, 2, 4],
+                        curve: 'straight'
+                    },
+                    colors: ['#4bc0c0', '#ff9f40', '#ff6384', '#36a2eb'],
+                    series: [
+                        {
+                            name: '{{ trans('sales') }}',
+                            data: charts['totales']['ventas']
+                        },
+                        {
+                            name: '{{ trans('purchases') }}',
+                            data: charts['totales']['compras']
+                        },
+                        {
+                            name: '{{ trans('expenses') }}',
+                            data: charts['totales']['gastos']
+                        },
+                        {
+                            name: '{{ trans('result') }}',
+                            data: charts['totales']['resultado']
+                        }
+                    ],
+                    xaxis: {
+                        categories: [
+                            "{{ trans('january') }}",
+                            "{{ trans('february') }}",
+                            "{{ trans('march') }}",
+                            "{{ trans('april') }}",
+                            "{{ trans('may') }}",
+                            "{{ trans('june') }}",
+                            "{{ trans('july') }}",
+                            "{{ trans('august') }}",
+                            "{{ trans('september') }}",
+                            "{{ trans('october') }}",
+                            "{{ trans('november') }}",
+                            "{{ trans('december') }}"
+                        ]
+                    },
+                    yaxis: {
+                        labels: {
+                            formatter: function (value) {
+                                return value !== null && value !== undefined ? value.toFixed(2) : '0.00';
+                            }
+                        }
+                    },
+                    tooltip: {
+                        shared: true,
+                        intersect: false
+                    },
+                    legend: {
+                        horizontalAlign: 'left'
+                    }
                 };
+                // Configuración de gráficos de donut en formato ApexCharts
                 let dataFamilies = {
+                    chart: {
+                        type: 'donut',
+                        height: 300
+                    },
+                    series: charts['families']['porc'],
                     labels: charts['families']['labels'],
-                    datasets: [{
-                        data: charts['families']['porc'],
-                        data2: charts['families']['totales'],
-                        backgroundColor: charts['families']['colors'],
-                        hoverBackgroundColor: charts['families']['colors']
-                    }]
+                    colors: charts['families']['colors'],
+                    dataLabels: {
+                        enabled: false
+                    },
+                    tooltip: {
+                        y: {
+                            formatter: function (value, { seriesIndex }) {
+                                return charts['families']['totales'][seriesIndex];
+                            }
+                        }
+                    },
+                    legend: {
+                        show: false
+                    }
                 };
                 let dataSeries = {
+                    chart: {
+                        type: 'donut',
+                        height: 300
+                    },
+                    series: charts['series']['porc'],
                     labels: charts['series']['labels'],
-                    datasets: [{
-                        data: charts['series']['porc'],
-                        data2: charts['series']['totales'],
-                        backgroundColor: charts['series']['colors'],
-                        hoverBackgroundColor: charts['series']['colors']
-                    }]
+                    colors: charts['series']['colors'],
+                    dataLabels: {
+                        enabled: false
+                    },
+                    tooltip: {
+                        y: {
+                            formatter: function (value, { seriesIndex }) {
+                                return charts['series']['totales'][seriesIndex];
+                            }
+                        }
+                    },
+                    legend: {
+                        show: false
+                    }
                 };
                 let dataPagos = {
+                    chart: {
+                        type: 'donut',
+                        height: 300
+                    },
+                    series: charts['pagos']['porc'],
                     labels: charts['pagos']['labels'],
-                    datasets: [{
-                        data: charts['pagos']['porc'],
-                        data2: charts['pagos']['totales'],
-                        backgroundColor: charts['pagos']['colors'],
-                        hoverBackgroundColor: charts['pagos']['colors']
-                    }]
+                    colors: charts['pagos']['colors'],
+                    dataLabels: {
+                        enabled: false
+                    },
+                    tooltip: {
+                        y: {
+                            formatter: function (value, { seriesIndex }) {
+                                return charts['pagos']['totales'][seriesIndex];
+                            }
+                        }
+                    },
+                    legend: {
+                        show: false
+                    }
                 };
                 let dataAgentes = {
+                    chart: {
+                        type: 'donut',
+                        height: 300
+                    },
+                    series: charts['agentes']['porc'],
                     labels: charts['agentes']['labels'],
-                    datasets: [{
-                        data: charts['agentes']['porc'],
-                        data2: charts['agentes']['totales'],
-                        backgroundColor: charts['agentes']['colors'],
-                        hoverBackgroundColor: charts['agentes']['colors']
-                    }]
+                    colors: charts['agentes']['colors'],
+                    dataLabels: {
+                        enabled: false
+                    },
+                    tooltip: {
+                        y: {
+                            formatter: function (value, { seriesIndex }) {
+                                return charts['agentes']['totales'][seriesIndex];
+                            }
+                        }
+                    },
+                    legend: {
+                        show: false
+                    }
                 };
 
                 if (resumeChart != null) {
@@ -468,177 +529,25 @@
                 }
 
                 let canvaResume = document.getElementById("chartsResume");
+                resumeChart = new ApexCharts(canvaResume, dataResume);
+                resumeChart.render();
+
+
                 let canvaFamilies = document.getElementById("chartsFamilies");
+                familiesChart = new ApexCharts(canvaFamilies, dataFamilies);
+                familiesChart.render();
+
                 let canvaSeries = document.getElementById("chartsSeries");
+                seriesChart = new ApexCharts(canvaSeries, dataSeries);
+                seriesChart.render();
+
                 let canvaPagos = document.getElementById("chartsPagos");
+                pagosChart = new ApexCharts(canvaPagos, dataPagos);
+                pagosChart.render();
+
                 let canvaAgentes = document.getElementById("chartsAgentes");
-
-                resumeChart = Chart.Line(canvaResume.getContext("2d"), {
-                    data: dataResume,
-                    options: {
-                        maintainAspectRatio: false,
-                        showAllTooltips: false,
-                        responsive: true,
-                        hoverMode: 'index',
-                        stacked: false,
-                        title: {
-                            display: false,
-                            text: '{{ trans('charts-per-month') }}'
-                        },
-                        tooltips: {
-                            mode: 'index',
-                            intersect: true
-                        }
-                    }
-                });
-
-                familiesChart = new Chart(canvaFamilies.getContext("2d"), {
-                    type: 'pie',
-                    data: dataFamilies,
-                    options: {
-                        maintainAspectRatio: false,
-                        showAllTooltips: false,
-                        cutoutPercentage: 40,
-                        responsive: true,
-                        animation: {
-                            animateRotate: true,
-                            animateScale: true
-                        },
-                        legend: {
-                            display: false
-                        },
-                        tooltips: {
-                            mode: 'index',
-                            intersect: true,
-                            callbacks: {
-                                label: function (tooltipItem, data) {
-                                    let allData = data.datasets[tooltipItem.datasetIndex].data;
-                                    let allData2 = data.datasets[tooltipItem.datasetIndex].data2;
-                                    let tooltipLabel = data.labels[tooltipItem.index];
-                                    let tooltipData = allData[tooltipItem.index];
-                                    let tooltipData2 = allData2[tooltipItem.index];
-                                    let total = 0;
-                                    for (let i in allData) {
-                                        total += allData[i];
-                                    }
-                                    let tooltipPercentage = Math.round((tooltipData / total) * 100);
-                                    return tooltipLabel + ': ' + tooltipData2 + ' (' + tooltipPercentage + '%)';
-                                }
-                            }
-                        }
-                    }
-                });
-
-                seriesChart = new Chart(canvaSeries.getContext("2d"), {
-                    type: 'pie',
-                    data: dataSeries,
-                    options: {
-                        maintainAspectRatio: false,
-                        showAllTooltips: false,
-                        cutoutPercentage: 40,
-                        responsive: true,
-                        animation: {
-                            animateRotate: true,
-                            animateScale: true
-                        },
-                        legend: {
-                            display: false
-                        },
-                        tooltips: {
-                            mode: 'index',
-                            intersect: true,
-                            callbacks: {
-                                label: function (tooltipItem, data) {
-                                    let allData = data.datasets[tooltipItem.datasetIndex].data;
-                                    let allData2 = data.datasets[tooltipItem.datasetIndex].data2;
-                                    let tooltipLabel = data.labels[tooltipItem.index];
-                                    let tooltipData = allData[tooltipItem.index];
-                                    let tooltipData2 = allData2[tooltipItem.index];
-                                    let total = 0;
-                                    for (let i in allData) {
-                                        total += allData[i];
-                                    }
-                                    let tooltipPercentage = Math.round((tooltipData / total) * 100);
-                                    return tooltipLabel + ': ' + tooltipData2 + ' (' + tooltipPercentage + '%)';
-                                }
-                            }
-                        }
-                    }
-                });
-
-                pagosChart = new Chart(canvaPagos.getContext("2d"), {
-                    type: 'pie',
-                    data: dataPagos,
-                    options: {
-                        maintainAspectRatio: false,
-                        showAllTooltips: false,
-                        cutoutPercentage: 40,
-                        responsive: true,
-                        animation: {
-                            animateRotate: true,
-                            animateScale: true
-                        },
-                        legend: {
-                            display: false
-                        },
-                        tooltips: {
-                            mode: 'index',
-                            intersect: true,
-                            callbacks: {
-                                label: function (tooltipItem, data) {
-                                    let allData = data.datasets[tooltipItem.datasetIndex].data;
-                                    let allData2 = data.datasets[tooltipItem.datasetIndex].data2;
-                                    let tooltipLabel = data.labels[tooltipItem.index];
-                                    let tooltipData = allData[tooltipItem.index];
-                                    let tooltipData2 = allData2[tooltipItem.index];
-                                    let total = 0;
-                                    for (let i in allData) {
-                                        total += allData[i];
-                                    }
-                                    let tooltipPercentage = Math.round((tooltipData / total) * 100);
-                                    return tooltipLabel + ': ' + tooltipData2 + ' (' + tooltipPercentage + '%)';
-                                }
-                            }
-                        }
-                    }
-                });
-
-                agentesChart = new Chart(canvaAgentes.getContext("2d"), {
-                    type: 'pie',
-                    data: dataAgentes,
-                    options: {
-                        maintainAspectRatio: false,
-                        showAllTooltips: false,
-                        cutoutPercentage: 40,
-                        responsive: true,
-                        animation: {
-                            animateRotate: true,
-                            animateScale: true
-                        },
-                        legend: {
-                            display: false
-                        },
-                        tooltips: {
-                            mode: 'index',
-                            intersect: true,
-                            callbacks: {
-                                label: function (tooltipItem, data) {
-                                    let allData = data.datasets[tooltipItem.datasetIndex].data;
-                                    let allData2 = data.datasets[tooltipItem.datasetIndex].data2;
-                                    let tooltipLabel = data.labels[tooltipItem.index];
-                                    let tooltipData = allData[tooltipItem.index];
-                                    let tooltipData2 = allData2[tooltipItem.index];
-                                    let total = 0;
-                                    for (let i in allData) {
-                                        total += allData[i];
-                                    }
-                                    let tooltipPercentage = Math.round((tooltipData / total) * 100);
-                                    return tooltipLabel + ': ' + tooltipData2 + ' (' + tooltipPercentage + '%)';
-                                }
-                            }
-                        }
-                    }
-                });
+                agentesChart = new ApexCharts(canvaAgentes, dataAgentes);
+                agentesChart.render();
             }
 
             function handleReportToggle(reportElementId, reportFlag, action, additionalAction) {
@@ -731,11 +640,7 @@
                 }
             });
 
-            // Only lunch the load data if there are less than 2 companies
-            const select = document.getElementById('selectExercise');
-            if (select && select.getElementsByTagName('optgroup').length < 2) {
-                initPage();
-            }
+            initPage();
         });
     </script>
 {% endblock %}

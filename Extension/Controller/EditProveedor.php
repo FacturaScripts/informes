@@ -36,6 +36,11 @@ class EditProveedor
 
             // generemos los informes
             $code = $this->getModel()->primaryColumnValue();
+            if (empty($code)) {
+                Tools::log()->warning('no-supplier-code');
+                return;
+            }
+
             $new = ReportGenerator::generateForSupplier($code);
             Tools::log()->notice('items-added-correctly', ['%num%' => $new]);
 

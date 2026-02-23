@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2026 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -34,7 +34,7 @@ abstract class Chart
     /** @var Report */
     protected $report;
 
-    abstract public function render(int $height = 0): string;
+    abstract public function render(array $dataChart = []): string;
 
     abstract protected function getData(): array;
 
@@ -47,7 +47,7 @@ abstract class Chart
     {
         $dataBase = new DataBase();
         $sql = $this->getSql($this->report);
-        if (empty($sql) || !$dataBase->tableExists($this->report->table)) {
+        if (empty($sql) || !$dataBase->tableExists($this->report->getTable())) {
             return [];
         }
 
@@ -102,35 +102,13 @@ abstract class Chart
         return $sources;
     }
 
-    protected function getColors(int $num): array
-    {
-        $colors = [];
-        for ($i = 0; $i < $num; $i++) {
-            $option = mt_rand(0, 3);
-            switch ($option) {
-                case 0:
-                    $colors[] = '0, ' . mt_rand(0, 255) . ', ' . mt_rand(0, 255);
-                    break;
-
-                case 1:
-                    $colors[] = mt_rand(0, 255) . ', 0, ' . mt_rand(0, 255);
-                    break;
-
-                case 2:
-                    $colors[] = mt_rand(0, 255) . ', ' . mt_rand(0, 255) . ', 0';
-                    break;
-
-                default:
-                    $colors[] = mt_rand(0, 255) . ', ' . mt_rand(0, 255) . ', ' . mt_rand(0, 255);
-                    break;
-            }
-        }
-
-        return $colors;
-    }
-
     protected function getSql(Report $report): string
     {
+        // si hay una sql personalizada, la usamos
+        if (!empty($report->getCustomSql())) {
+            return $report->getCustomSql();
+        }
+
         if (empty($report->table) || empty($report->xcolumn)) {
             return '';
         }
@@ -196,28 +174,17 @@ abstract class Chart
                 break;
         }
 
-        switch ($report->yoperation) {
-            case 'SUM':
-                $yCol = "SUM(" . $report->ycolumn . ")";
-                break;
-
-            case 'AVERAGE':
-                $yCol = "AVG(" . $report->ycolumn . ")";
-                break;
-
-            case 'MAXIMUM':
-                $yCol = "MAX(" . $report->ycolumn . ")";
-                break;
-
-            case 'MINIMUM':
-                $yCol = "MIN(" . $report->ycolumn . ")";
-                break;
-
-            default:
-                $yCol = empty($report->ycolumn) ? 'COUNT(*)' : 'SUM(' . $report->ycolumn . ')';
-        }
+        $yCol = match ($report->yoperation) {
+            'SUM' => "SUM(" . $report->ycolumn . ")",
+            'AVERAGE' => "AVG(" . $report->ycolumn . ")",
+            'MAXIMUM' => "MAX(" . $report->ycolumn . ")",
+            'MINIMUM' => "MIN(" . $report->ycolumn . ")",
+            'COUNT' => "COUNT(" . $report->ycolumn . ")",
+            default => empty($report->ycolumn) ? 'COUNT(*)' : 'SUM(' . $report->ycolumn . ')',
+        };
 
         return 'SELECT ' . $xCol . ' as xcol, ' . $yCol . ' as ycol FROM ' . $report->table
+            . (empty($report->getJoins()) ? '' : ' ' . implode(' ', $report->getJoins()))
             . $report->getSqlFilters() . ' GROUP BY xcol ORDER BY xcol ASC;';
     }
 
@@ -276,28 +243,17 @@ abstract class Chart
                 break;
         }
 
-        switch ($report->yoperation) {
-            case 'SUM':
-                $yCol = "SUM(" . $report->ycolumn . ")";
-                break;
-
-            case 'AVERAGE':
-                $yCol = "AVG(" . $report->ycolumn . ")";
-                break;
-
-            case 'MAXIMUM':
-                $yCol = "MAX(" . $report->ycolumn . ")";
-                break;
-
-            case 'MINIMUM':
-                $yCol = "MIN(" . $report->ycolumn . ")";
-                break;
-
-            default:
-                $yCol = empty($report->ycolumn) ? 'COUNT(*)' : 'SUM(' . $report->ycolumn . ')';
-        }
+        $yCol = match ($report->yoperation) {
+            'SUM' => "SUM(" . $report->ycolumn . ")",
+            'AVERAGE' => "AVG(" . $report->ycolumn . ")",
+            'MAXIMUM' => "MAX(" . $report->ycolumn . ")",
+            'MINIMUM' => "MIN(" . $report->ycolumn . ")",
+            'COUNT' => "COUNT(" . $report->ycolumn . ")",
+            default => empty($report->ycolumn) ? 'COUNT(*)' : 'SUM(' . $report->ycolumn . ')',
+        };
 
         return 'SELECT ' . $xCol . ' as xcol, ' . $yCol . ' as ycol FROM ' . $report->table
+            . (empty($report->getJoins()) ? '' : ' ' . implode(' ', $report->getJoins()))
             . $report->getSqlFilters() . ' GROUP BY xcol ORDER BY xcol ASC;';
     }
 }

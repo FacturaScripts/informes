@@ -1,0 +1,259 @@
+{#
+* Copyright (C) 2026 Carlos Garcia Gomez <carlos@facturascripts.com>
+* Author Abderrahim Darghal Belkacemi
+#}
+
+{% extends "Master/MenuTemplate.html.twig" %}
+{% import "Macro/Forms.html.twig" as forms %}
+
+{% block body %}
+    <div class="container-fluid">
+        <div class="row mt-3">
+            <div class="col-12 text-center">
+                <h1 class="h3 mb-3 text-gray-800"><i class="fa-solid fa-users"></i> {{ trans('clients') }}
+                    - {{ trans('report') }}</h1>
+            </div>
+        </div>
+
+        {# Selector de Empresa Centrado #}
+        <div class="row mb-4 justify-content-center">
+            <div class="col-auto">
+                <form action="{{ fsc.url() }}" method="get" id="reportForm">
+                    <div class="d-flex align-items-center p-2 bg-white rounded shadow-sm border">
+                        <div style="min-width: 300px;">
+                            {{ forms.simpleSelect('selectEmpresa', 'idempresa', fsc.idempresa, fsc.companies, null, 'fa-solid fa-building') }}
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {# 1. KPIs #}
+        <div class="row">
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">{{ trans('total-customers') }}</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.totalCustomers }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-users fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">{{ trans('active-customers') }}</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.activeCustomers }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-user-check fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-secondary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">{{ trans('inactive-customers') }}</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.inactiveCustomers }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-user-slash fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-info shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">{{ trans('active-customers-year') }}</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.activeCustomersYear }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-file-invoice-dollar fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Tendencia de Nuevos Clientes #}
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">{{ trans('new-customers') }}
+                            ({{ trans('last-12-months') }})</h6>
+                    </div>
+                    <div class="card-body">
+                        {{ fsc.charts.reportTest.getChart().render({'height':250}) | raw }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Distribución Geográfica y Grupos #}
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 text-center">
+                        <h6 class="m-0 font-weight-bold text-primary">{{ trans('customers-by-country') }}</h6>
+                    </div>
+                    <div class="card-body">
+                        <div id="regions_div" style="min-height: 300px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 text-center">
+                        <h6 class="m-0 font-weight-bold text-primary">{{ trans('customers-by-province') }}
+                            ({{ fsc.companyCountry }})</h6>
+                    </div>
+                    <div class="card-body">
+                        {{ fsc.charts.customersByProvince.getChart().render({'height':285}) | raw }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 text-center">
+                        <h6 class="m-0 font-weight-bold text-primary">{{ trans('customers-by-group') }}</h6>
+                    </div>
+                    <div class="card-body">
+                        {{ fsc.charts.customersByGroup.getChart().render({'height':285}) | raw }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Clientes por provincia (Facturas) #}
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">{{ trans('customers-by-invoice-province') }}</h6>
+                    </div>
+                    <div class="card-body">
+                        {{ fsc.charts.invoicesByProvince.getChart().render({'height':250}) | raw }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Deudores #}
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow mb-4 border-bottom-danger">
+                    <div class="card-header py-3 bg-danger d-flex justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-white">{{ trans('debtors') }}</h6>
+                        <span class="badge bg-white text-danger" id="totalDebtors">0</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-5">
+                                {{ fsc.charts.debtors.getChart().render({'height':250}) | raw }}
+                            </div>
+                            <div class="col-md-7">
+                                {% for s_name, source in fsc.charts.debtors.getChart().getDataSources() %}
+                                    {% set totalDebtors = 0 %}
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-hover mb-0">
+                                            <thead>
+                                            <tr>
+                                                <th>{{ trans('name') }}</th>
+                                                <th class="text-end">{{ trans('debt') }}</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody id="debtorsTableBody">
+                                            {% for item in source %}
+                                                {% set totalDebtors = totalDebtors + item.ycol %}
+                                                <tr>
+                                                    <td>
+                                                        {{ item.xcol }}
+                                                    </td>
+                                                    <td class="text-danger text-end">
+                                                        {{ number(item.ycol) }}
+                                                    </td>
+                                                </tr>
+                                            {% else %}
+                                                <tr>
+                                                    <td colspan="2" class="table-warning">{{ trans('no-data') }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                            {% if totalDebtors > 0 %}
+                                                <tfoot class="sticky-bottom bg-light fw-bold">
+                                                <tr>
+                                                    <td class="text-end">{{ trans('total') }}</td>
+                                                    <td class="text-end text-danger">{{ number(totalDebtors) }}</td>
+                                                </tr>
+                                                </tfoot>
+                                            {% endif %}
+                                        </table>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('Plugins/Informes/node_modules/apexcharts/dist/apexcharts.min.js') }}"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script>
+        $(document).ready(function () {
+            // establecer el valor actual
+            $('#selectEmpresa').val('{{ fsc.idempresa }}')
+
+            // autoenviar al cambiar el valor
+            $('#selectEmpresa').on('change', function () {
+                $('#reportForm').submit();
+            });
+
+            // contamos cuántos deudores hay y actualizamos el badge
+            $('#totalDebtors').text($('#debtorsTableBody tr').length);
+
+            // Google Maps
+            google.charts.load('current', {'packages': ['geochart']});
+            google.charts.setOnLoadCallback(drawRegionsMap);
+
+            function drawRegionsMap() {
+                // 2. Países
+                var data = google.visualization.arrayToDataTable([
+                    ['{{ trans("country") }}', '{{ trans("total") }}'],
+                    {% for row in fsc.customersByCountry %}
+                    ['{{ row.codiso ? row.codiso : row.codpais }}', {{ row.total }}],
+                    {% endfor %}
+                ]);
+
+                var options = {
+                    colorAxis: {colors: ['#e0efff', '#4e73df']}
+                };
+
+                var chart = new google.visualization.GeoChart(document.getElementById('regions_div'));
+                chart.draw(data, options);
+            }
+        });
+    </script>
+{% endblock %}

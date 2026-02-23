@@ -50,10 +50,19 @@ class EditReportAmount extends EditController
     {
         parent::createViews();
 
+        $this->setTabsPosition('bottom');
+
         // disable company column if there is only one company
         if ($this->empresa->count() < 2) {
             $this->views[$this->getMainViewName()]->disableColumn('company');
         }
+
+        $this->createViewsPrint();
+    }
+
+    protected function createViewsPrint(string $viewName = 'ReportPrint'): void
+    {
+        $this->addHtmlView($viewName, $viewName, 'ReportBalance', 'print', 'fa-solid fa-print');
     }
 
     protected function exportAction(): void

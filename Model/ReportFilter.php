@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2024 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2024-2026 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -56,20 +56,28 @@ class ReportFilter extends ModelClass
     public static function getDynamicValues(): array
     {
         return [
-            '{now}' => Tools::dateTime(),
-            '{-1 hour}' => Tools::dateTime('-1 hour'),
-            '{-6 hours}' => Tools::dateTime('-6 hours'),
-            '{-12 hours}' => Tools::dateTime('-12 hours'),
-            '{-24 hours}' => Tools::dateTime('-24 hours'),
-            '{today}' => Tools::date(),
-            '{-1 day}' => Tools::date('-1 day'),
-            '{-7 days}' => Tools::date('-7 days'),
-            '{-15 days}' => Tools::date('-15 days'),
-            '{-1 month}' => Tools::date('-1 month'),
-            '{-3 months}' => Tools::date('-3 months'),
-            '{-6 months}' => Tools::date('-6 months'),
-            '{-1 year}' => Tools::date('-1 year'),
-            '{-2 years}' => Tools::date('-2 years'),
+            '{now}' => date('Y-m-d H:i:s'),
+            '{-1 hour}' => date('Y-m-d H:i:s', strtotime('-1 hour')),
+            '{-6 hours}' => date('Y-m-d H:i:s', strtotime('-6 hours')),
+            '{-12 hours}' => date('Y-m-d H:i:s', strtotime('-12 hours')),
+            '{-24 hours}' => date('Y-m-d H:i:s', strtotime('-24 hours')),
+            '{today}' => date('Y-m-d'),
+            '{-1 day}' => date('Y-m-d', strtotime('-1 day')),
+            '{-7 days}' => date('Y-m-d', strtotime('-7 days')),
+            '{-15 days}' => date('Y-m-d', strtotime('-15 days')),
+            '{-1 month}' => date('Y-m-d', strtotime('-1 month')),
+            '{-3 months}' => date('Y-m-d', strtotime('-3 months')),
+            '{-6 months}' => date('Y-m-d', strtotime('-6 months')),
+            '{-1 year}' => date('Y-m-d', strtotime('-1 year')),
+            '{-2 years}' => date('Y-m-d', strtotime('-2 years')),
+            '{first day of this month}' => date('Y-m-01'),
+            '{first day of last month}' => date('Y-m-01', strtotime('-1 month')),
+            '{first day of this year}' => date('Y') . '-01-01',
+            '{first day of last year}' => date('Y', strtotime('-1 year')) . '-01-01',
+            '{last day of this month}' => date('Y-m-t'),
+            '{last day of last month}' => date('Y-m-t', strtotime('-1 month')),
+            '{last day of this year}' => date('Y') . '-12-31',
+            '{last day of last year}' => date('Y', strtotime('-1 year')) . '-12-31',
         ];
     }
 
@@ -86,10 +94,19 @@ class ReportFilter extends ModelClass
 
     public function test(): bool
     {
-        // escapamos el html
         $this->table_column = Tools::noHtml($this->table_column);
         $this->value = Tools::noHtml($this->value);
+        return $this->testIN() && parent::test();
+    }
 
-        return parent::test();
+    public function testIN(): bool
+    {
+        // si el tipo de operador es IN o NOT IN, debe estar activo el flag activeIN
+        // si no, no se permitirá guardar el filtro
+        if (in_array($this->operator, ['IN', 'NOT IN']) && !Report::getAdvancedReport()) {
+            return false;
+        }
+
+        return true;
     }
 }

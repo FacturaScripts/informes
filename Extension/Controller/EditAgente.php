@@ -36,6 +36,11 @@ class EditAgente
 
             // generemos los informes
             $code = $this->getModel()->primaryColumnValue();
+            if (empty($code)) {
+                Tools::log()->warning('no-agent-code');
+                return;
+            }
+
             $new = ReportGenerator::generateForAgent($code);
             Tools::log()->notice('items-added-correctly', ['%num%' => $new]);
 
