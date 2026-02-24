@@ -27,6 +27,17 @@ use FacturaScripts\Plugins\Informes\Model\ReportBoard;
 
 class EditUser
 {
+    public function createViews(): Closure
+    {
+        return function() {
+            $this->addListView('ListReportBoardUser', 'ReportBoardUser', 'reports-board', 'fa-solid fa-chalkboard')
+                ->disableColumn('user-nick')
+                ->setSettings('checkBoxes', false)
+                ->setSettings('btnNew', false)
+                ->setSettings('btnDelete', false);
+        };
+    }
+
     public function execAfterAction(): Closure
     {
         return function ($action) {
@@ -61,21 +72,26 @@ class EditUser
     {
         return function ($viewName, $view) {
             $mvn = $this->getMainViewName();
-            if ($viewName != $mvn) {
-                return;
-            }
 
-            // comprobamos si el agente existe
-            if (false === $view->model->exists()) {
-                return;
-            }
+            switch ($viewName) {
+                case 'ListReportBoardUser':
+                    $code = $this->getViewModelValue($mvn, 'nick');
+                    $where = [Where::eq('user_nick', $code)];
+                    $view->loadData('', $where);
+                    break;
 
-            // añadimos un botón para ver su informe
-            $this->addButton($mvn, [
-                'action' => 'show-report',
-                'icon' => 'fa-solid fa-chart-line',
-                'label' => 'report',
-            ]);
+                case $mvn:
+                    // comprobamos si el agente existe
+                    if ($view->model->exists()) {
+                        // añadimos un botón para ver su informe
+                        $this->addButton($mvn, [
+                            'action' => 'show-report',
+                            'icon' => 'fa-solid fa-chart-line',
+                            'label' => 'report',
+                        ]);
+                    }
+                    break;
+            }
         };
     }
 }

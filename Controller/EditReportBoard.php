@@ -58,6 +58,7 @@ class EditReportBoard extends EditController
         // añadimos las pestañas
         $this->createViewsBoard();
         $this->createViewsLines();
+        $this->createViewsUser();
     }
 
     protected function createViewsBoard(string $viewName = 'ReportBoard'): void
@@ -71,6 +72,12 @@ class EditReportBoard extends EditController
             ->setInLine(true);
     }
 
+    protected function createViewsUser(string $viewName = 'EditReportBoardUser'): void
+    {
+        $this->addEditListView($viewName, 'ReportBoardUser', 'users', 'fa-solid fa-users')
+            ->setInLine(true);
+    }
+
     protected function loadData($viewName, $view)
     {
         $mvn = $this->getMainViewName();
@@ -81,6 +88,11 @@ class EditReportBoard extends EditController
                 $where = [Where::eq('idreportboard', $code)];
                 $orderBy = ['sort' => 'ASC'];
                 $view->loadData('', $where, $orderBy);
+                break;
+
+            case 'EditReportBoardUser':
+                $where = [Where::eq('id_report_board', $code)];
+                $view->loadData('', $where);
                 break;
 
             default:

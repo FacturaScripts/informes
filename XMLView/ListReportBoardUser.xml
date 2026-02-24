@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<view>
+    <columns>
+        <column name="id" display="none" order="100">
+            <widget type="text" fieldname="id"/>
+        </column>
+        <column name="id-report-board" title="reports-board" order="110">
+            <widget type="select" fieldname="id_report_board" onclick="EditReportBoard">
+                <values source="reports_boards" fieldcode="id" fieldtitle="name"/>
+            </widget>
+        </column>
+        <column name="user-nick" title="nick" order="120">
+            <widget type="text" fieldname="user_nick"/>
+        </column>
+        <column name="creation-date" display="none" order="130">
+            <widget type="datetime" fieldname="creation_date" required="true"/>
+        </column>
+        <column name="nick" display="none" order="140">
+            <widget type="select" fieldname="nick">
+                <values source="users" fieldcode="nick" fieldtitle="nick"/>
+            </widget>
+        </column>
+        <column name="last-update" display="none" order="150">
+            <widget type="datetime" fieldname="last_update"/>
+        </column>
+        <column name="last-nick" display="none" order="160">
+            <widget type="select" fieldname="last_nick">
+                <values source="users" fieldcode="nick" fieldtitle="nick"/>
+            </widget>
+        </column>
+    </columns>
+</view>
