@@ -171,8 +171,8 @@ class ResultReport
     protected static function dataInvoices(array $ventas, array $date, string $codejercicio, int $mes, float &$ventas_total_ser_meses, float &$ventas_total_pag_meses, float &$ventas_total_age_meses, $modelFacturas): array
     {
         $where = [
-            Where::gte('fecha', $date['desde'], '>='),
-            Where::lte('fecha', $date['hasta'], '<='),
+            Where::gte('fecha', $date['desde']),
+            Where::lte('fecha', $date['hasta']),
             Where::eq('codejercicio', $codejercicio)
         ];
 
