@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2026 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -19,10 +19,10 @@
 
 namespace FacturaScripts\Plugins\Informes\Controller;
 
-use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Lib\ExtendedController\BaseView;
 use FacturaScripts\Core\Lib\ExtendedController\EditController;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Model\Report;
 use FacturaScripts\Dinamic\Model\ReportFilter;
 
@@ -67,7 +67,7 @@ class EditReport extends EditController
         // cargamos el informe original
         $original = new Report();
         $code = $this->request->get('code');
-        if (false === $original->loadFromCode($code)) {
+        if (false === $original->load($code)) {
             Tools::log()->warning('no-data-found');
             return true;
         }
@@ -194,7 +194,7 @@ class EditReport extends EditController
                     $column->widget->setValuesFromArray($customValues);
                 }
 
-                $where = [new DataBaseWhere('id_report', $id)];
+                $where = [Where::eq('id_report', $id)];
                 $orderBy = ['table_column' => 'ASC'];
                 $view->loadData('', $where, $orderBy);
                 break;
@@ -202,8 +202,8 @@ class EditReport extends EditController
             case 'ListReport':
                 $table = $this->getViewModelValue($mvn, 'table');
                 $where = [
-                    new DataBaseWhere('table', $table),
-                    new DataBaseWhere('id', $id, '!='),
+                    Where::eq('table', $table),
+                    Where::notEq('id', $id),
                 ];
                 $view->loadData('', $where);
                 break;

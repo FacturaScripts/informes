@@ -54,7 +54,7 @@ abstract class Chart
         $sources = [$this->report->name => $dataBase->select($sql)];
 
         $comparedReport = new DinReport();
-        if (!empty($this->report->compared) && $comparedReport->loadFromCode($this->report->compared)) {
+        if (!empty($this->report->compared) && $comparedReport->load($this->report->compared)) {
             $sources[$comparedReport->name] = $dataBase->select($this->getSql($comparedReport));
         }
 

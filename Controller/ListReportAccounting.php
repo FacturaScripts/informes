@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2017-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2017-2026 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -19,10 +19,10 @@
 
 namespace FacturaScripts\Plugins\Informes\Controller;
 
-use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\DataSrc\Empresas;
 use FacturaScripts\Core\Lib\ExtendedController\ListController;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Model\Ejercicio;
 use FacturaScripts\Dinamic\Model\ReportAmount;
 use FacturaScripts\Dinamic\Model\ReportBalance;
@@ -201,11 +201,11 @@ class ListReportAccounting extends ListController
         // ledger
         $ledger = new ReportLedger();
         $where = [
-            new DataBaseWhere('startdate', $ejercicio->fechainicio),
-            new DataBaseWhere('enddate', $ejercicio->fechafin),
-            new DataBaseWhere('idcompany', $ejercicio->idempresa)
+            Where::eq('startdate', $ejercicio->fechainicio),
+            Where::eq('enddate', $ejercicio->fechafin),
+            Where::eq('idcompany', $ejercicio->idempresa)
         ];
-        if (false === $ledger->loadFromCode('', $where)) {
+        if (false === $ledger->loadWhere($where)) {
             $ledger->enddate = $ejercicio->fechafin;
             $ledger->idcompany = $ejercicio->idempresa;
             $ledger->name = Tools::lang()->trans('ledger') . ' ' . $ejercicio->nombre;
@@ -215,7 +215,7 @@ class ListReportAccounting extends ListController
 
         // amounts
         $amounts = new ReportAmount();
-        if (false === $amounts->loadFromCode('', $where)) {
+        if (false === $amounts->loadWhere($where)) {
             $amounts->enddate = $ejercicio->fechafin;
             $amounts->idcompany = $ejercicio->idempresa;
             $amounts->ignoreclosure = true;
@@ -229,12 +229,12 @@ class ListReportAccounting extends ListController
         foreach ([ReportBalance::TYPE_INCOME, ReportBalance::TYPE_PROFIT, ReportBalance::TYPE_SHEET] as $type) {
             $balance = new ReportBalance();
             $where2 = [
-                new DataBaseWhere('startdate', $ejercicio->fechainicio),
-                new DataBaseWhere('enddate', $ejercicio->fechafin),
-                new DataBaseWhere('idcompany', $ejercicio->idempresa),
-                new DataBaseWhere('type', $type)
+                Where::eq('startdate', $ejercicio->fechainicio),
+                Where::eq('enddate', $ejercicio->fechafin),
+                Where::eq('idcompany', $ejercicio->idempresa),
+                Where::eq('type', $type)
             ];
-            if (false === $balance->loadFromCode('', $where2)) {
+            if (false === $balance->loadWhere($where2)) {
                 $balance->enddate = $ejercicio->fechafin;
                 $balance->idcompany = $ejercicio->idempresa;
                 $balance->name = Tools::lang()->trans($type) . ' ' . $ejercicio->nombre;

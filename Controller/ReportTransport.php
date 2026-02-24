@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2026 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -20,10 +20,10 @@
 namespace FacturaScripts\Plugins\Informes\Controller;
 
 use FacturaScripts\Core\Base\Controller;
-use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
-use FacturaScripts\Core\Model\Base\ModelCore;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Lib\ExportManager;
+use FacturaScripts\Dinamic\Model\Base\ModelCore;
 use FacturaScripts\Dinamic\Model\CodeModel;
 
 /**
@@ -112,14 +112,14 @@ class ReportTransport extends Controller
         }
 
         $model = new $modelClass();
-        $where = [new DataBaseWhere('fecha', date('Y-m-d', strtotime($this->date)))];
+        $where = [Where::eq('fecha', date('Y-m-d', strtotime($this->date)))];
 
         if (false === empty($this->codtrans)) {
-            $where[] = new DataBaseWhere('codtrans', $this->codtrans);
+            $where[] = Where::eq('codtrans', $this->codtrans);
         }
 
         if (false === empty($this->codalmacen)) {
-            $where[] = new DataBaseWhere('codalmacen', $this->codalmacen);
+            $where[] = Where::eq('codalmacen', $this->codalmacen);
         }
 
         return $model->all($where, [], 0, 0);

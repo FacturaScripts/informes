@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2025 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2025-2026 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -20,8 +20,8 @@
 namespace FacturaScripts\Plugins\Informes\Extension\Controller;
 
 use Closure;
-use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Core\Where;
 use FacturaScripts\Plugins\Informes\Lib\Informes\ReportGenerator;
 use FacturaScripts\Plugins\Informes\Model\ReportBoard;
 
@@ -46,7 +46,7 @@ class EditProveedor
 
             // buscamos la pizarra de este agente
             $tag = 'b-supplier-' . $code;
-            $where = [new DataBaseWhere('tag', $tag)];
+            $where = [Where::eq('tag', $tag)];
             foreach (ReportBoard::all($where) as $board) {
                 $this->redirect($board->url());
                 return;

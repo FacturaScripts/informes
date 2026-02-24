@@ -20,9 +20,9 @@
 namespace FacturaScripts\Plugins\Informes\Lib\Accounting;
 
 use FacturaScripts\Core\Base\DataBase;
-use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Model\Asiento;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Model\BalanceAccount;
 use FacturaScripts\Dinamic\Model\BalanceCode;
 use FacturaScripts\Dinamic\Model\Ejercicio;
@@ -86,9 +86,9 @@ class ProfitAndLoss
         $this->dateToPrev = $this->addToDate($dateTo, '-1 year');
         $this->exercisePrev = new Ejercicio();
         $where = [
-            new DataBaseWhere('fechainicio', $this->dateFromPrev, '<='),
-            new DataBaseWhere('fechafin', $this->dateToPrev, '>='),
-            new DataBaseWhere('idempresa', $idcompany)
+            Where::lte('fechainicio', $this->dateFromPrev),
+            Where::gte('fechafin', $this->dateToPrev),
+            Where::eq('idempresa', $idcompany)
         ];
         $this->exercisePrev->loadWhere($where);
         $this->format = $params['format'] ?? 'pdf';
@@ -112,7 +112,7 @@ class ProfitAndLoss
             return;
         }
 
-        $where = [new DataBaseWhere('idbalance', $balance->id)];
+        $where = [Where::eq('idbalance', $balance->id)];
         foreach (BalanceAccount::all($where, [], 0, 0) as $model) {
             $total = $this->getAccountAmounts($balance, $model, $codejercicio, $params);
 
@@ -246,7 +246,7 @@ class ProfitAndLoss
             return $total;
         }
 
-        $where = [new DataBaseWhere('idbalance', $balance->id)];
+        $where = [Where::eq('idbalance', $balance->id)];
         foreach (BalanceAccount::all($where, [], 0, 0) as $model) {
             $total += $this->getAccountAmounts($balance, $model, $codejercicio, $params);
         }
@@ -262,9 +262,9 @@ class ProfitAndLoss
 
         // get balance codes
         $where = [
-            new DataBaseWhere('nature', $nature),
-            new DataBaseWhere('subtype', $params['subtype'] ?? 'normal'),
-            new DataBaseWhere('level1', '', '!=')
+            Where::eq('nature', $nature),
+            Where::eq('subtype', $params['subtype'] ?? 'normal'),
+            Where::notEq('level1', '')
         ];
         $order = ['integer:level1' => 'ASC', 'integer:level2' => 'ASC', 'integer:level3' => 'ASC', 'integer:level4' => 'ASC'];
         $balances = BalanceCode::all($where, $order, 0, 0);

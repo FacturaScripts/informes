@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2026 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -20,10 +20,9 @@
 namespace FacturaScripts\Plugins\Informes\Lib\Informes;
 
 use FacturaScripts\Core\Base\DataBase;
-use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Model\Agente;
-use FacturaScripts\Dinamic\Model\Asiento;
 use FacturaScripts\Dinamic\Model\Cuenta;
 use FacturaScripts\Dinamic\Model\CuentaEspecial;
 use FacturaScripts\Dinamic\Model\Ejercicio;
@@ -74,7 +73,7 @@ class ResultReport
     protected static function apply(array $formData): void
     {
         $eje = new Ejercicio();
-        $eje->loadFromCode($formData['codejercicio']);
+        $eje->load($formData['codejercicio']);
 
         $year = date('Y', strtotime($eje->fechafin));
 
@@ -84,7 +83,7 @@ class ResultReport
         self::$last_year = '';
         self::$year = '';
 
-        $where = [new DataBaseWhere('idempresa', $eje->idempresa)];
+        $where = [Where::eq('idempresa', $eje->idempresa)];
         $orderBy = ['fechainicio' => 'desc'];
         foreach (Ejercicio::all($where, $orderBy, 0, 0) as $eje) {
             if ($eje->codejercicio == $formData['codejercicio'] or date('Y', strtotime($eje->fechafin)) == $year) {
@@ -133,10 +132,10 @@ class ResultReport
 
         $articulo = false;
         if ($referencia) {
-            $where = [new DataBaseWhere('referencia', $referencia)];
-            if ($variante->loadFromCode('', $where)) {
+            $where = [Where::eq('referencia', $referencia)];
+            if ($variante->loadWhere($where)) {
                 $articulo = true;
-                $producto->loadFromCode($variante->idproducto);
+                $producto->load($variante->idproducto);
                 $descripcion = strlen($producto->descripcion) > 50 ? substr($producto->descripcion, 0, 50) . '...' : $producto->descripcion;
                 $descripcion = $descripcion != '' ? ' - ' . $descripcion : $descripcion;
                 $art_desc = $referencia . $descripcion;
@@ -147,7 +146,7 @@ class ResultReport
                     $familia = Tools::lang()->trans('no-family');
                 } else {
                     $modelFamilia = new Familia();
-                    $modelFamilia->loadFromCode($codfamilia);
+                    $modelFamilia->load($codfamilia);
                     $familia = $modelFamilia->descripcion;
                 }
             }
@@ -172,9 +171,9 @@ class ResultReport
     protected static function dataInvoices(array $ventas, array $date, string $codejercicio, int $mes, float &$ventas_total_ser_meses, float &$ventas_total_pag_meses, float &$ventas_total_age_meses, $modelFacturas): array
     {
         $where = [
-            new DataBaseWhere('fecha', $date['desde'], '>='),
-            new DataBaseWhere('fecha', $date['hasta'], '<='),
-            new DataBaseWhere('codejercicio', $codejercicio)
+            Where::gte('fecha', $date['desde'], '>='),
+            Where::lte('fecha', $date['hasta'], '<='),
+            Where::eq('codejercicio', $codejercicio)
         ];
 
         foreach ($modelFacturas->all($where, [], 0, 0) as $factura) {
@@ -251,7 +250,7 @@ class ResultReport
     {
         // obtenemos la cuenta especial de COMPRA
         $cuentaEspecial = new CuentaEspecial();
-        if (false === $cuentaEspecial->loadFromCode('COMPRA')) {
+        if (false === $cuentaEspecial->load('COMPRA')) {
             return new Cuenta();
         }
 
@@ -275,7 +274,7 @@ class ResultReport
     protected static function getCuentaGastosPadre(int $id_cuenta): Cuenta
     {
         $cuenta = new Cuenta();
-        if (false === $cuenta->loadFromCode($id_cuenta)) {
+        if (false === $cuenta->load($id_cuenta)) {
             return new Cuenta();
         }
 
@@ -379,16 +378,16 @@ class ResultReport
             $gastos['descripciones'][$codcuenta] = '-';
             $subcuenta = new Subcuenta();
             $where = [
-                new DataBaseWhere('codsubcuenta', $arraycuenta['codsubcuenta']),
-                new DataBaseWhere('codejercicio', $codejercicio)
+                Where::eq('codsubcuenta', $arraycuenta['codsubcuenta']),
+                Where::eq('codejercicio', $codejercicio)
             ];
-            if (false === $subcuenta->loadFromCode('', $where)) {
+            if (false === $subcuenta->loadWhere($where)) {
                 continue;
             }
 
             $cuenta = new Cuenta();
-            $where = [new DataBaseWhere('codcuenta', $subcuenta->codcuenta),];
-            if ($cuenta->loadFromCode('', $where)) {
+            $where = [Where::eq('codcuenta', $subcuenta->codcuenta),];
+            if ($cuenta->loadWhere($where)) {
                 $gastos['descripciones'][$codcuenta] = $codcuenta . ' - ' . $cuenta->descripcion;
             }
         }
@@ -406,7 +405,7 @@ class ResultReport
 
             // buscamos el agente en la base de datos para asignar el nombre
             $agente = new Agente();
-            if ($agente->loadFromCode($codagente)) {
+            if ($agente->load($codagente)) {
                 $ventas['agentes'][$codagente]['descripcion'] = $agente->nombre;
                 continue;
             }
@@ -442,7 +441,7 @@ class ResultReport
     {
         foreach ($ventas['pagos'] as $codpago => $pagos) {
             $pago = new FormaPago();
-            if ($pago->loadFromCode($codpago)) {
+            if ($pago->load($codpago)) {
                 $ventas['pagos'][$codpago]['descripcion'] = $pago->descripcion;
                 continue;
             }
@@ -464,10 +463,10 @@ class ResultReport
         foreach ($arraycuenta as $codsubcuenta => $arraysubcuenta) {
             $subcuenta = new Subcuenta();
             $where = [
-                new DataBaseWhere('codsubcuenta', $codsubcuenta),
-                new DataBaseWhere('codejercicio', $codejercicio)
+                Where::eq('codsubcuenta', $codsubcuenta),
+                Where::eq('codejercicio', $codejercicio)
             ];
-            if ($subcuenta->loadFromCode('', $where)) {
+            if ($subcuenta->loadWhere($where)) {
                 $gastos['descripciones'][$codsubcuenta] = $codsubcuenta . ' - ' . $subcuenta->descripcion;
                 continue;
             }
@@ -482,7 +481,7 @@ class ResultReport
     {
         foreach ($ventas['series'] as $codserie => $series) {
             $serie = new Serie();
-            if ($serie->loadFromCode($codserie)) {
+            if ($serie->load($codserie)) {
                 $ventas['series'][$codserie]['descripcion'] = $serie->descripcion;
                 continue;
             }

@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2026 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -19,10 +19,10 @@
 
 namespace FacturaScripts\Plugins\Informes\Model;
 
-use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Template\ModelClass;
 use FacturaScripts\Core\Template\ModelTrait;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Core\Where;
 
 /**
  * @author Daniel Fernández Giménez <hola@danielfg.es>
@@ -51,8 +51,8 @@ class ReportBoard extends ModelClass
         // comprobamos si ya existe la linea
         $line = new ReportBoardLine();
         $where = [
-            new DataBaseWhere('idreportboard', $this->id),
-            new DataBaseWhere('idreport', $report->id),
+            Where::eq('idreportboard', $this->id),
+            Where::eq('idreport', $report->id),
         ];
         if ($line->loadWhere($where)) {
             return false;
@@ -74,7 +74,7 @@ class ReportBoard extends ModelClass
 
     public function getLines(): array
     {
-        $where = [new DataBaseWhere('idreportboard', $this->id)];
+        $where = [Where::eq('idreportboard', $this->id)];
         $orderBy = ['sort' => 'ASC'];
         return ReportBoardLine::all($where, $orderBy, 0, 0);
     }

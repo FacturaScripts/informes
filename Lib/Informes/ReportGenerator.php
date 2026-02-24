@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2025 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2025-2026 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -20,10 +20,10 @@
 namespace FacturaScripts\Plugins\Informes\Lib\Informes;
 
 use FacturaScripts\Core\Base\DataBase;
-use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\DataSrc\Almacenes;
 use FacturaScripts\Core\DataSrc\Series;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Model\Agente;
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\EstadoDocumento;
@@ -75,7 +75,7 @@ class ReportGenerator
 
         // comprobamos si el agente existe
         $agent = new Agente();
-        if (false === $agent->loadFromCode($codagente)) {
+        if (false === $agent->load($codagente)) {
             return $total;
         }
 
@@ -109,7 +109,7 @@ class ReportGenerator
 
         // comprobamos si el cliente existe
         $customer = new Cliente();
-        if (false === $customer->loadFromCode($codcliente)) {
+        if (false === $customer->load($codcliente)) {
             return $total;
         }
 
@@ -143,7 +143,7 @@ class ReportGenerator
 
         // comprobamos si el proveedor existe
         $supplier = new Proveedor();
-        if (false === $supplier->loadFromCode($codproveedor)) {
+        if (false === $supplier->load($codproveedor)) {
             return $total;
         }
 
@@ -177,7 +177,7 @@ class ReportGenerator
 
         // comprobamos si el usuario existe
         $user = new User();
-        if (false === $user->loadFromCode($username)) {
+        if (false === $user->load($username)) {
             return $total;
         }
 
@@ -296,8 +296,8 @@ class ReportGenerator
     {
         // comprobamos si ya existe la pizarra
         $board = new ReportBoard();
-        $where = [new DataBaseWhere('tag', $tag)];
-        if ($board->loadFromCode('', $where)) {
+        $where = [Where::eq('tag', $tag)];
+        if ($board->loadWhere($where)) {
             return false;
         }
 
@@ -313,8 +313,8 @@ class ReportGenerator
         $pos = 1;
         foreach ($report_tags as $r_tag) {
             $report = new Report();
-            $whereTag = [new DataBaseWhere('tag', $r_tag)];
-            if (false === $report->loadFromCode('', $whereTag)) {
+            $whereTag = [Where::eq('tag', $r_tag)];
+            if (false === $report->loadWhere($whereTag)) {
                 return false;
             }
 
@@ -340,8 +340,8 @@ class ReportGenerator
         // comprobamos si ya existe el informe mensual
         $report = new Report();
         $tag = 'r-' . $table_name . '-total-agent-' . $agent->codagente;
-        $where = [new DataBaseWhere('tag', $tag)];
-        if (false === $report->loadFromCode('', $where)) {
+        $where = [Where::eq('tag', $tag)];
+        if (false === $report->loadWhere($where)) {
             // creamos el informe
             $report->name = Tools::lang()->trans('r-' . $table_name . '-total-agent', ['%name%' => $agent->nombre]);
             $report->table = $table_name;
@@ -363,8 +363,8 @@ class ReportGenerator
         // comprobamos si ya existe el informe anual
         $reportYear = new Report();
         $tag = 'r-' . $table_name . '-total-agent-' . $agent->codagente . '-year';
-        $where = [new DataBaseWhere('tag', $tag)];
-        if (false === $reportYear->loadFromCode('', $where)) {
+        $where = [Where::eq('tag', $tag)];
+        if (false === $reportYear->loadWhere($where)) {
             // creamos el informe
             $reportYear->name = Tools::lang()->trans('r-' . $table_name . '-total-agent-year', ['%name%' => $agent->nombre]);
             $reportYear->table = $table_name;
@@ -399,8 +399,8 @@ class ReportGenerator
         // comprobamos si ya existe el informe mensual
         $report = new Report();
         $tag = 'r-' . $table_name . '-total-customer-' . $customer->codcliente;
-        $where = [new DataBaseWhere('tag', $tag)];
-        if (false === $report->loadFromCode('', $where)) {
+        $where = [Where::eq('tag', $tag)];
+        if (false === $report->loadWhere($where)) {
             // creamos el informe
             $report->name = Tools::lang()->trans('r-' . $table_name . '-total-customer', ['%name%' => $customer->nombre]);
             $report->table = $table_name;
@@ -422,8 +422,8 @@ class ReportGenerator
         // comprobamos si ya existe el informe anual
         $reportYear = new Report();
         $tag = 'r-' . $table_name . '-total-customer-' . $customer->codcliente . '-year';
-        $where = [new DataBaseWhere('tag', $tag)];
-        if (false === $reportYear->loadFromCode('', $where)) {
+        $where = [Where::eq('tag', $tag)];
+        if (false === $reportYear->loadWhere($where)) {
             // creamos el informe
             $reportYear->name = Tools::lang()->trans('r-' . $table_name . '-total-customer-year', ['%name%' => $customer->nombre]);
             $reportYear->table = $table_name;
@@ -455,8 +455,8 @@ class ReportGenerator
             // comprobamos si ya existe el informe mensual
             $report = new Report();
             $tag = 'r-' . $table_name . '-total-serie-' . $serie->codserie;
-            $where = [new DataBaseWhere('tag', $tag)];
-            if (false === $report->loadFromCode('', $where)) {
+            $where = [Where::eq('tag', $tag)];
+            if (false === $report->loadWhere($where)) {
                 // creamos el informe
                 $report->name = Tools::lang()->trans('r-' . $table_name . '-total-serie', ['%serie%' => $serie->descripcion]);
                 $report->table = $table_name;
@@ -478,8 +478,8 @@ class ReportGenerator
             // comprobamos si ya existe el informe anual
             $reportYear = new Report();
             $tag = 'r-' . $table_name . '-total-serie-' . $serie->codserie . '-year';
-            $where = [new DataBaseWhere('tag', $tag)];
-            if (false === $reportYear->loadFromCode('', $where)) {
+            $where = [Where::eq('tag', $tag)];
+            if (false === $reportYear->loadWhere($where)) {
                 // creamos el informe
                 $reportYear->name = Tools::lang()->trans('r-' . $table_name . '-total-serie-year', ['%serie%' => $serie->descripcion]);
                 $reportYear->table = $table_name;
@@ -515,8 +515,8 @@ class ReportGenerator
         // comprobamos si ya existe el informe mensual
         $report = new Report();
         $tag = 'r-' . $table_name . '-total-supplier-' . $supplier->codproveedor;
-        $where = [new DataBaseWhere('tag', $tag)];
-        if (false === $report->loadFromCode('', $where)) {
+        $where = [Where::eq('tag', $tag)];
+        if (false === $report->loadWhere($where)) {
             // creamos el informe
             $report->name = Tools::lang()->trans('r-' . $table_name . '-total-supplier', ['%name%' => $supplier->nombre]);
             $report->table = $table_name;
@@ -538,8 +538,8 @@ class ReportGenerator
         // comprobamos si ya existe el informe anual
         $reportYear = new Report();
         $tag = 'r-' . $table_name . '-total-supplier-' . $supplier->codproveedor . '-year';
-        $where = [new DataBaseWhere('tag', $tag)];
-        if (false === $reportYear->loadFromCode('', $where)) {
+        $where = [Where::eq('tag', $tag)];
+        if (false === $reportYear->loadWhere($where)) {
             // creamos el informe
             $reportYear->name = Tools::lang()->trans('r-' . $table_name . '-total-supplier-year', ['%name%' => $supplier->nombre]);
             $reportYear->table = $table_name;
@@ -574,8 +574,8 @@ class ReportGenerator
         // comprobamos si ya existe el informe mensual
         $report = new Report();
         $tag = 'r-' . $table_name . '-total-user-' . $user->nick;
-        $where = [new DataBaseWhere('tag', $tag)];
-        if (false === $report->loadFromCode('', $where)) {
+        $where = [Where::eq('tag', $tag)];
+        if (false === $report->loadWhere($where)) {
             // creamos el informe
             $report->name = Tools::lang()->trans('r-' . $table_name . '-total-user', ['%name%' => $user->nick]);
             $report->table = $table_name;
@@ -597,8 +597,8 @@ class ReportGenerator
         // comprobamos si ya existe el informe anual
         $reportYear = new Report();
         $tag = 'r-' . $table_name . '-total-user-' . $user->nick . '-year';
-        $where = [new DataBaseWhere('tag', $tag)];
-        if (false === $reportYear->loadFromCode('', $where)) {
+        $where = [Where::eq('tag', $tag)];
+        if (false === $reportYear->loadWhere($where)) {
             // creamos el informe
             $reportYear->name = Tools::lang()->trans('r-' . $table_name . '-total-user-year', ['%name%' => $user->nick]);
             $reportYear->table = $table_name;
@@ -635,8 +635,8 @@ class ReportGenerator
             // comprobamos si ya existe el informe mensual
             $report = new Report();
             $tag = 'r-' . $table_name . '-total-warehouse-' . $warehouse->codalmacen;
-            $where = [new DataBaseWhere('tag', $tag)];
-            if (false === $report->loadFromCode('', $where)) {
+            $where = [Where::eq('tag', $tag)];
+            if (false === $report->loadWhere($where)) {
                 // creamos el informe
                 $report->name = Tools::lang()->trans('r-' . $table_name . '-total-warehouse', ['%name%' => $warehouse->nombre]);
                 $report->table = $table_name;
@@ -658,8 +658,8 @@ class ReportGenerator
             // comprobamos si ya existe el informe anual
             $reportYear = new Report();
             $tag = 'r-' . $table_name . '-total-warehouse-' . $warehouse->codalmacen . '-year';
-            $where = [new DataBaseWhere('tag', $tag)];
-            if (false === $reportYear->loadFromCode('', $where)) {
+            $where = [Where::eq('tag', $tag)];
+            if (false === $reportYear->loadWhere($where)) {
                 // creamos el informe
                 $reportYear->name = Tools::lang()->trans('r-' . $table_name . '-total-warehouse-year', ['%name%' => $warehouse->nombre]);
                 $reportYear->table = $table_name;
@@ -702,13 +702,13 @@ class ReportGenerator
         }
 
         // recorre todos los estados del tipo
-        $where = [new DataBaseWhere('tipodoc', $type[$table_name])];
+        $where = [Where::eq('tipodoc', $type[$table_name])];
         foreach (EstadoDocumento::all($where, [], 0, 0) as $status) {
             // comprobamos si ya existe el informe mensual
             $report = new Report();
             $tag = 'r-' . $table_name . '-total-status-' . $status->idestado;
-            $where = [new DataBaseWhere('tag', $tag)];
-            if (false === $report->loadFromCode('', $where)) {
+            $where = [Where::eq('tag', $tag)];
+            if (false === $report->loadWhere($where)) {
                 // creamos el informe
                 $report->name = Tools::lang()->trans('r-' . $table_name . '-total-status', ['%name%' => $status->nombre]);
                 $report->table = $table_name;
@@ -730,8 +730,8 @@ class ReportGenerator
             // comprobamos si ya existe el informe anual
             $reportYear = new Report();
             $tag = 'r-' . $table_name . '-total-status-' . $status->idestado . '-year';
-            $where = [new DataBaseWhere('tag', $tag)];
-            if (false === $reportYear->loadFromCode('', $where)) {
+            $where = [Where::eq('tag', $tag)];
+            if (false === $reportYear->loadWhere($where)) {
                 // creamos el informe
                 $reportYear->name = Tools::lang()->trans('r-' . $table_name . '-total-status-year', ['%name%' => $status->nombre]);
                 $reportYear->table = $table_name;
@@ -760,8 +760,8 @@ class ReportGenerator
         // comprobamos si ya existe el informe
         $report = new Report();
         $tag = 'r-' . $table_name . '-countries';
-        $where = [new DataBaseWhere('tag', $tag)];
-        if ($report->loadFromCode('', $where)) {
+        $where = [Where::eq('tag', $tag)];
+        if ($report->loadWhere($where)) {
             return 0;
         }
 
@@ -788,8 +788,8 @@ class ReportGenerator
         // comprobamos si ya existe el informe mensual
         $reportMonths = new Report();
         $tag = 'r-' . $table_name . '-new-months';
-        $where = [new DataBaseWhere('tag', $tag)];
-        if (false === $reportMonths->loadFromCode('', $where)) {
+        $where = [Where::eq('tag', $tag)];
+        if (false === $reportMonths->loadWhere($where)) {
             // creamos el informe mensual
             $reportMonths->name = Tools::lang()->trans('r-' . $table_name . '-new-months');
             $reportMonths->table = $table_name;
@@ -807,8 +807,8 @@ class ReportGenerator
         // comprobamos si ya existe el informe anual
         $reportYears = new Report();
         $tag = 'r-' . $table_name . '-new-years';
-        $where = [new DataBaseWhere('tag', $tag)];
-        if (false === $reportYears->loadFromCode('', $where)) {
+        $where = [Where::eq('tag', $tag)];
+        if (false === $reportYears->loadWhere($where)) {
             // creamos el informe anual
             $reportYears->name = Tools::lang()->trans('r-' . $table_name . '-new-years');
             $reportYears->table = $table_name;
@@ -834,8 +834,8 @@ class ReportGenerator
         // comprobamos si ya existe el informe mensual
         $reportMonths = new Report();
         $tag = 'r-' . $table_name . '-total-months';
-        $where = [new DataBaseWhere('tag', $tag)];
-        if (false === $reportMonths->loadFromCode('', $where)) {
+        $where = [Where::eq('tag', $tag)];
+        if (false === $reportMonths->loadWhere($where)) {
             // creamos el informe mensual
             $reportMonths->name = Tools::lang()->trans('r-' . $table_name . '-total-months');
             $reportMonths->table = $table_name;
@@ -855,8 +855,8 @@ class ReportGenerator
         // comprobamos si ya existe el informe anual
         $reportYears = new Report();
         $tag = 'r-' . $table_name . '-total-years';
-        $where = [new DataBaseWhere('tag', $tag)];
-        if (false === $reportYears->loadFromCode('', $where)) {
+        $where = [Where::eq('tag', $tag)];
+        if (false === $reportYears->loadWhere($where)) {
             // creamos el informe anual
             $reportYears->name = Tools::lang()->trans('r-' . $table_name . '-total-years');
             $reportYears->table = $table_name;

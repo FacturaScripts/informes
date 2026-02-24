@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2017-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2017-2026 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -20,8 +20,8 @@
 namespace FacturaScripts\Plugins\Informes\Lib\Accounting;
 
 use FacturaScripts\Core\Base\DataBase;
-use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Model\Asiento;
 use FacturaScripts\Dinamic\Model\Cuenta;
 use FacturaScripts\Dinamic\Model\Ejercicio;
@@ -238,23 +238,18 @@ class BalanceAmounts
         return $this->dataBase->select($sql);
     }
 
-    /**
-     * @param array $params
-     *
-     * @return DataBaseWhere[]
-     */
     protected function getAccountWhere(array $params = []): array
     {
-        $where = [new DataBaseWhere('codejercicio', $this->exercise->codejercicio)];
+        $where = [Where::eq('codejercicio', $this->exercise->codejercicio)];
 
         $subaccountFrom = $params['subaccount-from'] ?? '';
         if (!empty($subaccountFrom)) {
-            $where[] = new DataBaseWhere('codcuenta', substr($subaccountFrom, 0, 1), '>=');
+            $where[] = Where::gte('codcuenta', substr($subaccountFrom, 0, 1));
         }
 
         $subaccountTo = $params['subaccount-to'] ?? '';
         if (!empty($subaccountTo)) {
-            $where[] = new DataBaseWhere('codcuenta', substr($subaccountTo, 0, 4), '<=');
+            $where[] = Where::lte('codcuenta', substr($subaccountTo, 0, 4));
         }
         return $where;
     }
@@ -295,23 +290,18 @@ class BalanceAmounts
         return $where;
     }
 
-    /**
-     * @param array $params
-     *
-     * @return DataBaseWhere[]
-     */
     protected function getSubAccountWhere(array $params = []): array
     {
-        $where = [new DataBaseWhere('codejercicio', $this->exercise->codejercicio)];
+        $where = [Where::eq('codejercicio', $this->exercise->codejercicio)];
 
         $subaccountFrom = $params['subaccount-from'] ?? '';
         if (!empty($subaccountFrom)) {
-            $where[] = new DataBaseWhere('codsubcuenta', $subaccountFrom, '>=');
+            $where[] = Where::gte('codsubcuenta', $subaccountFrom);
         }
 
         $subaccountTo = $params['subaccount-to'] ?? '';
         if (!empty($subaccountTo)) {
-            $where[] = new DataBaseWhere('codsubcuenta', $subaccountTo, '<=');
+            $where[] = Where::lte('codsubcuenta', $subaccountTo);
         }
         return $where;
     }

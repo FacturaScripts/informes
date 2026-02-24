@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2026 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -19,8 +19,8 @@
 
 namespace FacturaScripts\Plugins\Informes\Controller;
 
-use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Lib\ExtendedController\EditController;
+use FacturaScripts\Core\Where;
 
 /**
  * @author Daniel Fernández Giménez <hola@danielfg.es>
@@ -78,7 +78,7 @@ class EditReportBoard extends EditController
 
         switch ($viewName) {
             case 'EditReportBoardLine':
-                $where = [new DataBaseWhere('idreportboard', $code)];
+                $where = [Where::eq('idreportboard', $code)];
                 $orderBy = ['sort' => 'ASC'];
                 $view->loadData('', $where, $orderBy);
                 break;

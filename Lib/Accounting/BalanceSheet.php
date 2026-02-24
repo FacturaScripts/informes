@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2017-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2017-2026 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -20,9 +20,9 @@
 namespace FacturaScripts\Plugins\Informes\Lib\Accounting;
 
 use FacturaScripts\Core\Base\DataBase;
-use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Model\Asiento;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Model\BalanceAccount;
 use FacturaScripts\Dinamic\Model\BalanceCode;
 use FacturaScripts\Dinamic\Model\Ejercicio;
@@ -88,9 +88,9 @@ class BalanceSheet
         $this->dateToPrev = $this->addToDate($dateTo, '-1 year');
         $this->exercisePrev = new Ejercicio();
         $where = [
-            new DataBaseWhere('fechainicio', $this->dateFromPrev, '<='),
-            new DataBaseWhere('fechafin', $this->dateToPrev, '>='),
-            new DataBaseWhere('idempresa', $idcompany)
+            Where::lte('fechainicio', $this->dateFromPrev),
+            Where::gte('fechafin', $this->dateToPrev),
+            Where::eq('idempresa', $idcompany)
         ];
         $this->exercisePrev->loadWhere($where);
         $this->format = $params['format'] ?? 'pdf';
@@ -120,7 +120,7 @@ class BalanceSheet
             return;
         }
 
-        $where = [new DataBaseWhere('idbalance', $balance->id)];
+        $where = [Where::eq('idbalance', $balance->id)];
         foreach (BalanceAccount::all($where, [], 0, 0) as $model) {
             $total = $this->getAccountAmounts($balance, $model, $codejercicio, $params);
 
@@ -254,7 +254,7 @@ class BalanceSheet
             return $total;
         }
 
-        $where = [new DataBaseWhere('idbalance', $balance->id)];
+        $where = [Where::eq('idbalance', $balance->id)];
         foreach (BalanceAccount::all($where, [], 0, 0) as $model) {
             $total += $this->getAccountAmounts($balance, $model, $codejercicio, $params);
         }
@@ -270,9 +270,9 @@ class BalanceSheet
 
         // get balance codes
         $where = [
-            new DataBaseWhere('nature', $nature),
-            new DataBaseWhere('subtype', $params['subtype'] ?? 'normal'),
-            new DataBaseWhere('level1', '', '!=')
+            Where::eq('nature', $nature),
+            Where::eq('subtype', $params['subtype'] ?? 'normal'),
+            Where::notEq('level1', '')
         ];
         $order = ['level1' => 'ASC', 'level2' => 'ASC', 'level3' => 'ASC', 'level4' => 'ASC'];
         $balances = BalanceCode::all($where, $order, 0, 0);

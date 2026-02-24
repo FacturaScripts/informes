@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2017-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2017-2026 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -19,11 +19,11 @@
 
 namespace FacturaScripts\Plugins\Informes\Controller;
 
-use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
 use FacturaScripts\Core\Lib\ExtendedController\BaseView;
 use FacturaScripts\Core\Lib\ExtendedController\EditController;
 use FacturaScripts\Core\Model\Subcuenta;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Lib\Accounting\BalanceSheet;
 use FacturaScripts\Dinamic\Lib\Accounting\IncomeAndExpenditure;
 use FacturaScripts\Dinamic\Lib\Accounting\ProfitAndLoss;
@@ -155,7 +155,7 @@ class EditReportBalance extends EditController
         }
 
         // recorremos todas las subcuentas del ejercicio
-        $where = [new DataBaseWhere('codejercicio', $exercise->codejercicio)];
+        $where = [Where::eq('codejercicio', $exercise->codejercicio)];
         foreach (Subcuenta::all($where) as $subAccount) {
             // comprobamos que el campo codcuenta son los primeros caracteres del campo codsubcuenta
             $len = strlen($subAccount->codcuenta);
@@ -198,7 +198,7 @@ class EditReportBalance extends EditController
 
         // buscamos las cuentas con saldo
         $cuentaModel = new Cuenta();
-        $whereCuenta = [new DataBaseWhere('codejercicio', $exercise->codejercicio)];
+        $whereCuenta = [Where::eq('codejercicio', $exercise->codejercicio)];
         foreach ($cuentaModel->all($whereCuenta, [], 0, 0) as $cuenta) {
             // excluimos las cuentas que empiezan por 6 o 7
             if (strpos($cuenta->codcuenta, '6') === 0 || strpos($cuenta->codcuenta, '7') === 0) {
@@ -220,20 +220,20 @@ class EditReportBalance extends EditController
             // comprobamos si la cuenta existe en el balance
             $balanceCuenta = new BalanceAccount();
             $whereBalance = [
-                new DataBaseWhere('idbalance', implode(',', $this->getBalanceCodes()), 'IN'),
-                new DataBaseWhere('codcuenta', $cuenta->codcuenta)
+                Where::in('idbalance', $this->getBalanceCodes()),
+                Where::eq('codcuenta', $cuenta->codcuenta)
             ];
-            if ($balanceCuenta->loadFromCode('', $whereBalance)) {
+            if ($balanceCuenta->loadWhere($whereBalance)) {
                 continue;
             }
 
             // comprobamos el padre
             if ($cuenta->parent_codcuenta) {
                 $wherePadre = [
-                    new DataBaseWhere('idbalance', implode(',', $this->getBalanceCodes()), 'IN'),
-                    new DataBaseWhere('codcuenta', $cuenta->parent_codcuenta)
+                    Where::in('idbalance', $this->getBalanceCodes()),
+                    Where::eq('codcuenta', $cuenta->parent_codcuenta)
                 ];
-                if ($balanceCuenta->loadFromCode('', $wherePadre)) {
+                if ($balanceCuenta->loadWhere($wherePadre)) {
                     continue;
                 }
             }
@@ -290,21 +290,21 @@ class EditReportBalance extends EditController
         switch ($this->getModel()->type) {
             case 'balance-sheet':
                 return [
-                    new DataBaseWhere('subtype', $this->getModel()->subtype),
-                    new DataBaseWhere('nature', 'A'),
-                    new DataBaseWhere('nature', 'P', '=', 'OR')
+                    Where::eq('subtype', $this->getModel()->subtype),
+                    Where::eq('nature', 'A'),
+                    Where::orEq('nature', 'P')
                 ];
 
             case 'profit-and-loss':
                 return [
-                    new DataBaseWhere('subtype', $this->getModel()->subtype),
-                    new DataBaseWhere('nature', 'PG')
+                    Where::eq('subtype', $this->getModel()->subtype),
+                    Where::eq('nature', 'PG')
                 ];
 
             case 'income-and-expenses':
                 return [
-                    new DataBaseWhere('subtype', $this->getModel()->subtype),
-                    new DataBaseWhere('nature', 'IG')
+                    Where::eq('subtype', $this->getModel()->subtype),
+                    Where::eq('nature', 'IG')
                 ];
         }
 
