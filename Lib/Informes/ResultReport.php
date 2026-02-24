@@ -805,6 +805,7 @@ class ResultReport
             . " where fc.fecha >= " . $db->var2str($date['desde'])
             . " AND fc.fecha <= " . $db->var2str($date['hasta'])
             . " AND fc.codejercicio = " . $db->var2str($codejercicio)
+            . " AND lfc.suplido = 0"
             . " group by lfc.referencia";
 
         // VENTAS: Recorremos lineasfacturascli y montamos arrays
