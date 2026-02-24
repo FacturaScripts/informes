@@ -33,6 +33,14 @@ use FacturaScripts\Dinamic\Model\ReportFilter;
  */
 class EditReport extends EditController
 {
+    /** @var array */
+    private static $aliasesTables = [];
+
+    public static function addAliasTable(string $table, string $alias): void
+    {
+        static::$aliasesTables[$table] = $alias;
+    }
+
     public function getModelClassName(): string
     {
         return 'Report';
@@ -135,6 +143,27 @@ class EditReport extends EditController
         return parent::execPreviousAction($action);
     }
 
+    protected function getTables(): array
+    {
+        // comprobamos si cada tabla tiene alias, si no añadimos la tabla sin alias
+        foreach ($this->dataBase->getTables() as $table) {
+            // si ya tenemos una tabla con ese alias, no la añadimos
+            if (in_array($table, array_keys(static::$aliasesTables))) {
+                continue;
+            }
+
+            // añadimos la tabla con el mismo alias que el nombre de la tabla
+            static::addAliasTable($table, $table);
+        }
+
+        // ordenamos las tablas por el valor
+        uasort(static::$aliasesTables, function ($a, $b) {
+            return strcmp($a, $b);
+        });
+
+        return static::$aliasesTables;
+    }
+
     /**
      * @param string $viewName
      * @param BaseView $view
@@ -180,6 +209,7 @@ class EditReport extends EditController
                 break;
 
             case $mvn:
+                $this->loadAliasTables();
                 parent::loadData($viewName, $view);
                 $this->loadWidgetValues($viewName);
 
@@ -207,12 +237,66 @@ class EditReport extends EditController
         }
     }
 
+    protected function loadAliasTables(): void
+    {
+        static::addAliasTable('agenciastrans', Tools::trans('carriers'));
+        static::addAliasTable('agentes', Tools::trans('agents'));
+        static::addAliasTable('albaranescli', Tools::trans('customer-delivery-notes'));
+        static::addAliasTable('albaranesprov', Tools::trans('supplier-delivery-notes'));
+        static::addAliasTable('almacenes', Tools::trans('warehouses'));
+        static::addAliasTable('asientos', Tools::trans('accounting-entries'));
+        static::addAliasTable('atributos', Tools::trans('attributes'));
+        static::addAliasTable('atributos_valores', Tools::trans('attribute-values'));
+        static::addAliasTable('ciudades', Tools::trans('cities'));
+        static::addAliasTable('clientes', Tools::trans('customers'));
+        static::addAliasTable('codigos_postales', Tools::trans('zip-codes'));
+        static::addAliasTable('contactos', Tools::trans('contacts'));
+        static::addAliasTable('cuentas', Tools::trans('accounting-accounts'));
+        static::addAliasTable('cuentasesp', Tools::trans('special-accounts'));
+        static::addAliasTable('diarios', Tools::trans('journals'));
+        static::addAliasTable('ejercicios', Tools::trans('exercises'));
+        static::addAliasTable('emails_sent', Tools::trans('emails-sent'));
+        static::addAliasTable('empresas', Tools::trans('companies'));
+        static::addAliasTable('fabricantes', Tools::trans('manufacturers'));
+        static::addAliasTable('facturascli', Tools::trans('customer-invoices'));
+        static::addAliasTable('facturasprov', Tools::trans('supplier-invoices'));
+        static::addAliasTable('familias', Tools::trans('families'));
+        static::addAliasTable('formaspago', Tools::trans('payment-methods'));
+        static::addAliasTable('gruposclientes', Tools::trans('customer-groups'));
+        static::addAliasTable('impuestos', Tools::trans('taxes'));
+        static::addAliasTable('pages', Tools::trans('pages'));
+        static::addAliasTable('paises', Tools::trans('countries'));
+        static::addAliasTable('partidas', Tools::trans('accounting-items'));
+        static::addAliasTable('pedidoscli', Tools::trans('customer-orders'));
+        static::addAliasTable('pedidosprov', Tools::trans('supplier-orders'));
+        static::addAliasTable('presupuestoscli', Tools::trans('customer-estimation'));
+        static::addAliasTable('presupuestosprov', Tools::trans('supplier-estimations'));
+        static::addAliasTable('productos', Tools::trans('products'));
+        static::addAliasTable('productosprov', Tools::trans('supplier-products'));
+        static::addAliasTable('proveedores', Tools::trans('suppliers'));
+        static::addAliasTable('provincias', Tools::trans('provinces'));
+        static::addAliasTable('puntos_interes_ciudades', Tools::trans('points-of-interest'));
+        static::addAliasTable('regularizacionimpuestos', Tools::trans('vat-regularization'));
+        static::addAliasTable('retenciones', Tools::trans('retentions'));
+        static::addAliasTable('series', Tools::trans('series'));
+        static::addAliasTable('stocks', Tools::trans('stocks'));
+        static::addAliasTable('subcuentas', Tools::trans('subaccounts'));
+        static::addAliasTable('tarifas', Tools::trans('rates'));
+        static::addAliasTable('users', Tools::trans('users'));
+        static::addAliasTable('variantes', Tools::trans('variants'));
+        static::addAliasTable('work_events', Tools::trans('running-work-queue'));
+    }
+
     protected function loadWidgetValues(string $viewName): void
     {
         // añadimos valores al campo de tabla
         $columnTable = $this->views[$viewName]->columnForField('table');
         if ($columnTable && $columnTable->widget->getType() === 'select') {
-            $columnTable->widget->setValuesFromArray($this->dataBase->getTables());
+            $tables = [];
+            foreach ($this->getTables() as $table => $alias) {
+                $tables[] = ['value' => $table, 'title' => $alias];
+            }
+            $columnTable->widget->setValuesFromArray($tables);
         }
 
         // añadimos valores a los campos de columnas
