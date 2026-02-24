@@ -152,6 +152,9 @@ class ReportTaxes extends Controller
                 Tools::trans('name') => $hide ? '' : Tools::fixHtml($row['nombre']),
                 Tools::trans('cifnif') => $hide ? '' : $row['cifnif'],
                 Tools::trans('subaccount') => $hide ? '' : $row['codsubcuenta'] ?? '',
+                Tools::trans('city') => $hide ? '' : $row['ciudad'] ?? '',
+                Tools::trans('province') => $hide ? '' : $row['provincia'] ?? '',
+                Tools::trans('zip-code') => $hide ? '' : $row['codpostal'] ?? '',
                 Tools::trans('country') => $hide ? '' : ($row['codpais'] ? Paises::get($row['codpais'])->nombre : ''),
                 Tools::trans('net') => $this->exportFieldFormat('number', $row['neto']),
                 Tools::trans('pct-tax') => $this->exportFieldFormat('number', $row['iva']),
@@ -195,16 +198,11 @@ class ReportTaxes extends Controller
 
     protected function exportFieldFormat(string $format, string $value): string
     {
-        switch ($format) {
-            case 'number':
-                return $this->format === 'PDF' ? Tools::number($value) : $value;
-
-            case 'percentage':
-                return $this->format === 'PDF' ? Tools::number($value) . ' %' : $value;
-
-            default:
-                return $value;
-        }
+        return match ($format) {
+            'number' => $this->format === 'PDF' ? Tools::number($value) : $value,
+            'percentage' => $this->format === 'PDF' ? Tools::number($value) . ' %' : $value,
+            default => $value,
+        };
     }
 
     protected function getQuarterDate(bool $start): string
@@ -249,7 +247,7 @@ class ReportTaxes extends Controller
                     . ' l.iva, l.recargo, l.irpf, l.suplido, f.dtopor1, f.dtopor2, f.total, f.operacion, pr.codsubcuenta'
                     . ' FROM lineasfacturasprov AS l'
                     . ' LEFT JOIN facturasprov AS f ON l.idfactura = f.idfactura '
-                    . ' LEFT JOIN proveedores AS pr ON f.codproveedor = pr.codproveedor'  
+                    . ' LEFT JOIN proveedores AS pr ON f.codproveedor = pr.codproveedor'
                     . ' WHERE f.idempresa = ' . $this->dataBase->var2str($this->idempresa)
                     . ' AND ' . $columnDate . ' >= ' . $this->dataBase->var2str($this->datefrom)
                     . ' AND ' . $columnDate . ' <= ' . $this->dataBase->var2str($this->dateto)
@@ -259,7 +257,8 @@ class ReportTaxes extends Controller
 
             case 'sales':
                 $sql .= 'SELECT f.codserie, f.codigo, f.numero2, f.fecha, f.fechadevengo, f.nombrecliente AS nombre, f.cifnif, l.pvptotal,'
-                    . ' l.iva, l.recargo, l.irpf, l.suplido, f.dtopor1, f.dtopor2, f.total, f.operacion, f.codpais, cl.codsubcuenta'
+                    . ' l.iva, l.recargo, l.irpf, l.suplido, f.dtopor1, f.dtopor2, f.total, f.operacion, f.codpais, cl.codsubcuenta,'
+                    . ' f.ciudad, f.provincia, f.codpostal'
                     . ' FROM lineasfacturascli AS l'
                     . ' LEFT JOIN facturascli AS f ON l.idfactura = f.idfactura '
                     . ' LEFT JOIN clientes AS cl ON f.codcliente = cl.codcliente'
@@ -296,6 +295,9 @@ class ReportTaxes extends Controller
             }
 
             $data[$code] = [
+                'ciudad' => $row['ciudad'] ?? null,
+                'provincia' => $row['provincia'] ?? null,
+                'codpostal' => $row['codpostal'] ?? null,
                 'codpais' => $row['codpais'] ?? null,
                 'codserie' => $row['codserie'],
                 'codigo' => $row['codigo'],
@@ -375,7 +377,7 @@ class ReportTaxes extends Controller
             $column = Tools::trans($column);
 
             // si la key empieza por column_ y no está en el array de columnas, la añadimos
-            if (strpos($key, 'column_') === 0 && !in_array($column, $this->columns)) {
+            if (str_starts_with($key, 'column_') && !in_array($column, $this->columns)) {
                 $this->columns[] = $column;
             }
         }
