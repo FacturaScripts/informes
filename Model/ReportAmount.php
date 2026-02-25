@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2017-2023 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2017-2026 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -52,6 +52,9 @@ class ReportAmount extends ModelClass
     public $ignoreclosure;
 
     /** @var bool */
+    public $ignore_opening;
+
+    /** @var bool */
     public $ignoreregularization;
 
     /** @var int */
@@ -59,6 +62,9 @@ class ReportAmount extends ModelClass
 
     /** @var string */
     public $name;
+
+    /** @var bool */
+    public $show_balance_opening;
 
     /** @var string */
     public $startcodsubaccount;
@@ -72,8 +78,10 @@ class ReportAmount extends ModelClass
         $this->enddate = date('31-12-Y');
         $this->idcompany = Tools::settings('default', 'idempresa');
         $this->ignoreclosure = true;
+        $this->ignore_opening = true;
         $this->ignoreregularization = true;
         $this->level = 0;
+        $this->show_balance_opening = false;
         $this->startdate = date('01-01-Y');
     }
 

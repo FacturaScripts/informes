@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
  * This file is part of FacturaScripts
- * Copyright (C) 2020-2021 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2020-2026 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -59,10 +59,18 @@
                     <values source="subcuentas" fieldcode="codsubcuenta" fieldtitle="descripcion"/>
                 </widget>
             </column>
-            <column name="without-regularization" order="150">
+        </group>
+        <group name="options" valign="bottom" numcolumns="12">
+            <column name="show-balance-opening" order="100">
+                <widget type="checkbox" fieldname="show_balance_opening"/>
+            </column>
+            <column name="without-opening" order="110">
+                <widget type="checkbox" fieldname="ignore_opening"/>
+            </column>
+            <column name="without-regularization" order="120">
                 <widget type="checkbox" fieldname="ignoreregularization"/>
             </column>
-            <column name="without-closure" order="160">
+            <column name="without-closure" order="130">
                 <widget type="checkbox" fieldname="ignoreclosure"/>
             </column>
         </group>

@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2020-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2020-2026 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -13,7 +13,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
+ * You should have received a copy of the GNU Lesser General Public Lice nse
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -83,7 +83,16 @@ class EditReportAmount extends EditController
 
         foreach ($pages as $data) {
             $headers = empty($data) ? [] : array_keys($data[0]);
-            $this->exportManager->addTablePage($headers, $data);
+
+            // alineamos a la derecha las columnas numéricas
+            $options = [];
+            foreach (['debe', 'haber', 'saldo', 'opening'] as $numericColumn) {
+                if (in_array($numericColumn, $headers)) {
+                    $options[$numericColumn] = ['display' => 'right'];
+                }
+            }
+
+            $this->exportManager->addTablePage($headers, $data, $options);
         }
 
         $this->exportManager->show($this->response);
@@ -100,8 +109,10 @@ class EditReportAmount extends EditController
                 'channel' => $model->channel,
                 'format' => $format,
                 'idcompany' => $model->idcompany,
+                'ignore_opening' => $model->ignore_opening,
                 'ignoreclosure' => $model->ignoreclosure,
                 'ignoreregularization' => $model->ignoreregularization,
+                'show_balance_opening' => $model->show_balance_opening,
                 'level' => $model->level,
                 'subaccount-from' => $model->startcodsubaccount,
                 'subaccount-to' => $model->endcodsubaccount
