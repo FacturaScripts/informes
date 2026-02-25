@@ -98,7 +98,7 @@ class BalanceAmounts
             }
 
             $saldo = $debe - $haber;
-            if ($level > 0 && strlen($account->codcuenta) > $level) {
+            if ($level > 0 && $level <= 4 && strlen($account->codcuenta) > $level) {
                 continue;
             }
 
@@ -116,14 +116,32 @@ class BalanceAmounts
             }
             $rows[] = $accountRow;
 
-            if ($level > 0) {
+            if ($level > 0 && $level <= 4) {
                 continue;
             }
 
-            // añadimos las líneas de las subcuentas y recalculamos debe y haber para comprobar que cuadran
+            // añadimos las líneas de las subcuentas y recalculamos debe y haber para comprobar que cuadren
             $debe2 = $haber2 = 0.00;
-            foreach ($amounts as $amount) {
-                if ($amount['idcuenta'] == $account->idcuenta) {
+
+            // filtramos los importes que pertenecen a esta cuenta
+            $accountAmounts = array_filter($amounts, function ($amount) use ($account) {
+                return $amount['idcuenta'] == $account->idcuenta;
+            });
+
+            // si hay nivel intermedio, agrupamos las subcuentas por prefijo según el nivel indicado
+            if ($level > 0 && $level < $this->exercise->longsubcuenta) {
+                $groupedAmounts = $this->groupAmountsByLevel($level, $accountAmounts, $openingAmounts);
+                foreach ($groupedAmounts as $groupedAmount) {
+                    $rows[] = $groupedAmount;
+                    $debe2 += (float)$groupedAmount['_debe_raw'];
+                    $haber2 += (float)$groupedAmount['_haber_raw'];
+                }
+            } else {
+                foreach ($accountAmounts as $amount) {
+                    if ($level > 4 && strlen($amount['codsubcuenta']) > $level) {
+                        continue;
+                    }
+
                     $rows[] = $this->processAmountLine($subaccounts, $amount, $openingAmounts);
                     $debe2 += (float)$amount['debe'];
                     $haber2 += (float)$amount['haber'];
@@ -377,12 +395,77 @@ class BalanceAmounts
     }
 
     /**
-     * @param Subcuenta[] $subaccounts
-     * @param array $amount
-     * @param array $openingAmounts  partidas de apertura indexadas por codsubcuenta
+     * Agrupa los importes de subcuentas por prefijo según el nivel indicado y devuelve
+     * las filas ya formateadas. Cada fila incluye las claves internas '_debe_raw' y '_haber_raw'
+     * con los valores numéricos para poder acumular los totales en el método llamante.
      *
-     * @return array
+     * Ejemplo con level=5 y subcuenta 4300000000:
+     *   - El prefijo sería '43000' y se sumarían 4300000001, 4300000002, 4300000034, 4300004396.
+     * Ejemplo con level=8 y subcuenta 4300000000:
+     *   - El prefijo '43000000' acumula 4300000001 y 4300000002.
+     *   - El prefijo '43000003' acumula 4300000034.
+     *   - El prefijo '43000439' acumula 4300004396.
      */
+    protected function groupAmountsByLevel(int $level, array $accountAmounts, array $openingAmounts = []): array
+    {
+        // agrupamos los importes por el prefijo de longitud $level
+        $groups = [];
+        foreach ($accountAmounts as $amount) {
+            $prefix = substr($amount['codsubcuenta'], 0, $level);
+            if (!isset($groups[$prefix])) {
+                $groups[$prefix] = [
+                    'prefix' => $prefix,
+                    'debe' => 0.00,
+                    'haber' => 0.00,
+                    'opening' => null,
+                ];
+            }
+            $groups[$prefix]['debe'] += (float)$amount['debe'];
+            $groups[$prefix]['haber'] += (float)$amount['haber'];
+
+            // acumulamos el saldo de apertura si está activo
+            if ($this->showBalanceOpening) {
+                $codsubcuenta = $amount['codsubcuenta'];
+                if (isset($openingAmounts[$codsubcuenta])) {
+                    $openingSaldo = $openingAmounts[$codsubcuenta]['debe'] - $openingAmounts[$codsubcuenta]['haber'];
+                } else {
+                    $openingSaldo = 0.00;
+                }
+                if ($groups[$prefix]['opening'] === null) {
+                    $groups[$prefix]['opening'] = 0.00;
+                }
+                $groups[$prefix]['opening'] += $openingSaldo;
+            }
+        }
+
+        // construimos las filas formateadas
+        $rows = [];
+        foreach ($groups as $group) {
+            $debe = $group['debe'];
+            $haber = $group['haber'];
+            $saldo = $debe - $haber;
+
+            $row = [
+                'cuenta' => $group['prefix'],
+                'descripcion' => $this->formatValue($group['prefix'], 'text'),
+                'debe' => $this->formatValue((string)$debe),
+                'haber' => $this->formatValue((string)$haber),
+                'saldo' => $this->formatValue((string)$saldo),
+                // valores raw para acumular totales en el método llamante
+                '_debe_raw' => $debe,
+                '_haber_raw' => $haber,
+            ];
+
+            if ($group['opening'] !== null) {
+                $row['opening'] = $this->formatValue((string)$group['opening']);
+            }
+
+            $rows[] = $row;
+        }
+
+        return $rows;
+    }
+
     protected function processAmountLine(array $subaccounts, array $amount, array $openingAmounts = []): array
     {
         $debe = (float)$amount['debe'];

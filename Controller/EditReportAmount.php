@@ -21,7 +21,9 @@ namespace FacturaScripts\Plugins\Informes\Controller;
 
 use FacturaScripts\Core\Lib\ExtendedController\EditController;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Lib\Accounting\BalanceAmounts;
+use FacturaScripts\Dinamic\Model\Ejercicio;
 use FacturaScripts\Dinamic\Model\ReportAmount;
 
 /**
@@ -118,5 +120,42 @@ class EditReportAmount extends EditController
                 'subaccount-to' => $model->endcodsubaccount
             ]
         );
+    }
+
+    protected function loadData($viewName, $view)
+    {
+        parent::loadData($viewName, $view);
+
+        $mvn = $this->getMainViewName();
+        if ($viewName === $mvn) {
+            $this->loadLevels($viewName, $view);
+        }
+    }
+
+    protected function loadLevels(string $viewName, $view): void
+    {
+        $column = $this->tab($viewName)->columnForName('level');
+        if (empty($column) || $column->widget->getType() !== 'select') {
+            return;
+        }
+
+        // obtenemos el último ejercicio de la empresa por defecto
+        $exercise = new Ejercicio();
+        $where = [
+            Where::eq('idempresa', $view->model->idempresa),
+            Where::eq('fechainicio', $view->model->fechainicio),
+            Where::eq('fechafin', $view->model->fechafin),
+        ];
+        $exercise->loadWhere($where, ['fechafin' => 'DESC']);
+
+        $customValues = [];
+        for ($i = 0; $i <= max($exercise->longsubcuenta, 4); $i++) {
+            $customValues[] = [
+                'value' => $i,
+                'title' => $i
+            ];
+        }
+
+        $column->widget->setValuesFromArray($customValues);
     }
 }

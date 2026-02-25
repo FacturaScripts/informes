@@ -37,9 +37,7 @@
                 <widget type="number" fieldname="channel" decimal="0"/>
             </column>
             <column name="level" numcolumns="2" order="140">
-                <widget type="select" fieldname="level" required="true">
-                    <values start="0" end="4" step="1"/>
-                </widget>
+                <widget type="select" fieldname="level" required="true"/>
             </column>
         </group>
         <group name="other" valign="bottom" numcolumns="12">
