@@ -133,10 +133,11 @@ class BalanceAmounts
                 continue;
             }
 
-            // si se ha marcado la opción de ignorar asientos de regularización o de cierre, no comprobamos que cuadren
+            // si se ha marcado la opción de ignorar asientos de apertura, regularización o cierre, no comprobamos que cuadren
+            $ignoreOpening = (bool)($params['ignore_opening'] ?? false);
             $ignoreRegularization = (bool)($params['ignoreregularization'] ?? false);
             $ignoreClosure = (bool)($params['ignoreclosure'] ?? false);
-            if ($ignoreRegularization || $ignoreClosure) {
+            if ($ignoreOpening || $ignoreRegularization || $ignoreClosure) {
                 continue;
             }
 
@@ -274,6 +275,12 @@ class BalanceAmounts
         $channel = $params['channel'] ?? '';
         if (!empty($channel)) {
             $where .= ' AND asientos.canal = ' . $this->dataBase->var2str($channel);
+        }
+
+        $ignoreOpening = (bool)($params['ignore_opening'] ?? false);
+        if ($ignoreOpening) {
+            $where .= ' AND (asientos.operacion IS NULL OR asientos.operacion != '
+                . $this->dataBase->var2str(Asiento::OPERATION_OPENING) . ')';
         }
 
         $ignoreRegularization = (bool)($params['ignoreregularization'] ?? false);
