@@ -122,4 +122,43 @@ class ListReport extends ListController
         Tools::log()->notice('items-added-correctly', ['%num%' => $total]);
         return true;
     }
+
+    /**
+     * Devuelve una lista con las tablas que tienen almenos una columna de tipo date o timestamp y array con las columnas
+     * Ej:
+     *     return ['nomTabla' => ['colA', 'colB', 'colC'], ...] 
+    */
+    private function getTablesWithDate(): array
+    {
+        $tablesWithDate = [];
+        $tables = $this->dataBase->getTables();
+        foreach ($tables as $table) {
+            $colsWithDate = [];
+            $cols = $this->dataBase->getColumns($table);
+            foreach ($cols as $colName => $colData) {
+                $type = strtolower($colData['type']);
+
+                /**
+                 * En la búsqueda mirando en los tipos que devuelve getColumns para todas las tablas he visto que;
+                 * En mariadb (similar a sql) devuelve:
+                 *      - date
+                 *      - time
+                 *      - timestamp
+                 * En postgresql es diferente:
+                 *      - date
+                 *      - timestamp without time zone
+                 *      - time without time zone
+                 */
+                if (in_array($type, ['date', 'timestamp', 'timestamp without time zone'])) {
+                    $colsWithDate[] = $colName;
+                }
+            }
+
+            if (count($colsWithDate) > 0) {
+                $tablesWithDate[$table] = $colsWithDate;
+            }
+        }
+
+        return $tablesWithDate;
+    }
 }
