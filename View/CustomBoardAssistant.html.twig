@@ -1,0 +1,79 @@
+{#
+Vista hecha para Controller/ListReport.php
+
+Se trata de un asistente que te hace elegir tabla y luego su respectiva fila
+
+Se podría refactorizar o hacer el componente más reutilizable si se pasan como argumentos las traducciones, títulos, acción destino, etc
+
+#}
+{% extends "Master/MenuTemplate.html.twig" %}
+{% import "Macro/Forms.html.twig" as forms %}
+
+{% block body %}
+    {{ parent() }}
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0"><i class="fa-solid fa-wand-magic-sparkles"></i> Asistente de Informes</h4>
+                    </div>
+
+                    {% if fsc.twigData.selectedTable %}
+                        {# STEP 2 #}
+                        <div class="card-body">
+                            <h5 class="card-title">Paso 2: Selecciona la columna</h5>
+                            <p class="card-text text-muted">Has seleccionado la tabla <strong>{{ fsc.twigData.selectedTable }}</strong>. Ahora elige la columna principal para el informe.</p>
+
+                            <form action="{{ fsc.url() }}" method="post">
+                                <input type="hidden" name="action" value="process-custom-board">
+                                <input type="hidden" name="selectedTable" value="{{ fsc.twigData.selectedTable }}">
+
+                                <div class="mb-3">
+                                    {{ forms.simpleSelect('selectColumna', 'selectedColumn', null, fsc.twigData.columns, 'Columna', 'fa-solid fa-columns') }}
+                                </div>
+
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <a href="{{ fsc.url() }}?action=customBoardAssistant" class="btn btn-outline-secondary me-md-2">
+                                        <i class="fa-solid fa-arrow-left"></i> Volver
+                                    </a>
+                                    <button class="btn btn-primary" type="submit">
+                                        Finalizar <i class="fa-solid fa-check"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="card-footer text-muted">
+                            Paso 2 de 2
+                        </div>
+
+                    {% else %}
+                        {# STEP 1 #}
+                        <div class="card-body">
+                            <h5 class="card-title">Paso 1: Selecciona la tabla</h5>
+                            <p class="card-text text-muted">Elige la tabla de la base de datos sobre la que quieres generar el informe.</p>
+
+                            <form action="{{ fsc.url() }}" method="get" id="reportForm">
+                                <input type="hidden" name="action" value="customBoardAssistant">
+
+                                <div class="mb-3">
+                                    {{ forms.simpleSelect('selectTabla', 'selectedTable', fsc.twigData.selectedTable, fsc.twigData.tables, 'Tabla', 'fa-solid fa-table') }}
+                                </div>
+
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <button class="btn btn-primary" type="submit">
+                                        Siguiente <i class="fa-solid fa-arrow-right"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="card-footer text-muted">
+                            Paso 1 de 2
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

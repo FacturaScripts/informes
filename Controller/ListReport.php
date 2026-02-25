@@ -31,6 +31,9 @@ use FacturaScripts\Dinamic\Lib\Informes\ReportGenerator;
  */
 class ListReport extends ListController
 {
+    /** variable para pasar la info a la vista twig */
+    public array $twigData = [];
+
     public function getPageData(): array
     {
         $data = parent::getPageData();
@@ -101,11 +104,17 @@ class ListReport extends ListController
 
     protected function execPreviousAction($action)
     {
-        if ('generate-boards' === $action) {
-            return $this->generateBoardsAction();
-        }
 
-        return parent::execPreviousAction($action);
+        switch($action) {
+            case 'generate-boards':
+                return $this->generateBoardsAction();
+            case 'customBoardAssistant':
+                return $this->showCustomBoardAssistant();
+            case 'process-custom-board':
+                return $this->processCustomBoardAction();
+            default:
+                return parent::execPreviousAction($action);
+        }
     }
 
     protected function generateBoardsAction(): bool
@@ -160,5 +169,68 @@ class ListReport extends ListController
         }
 
         return $tablesWithDate;
+    }
+
+    protected function processCustomBoardAction(): bool
+    {
+        $table = $this->request->queryOrInput('selectedTable', '');
+        $column = $this->request->queryOrInput('selectedColumn', '');
+
+        if (empty($table) || empty($column)) {
+            Tools::log()->error('missing-parameters');
+            return false;
+        }
+
+        if (false === $this->dataBase->tableExists($table)) {
+            Tools::log()->error('table-not-found', ['%tableName%' => $table]);
+            return false;
+        }
+
+        // revisar que exista la columna
+        $tableCols = $this->dataBase->getColumns($table);
+        if (false === key_exists($column, $tableCols)) {
+            // TODO: añadir traducción y denegar petición
+        }
+
+        // revisar que sea tipo date la columna
+        if (in_array(strtolower($tableCols[$column]), ['date', 'timestamp', 'timestamp without time zone'])) {
+            // TODO: añadir traducción y denegar petición     
+        }
+
+        // Logic to process the selection would go here
+        // TODO: Realizar acción después de elegir
+        // TODO: cambiar texto de ayuda en el twig
+        Tools::log()->notice('Procesando tabla: ' . $table . ', columna: ' . $column);
+
+        return true;
+    }
+
+    /**
+     * Muestra el asistente para escoger columnas date y timestamp de las tablas
+     * 
+     * 2 fases:
+     *  1. Tabla a escoger
+     *  2. Columna de la tabla
+     */
+    protected function showCustomBoardAssistant()
+    {
+        // preparar el formulario
+        $tablesWithDate = $this->getTablesWithDate();
+
+        // tabla de tablas
+        $tables = array_keys($tablesWithDate); // recoger solo claves
+        $this->twigData['tables'] = array_combine($tables, $tables); // combine para que sean mismo key/value
+
+        $selectedTable = $this->request->queryOrInput('selectedTable', '');
+        if (!empty($selectedTable)) {
+            // asignar en el twig tabla seleccionada
+            $this->twigData['selectedTable'] = $selectedTable;
+            
+            // mostrar columnas que son date o datetime
+            $columns = $tablesWithDate[$selectedTable];
+            $this->twigData['columns'] = array_combine($columns, $columns); // combine para que sean mismo key/value
+        }
+
+        $this->setTemplate('CustomBoardAssistant');
     }
 }
