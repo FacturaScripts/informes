@@ -19,7 +19,6 @@
 
 namespace FacturaScripts\Test\Plugins;
 
-use FacturaScripts\Core\Tools;
 use FacturaScripts\Plugins\Informes\Model\Report;
 use FacturaScripts\Plugins\Informes\Model\ReportFilter;
 use FacturaScripts\Test\Traits\LogErrorsTrait;
@@ -61,7 +60,7 @@ final class ReportFilterTest extends TestCase
         $reportFilter = new ReportFilter();
 
         // comprobamos que getDynamicValue() convierte valores dinámicos
-        $this->assertEquals(Tools::dateTime(), $reportFilter->getDynamicValue('{now}'));
+        $this->assertEquals(date('Y-m-d H:i:s'), $reportFilter->getDynamicValue('{now}'));
     }
 
     public function testGetDynamicValueWithNonExistingValue(): void
@@ -76,22 +75,30 @@ final class ReportFilterTest extends TestCase
     {
         $reportFilter = new ReportFilter();
 
-        // definimos los valores dinámicos esperados
+        // definimos los valores dinámicos esperados usando date() y strtotime() igual que el modelo
         $expectedValues = [
-            '{now}' => Tools::dateTime(),
-            '{-1 hour}' => Tools::dateTime('-1 hour'),
-            '{-6 hours}' => Tools::dateTime('-6 hours'),
-            '{-12 hours}' => Tools::dateTime('-12 hours'),
-            '{-24 hours}' => Tools::dateTime('-24 hours'),
-            '{today}' => Tools::date(),
-            '{-1 day}' => Tools::date('-1 day'),
-            '{-7 days}' => Tools::date('-7 days'),
-            '{-15 days}' => Tools::date('-15 days'),
-            '{-1 month}' => Tools::date('-1 month'),
-            '{-3 months}' => Tools::date('-3 months'),
-            '{-6 months}' => Tools::date('-6 months'),
-            '{-1 year}' => Tools::date('-1 year'),
-            '{-2 years}' => Tools::date('-2 years'),
+            '{now}' => date('Y-m-d H:i:s'),
+            '{-1 hour}' => date('Y-m-d H:i:s', strtotime('-1 hour')),
+            '{-6 hours}' => date('Y-m-d H:i:s', strtotime('-6 hours')),
+            '{-12 hours}' => date('Y-m-d H:i:s', strtotime('-12 hours')),
+            '{-24 hours}' => date('Y-m-d H:i:s', strtotime('-24 hours')),
+            '{today}' => date('Y-m-d'),
+            '{-1 day}' => date('Y-m-d', strtotime('-1 day')),
+            '{-7 days}' => date('Y-m-d', strtotime('-7 days')),
+            '{-15 days}' => date('Y-m-d', strtotime('-15 days')),
+            '{-1 month}' => date('Y-m-d', strtotime('-1 month')),
+            '{-3 months}' => date('Y-m-d', strtotime('-3 months')),
+            '{-6 months}' => date('Y-m-d', strtotime('-6 months')),
+            '{-1 year}' => date('Y-m-d', strtotime('-1 year')),
+            '{-2 years}' => date('Y-m-d', strtotime('-2 years')),
+            '{first day of this month}' => date('Y-m-01'),
+            '{first day of last month}' => date('Y-m-01', strtotime('-1 month')),
+            '{first day of this year}' => date('Y') . '-01-01',
+            '{first day of last year}' => date('Y', strtotime('-1 year')) . '-01-01',
+            '{last day of this month}' => date('Y-m-t'),
+            '{last day of last month}' => date('Y-m-t', strtotime('-1 month')),
+            '{last day of this year}' => date('Y') . '-12-31',
+            '{last day of last year}' => date('Y', strtotime('-1 year')) . '-12-31',
         ];
 
         // comprobamos que getDynamicValues() retorna todos los valores dinámicos
