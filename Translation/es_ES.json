@@ -261,5 +261,12 @@
     "next": "Siguiente",
     "step-x-of-y": "Paso %step% de %total%",
     "column": "Columna",
-    "table": "Tabla"
+    "table": "Tabla",
+    "report-board-title-date": "Tablero de %column% sobre el campo de fecha %table%",
+    "report-board-title-date-created": "Tablero de %column% sobre el campo de fecha %table% creado correctamente.",
+    "report-by-hour": "%table%, %column% / hora",
+    "report-by-week": "%table%, %column% / semana",
+    "report-by-month": "%table%, %column% / mes",
+    "report-by-year": "%table%, %column% / año",
+    "error-creating-report-board": "Error al crear la pizarra de informes."
 }

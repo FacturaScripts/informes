@@ -261,5 +261,12 @@
     "next": "Next",
     "step-x-of-y": "Step %step% of %total%",
     "column": "Column",
-    "table": "Table"
+    "table": "Table",
+    "report-board-title-date": "Board of %column% on date field %table%",
+    "report-board-title-date-created": "Board of %column% on date field %table% created successfully.",
+    "report-by-hour": "%table%, %column% / hour",
+    "report-by-week": "%table%, %column% / week",
+    "report-by-month": "%table%, %column% / month",
+    "report-by-year": "%table%, %column% / year",
+    "error-creating-report-board": "Error creating report board."
 }
