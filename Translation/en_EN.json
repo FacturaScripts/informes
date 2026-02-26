@@ -246,5 +246,18 @@
     "total-customers": "Total customers",
     "field-can-not-be-null": "The %fieldName% field cannot be empty.",
     "table-not-found": "Table %tableName% not found.",
-    "no-data-found": "No data found."
+    "no-data-found": "No data found.",
+    "step-1-title": "Step 1: Select the table",
+    "step-1-desc": "Choose the database table on which you want to generate the report. Only tables containing date fields appear.",
+    "step-2-title": "Step 2: Select the column",
+    "step-2-desc": "You have selected the table %table%. Now choose the main column for the report. Only date type columns appear.",
+    "column-not-found": "Column %columnName% not found in table %tableName%.",
+    "column-not-date": "Column %columnName% in table %tableName% is not a date type.",
+    "report-wizard": "Report Wizard",
+    "back": "Back",
+    "finish": "Finish",
+    "next": "Next",
+    "step-x-of-y": "Step %step% of %total%",
+    "column": "Column",
+    "table": "Table"
 }

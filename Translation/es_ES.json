@@ -246,5 +246,18 @@
     "total-customers": "Clientes totales",
     "field-can-not-be-null": "El campo %fieldName% no puede estar vacío.",
     "table-not-found": "No se ha encontrado la tabla %tableName%.",
-    "no-data-found": "No se han encontrado datos."
+    "no-data-found": "No se han encontrado datos.",
+    "step-1-title": "Paso 1: Selecciona la tabla",
+    "step-1-desc": "Elige la tabla de la base de datos sobre la que quieres generar el informe. Solo aparecen las tablas que contienen campos de fecha.",
+    "step-2-title": "Paso 2: Selecciona la columna",
+    "step-2-desc": "Has seleccionado la tabla %table%. Ahora elige la columna principal para el informe. Solo aparecen las columnas de tipo fecha.",
+    "column-not-found": "No se ha encontrado la columna %columnName% en la tabla %tableName%.",
+    "column-not-date": "La columna %columnName% de la tabla %tableName% no es de tipo fecha.",
+    "report-wizard": "Asistente de Informes",
+    "back": "Volver",
+    "finish": "Finalizar",
+    "next": "Siguiente",
+    "step-x-of-y": "Paso %step% de %total%",
+    "column": "Columna",
+    "table": "Tabla"
 }
