@@ -23,6 +23,8 @@ use FacturaScripts\Core\Lib\ExtendedController\ListController;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\CodeModel;
 use FacturaScripts\Dinamic\Lib\Informes\ReportGenerator;
+use FacturaScripts\Dinamic\Model\Report;
+use FacturaScripts\Dinamic\Model\ReportBoard;
 
 /**
  * Description of ListReport
@@ -180,6 +182,62 @@ class ListReport extends ListController
         return $tablesWithDate;
     }
 
+    /**
+     * Crea una pizarra con varias gráficas relacionadas con un campo tipo fecha o timestamp.
+     * Se tiene que pasar una tabla y fecha válidos.
+     * Devuelve el código del tablero si está ok o false.
+     * Se debe usar una transaction desde fuera (por si no se crea correctamente).
+     * 
+     * El nombre de la pizarra es "Tablero de $column sobre el campo de fecha $table."
+     * Se crearán informes con altura 250 y ancho 6 en la pizarra con los siguientes nombres:
+     *  - "$tabla, $campo / hora" (Si es timestamp)
+     *  - "$tabla, $campo / semana"
+     *  - "$tabla, $campo / mese"
+     *  - "$tabla, $campo / año"
+     */
+    public function createDateBoard(string $table, string $column): bool|ReportBoard
+    {
+        $board = new ReportBoard();
+        $board->name = Tools::lang()->trans('report-board-title-date', ['%column%' => $column, '%table%' => $table]);
+        if (false === $board->save()) {
+            Tools::log()->error('error-creating-report-board');
+            return false;
+        }
+
+        $reportsToCreate = [];
+
+        // revisar si es timestamp para añadir la hora
+        $cols = $this->dataBase->getColumns($table);
+        $colType = strtolower($cols[$column]['type'] ?? '');
+        if (in_array($colType, ['timestamp', 'timestamp without time zone'])) {
+            $reportsToCreate['HOUR'] = Tools::lang()->trans('report-by-hour', ['%column%' => $column, '%table%' => $table]);
+        }
+
+        // añadir las semanas, meses y años
+        $reportsToCreate['WEEK'] = Tools::lang()->trans('report-by-week', ['%column%' => $column, '%table%' => $table]);
+        $reportsToCreate['MONTHS'] = Tools::lang()->trans('report-by-month', ['%column%' => $column, '%table%' => $table]);
+        $reportsToCreate['YEAR'] = Tools::lang()->trans('report-by-year', ['%column%' => $column, '%table%' => $table]);
+
+        $pos = 1;
+        foreach ($reportsToCreate as $xOp => $name) {
+            $report = new Report();
+            $report->name = $name;
+            $report->table = $table;
+            $report->xcolumn = $column;
+            $report->xoperation = $xOp;
+            $report->ycolumn = '';
+            $report->yoperation = '';
+            $report->type = Report::TYPE_BAR;
+
+            if ($report->save()) {
+                $board->addLine($report, $pos++);
+            }
+        }
+
+        Tools::log()->notice('report-board-title-date-created', ['%column%' => $column, '%table%' => $table]);
+        return $board;
+    }
+
     protected function processCustomBoardAction(): bool
     {
         $table = $this->request->queryOrInput('selectedTable', '');
@@ -208,9 +266,19 @@ class ListReport extends ListController
             return false;
         }
 
-        // Logic to process the selection would go here
-        // TODO: Realizar acción después de elegir
-        Tools::log()->notice('Procesando tabla: ' . $table . ', columna: ' . $column);
+        // Está todo ok, procesar la petición con los tados recibidos:
+        $db = $this->db();
+        $db->beginTransaction();
+        $newBoard = $this->createDateBoard($table, $column);
+        if (false === $newBoard) {
+            $db->rollback();
+            Tools::log()->error('error-creating-report-board');
+            return false;
+        }
+
+        // aceptar la transacción y redirigir al panel
+        $db->commit();
+        $this->redirect($newBoard->url('edit'));
 
         return true;
     }
