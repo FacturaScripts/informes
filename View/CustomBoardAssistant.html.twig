@@ -17,7 +17,7 @@ Se podría refactorizar o hacer el componente más reutilizable si se pasan como
             <div class="col-md-8 col-lg-6">
                 <div class="card shadow">
                     <div class="card-header bg-primary text-white">
-                        <h4 class="mb-0"><i class="fa-solid fa-wand-magic-sparkles"></i> {{ trans('report-wizard') }}</h4>
+                        <h4 class="mb-0"><i class="fa-solid fa-wand-magic-sparkles"></i> {{ trans('report-date-wizard') }}</h4>
                     </div>
 
                     {% if fsc.twigData.selectedTable %}
@@ -35,7 +35,7 @@ Se podría refactorizar o hacer el componente más reutilizable si se pasan como
                                 </div>
 
                                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                                    <a href="{{ fsc.url() }}?action=customBoardAssistant" class="btn btn-outline-secondary me-md-2">
+                                    <a href="{{ fsc.url() }}?action=custom-board-assistant" class="btn btn-outline-secondary me-md-2">
                                         <i class="fa-solid fa-arrow-left"></i> {{ trans('back') }}
                                     </a>
                                     <button class="btn btn-primary" type="submit">
@@ -55,7 +55,7 @@ Se podría refactorizar o hacer el componente más reutilizable si se pasan como
                             <p class="card-text text-muted">{{ trans('step-1-desc') }}</p>
 
                             <form action="{{ fsc.url() }}" method="get" id="reportForm">
-                                <input type="hidden" name="action" value="customBoardAssistant">
+                                <input type="hidden" name="action" value="custom-board-assistant">
 
                                 <div class="mb-3">
                                     {{ forms.simpleSelect('selectTabla', 'selectedTable', fsc.twigData.selectedTable, fsc.twigData.tables, trans('table'), 'fa-solid fa-table') }}

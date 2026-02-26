@@ -100,6 +100,15 @@ class ListReport extends ListController
             'icon' => 'fa-solid fa-wand-magic-sparkles',
             'label' => 'generate',
         ]);
+
+        // boton del asistente
+        $this->addButton($viewName, [
+            'action' => $this->url() . '?action=custom-board-assistant',
+            'confirm' => false,
+            'icon' => 'fa-solid fa-hat-wizard',
+            'label' => 'generate-time-boards',
+            'type' => 'link'
+        ]);
     }
 
     protected function execPreviousAction($action)
@@ -108,7 +117,7 @@ class ListReport extends ListController
         switch($action) {
             case 'generate-boards':
                 return $this->generateBoardsAction();
-            case 'customBoardAssistant':
+            case 'custom-board-assistant':
                 return $this->showCustomBoardAssistant();
             case 'process-custom-board':
                 return $this->processCustomBoardAction();
