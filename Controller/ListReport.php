@@ -188,18 +188,19 @@ class ListReport extends ListController
 
         // revisar que exista la columna
         $tableCols = $this->dataBase->getColumns($table);
-        if (false === key_exists($column, $tableCols)) {
-            // TODO: añadir traducción y denegar petición
+        if (false === array_key_exists($column, $tableCols)) {
+            Tools::log()->error('column-not-found', ['%columnName%' => $column, '%tableName%' => $table]);
+            return false;
         }
 
         // revisar que sea tipo date la columna
-        if (in_array(strtolower($tableCols[$column]), ['date', 'timestamp', 'timestamp without time zone'])) {
-            // TODO: añadir traducción y denegar petición     
+        if (false === in_array(strtolower($tableCols[$column]['type']), ['date', 'timestamp', 'timestamp without time zone'])) {
+            Tools::log()->error('column-not-date', ['%columnName%' => $column, '%tableName%' => $table]);
+            return false;
         }
 
         // Logic to process the selection would go here
         // TODO: Realizar acción después de elegir
-        // TODO: cambiar texto de ayuda en el twig
         Tools::log()->notice('Procesando tabla: ' . $table . ', columna: ' . $column);
 
         return true;
@@ -223,6 +224,12 @@ class ListReport extends ListController
 
         $selectedTable = $this->request->queryOrInput('selectedTable', '');
         if (!empty($selectedTable)) {
+            // comprobar que la tabla existe
+            if (false === $this->dataBase->tableExists($selectedTable)) {
+                Tools::log()->error('table-not-found', ['%tableName%' => $selectedTable]);
+                return false;
+            }
+
             // asignar en el twig tabla seleccionada
             $this->twigData['selectedTable'] = $selectedTable;
             
