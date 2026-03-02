@@ -119,15 +119,15 @@
                     </div>
                     <div class="table-responsive">
                         <table class="table table-striped mb-0">
-                            {{ _self.showLine(trans('irpf') | upper ~ ' (4751xxx) (' ~ trans('payroll-professionals-111') ~ ')', fsc.da_impuestos['irpf-mod111']) }}
-                            {{ _self.showLine(trans('irpf') | upper ~ ' (4751xxx) (' ~ trans('rent-office') ~ ')', fsc.da_impuestos['irpf-mod115']) }}
+                            {{ _self.showLine(trans('irpf') | upper ~ ' (4751xxx) (' ~ trans('payroll-professionals-111') ~ ')', fsc.da_impuestos['irpf-mod111'], fsc.mod111Enabled ? '' : trans('plugin-deactivated-updated', {'%pluginName%':'Modelo111'})) }}
+                            {{ _self.showLine(trans('irpf') | upper ~ ' (4751xxx) (' ~ trans('rent-office') ~ ')', fsc.da_impuestos['irpf-mod115'], fsc.mod115Enabled ? '' : trans('plugin-deactivated-updated', {'%pluginName%':'Modelo115'})) }}
                             <tr>
                                 <td colspan="2"></td>
                             </tr>
-                            {{ _self.showLine('(a) ' ~ trans('passed-tax') ~ ' (477xxx)', fsc.da_impuestos['iva-repercutido']) }}
-                            {{ _self.showLine('(b) ' ~ trans('input-tax') ~ ' (472xxx)', fsc.da_impuestos['iva-soportado']) }}
-                            {{ _self.showLine('(c) ' ~ trans('tax-return-previous-quarters') ~ ' (470xxx)', fsc.da_impuestos['iva-devolver']) }}
-                            {{ _self.showLine(trans('result-tax') | upper ~ ' (MOD 303)', fsc.da_impuestos['resultado_iva-mod303']) }}
+                            {{ _self.showLine('(a) ' ~ trans('passed-tax') ~ ' (477xxx)', fsc.da_impuestos['iva-repercutido-mod303']) }}
+                            {{ _self.showLine('(b) ' ~ trans('input-tax') ~ ' (472xxx)', fsc.da_impuestos['iva-soportado-mod303']) }}
+                            {{ _self.showLine('(c) ' ~ trans('tax-return-previous-quarters') ~ ' (470xxx)', fsc.da_impuestos['iva-devolver-mod303']) }}
+                            {{ _self.showLine(trans('result-tax') | upper ~ ' (MOD 303)', fsc.da_impuestos['iva-resultado-mod303'], fsc.mod303Enabled ? '' : trans('plugin-deactivated-updated', {'%pluginName%':'Modelo303'})) }}
                             <tr>
                                 <td class="text-center" colspan="2">
                                     <strong>{{ trans('current-exercise') | upper }}</strong>
@@ -232,9 +232,14 @@
     </script>
 {% endblock %}
 
-{% macro showLine(title, price) %}
+{% macro showLine(title, price, small = '') %}
     <tr>
-        <td>{{ title }}</td>
+        <td>
+            {{ title }}
+            {% if small is not empty %}
+                <div class="small text-muted">{{ small }}</div>
+            {% endif %}
+        </td>
         <td class="money">
             {% if price < 0 %}
                 <span class="text-danger">{{ money(price) }}</span>

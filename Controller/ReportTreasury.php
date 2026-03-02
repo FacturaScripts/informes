@@ -21,6 +21,10 @@ namespace FacturaScripts\Plugins\Informes\Controller;
 
 use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Core\DataSrc\Empresas;
+use FacturaScripts\Core\Plugins;
+use FacturaScripts\Dinamic\Lib\Modelo111;
+use FacturaScripts\Dinamic\Lib\Modelo115;
+use FacturaScripts\Dinamic\Lib\Modelo303;
 use FacturaScripts\Dinamic\Model\Ejercicio;
 use FacturaScripts\Dinamic\Model\Subcuenta;
 
@@ -68,6 +72,15 @@ class ReportTreasury extends Controller
     /** @var string */
     public $hasta = null;
 
+    /** @var bool */
+    public $mod111Enabled = false;
+
+    /** @var bool */
+    public $mod115Enabled = false;
+
+    /** @var bool */
+    public $mod303Enabled = false;
+
     /** @var Ejercicio */
     protected $ejercicio;
 
@@ -91,29 +104,7 @@ class ReportTreasury extends Controller
     public function privateCore(&$response, $user, $permissions)
     {
         parent::privateCore($response, $user, $permissions);
-
         $this->loadTreasury();
-    }
-
-    protected function cuadroTesoreria(): void
-    {
-        $this->da_tesoreria = [
-            'total_cajas' => 0,
-            'total_bancos' => 0,
-            'total_tesoreria' => 0,
-        ];
-
-        $this->loadBancos();
-        foreach ($this->bancos as $banco) {
-            $this->da_tesoreria["total_bancos"] += $banco->saldo;
-        }
-
-        $this->loadCajas();
-        foreach ($this->cajas as $caja) {
-            $this->da_tesoreria["total_cajas"] += $caja->saldo;
-        }
-
-        $this->da_tesoreria["total_tesoreria"] = $this->da_tesoreria["total_cajas"] + $this->da_tesoreria["total_bancos"];
     }
 
     protected function cuadroGastosCobros(): void
@@ -137,12 +128,12 @@ class ReportTreasury extends Controller
     protected function cuadroImpuestos(): void
     {
         $this->da_impuestos = [
-            'irpf-mod111' => $this->saldoCuenta('4751%', $this->desde, $this->hasta),
+            'irpf-mod111' => 0,
             'irpf-mod115' => 0,
-            'iva-repercutido' => $this->saldoCuenta('477%', $this->desde, $this->hasta),
-            'iva-soportado' => $this->saldoCuenta('472%', $this->desde, $this->hasta),
-            'iva-devolver' => $this->saldoCuenta('4700%', $this->desde, $this->hasta),
-            'resultado_iva-mod303' => 0,
+            'iva-repercutido-mod303' => 0,
+            'iva-soportado-mod303' => 0,
+            'iva-devolver-mod303' => 0,
+            'iva-resultado-mod303' => 0,
             'ventas_totales' => $this->getVentasTotales(),
             'gastos_totales' => -1 * $this->saldoCuenta('6%', $this->desde, $this->hasta),
             'resultado' => 0,
@@ -157,23 +148,29 @@ class ReportTreasury extends Controller
             'total-mod200' => 0,
         ];
 
-        // cogemos las cuentas del alquiler de la configuración para generar el mod-115
-        $sql = "SELECT * FROM subcuentas WHERE idcuenta IN "
-            . "(SELECT idcuenta FROM cuentas WHERE codcuentaesp = " . $this->dataBase->var2str('IRPFA')
-            . " AND codejercicio = " . $this->dataBase->var2str($this->codejercicio)
-            . ") ORDER BY codsubcuenta ASC;";
-
-        $cuentas_alquiler = $this->dataBase->select($sql);
-        foreach ($cuentas_alquiler as $cta_alquiler) {
-            if ($cta_alquiler) {
-                $this->da_impuestos["irpf-mod115"] += $this->saldoCuenta($cta_alquiler, $this->desde, $this->hasta);
-                $this->da_impuestos["irpf-mod111"] -= $this->saldoCuenta($cta_alquiler, $this->desde, $this->hasta);
-            }
+        // si el Modelo111 está activado, obtenemos los datos del plugin
+        if ($this->mod111Enabled) {
+            $mod111 = Modelo111::generate($this->codejercicio, 'ANNUAL');
+            $this->da_impuestos["irpf-mod111"] = $mod111['totalIngresar'] ?? 0;
         }
 
-        $this->da_impuestos["resultado_iva-mod303"] = $this->da_impuestos["iva-repercutido"]
-            + $this->da_impuestos["iva-soportado"]
-            + $this->da_impuestos["iva-devolver"];
+        // si el Modelo115 está activado, obtenemos los datos del plugin
+        if ($this->mod115Enabled) {
+            $mod115 = Modelo115::generate($this->codejercicio, 'ANNUAL', '', 0);
+            $this->da_impuestos["irpf-mod115"] = $mod115['result'] ?? 0;
+        }
+
+        // si el Modelo303 está activado, obtenemos los datos del plugin
+        if ($this->mod303Enabled) {
+            $mod303 = Modelo303::treasury($this->codejercicio, 'ANNUAL');
+            $this->da_impuestos["iva-repercutido-mod303"] = $mod303['iva-repercutido'] ?? 0;
+            $this->da_impuestos["iva-soportado-mod303"] = $mod303['iva-soportado'] ?? 0;
+            $this->da_impuestos["iva-devolver-mod303"] = $mod303['iva-devolver'] ?? 0;
+
+            $this->da_impuestos["iva-resultado-mod303"] = $this->da_impuestos["iva-repercutido-mod303"]
+                + $this->da_impuestos["iva-soportado-mod303"]
+                + $this->da_impuestos["iva-devolver-mod303"];
+        }
 
         $this->da_impuestos["resultado"] = $this->da_impuestos["ventas_totales"] + $this->da_impuestos["gastos_totales"];
 
@@ -196,17 +193,6 @@ class ReportTreasury extends Controller
         }
 
         $this->da_impuestos["total-mod200"] = $this->da_impuestos["sociedades_ant"] - $this->da_impuestos["sociedades_adelantos"];
-    }
-
-    protected function cuadroResultadosSituacionCorto(): void
-    {
-        $this->da_resultado_situacion["total"] = $this->da_tesoreria["total_tesoreria"]
-            + $this->da_gastos_cobros["total_gastoscobros"]
-            + $this->da_impuestos["irpf-mod111"]
-            + $this->da_impuestos["irpf-mod115"]
-            + $this->da_impuestos["resultado_iva-mod303"]
-            + $this->da_impuestos["pagofraccionado-mod202"]
-            + $this->da_impuestos["total-mod200"];
     }
 
     protected function cuadroReservas(): void
@@ -252,6 +238,82 @@ class ReportTreasury extends Controller
             + $this->da_resultado_actual["impuesto_sociedades"];
     }
 
+    protected function cuadroResultadosSituacionCorto(): void
+    {
+        $this->da_resultado_situacion["total"] = $this->da_tesoreria["total_tesoreria"]
+            + $this->da_gastos_cobros["total_gastoscobros"]
+            + $this->da_impuestos["irpf-mod111"]
+            + $this->da_impuestos["irpf-mod115"]
+            + $this->da_impuestos["iva-resultado-mod303"]
+            + $this->da_impuestos["pagofraccionado-mod202"]
+            + $this->da_impuestos["total-mod200"];
+    }
+
+    protected function cuadroTesoreria(): void
+    {
+        $this->da_tesoreria = [
+            'total_cajas' => 0,
+            'total_bancos' => 0,
+            'total_tesoreria' => 0,
+        ];
+
+        $this->loadBancos();
+        foreach ($this->bancos as $banco) {
+            $this->da_tesoreria["total_bancos"] += $banco->saldo;
+        }
+
+        $this->loadCajas();
+        foreach ($this->cajas as $caja) {
+            $this->da_tesoreria["total_cajas"] += $caja->saldo;
+        }
+
+        $this->da_tesoreria["total_tesoreria"] = $this->da_tesoreria["total_cajas"] + $this->da_tesoreria["total_bancos"];
+    }
+
+    protected function getCobrosPendientes(): float
+    {
+        $total = 0.0;
+
+        $sql = "SELECT SUM(importe) as total FROM recibospagoscli WHERE pagado = false"
+            . " AND fecha >= " . $this->dataBase->var2str($this->desde)
+            . " AND fecha <= " . $this->dataBase->var2str($this->hasta) . ";";
+        $data = $this->dataBase->select($sql);
+        if ($data && $data[0]['total'] !== null) {
+            $total = floatval($data[0]['total']);
+        }
+
+        return $total;
+    }
+
+    protected function getGastosPendientes(): float
+    {
+        $total = 0.0;
+
+        $sql = "SELECT SUM(importe) as total FROM recibospagosprov WHERE pagado = false"
+            . " AND fecha >= " . $this->dataBase->var2str($this->desde)
+            . " AND fecha <= " . $this->dataBase->var2str($this->hasta) . ";";
+        $data = $this->dataBase->select($sql);
+        if ($data && $data[0]['total'] !== null) {
+            $total = floatval($data[0]['total']);
+        }
+
+        return $total;
+    }
+
+    protected function getVentasTotales(): float
+    {
+        $total = 0.0;
+
+        $sql = "SELECT SUM(neto) as total FROM facturascli WHERE fecha >= " . $this->dataBase->var2str($this->desde)
+            . " AND fecha <= " . $this->dataBase->var2str($this->hasta) . ';';
+        $data = $this->dataBase->select($sql);
+        if ($data && $data[0]['total'] !== null) {
+            $total = floatval($data[0]['total']);
+        }
+
+        return $total;
+    }
+
     protected function loadBancos(): void
     {
         $this->bancos = [];
@@ -279,59 +341,28 @@ class ReportTreasury extends Controller
         }
     }
 
-    protected function getGastosPendientes(): float
+    protected function loadPluginEnabled(): void
     {
-        $total = 0.0;
+        $this->mod111Enabled = Plugins::isEnabled('Modelo111')
+            && class_exists('\\FacturaScripts\\Dinamic\\Lib\\Modelo111');
 
-        $sql = "SELECT SUM(importe) as total FROM recibospagosprov WHERE pagado = false"
-            . " AND fecha >= " . $this->dataBase->var2str($this->desde)
-            . " AND fecha <= " . $this->dataBase->var2str($this->hasta) . ";";
-        $data = $this->dataBase->select($sql);
-        if ($data && $data[0]['total'] !== null) {
-            $total = floatval($data[0]['total']);
-        }
+        $this->mod115Enabled = Plugins::isEnabled('Modelo115')
+            && class_exists('\\FacturaScripts\\Dinamic\\Lib\\Modelo115');
 
-        return $total;
-    }
-
-    protected function getCobrosPendientes(): float
-    {
-        $total = 0.0;
-
-        $sql = "SELECT SUM(importe) as total FROM recibospagoscli WHERE pagado = false"
-            . " AND fecha >= " . $this->dataBase->var2str($this->desde)
-            . " AND fecha <= " . $this->dataBase->var2str($this->hasta) . ";";
-        $data = $this->dataBase->select($sql);
-        if ($data && $data[0]['total'] !== null) {
-            $total = floatval($data[0]['total']);
-        }
-
-        return $total;
-    }
-
-    protected function getVentasTotales(): float
-    {
-        $total = 0.0;
-
-        $sql = "SELECT SUM(neto) as total FROM facturascli WHERE fecha >= " . $this->dataBase->var2str($this->desde)
-            . " AND fecha <= " . $this->dataBase->var2str($this->hasta) . ';';
-        $data = $this->dataBase->select($sql);
-        if ($data && $data[0]['total'] !== null) {
-            $total = floatval($data[0]['total']);
-        }
-
-        return $total;
+        $this->mod303Enabled = Plugins::isEnabled('Modelo303')
+            && class_exists('\\FacturaScripts\\Dinamic\\Lib\\Modelo303');
     }
 
     protected function loadTreasury(): void
     {
-        $this->code = $this->request->get('code', '');
+        $this->code = $this->request->inputOrQuery('code', '');
         $this->codejercicio = null;
         $this->codejercicio_ant = null;
         $this->desde = date('Y-01-01');
         $this->ejercicio = new Ejercicio();
         $this->ejercicio_ant = new Ejercicio();
         $this->hasta = date('Y-12-31');
+        $this->loadPluginEnabled();
 
         // Inicializamos los arrays con valores por defecto
         $this->initializeDataArrays();
@@ -394,10 +425,10 @@ class ReportTreasury extends Controller
         $this->da_impuestos = [
             'irpf-mod111' => 0.0,
             'irpf-mod115' => 0.0,
-            'iva-repercutido' => 0.0,
-            'iva-soportado' => 0.0,
-            'iva-devolver' => 0.0,
-            'resultado_iva-mod303' => 0.0,
+            'iva-repercutido-mod303' => 0.0,
+            'iva-soportado-mod303' => 0.0,
+            'iva-devolver-mod303' => 0.0,
+            'iva-resultado-mod303' => 0.0,
             'ventas_totales' => 0.0,
             'gastos_totales' => 0.0,
             'resultado' => 0.0,
