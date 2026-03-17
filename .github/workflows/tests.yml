@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: ['8.0', '8.1', '8.2', '8.3', '8.4']
+        php-version: ['8.1', '8.2', '8.3', '8.4']
         database: ['mysql', 'postgresql']
 
     env:
@@ -59,19 +59,19 @@ jobs:
           coverage: none
 
       - name: Clonar FacturaScripts
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
           repository: 'NeoRazorX/facturascripts'
 
       - name: Clonar Plugin ${{ env.NOMBRE_PLUGIN }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
           path: Plugins/${{ env.NOMBRE_PLUGIN }}
 
       - name: Cache de dependencias de Composer
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         with:
           path: ~/.composer/cache/files
           key: composer-${{ runner.os }}-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
@@ -127,6 +127,15 @@ jobs:
           else
             echo "No se encontraron tests para el plugin"
             exit 1
+          fi
+
+      - name: Instalar dependencias del Plugin ${{ env.NOMBRE_PLUGIN }}
+        run: |
+          if [ -f "Plugins/${{ env.NOMBRE_PLUGIN }}/composer.json" ]; then
+            cd Plugins/${{ env.NOMBRE_PLUGIN }}
+            composer install --prefer-dist --no-interaction --no-progress --optimize-autoloader
+          else
+            echo "El plugin no tiene dependencias de Composer"
           fi
 
       - name: Instalar el Plugin ${{ env.NOMBRE_PLUGIN }}
