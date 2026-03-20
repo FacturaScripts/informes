@@ -45,7 +45,7 @@ class EditUser
                 return;
             }
 
-            // generemos los informes
+            // generemos los Informes
             $code = $this->getModel()->primaryColumnValue();
             if (empty($code)) {
                 Tools::log()->warning('no-user-code');

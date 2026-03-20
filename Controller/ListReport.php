@@ -189,7 +189,7 @@ class ListReport extends ListController
      * Se debe usar una transaction desde fuera (por si no se crea correctamente).
      * 
      * El nombre de la pizarra es "Tablero de $column sobre el campo de fecha $table."
-     * Se crearán informes con altura 250 y ancho 6 en la pizarra con los siguientes nombres:
+     * Se crearán Informes con altura 250 y ancho 6 en la pizarra con los siguientes nombres:
      *  - "$tabla, $campo / hora" (Si es timestamp)
      *  - "$tabla, $campo / semana"
      *  - "$tabla, $campo / mese"

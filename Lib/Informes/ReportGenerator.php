@@ -56,7 +56,7 @@ class ReportGenerator
     {
         $total = 0;
 
-        // creamos los informes
+        // creamos los Informes
         $tables = ['contactos', 'clientes', 'facturascli', 'albaranescli', 'pedidoscli', 'presupuestoscli', 'serviciosat',
             'proveedores', 'facturasprov', 'albaranesprov', 'pedidosprov', 'presupuestosprov'];
         foreach ($tables as $table) {
@@ -79,7 +79,7 @@ class ReportGenerator
             return $total;
         }
 
-        // creamos los informes
+        // creamos los Informes
         $tables = ['facturascli', 'albaranescli', 'pedidoscli', 'presupuestoscli'];
         foreach ($tables as $table) {
             $total += static::generateReportsTotalByAgent($table, $agent);
@@ -113,7 +113,7 @@ class ReportGenerator
             return $total;
         }
 
-        // creamos los informes
+        // creamos los Informes
         $tables = ['facturascli', 'albaranescli', 'pedidoscli', 'presupuestoscli'];
         foreach ($tables as $table) {
             $total += static::generateReportsTotalByCustomer($table, $customer);
@@ -147,7 +147,7 @@ class ReportGenerator
             return $total;
         }
 
-        // creamos los informes
+        // creamos los Informes
         $tables = ['facturasprov', 'albaranesprov', 'pedidosprov', 'presupuestosprov'];
         foreach ($tables as $table) {
             $total += static::generateReportsTotalBySupplier($table, $supplier);
@@ -181,7 +181,7 @@ class ReportGenerator
             return $total;
         }
 
-        // creamos los informes
+        // creamos los Informes
         $tables = ['facturascli', 'albaranescli', 'pedidoscli', 'presupuestoscli', 'facturasprov', 'albaranesprov',
             'pedidosprov', 'presupuestosprov'];
         foreach ($tables as $table) {
@@ -309,7 +309,7 @@ class ReportGenerator
             return false;
         }
 
-        // añadimos los informes
+        // añadimos los Informes
         $pos = 1;
         foreach ($report_tags as $r_tag) {
             $report = new Report();
@@ -625,7 +625,7 @@ class ReportGenerator
     {
         $total = 0;
 
-        // si solamente hay un almacén, no es necesario crear informes por almacén
+        // si solamente hay un almacén, no es necesario crear Informes por almacén
         if (count(Almacenes::all()) <= 1) {
             return $total;
         }
@@ -799,7 +799,7 @@ class ReportGenerator
             if ($reportMonths->save()) {
                 $total++;
 
-                // guardamos los informes para futuras referencias
+                // guardamos los Informes para futuras referencias
                 self::$table_reports[$table_name][] = $reportMonths;
             }
         }
@@ -819,7 +819,7 @@ class ReportGenerator
             if ($reportYears->save()) {
                 $total++;
 
-                // guardamos los informes para futuras referencias
+                // guardamos los Informes para futuras referencias
                 self::$table_reports[$table_name][] = $reportYears;
             }
         }
@@ -847,7 +847,7 @@ class ReportGenerator
             if ($reportMonths->save()) {
                 $total++;
 
-                // guardamos los informes para futuras referencias
+                // guardamos los Informes para futuras referencias
                 self::$table_reports[$table_name][] = $reportMonths;
             }
         }
@@ -869,7 +869,7 @@ class ReportGenerator
             if ($reportYears->save()) {
                 $total++;
 
-                // guardamos los informes para futuras referencias
+                // guardamos los Informes para futuras referencias
                 self::$table_reports[$table_name][] = $reportYears;
             }
         }

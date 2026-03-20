@@ -115,7 +115,7 @@ class EditReport extends EditController
         // añadimos la pestaña de filtros
         $this->createViewsFilterLines();
 
-        // añadimos la pestaña de informes relacionados
+        // añadimos la pestaña de Informes relacionados
         $this->createViewsRelatedReports();
     }
 

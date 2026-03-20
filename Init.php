@@ -22,6 +22,9 @@ namespace FacturaScripts\Plugins\Informes;
 use FacturaScripts\Core\Base\DataBase;
 use FacturaScripts\Core\Template\InitClass;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Core\Model\Role;
+use FacturaScripts\Core\Model\RoleAccess;
+use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Model\BalanceAccount;
 use FacturaScripts\Dinamic\Model\BalanceCode;
 use FacturaScripts\Dinamic\Model\Empresa;
@@ -51,6 +54,7 @@ final class Init extends InitClass
         // migramos los datos antiguos
         $this->migrateOldBalances();
         $this->migrateOldReports();
+        $this->createRoleForPlugin();
     }
 
     private function copyBalancePymes(): bool
@@ -207,5 +211,79 @@ final class Init extends InitClass
                 return;
             }
         }
+    }
+
+    private function createRoleForPlugin(): void
+    {
+        $roleName = 'Informes';
+
+        new Role();
+        new RoleAccess();
+
+        $dataBase = new DataBase();
+        $dataBase->beginTransaction();
+
+        // creates the role if not exists
+        $role = new Role();
+        if (false === $role->load($roleName)) {
+            $role->codrole = $role->descripcion = $roleName;
+            if (false === $role->save()) {
+                // rollback and exit on fail
+                $dataBase->rollback();
+                return;
+            }
+        }
+
+        // checks the role permissions
+        $nameControllers = [];
+
+        // scan Controller and Extension/Controller for pagenames
+        $dirs = [__DIR__ . '/Controller', __DIR__ . '/Extension/Controller'];
+        foreach ($dirs as $dir) {
+            if (!is_dir($dir)) {
+                continue;
+            }
+            foreach (scandir($dir) as $file) {
+                if (!is_file($dir . DIRECTORY_SEPARATOR . $file)) {
+                    continue;
+                }
+                if (substr($file, -4) !== '.php') {
+                    continue;
+                }
+                $name = pathinfo($file, PATHINFO_FILENAME);
+                // filter by allowed prefixes
+                if (preg_match('/^(Edit|List|Report|Dashboard)/', $name)) {
+                    $nameControllers[] = $name;
+                }
+            }
+        }
+        $nameControllers = array_unique($nameControllers);
+
+        foreach ($nameControllers as $nameController) {
+            $roleAccess = new RoleAccess();
+            $where = [
+                Where::eq('codrole', $roleName),
+                Where::eq('pagename', $nameController)
+            ];
+            if ($roleAccess->loadWhere($where)) {
+                // permission exists? Then skip
+                continue;
+            }
+
+            // creates the permission if not exists
+            $roleAccess->allowdelete = true;
+            $roleAccess->allowupdate = true;
+            $roleAccess->codrole = $roleName;
+            $roleAccess->pagename = $nameController;
+            $roleAccess->onlyownerdata = false;
+            if (false === $roleAccess->save()) {
+                // rollback and exit on fail
+                $dataBase->rollback();
+                return;
+            }
+        }
+
+        // without problems = Commit
+        $dataBase->commit();
     }
 }
