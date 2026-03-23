@@ -22,6 +22,9 @@ namespace FacturaScripts\Plugins\Informes;
 use FacturaScripts\Core\Base\DataBase;
 use FacturaScripts\Core\Template\InitClass;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Core\Where;
+use FacturaScripts\Core\Model\Role;
+use FacturaScripts\Core\Model\RoleAccess;
 use FacturaScripts\Dinamic\Model\BalanceAccount;
 use FacturaScripts\Dinamic\Model\BalanceCode;
 use FacturaScripts\Dinamic\Model\Empresa;
@@ -43,6 +46,8 @@ final class Init extends InitClass
     {
     }
 
+    const ROLE_NAME = 'Informes';
+
     public function update(): void
     {
         // inicializamos empresa para que aplique los cambios en la tabla
@@ -51,6 +56,64 @@ final class Init extends InitClass
         // migramos los datos antiguos
         $this->migrateOldBalances();
         $this->migrateOldReports();
+
+        // crea el role y permisos del plugin
+        $this->createRoleForPlugin();
+    }
+
+    private function createRoleForPlugin(): void
+    {
+        // force table checks for Role and RoleAccess
+        new Role();
+        new RoleAccess();
+
+        $dataBase = new DataBase();
+        $dataBase->beginTransaction();
+
+        // creates the role if not exists
+        $role = new Role();
+        if (false === $role->load(self::ROLE_NAME)) {
+            $role->codrole = $role->descripcion = self::ROLE_NAME;
+            if (false === $role->save()) {
+                // rollback and exit on fail
+                $dataBase->rollback();
+                return;
+            }
+        }
+
+        // checks the role permissions
+        $nameControllers = [
+            'ReportTreasury','ReportTransport','ReportTaxes','ReportResult',
+            'ReportProducto','ReportClients','ReportBreakdown','ReportBooks',
+            'ListReportAccounting','ListReport',
+            'EditReportLedger','EditReportBoard','EditReportBalance','EditReportAmount','EditReport','EditBalanceCode'
+        ];
+        foreach ($nameControllers as $nameController) {
+            $roleAccess = new RoleAccess();
+            $where = [
+                Where::eq('codrole', self::ROLE_NAME),
+                Where::eq('pagename', $nameController)
+            ];
+            if ($roleAccess->loadWhere($where)) {
+                // permission exists? Then skip
+                continue;
+            }
+
+            // creates the permission if not exists
+            $roleAccess->allowdelete = true;
+            $roleAccess->allowupdate = true;
+            $roleAccess->codrole = self::ROLE_NAME;
+            $roleAccess->pagename = $nameController;
+            $roleAccess->onlyownerdata = false;
+            if (false === $roleAccess->save()) {
+                // rollback and exit on fail
+                $dataBase->rollback();
+                return;
+            }
+        }
+
+        // without problems = Commit
+        $dataBase->commit();
     }
 
     private function copyBalancePymes(): bool
