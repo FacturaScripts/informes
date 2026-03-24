@@ -27,9 +27,12 @@ Se podría refactorizar o hacer el componente más reutilizable si se pasan como
                         {# STEP 2 #}
                         <div class="card-body">
                             <h5 class="card-title">{{ trans('column') }}</h5>
-                            <p class="card-text text-muted">Selecciona la columna de fecha de la tabla {{ fsc.twigData.selectedTable }}.</p>
+                            <p class="card-text text-muted">
+                                {{ trans('report-board-wizard-column-help', {'%table%': fsc.twigData.selectedTable}) }}
+                            </p>
 
                             <form action="{{ fsc.url() }}" method="post">
+                                {{ formToken() }}
                                 <input type="hidden" name="action" value="process-custom-board">
                                 <input type="hidden" name="selectedTable" value="{{ fsc.twigData.selectedTable }}">
 
@@ -52,7 +55,7 @@ Se podría refactorizar o hacer el componente más reutilizable si se pasan como
                         <div class="card-body">
                             <div class="border rounded p-3 mb-4">
                                 <h5 class="card-title">{{ trans('generate') }} {{ trans('default')|lower }}</h5>
-                                <p class="card-text text-muted">Genera las pizarras predeterminadas del plugin.</p>
+                                <p class="card-text text-muted">{{ trans('report-board-wizard-default-help') }}</p>
 
                                 <form action="{{ fsc.url() }}" method="post">
                                     {{ formToken() }}
@@ -68,7 +71,7 @@ Se podría refactorizar o hacer el componente más reutilizable si se pasan como
 
                             <div class="border rounded p-3">
                                 <h5 class="card-title">{{ trans('create') }} {{ trans('reports-board')|lower }} {{ trans('date')|lower }}</h5>
-                                <p class="card-text text-muted">Elige una tabla y un campo de fecha para crear una pizarra personalizada.</p>
+                                <p class="card-text text-muted">{{ trans('report-board-wizard-date-help') }}</p>
 
                                 <form action="{{ fsc.url() }}" method="get" id="reportForm">
                                     <input type="hidden" name="action" value="custom-board-assistant">

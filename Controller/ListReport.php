@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2026 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -21,8 +21,8 @@ namespace FacturaScripts\Plugins\Informes\Controller;
 
 use FacturaScripts\Core\Lib\ExtendedController\ListController;
 use FacturaScripts\Core\Tools;
-use FacturaScripts\Dinamic\Model\CodeModel;
 use FacturaScripts\Dinamic\Lib\Informes\ReportGenerator;
+use FacturaScripts\Dinamic\Model\CodeModel;
 use FacturaScripts\Dinamic\Model\Report;
 use FacturaScripts\Dinamic\Model\ReportBoard;
 
@@ -45,7 +45,7 @@ class ListReport extends ListController
         return $data;
     }
 
-    protected function createViews()
+    protected function createViews(): void
     {
         $this->createViewsReport();
         $this->createViewsReportBoard();
@@ -95,7 +95,7 @@ class ListReport extends ListController
             ->addOrderBy(['featured', 'creationdate'], 'creation-date', 2)
             ->addSearchFields(['name', 'tag']);
 
-        // boton del asistente
+        // botón del asistente
         $this->addButton($viewName, [
             'action' => $this->url() . '?action=custom-board-assistant',
             'confirm' => false,
@@ -105,16 +105,18 @@ class ListReport extends ListController
         ]);
     }
 
-    protected function execPreviousAction($action)
+    protected function execPreviousAction($action): bool
     {
-
-        switch($action) {
-            case 'generate-boards':
-                return $this->generateBoardsAction();
+        switch ($action) {
             case 'custom-board-assistant':
                 return $this->showCustomBoardAssistant();
+
+            case 'generate-boards':
+                return $this->generateBoardsAction();
+
             case 'process-custom-board':
                 return $this->processCustomBoardAction();
+
             default:
                 return parent::execPreviousAction($action);
         }
@@ -136,38 +138,14 @@ class ListReport extends ListController
     }
 
     /**
-     * Devuelve una lista con las tablas que tienen almenos una columna de tipo date o timestamp y array con las columnas
-     * Ej:
-     *     return ['nomTabla' => ['colA', 'colB', 'colC'], ...] 
-    */
-    private function getTablesWithDate(): array
+     * Devuelve las tablas que tienen al menos una columna de tipo date o timestamp.
+     */
+    protected function getTablesWithDate(): array
     {
         $tablesWithDate = [];
-        $tables = $this->dataBase->getTables();
-        foreach ($tables as $table) {
-            $colsWithDate = [];
-            $cols = $this->dataBase->getColumns($table);
-            foreach ($cols as $colName => $colData) {
-                $type = strtolower($colData['type']);
-
-                /**
-                 * En la búsqueda mirando en los tipos que devuelve getColumns para todas las tablas he visto que;
-                 * En mariadb (similar a sql) devuelve:
-                 *      - date
-                 *      - time
-                 *      - timestamp
-                 * En postgresql es diferente:
-                 *      - date
-                 *      - timestamp without time zone
-                 *      - time without time zone
-                 */
-                if (in_array($type, ['date', 'timestamp', 'timestamp without time zone'])) {
-                    $colsWithDate[] = $colName;
-                }
-            }
-
-            if (count($colsWithDate) > 0) {
-                $tablesWithDate[$table] = $colsWithDate;
+        foreach ($this->dataBase->getTables() as $table) {
+            if (!empty($this->getDateColumns($table))) {
+                $tablesWithDate[] = $table;
             }
         }
 
@@ -175,40 +153,60 @@ class ListReport extends ListController
     }
 
     /**
-     * Crea una pizarra con varias gráficas relacionadas con un campo tipo fecha o timestamp.
-     * Se tiene que pasar una tabla y fecha válidos.
-     * Devuelve el código del tablero si está ok o false.
-     * Se debe usar una transaction desde fuera (por si no se crea correctamente).
-     * 
-     * El nombre de la pizarra es "Tablero de $column sobre el campo de fecha $table."
-     * Se crearán informes con altura 250 y ancho 6 en la pizarra con los siguientes nombres:
-     *  - "$tabla, $campo / hora" (Si es timestamp)
-     *  - "$tabla, $campo / semana"
-     *  - "$tabla, $campo / mese"
-     *  - "$tabla, $campo / año"
+     * Devuelve las columnas date/timestamp de una tabla concreta.
      */
-    public function createDateBoard(string $table, string $column): bool|ReportBoard
+    protected function getDateColumns(string $table): array
+    {
+        $colsWithDate = [];
+        foreach ($this->dataBase->getColumns($table) as $colName => $colData) {
+            $type = strtolower($colData['type']);
+
+            /**
+             * En mariadb:
+             *  - date
+             *  - timestamp
+             * En postgresql:
+             *  - date
+             *  - timestamp without time zone
+             */
+            if (in_array($type, ['date', 'timestamp', 'timestamp without time zone'])) {
+                $colsWithDate[] = $colName;
+            }
+        }
+
+        return $colsWithDate;
+    }
+
+    /**
+     * Crea una pizarra con gráficas temporales para una tabla y una columna de fecha válidas.
+     *
+     * La pizarra generada incluye informes por semana, mes y año; y también por hora
+     * cuando la columna es de tipo timestamp.
+     *
+     * Devuelve la pizarra creada o null si falla. La transacción debe gestionarse desde fuera.
+     */
+    protected function createDateBoard(string $table, string $column): ?ReportBoard
     {
         $board = new ReportBoard();
-        $board->name = Tools::lang()->trans('report-board-title-date', ['%column%' => $column, '%table%' => $table]);
+        $board->name = Tools::trans('report-board-title-date', ['%column%' => $column, '%table%' => $table]);
         if (false === $board->save()) {
             Tools::log()->error('error-creating-report-board');
-            return false;
+            return null;
         }
 
         $reportsToCreate = [];
 
         // revisar si es timestamp para añadir la hora
-        $cols = $this->dataBase->getColumns($table);
+        $cols = $this->db()->getColumns($table);
         $colType = strtolower($cols[$column]['type'] ?? '');
         if (in_array($colType, ['timestamp', 'timestamp without time zone'])) {
-            $reportsToCreate['HOUR'] = Tools::lang()->trans('report-by-hour', ['%column%' => $column, '%table%' => $table]);
+            $reportsToCreate['HOUR'] = Tools::trans('report-by-hour', ['%column%' => $column, '%table%' => $table]);
         }
 
         // añadir las semanas, meses y años
-        $reportsToCreate['WEEK'] = Tools::lang()->trans('report-by-week', ['%column%' => $column, '%table%' => $table]);
-        $reportsToCreate['MONTHS'] = Tools::lang()->trans('report-by-month', ['%column%' => $column, '%table%' => $table]);
-        $reportsToCreate['YEAR'] = Tools::lang()->trans('report-by-year', ['%column%' => $column, '%table%' => $table]);
+        $reportsToCreate['WEEK'] = Tools::trans('report-by-week', ['%column%' => $column, '%table%' => $table]);
+        $reportsToCreate['MONTHS'] = Tools::trans('report-by-month', ['%column%' => $column, '%table%' => $table]);
+        $reportsToCreate['YEAR'] = Tools::trans('report-by-year', ['%column%' => $column, '%table%' => $table]);
 
         $pos = 1;
         foreach ($reportsToCreate as $xOp => $name) {
@@ -232,6 +230,13 @@ class ListReport extends ListController
 
     protected function processCustomBoardAction(): bool
     {
+        if (false === $this->permissions->allowUpdate) {
+            Tools::log()->warning('permission-denied');
+            return true;
+        } elseif (false === $this->validateFormToken()) {
+            return true;
+        }
+
         $table = $this->request->queryOrInput('selectedTable', '');
         $column = $this->request->queryOrInput('selectedColumn', '');
 
@@ -240,13 +245,13 @@ class ListReport extends ListController
             return false;
         }
 
-        if (false === $this->dataBase->tableExists($table)) {
+        if (false === $this->db()->tableExists($table)) {
             Tools::log()->error('table-not-found', ['%tableName%' => $table]);
             return false;
         }
 
         // revisar que exista la columna
-        $tableCols = $this->dataBase->getColumns($table);
+        $tableCols = $this->db()->getColumns($table);
         if (false === array_key_exists($column, $tableCols)) {
             Tools::log()->error('column-not-found', ['%columnName%' => $column, '%tableName%' => $table]);
             return false;
@@ -258,37 +263,35 @@ class ListReport extends ListController
             return false;
         }
 
-        // Está todo ok, procesar la petición con los tados recibidos:
-        $db = $this->db();
-        $db->beginTransaction();
+        // Está todo ok, procesar la petición con los datos recibidos.
+        $this->db()->beginTransaction();
+
         $newBoard = $this->createDateBoard($table, $column);
-        if (false === $newBoard) {
-            $db->rollback();
+        if (null === $newBoard) {
+            $this->db()->rollback();
             Tools::log()->error('error-creating-report-board');
             return false;
         }
 
         // aceptar la transacción y redirigir al panel
-        $db->commit();
+        $this->db()->commit();
+
         $this->redirect($newBoard->url('edit'));
 
         return true;
     }
 
     /**
-     * Muestra el asistente para escoger columnas date y timestamp de las tablas
-     * 
-     * 2 fases:
-     *  1. Tabla a escoger
-     *  2. Columna de la tabla
+     * Muestra el asistente para generar pizarras predeterminadas o crear una pizarra temporal.
+     *
+     * Si se ha seleccionado una tabla, carga sus columnas de fecha para el segundo paso.
      */
-    protected function showCustomBoardAssistant()
+    protected function showCustomBoardAssistant(): bool
     {
         // preparar el formulario
-        $tablesWithDate = $this->getTablesWithDate();
+        $tables = $this->getTablesWithDate();
 
         // tabla de tablas
-        $tables = array_keys($tablesWithDate); // recoger solo claves
         $this->twigData['tables'] = array_combine($tables, $tables); // combine para que sean mismo key/value
 
         $selectedTable = $this->request->queryOrInput('selectedTable', '');
@@ -301,12 +304,14 @@ class ListReport extends ListController
 
             // asignar en el twig tabla seleccionada
             $this->twigData['selectedTable'] = $selectedTable;
-            
+
             // mostrar columnas que son date o datetime
-            $columns = $tablesWithDate[$selectedTable];
+            $columns = $this->getDateColumns($selectedTable);
             $this->twigData['columns'] = array_combine($columns, $columns); // combine para que sean mismo key/value
         }
 
         $this->setTemplate('CustomBoardAssistant');
+
+        return true;
     }
 }
