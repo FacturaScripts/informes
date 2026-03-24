@@ -17,14 +17,17 @@ Se podría refactorizar o hacer el componente más reutilizable si se pasan como
             <div class="col-md-8 col-lg-6">
                 <div class="card shadow">
                     <div class="card-header bg-primary text-white">
-                        <h4 class="mb-0"><i class="fa-solid fa-wand-magic-sparkles"></i> {{ trans('report-date-wizard') }}</h4>
+                        <h4 class="mb-0">
+                            <i class="fa-solid fa-hat-wizard me-1"></i>
+                            {{ trans('wizard') }} {{ trans('reports-board')|lower }}
+                        </h4>
                     </div>
 
                     {% if fsc.twigData.selectedTable %}
                         {# STEP 2 #}
                         <div class="card-body">
-                            <h5 class="card-title">{{ trans('step-2-title') }}</h5>
-                            <p class="card-text text-muted">{{ trans('step-2-desc', {'%table%': fsc.twigData.selectedTable}) }}</p>
+                            <h5 class="card-title">{{ trans('column') }}</h5>
+                            <p class="card-text text-muted">Selecciona la columna de fecha de la tabla {{ fsc.twigData.selectedTable }}.</p>
 
                             <form action="{{ fsc.url() }}" method="post">
                                 <input type="hidden" name="action" value="process-custom-board">
@@ -39,37 +42,48 @@ Se podría refactorizar o hacer el componente más reutilizable si se pasan como
                                         <i class="fa-solid fa-arrow-left"></i> {{ trans('back') }}
                                     </a>
                                     <button class="btn btn-primary" type="submit">
-                                        {{ trans('finish') }} <i class="fa-solid fa-check"></i>
+                                        {{ trans('create') }} <i class="fa-solid fa-check"></i>
                                     </button>
                                 </div>
                             </form>
                         </div>
-                        <div class="card-footer text-muted">
-                            {{ trans('step-x-of-y', {'%step%': 2, '%total%': 2}) }}
-                        </div>
-
                     {% else %}
                         {# STEP 1 #}
                         <div class="card-body">
-                            <h5 class="card-title">{{ trans('step-1-title') }}</h5>
-                            <p class="card-text text-muted">{{ trans('step-1-desc') }}</p>
+                            <div class="border rounded p-3 mb-4">
+                                <h5 class="card-title">{{ trans('generate') }} {{ trans('default')|lower }}</h5>
+                                <p class="card-text text-muted">Genera las pizarras predeterminadas del plugin.</p>
 
-                            <form action="{{ fsc.url() }}" method="get" id="reportForm">
-                                <input type="hidden" name="action" value="custom-board-assistant">
+                                <form action="{{ fsc.url() }}" method="post">
+                                    {{ formToken() }}
+                                    <input type="hidden" name="action" value="generate-boards">
 
-                                <div class="mb-3">
-                                    {{ forms.simpleSelect('selectTabla', 'selectedTable', fsc.twigData.selectedTable, fsc.twigData.tables, trans('table'), 'fa-solid fa-table') }}
-                                </div>
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                        <button class="btn btn-primary" type="submit">
+                                            <i class="fa-solid fa-wand-magic-sparkles me-1"></i>{{ trans('generate') }}
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
 
-                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                                    <button class="btn btn-primary" type="submit">
-                                        {{ trans('next') }} <i class="fa-solid fa-arrow-right"></i>
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                        <div class="card-footer text-muted">
-                            {{ trans('step-x-of-y', {'%step%': 1, '%total%': 2}) }}
+                            <div class="border rounded p-3">
+                                <h5 class="card-title">{{ trans('create') }} {{ trans('reports-board')|lower }} {{ trans('date')|lower }}</h5>
+                                <p class="card-text text-muted">Elige una tabla y un campo de fecha para crear una pizarra personalizada.</p>
+
+                                <form action="{{ fsc.url() }}" method="get" id="reportForm">
+                                    <input type="hidden" name="action" value="custom-board-assistant">
+
+                                    <div class="mb-3">
+                                        {{ forms.simpleSelect('selectTabla', 'selectedTable', fsc.twigData.selectedTable, fsc.twigData.tables, trans('table'), 'fa-solid fa-table') }}
+                                    </div>
+
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                        <button class="btn btn-outline-primary" type="submit">
+                                            {{ trans('next') }} <i class="fa-solid fa-arrow-right"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     {% endif %}
                 </div>

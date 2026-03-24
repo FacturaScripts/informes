@@ -95,20 +95,12 @@ class ListReport extends ListController
             ->addOrderBy(['featured', 'creationdate'], 'creation-date', 2)
             ->addSearchFields(['name', 'tag']);
 
-        // botones
-        $this->addButton($viewName, [
-            'action' => 'generate-boards',
-            'confirm' => true,
-            'icon' => 'fa-solid fa-wand-magic-sparkles',
-            'label' => 'generate',
-        ]);
-
         // boton del asistente
         $this->addButton($viewName, [
             'action' => $this->url() . '?action=custom-board-assistant',
             'confirm' => false,
             'icon' => 'fa-solid fa-hat-wizard',
-            'label' => 'generate-time-boards',
+            'label' => 'wizard',
             'type' => 'link'
         ]);
     }
