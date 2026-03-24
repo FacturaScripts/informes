@@ -659,7 +659,7 @@ class ReportBreakdown extends Controller
         return $agrupados;
     }
 
-    protected function getInformeComprasDataWhere(): string
+    protected function getInformeComprasDataWhere(bool $withLineAlias = true): string
     {
         $sql = '';
 
@@ -688,7 +688,14 @@ class ReportBreakdown extends Controller
         }
 
         if (!empty($this->variant->id())) {
-            $sql .= " AND l.referencia = " . $this->dataBase->var2str($this->variant->referencia);
+            if ($withLineAlias) {
+                $sql .= " AND l.referencia = " . $this->dataBase->var2str($this->variant->referencia);
+            } else {
+                $lineTable = $this->type === 'invoices' ? 'lineasfacturasprov' : 'lineasalbaranesprov';
+                $code = $this->type === 'invoices' ? 'idfactura' : 'idalbaran';
+                $sql .= " AND d." . $code . " IN (SELECT " . $code . " FROM " . $lineTable
+                    . " WHERE referencia = " . $this->dataBase->var2str($this->variant->referencia) . ")";
+            }
         }
 
         return $sql;
@@ -704,7 +711,7 @@ class ReportBreakdown extends Controller
             . " WHERE d.fecha >= " . $this->dataBase->var2str($this->desde)
             . " AND d.fecha <= " . $this->dataBase->var2str($this->hasta)
             . " AND d.idempresa = " . $this->dataBase->var2str($this->idempresa)
-            . $this->getInformeComprasDataWhere()
+            . $this->getInformeComprasDataWhere(false)
             . " ORDER BY d.fecha ASC, d.hora ASC;";
 
         return $this->dataBase->select($sql);
@@ -713,17 +720,14 @@ class ReportBreakdown extends Controller
     protected function getInformeComprasNetoData(): array
     {
         $table = $this->type === 'invoices' ? 'facturasprov' : 'albaranesprov';
-        $line = $this->type === 'invoices' ? 'lineasfacturasprov' : 'lineasalbaranesprov';
         $code = $this->type === 'invoices' ? 'idfactura' : 'idalbaran';
 
-        $sql = "SELECT d.codproveedor, d.nombre, d.fecha, SUM(d.neto) as total"
+        $sql = "SELECT d.codproveedor, d.nombre, d.fecha, d.neto as total"
             . " FROM " . $table . " d"
-            . " LEFT JOIN " . $line . " l ON d." . $code . " = l." . $code
             . " WHERE d.fecha >= " . $this->dataBase->var2str($this->desde)
             . " AND d.fecha <= " . $this->dataBase->var2str($this->hasta)
             . " AND d.idempresa = " . $this->dataBase->var2str($this->idempresa)
-            . $this->getInformeComprasDataWhere()
-            . " GROUP BY d.codproveedor, d.nombre, d.fecha"
+            . $this->getInformeComprasDataWhere(false)
             . " ORDER BY d.codproveedor ASC, d.fecha DESC;";
 
         $data = $this->dataBase->select($sql);
@@ -761,7 +765,7 @@ class ReportBreakdown extends Controller
         return $this->getDatosAgrupadosRef($data, ['codproveedor', 'nombre']);
     }
 
-    protected function getInformeVentasDataWhere(): string
+    protected function getInformeVentasDataWhere(bool $withLineAlias = true): string
     {
         $sql = '';
         if (!empty($this->cliente->id())) {
@@ -809,7 +813,14 @@ class ReportBreakdown extends Controller
         }
 
         if (!empty($this->variant->id())) {
-            $sql .= " AND l.referencia = " . $this->dataBase->var2str($this->variant->referencia);
+            if ($withLineAlias) {
+                $sql .= " AND l.referencia = " . $this->dataBase->var2str($this->variant->referencia);
+            } else {
+                $lineTable = $this->type === 'invoices' ? 'lineasfacturascli' : 'lineasalbaranescli';
+                $code = $this->type === 'invoices' ? 'idfactura' : 'idalbaran';
+                $sql .= " AND d." . $code . " IN (SELECT " . $code . " FROM " . $lineTable
+                    . " WHERE referencia = " . $this->dataBase->var2str($this->variant->referencia) . ")";
+            }
         }
 
         return $sql;
@@ -818,17 +829,13 @@ class ReportBreakdown extends Controller
     protected function getInformeVentasNetoData(): array
     {
         $table = $this->type === 'invoices' ? 'facturascli' : 'albaranescli';
-        $line = $this->type === 'invoices' ? 'lineasfacturascli' : 'lineasalbaranescli';
-        $code = $this->type === 'invoices' ? 'idfactura' : 'idalbaran';
 
-        $sql = "SELECT d.codcliente, d.nombrecliente, d.fecha, SUM(d.neto) as total"
+        $sql = "SELECT d.codcliente, d.nombrecliente, d.fecha, d.neto as total"
             . " FROM " . $table . " d"
-            . " LEFT JOIN " . $line . " l ON d." . $code . " = l." . $code
             . " WHERE d.fecha >= " . $this->dataBase->var2str($this->desde)
             . " AND d.fecha <= " . $this->dataBase->var2str($this->hasta)
             . " AND d.idempresa = " . $this->dataBase->var2str($this->idempresa)
-            . $this->getInformeVentasDataWhere()
-            . " GROUP BY d.codalmacen, d.codcliente, d.nombrecliente, d.fecha"
+            . $this->getInformeVentasDataWhere(false)
             . " ORDER BY d.codcliente ASC, d.fecha DESC;";
 
         $data = $this->dataBase->select($sql);
@@ -843,16 +850,14 @@ class ReportBreakdown extends Controller
     protected function getInformeVentasDocumentData(): array
     {
         $table = $this->type === 'invoices' ? 'facturascli' : 'albaranescli';
-        $line = $this->type === 'invoices' ? 'lineasfacturascli' : 'lineasalbaranescli';
         $code = $this->type === 'invoices' ? 'idfactura' : 'idalbaran';
 
         $sql = "SELECT d." . $code . " as id, d.codigo, d.codcliente, d.nombrecliente, d.fecha, d.total"
             . " FROM " . $table . " d"
-            . " LEFT JOIN " . $line . " l ON d." . $code . " = l." . $code
             . " WHERE d.fecha >= " . $this->dataBase->var2str($this->desde)
             . " AND d.fecha <= " . $this->dataBase->var2str($this->hasta)
             . " AND d.idempresa = " . $this->dataBase->var2str($this->idempresa)
-            . $this->getInformeVentasDataWhere()
+            . $this->getInformeVentasDataWhere(false)
             . " ORDER BY d.fecha ASC, d.hora ASC;";
 
         return $this->dataBase->select($sql);
