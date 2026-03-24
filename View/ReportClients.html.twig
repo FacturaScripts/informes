@@ -99,7 +99,9 @@
             <div class="col-12">
                 <div class="card shadow mb-4">
                     <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">{{ trans('new-customers') }}
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fa-solid fa-chart-area me-1"></i>
+                            {{ trans('new-customers') }}
                             ({{ trans('last-12-months') }})</h6>
                     </div>
                     <div class="card-body">
@@ -109,36 +111,61 @@
             </div>
         </div>
 
-        {# Distribución Geográfica y Grupos #}
         <div class="row">
-            <div class="col-lg-4">
+            <div class="col-12">
                 <div class="card shadow mb-4">
-                    <div class="card-header py-3 text-center">
-                        <h6 class="m-0 font-weight-bold text-primary">{{ trans('customers-by-country') }}</h6>
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fa-solid fa-chart-column me-1"></i>
+                            {{ trans('new-customers') }}
+                            ({{ trans('year') }})
+                        </h6>
                     </div>
                     <div class="card-body">
-                        <div id="regions_div" style="min-height: 300px;"></div>
+                        {{ fsc.charts.newCustomersByYear.getChart().render({'height':250}) | raw }}
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4">
-                <div class="card shadow mb-4">
+        </div>
+
+        {# Distribución Geográfica y Grupos #}
+        <div class="row mb-4">
+            <div class="col-lg-4 d-flex">
+                <div class="card shadow mb-4 w-100 h-100">
                     <div class="card-header py-3 text-center">
-                        <h6 class="m-0 font-weight-bold text-primary">{{ trans('customers-by-province') }}
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fa-solid fa-earth-europe me-1"></i>
+                            {{ trans('customers-by-country') }}
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div id="regions_div" style="min-height: 320px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 d-flex">
+                <div class="card shadow mb-4 w-100 h-100">
+                    <div class="card-header py-3 text-center">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fa-solid fa-map-location-dot me-1"></i>
+                            {{ trans('customers-by-province') }}
                             ({{ fsc.companyCountry }})</h6>
                     </div>
                     <div class="card-body">
-                        {{ fsc.charts.customersByProvince.getChart().render({'height':285}) | raw }}
+                        {{ fsc.charts.customersByProvince.getChart().render({'height':320}) | raw }}
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4">
-                <div class="card shadow mb-4">
+            <div class="col-lg-4 d-flex">
+                <div class="card shadow mb-4 w-100 h-100">
                     <div class="card-header py-3 text-center">
-                        <h6 class="m-0 font-weight-bold text-primary">{{ trans('customers-by-group') }}</h6>
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fa-solid fa-layer-group me-1"></i>
+                            {{ trans('customers-by-group') }}
+                        </h6>
                     </div>
                     <div class="card-body">
-                        {{ fsc.charts.customersByGroup.getChart().render({'height':285}) | raw }}
+                        {{ fsc.charts.customersByGroup.getChart().render({'height':320}) | raw }}
                     </div>
                 </div>
             </div>
@@ -149,10 +176,13 @@
             <div class="col-12">
                 <div class="card shadow mb-4">
                     <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">{{ trans('customers-by-invoice-province') }}</h6>
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fa-solid fa-map-pin me-1"></i>
+                            {{ trans('customers-by-invoice-province') }}
+                        </h6>
                     </div>
                     <div class="card-body">
-                        {{ fsc.charts.invoicesByProvince.getChart().render({'height':250}) | raw }}
+                        {{ fsc.charts.invoicesByProvince.getChart().render({'height':320}) | raw }}
                     </div>
                 </div>
             </div>
@@ -163,31 +193,52 @@
             <div class="col-12">
                 <div class="card shadow mb-4 border-bottom-danger">
                     <div class="card-header py-3 bg-danger d-flex justify-content-between">
-                        <h6 class="m-0 font-weight-bold text-white">{{ trans('debtors') }}</h6>
+                        <h6 class="m-0 font-weight-bold text-white">
+                            <i class="fa-solid fa-triangle-exclamation me-1"></i>
+                            {{ trans('debtors') }}
+                        </h6>
                         <span class="badge bg-white text-danger" id="totalDebtors">0</span>
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-5">
-                                {{ fsc.charts.debtors.getChart().render({'height':250}) | raw }}
+                                <h6 class="text-danger mb-1">
+                                    <i class="fa-solid fa-ranking-star me-1"></i>
+                                    Top 10 {{ trans('debtors')|lower }}
+                                </h6>
+                                <p class="text-muted small mb-3">Ranking por importe pendiente.</p>
+                                {{ fsc.charts.topDebtors.getChart().render({'height':360, 'horizontal': true}) | raw }}
                             </div>
                             <div class="col-md-7">
                                 {% for s_name, source in fsc.charts.debtors.getChart().getDataSources() %}
                                     {% set totalDebtors = 0 %}
+                                    {% for item in source %}
+                                        {% set totalDebtors = totalDebtors + item.ycol %}
+                                    {% endfor %}
                                     <div class="table-responsive">
                                         <table class="table table-sm table-hover mb-0">
                                             <thead>
                                             <tr>
                                                 <th>{{ trans('name') }}</th>
+                                                <th class="text-end">%</th>
                                                 <th class="text-end">{{ trans('debt') }}</th>
                                             </tr>
                                             </thead>
-                                            <tbody id="debtorsTableBody">
+                                            <tbody class="debtors-table-body">
                                             {% for item in source %}
-                                                {% set totalDebtors = totalDebtors + item.ycol %}
+                                                {% set debtorsPercentage = totalDebtors > 0 ? ((item.ycol * 100) / totalDebtors) : 0 %}
                                                 <tr>
                                                     <td>
-                                                        {{ item.xcol }}
+                                                        {% if item.codcliente %}
+                                                            <a href="EditCliente?code={{ item.codcliente|url_encode }}">
+                                                                {{ item.xcol }}
+                                                            </a>
+                                                        {% else %}
+                                                            {{ item.xcol }}
+                                                        {% endif %}
+                                                    </td>
+                                                    <td class="text-end text-muted">
+                                                        {{ debtorsPercentage|round(1) }}%
                                                     </td>
                                                     <td class="text-danger text-end">
                                                         {{ number(item.ycol) }}
@@ -195,14 +246,14 @@
                                                 </tr>
                                             {% else %}
                                                 <tr>
-                                                    <td colspan="2" class="table-warning">{{ trans('no-data') }}</td>
+                                                    <td colspan="3" class="table-warning">{{ trans('no-data') }}</td>
                                                 </tr>
                                             {% endfor %}
                                             </tbody>
                                             {% if totalDebtors > 0 %}
                                                 <tfoot class="sticky-bottom bg-light fw-bold">
                                                 <tr>
-                                                    <td class="text-end">{{ trans('total') }}</td>
+                                                    <td colspan="2" class="text-end">{{ trans('total') }}</td>
                                                     <td class="text-end text-danger">{{ number(totalDebtors) }}</td>
                                                 </tr>
                                                 </tfoot>
@@ -234,7 +285,11 @@
             });
 
             // contamos cuántos deudores hay y actualizamos el badge
-            $('#totalDebtors').text($('#debtorsTableBody tr').length);
+            $('#totalDebtors').text(
+                $('.debtors-table-body tr').filter(function () {
+                    return $(this).find('td[colspan]').length === 0;
+                }).length
+            );
 
             // Google Maps
             google.charts.load('current', {'packages': ['geochart']});

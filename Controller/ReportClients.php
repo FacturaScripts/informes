@@ -23,9 +23,7 @@ use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\Empresa;
 use FacturaScripts\Dinamic\Model\Pais;
-use FacturaScripts\Plugins\Informes\Lib\ReportChart\AreaChart;
 use FacturaScripts\Plugins\Informes\Model\Report;
-use FacturaScripts\Plugins\Informes\Model\ReportFilter;
 
 /**
  * Controlador para generar un informe de clientes con diferentes métricas (activos, por país, por grupo, etc.)
@@ -99,7 +97,9 @@ class ReportClients extends Controller
         $this->loadCustomersByProvince();
         $this->loadCustomersByGroup();
         $this->loadNewCustomersByMonth();
+        $this->loadNewCustomersByYear();
         $this->loadInvoicesByProvince();
+        $this->loadTopDebtors();
         $this->loadDebtors();
     }
 
@@ -157,7 +157,7 @@ class ReportClients extends Controller
     protected function loadCustomersByProvince(): void
     {
         $report = new Report();
-        $report->type = Report::TYPE_BAR;
+        $report->type = Report::TYPE_TREE_MAP;
         $report->table = 'clientes cl';
         $report->xcolumn = "COALESCE(NULLIF(c.provincia, ''), '" . Tools::trans('no-data') . "')";
         $report->ycolumn = '*';
@@ -208,6 +208,13 @@ class ReportClients extends Controller
         $this->currentYear = date('Y');
         $this->companyCountryCode = Tools::settings('default', 'codpais');
 
+        if ($this->idempresa !== 'all') {
+            $company = new Empresa();
+            if ($company->load($this->idempresa) && !empty($company->codpais)) {
+                $this->companyCountryCode = $company->codpais;
+            }
+        }
+
         $country = new Pais();
         if ($country->load($this->companyCountryCode)) {
             $this->companyCountry = $country->nombre;
@@ -223,24 +230,15 @@ class ReportClients extends Controller
 
     protected function loadDebtors(): void
     {
-        // replicamos la misma SQL usando la clase Report para el gráfico
         $report = new Report();
-        $report->type = Report::TYPE_BAR;
+        $report->type = Report::TYPE_TREE_MAP;
         $report->table = 'facturascli f';
         $report->xcolumn = 'f.nombrecliente';
         $report->ycolumn = 'f.total';
         $report->yoperation = 'SUM';
 
-        // activamos el modo avanzado para poder usar filtros personalizados
         Report::activateAdvancedReport(true);
-
-        // filtramos por facturas no pagadas
-        $report->addCustomFilter('f.pagada', '=', '0');
-
-        // aplicamos el filtro de empresa si no se están mostrando todas
-        if ($this->idempresa !== 'all') {
-            $report->addCustomFilter('f.idempresa', '=', (string)(int)$this->idempresa);
-        }
+        $report->addCustomSql($this->getDebtorsSql());
 
         $this->charts['debtors'] = $report;
     }
@@ -259,7 +257,7 @@ class ReportClients extends Controller
     protected function loadInvoicesByProvince(): void
     {
         $report = new Report();
-        $report->type = Report::TYPE_BAR;
+        $report->type = Report::TYPE_TREE_MAP;
         $report->table = 'facturascli f';
         $report->xcolumn = "COALESCE(NULLIF(f.provincia, ''), c.provincia, '" . Tools::trans('no-data') . "')";
         $report->ycolumn = 'DISTINCT f.codcliente';
@@ -302,6 +300,65 @@ class ReportClients extends Controller
         }
 
         $this->charts['reportTest'] = $report;
+    }
+
+    protected function loadNewCustomersByYear(): void
+    {
+        $report = new Report();
+        $report->type = Report::TYPE_BAR;
+        $report->table = 'clientes';
+        $report->xcolumn = 'fechaalta';
+        $report->ycolumn = 'codcliente';
+        $report->xoperation = 'YEAR';
+        $report->yoperation = 'COUNT';
+        $report->addFieldXName('');
+
+        if ($this->idempresa !== 'all') {
+            Report::activateAdvancedReport(true);
+            $report->addCustomFilter(
+                'codcliente',
+                'IN',
+                'SELECT codcliente FROM facturascli WHERE idempresa = ' . (int)$this->idempresa
+            );
+        }
+
+        $this->charts['newCustomersByYear'] = $report;
+    }
+
+    protected function loadTopDebtors(): void
+    {
+        $report = new Report();
+        $report->type = Report::TYPE_BAR;
+        $report->table = 'facturascli f';
+        $report->xcolumn = 'f.nombrecliente';
+        $report->ycolumn = 'f.total';
+        $report->yoperation = 'SUM';
+
+        Report::activateAdvancedReport(true);
+        $report->addCustomSql($this->getDebtorsSql(10));
+
+        $this->charts['topDebtors'] = $report;
+    }
+
+    protected function getDebtorsSql(int $limit = 0): string
+    {
+        $sql = "SELECT "
+            . "f.codcliente as codcliente, "
+            . "COALESCE(NULLIF(f.nombrecliente, ''), f.codcliente, '" . Tools::trans('no-data') . "') as xcol, "
+            . "SUM(f.total) as ycol "
+            . "FROM facturascli f "
+            . "WHERE f.pagada = " . $this->dataBase->var2str(false);
+
+        if ($this->idempresa !== 'all') {
+            $sql .= " AND f.idempresa = " . $this->dataBase->var2str((int)$this->idempresa);
+        }
+
+        $sql .= " GROUP BY f.codcliente, xcol ORDER BY ycol DESC, xcol ASC";
+        if ($limit > 0) {
+            $sql .= " LIMIT " . $limit;
+        }
+
+        return $sql . ';';
     }
 
     protected function loadTotalCustomers(): void

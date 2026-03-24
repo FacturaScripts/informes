@@ -36,6 +36,7 @@ class DoughnutChart extends PieChart
             . '<script>'
             . 'var options' . $num . ' = {'
             . '  series: ' . json_encode($data['datasets'][0]['data']) . ','
+            . '  colors: ' . json_encode($this->getColors(count($data['labels']))) . ','
             . '  chart: {'
             . '    type: "donut",'
             . '    height: ' . $chartHeight

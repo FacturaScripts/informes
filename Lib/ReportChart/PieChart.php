@@ -39,6 +39,7 @@ class PieChart extends Chart
             . '<script>'
             . 'var options' . $num . ' = {'
             . '  series: ' . json_encode($data['datasets'][0]['data']) . ','
+            . '  colors: ' . json_encode($this->getColors(count($data['labels']))) . ','
             . '  chart: {'
             . '    type: "pie",'
             . '    height: ' . $chartHeight
@@ -63,6 +64,27 @@ class PieChart extends Chart
             . 'var chart' . $num . ' = new ApexCharts(document.querySelector("#' . $chartId . '"), options' . $num . ');'
             . 'chart' . $num . '.render();'
             . '</script>';
+    }
+
+    protected function getColors(int $count): array
+    {
+        $colors = [
+            '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
+            '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf',
+            '#4e79a7', '#f28e2b', '#59a14f', '#e15759', '#edc948',
+            '#b07aa1', '#76b7b2', '#ff9da7', '#9c755f', '#bab0ab',
+        ];
+
+        if ($count <= count($colors)) {
+            return array_slice($colors, 0, $count);
+        }
+
+        for ($index = count($colors); $index < $count; $index++) {
+            $hue = ($index * 47) % 360;
+            $colors[] = sprintf('hsl(%d, 65%%, 55%%)', $hue);
+        }
+
+        return $colors;
     }
 
     protected function getData(): array

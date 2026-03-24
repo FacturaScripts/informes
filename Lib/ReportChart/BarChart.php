@@ -36,6 +36,7 @@ class BarChart extends AreaChart
         $num = mt_rand();
         $chartId = 'chart' . $num;
         $chartHeight = isset($dataChart['height']) && $dataChart['height'] > 0 ? $dataChart['height'] : 350;
+        $horizontal = !empty($dataChart['horizontal']);
 
         $series = [];
         foreach ($data['datasets'] as $dataset) {
@@ -55,9 +56,10 @@ class BarChart extends AreaChart
             . '  },'
             . '  plotOptions: {'
             . '    bar: {'
+            . '      horizontal: ' . ($horizontal ? 'true' : 'false') . ','
             . '      borderRadius: 0,' // si se quieren redondear las barras
             . '      dataLabels: {'
-            . '        position: "top",'
+            . '        position: "' . ($horizontal ? 'center' : 'top') . '",'
             . '      },'
             . '    }'
             . '  },'
@@ -71,7 +73,7 @@ class BarChart extends AreaChart
             . '  },'
             . '  xaxis: {'
             . '    categories: ' . json_encode($data['labels']) . ','
-            . '    position: "top",'
+            . '    position: "' . ($horizontal ? 'bottom' : 'top') . '",'
             . '    axisBorder: {'
             . '      show: false'
             . '    },'
@@ -107,9 +109,9 @@ class BarChart extends AreaChart
             . '  },'
             . '  title: {'
             . '    text: "' . $this->report->name . '",'
-            . '    floating: true,'
-            . '    offsetY: ' . ($chartHeight - 20) . ','
-            . '    align: "center",'
+            . '    floating: ' . ($horizontal ? 'false' : 'true') . ','
+            . '    offsetY: ' . ($horizontal ? 0 : ($chartHeight - 20)) . ','
+            . '    align: "' . ($horizontal ? 'left' : 'center') . '",'
             . '    style: {'
             . '      color: "#444"'
             . '    }'
