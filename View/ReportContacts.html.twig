@@ -1,0 +1,211 @@
+{#
+    Informe Contactos - basado en ReportClients
+#}
+
+{% extends "Master/MenuTemplate.html.twig" %}
+{% import "Macro/Forms.html.twig" as forms %}
+
+{% block body %}
+    <div class="container-fluid">
+        <div class="row mt-3">
+            <div class="col-12 text-center">
+                <h1 class="h3 mb-3 text-gray-800">
+                    <i class="fa-solid fa-address-book"></i>
+                    {{ trans('b-contactos') }} - {{ trans('report') }}
+                </h1>
+            </div>
+        </div>
+
+        {# KPIs #}
+        <div class="row justify-content-center">
+            <div class="col-xl-3 col-md-4 col-sm-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">{{ trans('total-customers') }}</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.totals.total }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-users fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-4 col-sm-6 mb-4">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">{{ trans('verified') }}</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.totals.verified }} ({{ fsc.totals.verified_perc }}%)</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-user-check fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-4 col-sm-6 mb-4">
+                <div class="card border-left-info shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">{{ trans('marketing-permission') }}</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.totals.marketing }} ({{ fsc.totals.marketing_perc }}%)</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-bullhorn fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        {# Charts: new contacts by months and years #}
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fa-solid fa-chart-area me-1"></i>
+                            {{ trans('r-contactos-new-months') }} ({{ trans('last-12-months') }})</h6>
+                    </div>
+                    <div class="card-body">
+                        {{ fsc.charts.newByMonths.getChart().render({'height':250}) | raw }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fa-solid fa-chart-column me-1"></i>
+                            {{ trans('r-contactos-new-years') }}
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        {{ fsc.charts.newByYears.getChart().render({'height':250}) | raw }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Distribution by country and pies for sources/interests #}
+        <div class="row mb-4">
+            <div class="col-lg-4 d-flex">
+                <div class="card shadow mb-4 w-100 h-100">
+                    <div class="card-header py-3 text-center">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fa-solid fa-earth-europe me-1"></i>
+                            {{ trans('r-contactos-countries') }}
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div id="regions_div" style="min-height: 320px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 d-flex">
+                <div class="card shadow mb-4 w-100 h-100">
+                    <div class="card-header py-3 text-center">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fa-solid fa-layer-group me-1"></i>
+                            {{ trans('sources') }}
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        {{ fsc.charts.sources.getChart().render({'height':320}) | raw }}
+
+                        {# Period breakdowns for sources (30/90/365) #}
+                        <div class="mt-3">
+                            <h6>{{ trans('r-contactos-sources-periods') }}</h6>
+                            <div class="row">
+                                {% for days, rows in fsc.sources_periods %}
+                                    <div class="col-12 col-md-4">
+                                        <div class="small-card p-2">
+                                            <strong>{{ days }} {{ trans('days') }}</strong>
+                                            <ul class="list-unstyled mb-0">
+                                                {% for r in rows|slice(0,8) %}
+                                                    <li>{{ r.nombre|default('-') }} - <span class="badge bg-light text-dark">{{ r.total }}</span></li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 d-flex">
+                <div class="card shadow mb-4 w-100 h-100">
+                    <div class="card-header py-3 text-center">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fa-solid fa-tags me-1"></i>
+                            {{ trans('interests') }}
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        {{ fsc.charts.interests.getChart().render({'height':320}) | raw }}
+
+                        {# Period breakdowns for interests (30/90/365) #}
+                        <div class="mt-3">
+                            <h6>{{ trans('r-contactos-interests-periods') }}</h6>
+                            <div class="row">
+                                {% for days, rows in fsc.interests_periods %}
+                                    <div class="col-12 col-md-4">
+                                        <div class="small-card p-2">
+                                            <strong>{{ days }} {{ trans('days') }}</strong>
+                                            <ul class="list-unstyled mb-0">
+                                                {% for r in rows|slice(0,8) %}
+                                                    <li>{{ r.nombre|default('-') }} - <span class="badge bg-light text-dark">{{ r.total }}</span></li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('Plugins/Informes/node_modules/apexcharts/dist/apexcharts.min.js') }}"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Google Maps
+            google.charts.load('current', {'packages': ['geochart']});
+            google.charts.setOnLoadCallback(drawRegionsMap);
+
+            function drawRegionsMap() {
+                var data = google.visualization.arrayToDataTable([
+                    ['{{ trans("country") }}', '{{ trans("total") }}'],
+                    {% for row in fsc.countries %}
+                    ['{{ row.codiso ? row.codiso : row.codpais }}', {{ row.total }}],
+                    {% endfor %}
+                ]);
+
+                var options = {colorAxis: {colors: ['#e0efff', '#4e73df']}};
+                var chart = new google.visualization.GeoChart(document.getElementById('regions_div'));
+                chart.draw(data, options);
+            }
+        });
+    </script>
+{% endblock %}
