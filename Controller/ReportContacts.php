@@ -1,14 +1,17 @@
 <?php
+
 namespace FacturaScripts\Plugins\Informes\Controller;
 
 use FacturaScripts\Core\Base\Controller;
+use FacturaScripts\Core\Plugins;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Plugins\Informes\Model\Report;
 use FacturaScripts\Plugins\Informes\Lib\Informes\ContactsReport;
-use FacturaScripts\Dinamic\Model\Pais;
 
 class ReportContacts extends Controller
 {
+    public $isEnabledCRM = false;
+
     public $charts = [];
     public $totals = [];
     public $countries = [];
@@ -32,6 +35,7 @@ class ReportContacts extends Controller
     public function privateCore(&$response, $user, $permissions)
     {
         parent::privateCore($response, $user, $permissions);
+        $this->isEnabledCRM = Plugins::isEnabled('CRM');
 
         // cargar datos
         $this->loadData();
@@ -41,12 +45,15 @@ class ReportContacts extends Controller
         // charts
         $this->loadNewContactsByMonth();
         $this->loadNewContactsByYear();
-        $this->loadSourcesChart();
-        $this->loadInterestsChart();
 
-        // period breakdowns and comparison for view tables
-        $this->sources_periods = ContactsReport::sourcesAnalysis();
-        $this->interests_periods = ContactsReport::interestsAnalysis();
+        if ($this->isEnabledCRM) {
+            $this->loadSourcesChart();
+            $this->loadInterestsChart();
+
+            $this->sources_periods = ContactsReport::sourcesAnalysis();
+            $this->interests_periods = ContactsReport::interestsAnalysis();
+        }
+    
         $this->comparison = ContactsReport::comparison12vsPrevious12();
         $this->months_history = ContactsReport::historyByMonths(12);
         $this->years_history = ContactsReport::historyByYears();
