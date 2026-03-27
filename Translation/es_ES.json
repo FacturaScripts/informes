@@ -248,5 +248,10 @@
     "treemap": "Mapa de árbol",
     "voluntary-reserves": "Reservas voluntarias",
     "without-opening": "Sin apertura",
-    "y-operation": "Operación sobre Y"
+    "y-operation": "Operación sobre Y",
+    "sources": "Fuentes",
+    "r-contactos-sources-periods": "Fuentes (30/90/365 días)",
+    "interests": "Intereses",
+    "r-contactos-interests-periods": "Intereses (30/90/365 días)",
+    "marketing-permission": "Permiso de marketing"
 }
