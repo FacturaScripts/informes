@@ -41,6 +41,9 @@ class ReportClients extends Controller
     /** @var array */
     public $charts = [];
 
+    /** @var int */
+    public $customersWithDebt;
+
     /** @var array todas las empresas a listar en el formulario [idEmpresa => nombre empresa] */
     public $companies = [];
 
@@ -58,6 +61,9 @@ class ReportClients extends Controller
 
     /** @var int */
     public $inactiveCustomers;
+
+    /** @var int */
+    public $newCustomers30Days;
 
     /** @var int */
     public $totalCustomers;
@@ -93,6 +99,8 @@ class ReportClients extends Controller
         $this->loadActiveCustomers();
         $this->loadInactiveCustomers();
         $this->loadActiveCustomersYear();
+        $this->loadNewCustomers30Days();
+        $this->loadCustomersWithDebt();
         $this->loadCustomersByCountry();
         $this->loadCustomersByProvince();
         $this->loadCustomersByGroup();
@@ -192,8 +200,8 @@ class ReportClients extends Controller
         // empresa seleccionada
         $this->idempresa = $this->request()->queryOrInput('idempresa', null);
         if (null === $this->idempresa) {
-            // seleccionar por defecto si no hay nada
-            $this->idempresa = (int)Tools::settings('default', 'idempresa');
+            // seleccionar todas por defecto si no hay nada
+            $this->idempresa = 'all';
         } elseif ($this->idempresa === 'all') {
             // seleccionar todas
             $this->idempresa = 'all';
@@ -276,6 +284,17 @@ class ReportClients extends Controller
         $this->charts['invoicesByProvince'] = $report;
     }
 
+    protected function loadNewCustomers30Days(): void
+    {
+        $sql = "SELECT COUNT(*) as total FROM clientes WHERE fechaalta >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)";
+
+        if ($this->idempresa !== 'all') {
+            $sql .= " AND codcliente IN (SELECT codcliente FROM facturascli WHERE idempresa = " . (int)$this->idempresa . ")";
+        }
+
+        $this->newCustomers30Days = (int)$this->dataBase->select($sql)[0]['total'];
+    }
+
     protected function loadNewCustomersByMonth(): void
     {
         $report = new Report();
@@ -338,6 +357,17 @@ class ReportClients extends Controller
         $report->addCustomSql($this->getDebtorsSql(10));
 
         $this->charts['topDebtors'] = $report;
+    }
+
+    protected function loadCustomersWithDebt(): void
+    {
+        $sql = "SELECT COUNT(DISTINCT codcliente) as total FROM facturascli WHERE pagada = " . $this->dataBase->var2str(false);
+
+        if ($this->idempresa !== 'all') {
+            $sql .= " AND idempresa = " . $this->dataBase->var2str((int)$this->idempresa);
+        }
+
+        $this->customersWithDebt = (int)$this->dataBase->select($sql)[0]['total'];
     }
 
     protected function getDebtorsSql(int $limit = 0): string

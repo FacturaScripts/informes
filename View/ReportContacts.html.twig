@@ -1,9 +1,8 @@
 {#
-    Informe Contactos - basado en ReportClients
+* Copyright (C) 2026 Carlos García Gómez <carlos@facturascripts.com>
 #}
 
-{% extends "Master/MenuTemplate.html.twig" %}
-{% import "Macro/Forms.html.twig" as forms %}
+{% extends "Master/MenuBgTemplate.html.twig" %}
 
 {% block body %}
     <div class="container-fluid">
@@ -18,12 +17,12 @@
 
         {# KPIs #}
         <div class="row justify-content-center">
-            <div class="col-xl-3 col-md-4 col-sm-6 mb-4">
+            <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
                 <div class="card border-left-primary shadow h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">{{ trans('total-customers') }}</div>
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">{{ trans('total') }} {{ trans('b-contactos') }}</div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.totals.total }}</div>
                             </div>
                             <div class="col-auto">
@@ -34,7 +33,7 @@
                 </div>
             </div>
 
-            <div class="col-xl-3 col-md-4 col-sm-6 mb-4">
+            <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
                 <div class="card border-left-success shadow h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
@@ -50,7 +49,7 @@
                 </div>
             </div>
 
-            <div class="col-xl-3 col-md-4 col-sm-6 mb-4">
+            <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
                 <div class="card border-left-info shadow h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
@@ -66,6 +65,53 @@
                 </div>
             </div>
 
+            <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
+                <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Nuevos 30 días</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.totals.new_30_days }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-user-plus fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
+                <div class="card border-left-danger shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Sin fuente</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.totals.without_source }} ({{ fsc.totals.without_source_perc }}%)</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-circle-question fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
+                <div class="card border-left-secondary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">Sin intereses</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.totals.without_interests }} ({{ fsc.totals.without_interests_perc }}%)</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-tags fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         {# Charts: new contacts by months and years #}
@@ -102,7 +148,7 @@
 
         {# Distribution by country and pies for sources/interests #}
         <div class="row mb-4">
-            <div class="col-lg-4 d-flex">
+            <div class="col-xl-3 col-md-6 d-flex">
                 <div class="card shadow mb-4 w-100 h-100">
                     <div class="card-header py-3 text-center">
                         <h6 class="m-0 font-weight-bold text-primary">
@@ -115,8 +161,22 @@
                     </div>
                 </div>
             </div>
+            <div class="col-xl-3 col-md-6 d-flex">
+                <div class="card shadow mb-4 w-100 h-100">
+                    <div class="card-header py-3 text-center">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fa-solid fa-map-location-dot me-1"></i>
+                            Contactos por provincia
+                            ({{ fsc.companyCountry }})
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        {{ fsc.charts.contactsByProvince.getChart().render({'height':320}) | raw }}
+                    </div>
+                </div>
+            </div>
             {% if fsc.isEnabledCRM %}
-                <div class="col-lg-4 d-flex">
+                <div class="col-xl-3 col-md-6 d-flex">
                     <div class="card shadow mb-4 w-100 h-100">
                         <div class="card-header py-3 text-center">
                             <h6 class="m-0 font-weight-bold text-primary">
@@ -150,7 +210,7 @@
                 </div>
             {% endif %}
             {% if fsc.isEnabledCRM %}
-                <div class="col-lg-4 d-flex">
+                <div class="col-xl-3 col-md-6 d-flex">
                     <div class="card shadow mb-4 w-100 h-100">
                         <div class="card-header py-3 text-center">
                             <h6 class="m-0 font-weight-bold text-primary">

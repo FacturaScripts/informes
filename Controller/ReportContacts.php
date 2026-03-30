@@ -1,10 +1,28 @@
 <?php
+/**
+ * This file is part of Informes plugin for FacturaScripts
+ * Copyright (C) 2026 Carlos Garcia Gomez <carlos@facturascripts.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 namespace FacturaScripts\Plugins\Informes\Controller;
 
 use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Core\Plugins;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Dinamic\Model\Pais;
 use FacturaScripts\Plugins\Informes\Model\Report;
 use FacturaScripts\Plugins\Informes\Lib\Informes\ContactsReport;
 
@@ -15,6 +33,8 @@ class ReportContacts extends Controller
     public $charts = [];
     public $totals = [];
     public $countries = [];
+    public $companyCountry = '';
+    public $companyCountryCode = '';
 
     // extra data for view
     public $sources_periods = [];
@@ -45,6 +65,7 @@ class ReportContacts extends Controller
         // charts
         $this->loadNewContactsByMonth();
         $this->loadNewContactsByYear();
+        $this->loadContactsByProvince();
 
         if ($this->isEnabledCRM) {
             $this->loadSourcesChart();
@@ -61,7 +82,14 @@ class ReportContacts extends Controller
 
     protected function loadData(): void
     {
-        // nothing special for now
+        $this->companyCountryCode = Tools::settings('default', 'codpais', 'ESP');
+
+        $country = new Pais();
+        if ($country->load($this->companyCountryCode)) {
+            $this->companyCountry = $country->nombre;
+        } else {
+            $this->companyCountry = $this->companyCountryCode;
+        }
     }
 
     protected function loadNewContactsByMonth(): void
@@ -94,17 +122,32 @@ class ReportContacts extends Controller
         $this->charts['newByYears'] = $report;
     }
 
-    protected function loadSourcesChart(): void
+    protected function loadContactsByProvince(): void
     {
         $report = new Report();
-        $report->type = Report::TYPE_DOUGHNUT;
-        $report->table = 'crm_fuentes2 f';
-        $report->xcolumn = "COALESCE(f.nombre, '" . Tools::trans('no-data') . "')";
+        $report->type = Report::TYPE_TREE_MAP;
+        $report->table = 'contactos c';
+        $report->xcolumn = "COALESCE(NULLIF(c.provincia, ''), '" . Tools::trans('no-data') . "')";
         $report->ycolumn = 'c.idcontacto';
         $report->yoperation = 'COUNT';
 
         Report::activateAdvancedReport(true);
-        $report->addCustomJoin('LEFT JOIN contactos c ON c.idfuente = f.id');
+        $report->addCustomFilter('c.codpais', '=', $this->companyCountryCode);
+
+        $this->charts['contactsByProvince'] = $report;
+    }
+
+    protected function loadSourcesChart(): void
+    {
+        $report = new Report();
+        $report->type = Report::TYPE_DOUGHNUT;
+        $report->table = 'contactos c';
+        $report->xcolumn = "COALESCE(NULLIF(f.nombre, ''), '" . Tools::trans('no-data') . "')";
+        $report->ycolumn = 'c.idcontacto';
+        $report->yoperation = 'COUNT';
+
+        Report::activateAdvancedReport(true);
+        $report->addCustomJoin('LEFT JOIN crm_fuentes2 f ON c.idfuente = f.id');
 
         $this->charts['sources'] = $report;
     }
@@ -113,13 +156,14 @@ class ReportContacts extends Controller
     {
         $report = new Report();
         $report->type = Report::TYPE_DOUGHNUT;
-        $report->table = 'crm_intereses i';
-        $report->xcolumn = "COALESCE(i.nombre, '" . Tools::trans('no-data') . "')";
-        $report->ycolumn = 'ic.id';
+        $report->table = 'contactos c';
+        $report->xcolumn = "COALESCE(NULLIF(i.nombre, ''), '" . Tools::trans('no-data') . "')";
+        $report->ycolumn = 'c.idcontacto';
         $report->yoperation = 'COUNT';
 
         Report::activateAdvancedReport(true);
-        $report->addCustomJoin('LEFT JOIN crm_intereses_contactos ic ON ic.idinteres = i.id');
+        $report->addCustomJoin('LEFT JOIN crm_intereses_contactos ic ON ic.idcontacto = c.idcontacto');
+        $report->addCustomJoin('LEFT JOIN crm_intereses i ON ic.idinteres = i.id');
 
         $this->charts['interests'] = $report;
     }

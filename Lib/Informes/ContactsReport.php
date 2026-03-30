@@ -1,4 +1,21 @@
 <?php
+/**
+ * This file is part of Informes plugin for FacturaScripts
+ * Copyright (C) 2026 Carlos Garcia Gomez <carlos@facturascripts.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 namespace FacturaScripts\Plugins\Informes\Lib\Informes;
 
 use FacturaScripts\Core\Base\DataBase;
@@ -25,6 +42,26 @@ class ContactsReport
         $out['verified_perc'] = $out['total'] > 0 ? round(($out['verified'] * 100) / $out['total'], 2) : 0;
         $out['marketing'] = (int)$db->select("SELECT COUNT(*) as total FROM contactos WHERE admitemarketing = " . $db->var2str(true) . ";")[0]['total'];
         $out['marketing_perc'] = $out['total'] > 0 ? round(($out['marketing'] * 100) / $out['total'], 2) : 0;
+        $out['new_30_days'] = (int)$db->select("SELECT COUNT(*) as total FROM contactos WHERE fechaalta >= DATE_SUB(CURDATE(), INTERVAL 30 DAY);")[0]['total'];
+        $out['without_source'] = 0;
+        if ($db->tableExists('crm_fuentes2')) {
+            $out['without_source'] = (int)$db->select("SELECT COUNT(*) as total
+                    FROM contactos c
+                    LEFT JOIN crm_fuentes2 f ON c.idfuente = f.id
+                    WHERE f.id IS NULL OR NULLIF(f.nombre, '') IS NULL;")[0]['total'];
+        }
+        $out['without_source_perc'] = $out['total'] > 0 ? round(($out['without_source'] * 100) / $out['total'], 2) : 0;
+        $out['without_interests'] = 0;
+        if ($db->tableExists('crm_intereses_contactos')) {
+            $out['without_interests'] = (int)$db->select("SELECT COUNT(*) as total
+                    FROM contactos c
+                    WHERE NOT EXISTS (
+                        SELECT 1
+                        FROM crm_intereses_contactos ic
+                        WHERE ic.idcontacto = c.idcontacto
+                    );")[0]['total'];
+        }
+        $out['without_interests_perc'] = $out['total'] > 0 ? round(($out['without_interests'] * 100) / $out['total'], 2) : 0;
 
         return $out;
     }
@@ -89,10 +126,14 @@ class ContactsReport
         $result = [];
 
         foreach ($periods as $days) {
-            $sql = "SELECT f.id, f.nombre, COUNT(c.idcontacto) AS total
-                    FROM crm_fuentes2 f
-                    LEFT JOIN contactos c ON c.idfuente = f.id AND c.fechaalta >= DATE_SUB(CURDATE(), INTERVAL " . (int)$days . " DAY)
-                    GROUP BY f.id, f.nombre ORDER BY total DESC;";
+            $sql = "SELECT COALESCE(f.id, 0) AS id,
+                           COALESCE(NULLIF(f.nombre, ''), " . $db->var2str(Tools::trans('no-data')) . ") AS nombre,
+                           COUNT(c.idcontacto) AS total
+                    FROM contactos c
+                    LEFT JOIN crm_fuentes2 f ON c.idfuente = f.id
+                    WHERE c.fechaalta >= DATE_SUB(CURDATE(), INTERVAL " . (int)$days . " DAY)
+                    GROUP BY COALESCE(f.id, 0), COALESCE(NULLIF(f.nombre, ''), " . $db->var2str(Tools::trans('no-data')) . ")
+                    ORDER BY total DESC;";
             $result[$days] = $db->select($sql);
         }
 
@@ -110,10 +151,15 @@ class ContactsReport
         $result = [];
 
         foreach ($periods as $days) {
-            $sql = "SELECT i.id, i.nombre, COUNT(ic.id) AS total
-                    FROM crm_intereses i
-                    LEFT JOIN crm_intereses_contactos ic ON ic.idinteres = i.id AND ic.fecha >= DATE_SUB(CURDATE(), INTERVAL " . (int)$days . " DAY)
-                    GROUP BY i.id, i.nombre ORDER BY total DESC;";
+            $sql = "SELECT COALESCE(i.id, 0) AS id,
+                           COALESCE(NULLIF(i.nombre, ''), " . $db->var2str(Tools::trans('no-data')) . ") AS nombre,
+                           COUNT(c.idcontacto) AS total
+                    FROM contactos c
+                    LEFT JOIN crm_intereses_contactos ic ON ic.idcontacto = c.idcontacto
+                    LEFT JOIN crm_intereses i ON ic.idinteres = i.id
+                    WHERE c.fechaalta >= DATE_SUB(CURDATE(), INTERVAL " . (int)$days . " DAY)
+                    GROUP BY COALESCE(i.id, 0), COALESCE(NULLIF(i.nombre, ''), " . $db->var2str(Tools::trans('no-data')) . ")
+                    ORDER BY total DESC;";
             $result[$days] = $db->select($sql);
         }
 
