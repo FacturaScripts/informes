@@ -148,14 +148,18 @@ class ReportBooks extends Controller
     protected function libroGastos(): void
     {
         $sql = "SELECT a.fecha, a.numero,"
+            . " a.idasiento,"
             . " COALESCE(f.numproveedor, p.documento) as documento,"
             . " p.codsubcuenta,"
             . " COALESCE(f.nombre, p.concepto) as concepto,"
             . " COALESCE(f.cifnif, p.cifnif) as cifnif,"
-            . " COALESCE(NULLIF(p.baseimponible, 0), p.debe) as baseimponible,"
-            . " COALESCE(NULLIF(p.baseimponible, 0) * COALESCE(p.iva, 0) / 100, f.totaliva, 0) as iva,"
-            . " COALESCE(NULLIF(p.baseimponible, 0) * COALESCE(p.recargo, 0) / 100, f.totalrecargo, 0) as recargo,"
-            . " COALESCE(NULLIF(p.baseimponible, 0) * (1 + COALESCE(p.iva, 0) / 100 + COALESCE(p.recargo, 0) / 100), f.total, p.debe) as total"
+            . " COALESCE(p.baseimponible, 0) as line_baseimponible,"
+            . " COALESCE(p.iva, 0) as line_iva,"
+            . " COALESCE(p.recargo, 0) as line_recargo,"
+            . " p.debe,"
+            . " COALESCE(f.totaliva, 0) as invoice_totaliva,"
+            . " COALESCE(f.totalrecargo, 0) as invoice_totalrecargo,"
+            . " COALESCE(f.total, 0) as invoice_total"
             . " FROM asientos a"
             . " INNER JOIN partidas p ON a.idasiento = p.idasiento"
             . " LEFT JOIN facturasprov f ON a.idasiento = f.idasiento"
@@ -187,32 +191,42 @@ class ReportBooks extends Controller
             . Tools::trans('tax-base') . ';'
             . Tools::trans('vat') . ';'
             . Tools::trans('surcharge') . ';'
-            . Tools::trans('total') . "\n";
+            . 'Gasto' . "\n";
 
         // Totales acumulados
         $totalBase = 0;
         $totalIva = 0;
         $totalRecargo = 0;
-        $totalGeneral = 0;
+        $totalGasto = 0;
         $nfo = Tools::decimals();
+        $entryBaseTotals = [];
+
+        foreach ($data as $row) {
+            $entryBaseTotals[$row['idasiento']] = ($entryBaseTotals[$row['idasiento']] ?? 0.0)
+                + self::getExpenseBookBase($row);
+        }
 
         // Líneas del libro
         foreach ($data as $row) {
+            $amounts = self::getExpenseBookLineAmounts(
+                $row,
+                $entryBaseTotals[$row['idasiento']] ?? 0.0
+            );
             echo $row['fecha'] . ';'
                 . $row['numero'] . ';'
                 . '"' . $row['documento'] . '";'
                 . '"' . $row['codsubcuenta'] . '";'
                 . '"' . Tools::fixHtml($row['concepto']) . '";'
                 . '"' . $row['cifnif'] . '";'
-                . number_format($row['baseimponible'], $nfo, ',', '') . ';'
-                . number_format($row['iva'], $nfo, ',', '') . ';'
-                . number_format($row['recargo'], $nfo, ',', '') . ';'
-                . number_format($row['total'], $nfo, ',', '') . "\n";
+                . number_format($amounts['baseimponible'], $nfo, ',', '') . ';'
+                . number_format($amounts['iva'], $nfo, ',', '') . ';'
+                . number_format($amounts['recargo'], $nfo, ',', '') . ';'
+                . number_format($amounts['gasto'], $nfo, ',', '') . "\n";
 
-            $totalBase += $row['baseimponible'];
-            $totalIva += $row['iva'];
-            $totalRecargo += $row['recargo'];
-            $totalGeneral += $row['total'];
+            $totalBase += $amounts['baseimponible'];
+            $totalIva += $amounts['iva'];
+            $totalRecargo += $amounts['recargo'];
+            $totalGasto += $amounts['gasto'];
         }
 
         // Línea de totales
@@ -220,7 +234,45 @@ class ReportBooks extends Controller
             . number_format($totalBase, $nfo, ',', '') . ';'
             . number_format($totalIva, $nfo, ',', '') . ';'
             . number_format($totalRecargo, $nfo, ',', '') . ';'
-            . number_format($totalGeneral, $nfo, ',', '') . "\n";
+            . number_format($totalGasto, $nfo, ',', '') . "\n";
+    }
+
+    protected static function getExpenseBookBase(array $row): float
+    {
+        $base = (float)($row['line_baseimponible'] ?? 0);
+        return self::hasAmount($base) ? $base : (float)($row['debe'] ?? 0);
+    }
+
+    protected static function getExpenseBookLineAmounts(array $row, float $entryBaseTotal): array
+    {
+        $base = self::getExpenseBookBase($row);
+        $invoiceTotal = (float)($row['invoice_total'] ?? 0);
+        $invoiceVat = (float)($row['invoice_totaliva'] ?? 0);
+        $invoiceSurcharge = (float)($row['invoice_totalrecargo'] ?? 0);
+
+        if (self::hasAmount($invoiceTotal) || self::hasAmount($invoiceVat) || self::hasAmount($invoiceSurcharge)) {
+            $ratio = self::hasAmount($entryBaseTotal) ? $base / $entryBaseTotal : 0.0;
+            return [
+                'baseimponible' => $base,
+                'iva' => $invoiceVat * $ratio,
+                'recargo' => $invoiceSurcharge * $ratio,
+                'gasto' => $invoiceTotal * $ratio,
+            ];
+        }
+
+        $iva = $base * (float)($row['line_iva'] ?? 0) / 100;
+        $recargo = $base * (float)($row['line_recargo'] ?? 0) / 100;
+        return [
+            'baseimponible' => $base,
+            'iva' => $iva,
+            'recargo' => $recargo,
+            'gasto' => self::hasAmount($iva) || self::hasAmount($recargo) ? $base + $iva + $recargo : 0.0,
+        ];
+    }
+
+    protected static function hasAmount(float $amount): bool
+    {
+        return abs($amount) > 0.00001;
     }
 
     protected function iniFilters(): void
