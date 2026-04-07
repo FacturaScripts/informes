@@ -214,7 +214,7 @@
     "rent-office": "Affitto ufficio MOD 115",
     "report-board-title-date": "Bacheca di %table% per %column%",
     "report-board-title-date-created": "Pizarra creada para %table% por %column%.",
-    "report-board-wizard-column-help": "Selecciona la columna de fecha de la tabla %table%.",
+    "report-board-wizard-column-help": "Seleziona la colonna della data della tabella %table%.",
     "report-board-wizard-date-help": "Scegli una tabella e un campo data per creare una bacheca personalizzata.",
     "report-board-wizard-default-help": "Genera las pizarras predeterminadas del plugin.",
     "report-breakdown": "Scomposizioni",

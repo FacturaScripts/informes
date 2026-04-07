@@ -43,7 +43,7 @@
                             <p class="text-muted mb-4">{{ trans('report-taxes-p') }}.</p>
                             <div class="row g-2">
                                 {% if fsc.empresa.count() > 1 %}
-                                    <div class="col-sm-6 col-md-4">
+                                    <div class="col-sm-6 col-md-4 col-lg-3">
                                         {{ trans('company') }}
                                         <select name="idempresa" class="form-select mb-3">
                                             {% for empresa in fsc.empresa.all() %}
@@ -62,7 +62,7 @@
                                 {% else %}
                                     <input type="hidden" name="idempresa" value="{{ fsc.idempresa }}"/>
                                 {% endif %}
-                                <div class="col-sm-6 col-md-4">
+                                <div class="col-sm-6 col-md-4 col-lg-3">
                                     {{ trans('serie') }}
                                     <select name="codserie" class="form-select mb-3">
                                         <option value="">{{ trans('all') }}</option>
@@ -78,7 +78,7 @@
                                         {% endfor %}
                                     </select>
                                 </div>
-                                <div class="col-sm-6 col-md-4">
+                                <div class="col-sm-6 col-md-4 col-lg-3">
                                     {{ trans('currency') }}
                                     <select name="coddivisa" class="form-select mb-3">
                                         {% for divisa in fsc.divisa.all({}, {'descripcion': 'ASC'}, 0, 0) %}
@@ -92,7 +92,7 @@
                                         {% endfor %}
                                     </select>
                                 </div>
-                                <div class="col-sm-6 col-md-4">
+                                <div class="col-sm-6 col-md-4 col-lg-3">
                                     {{ trans('country') }}
                                     <select name="codpais" class="form-select mb-3">
                                         <option value="">{{ trans('all') }}</option>
@@ -108,7 +108,7 @@
                                         {% endfor %}
                                     </select>
                                 </div>
-                                <div class="col-sm-6 col-md-3">
+                                <div class="col-sm-6 col-md-4 col-lg-3">
                                     {{ trans('date') }}
                                     <select name="type-date" class="form-select mb-3">
                                         <option value="create" {{ fsc.typeDate == 'create' ? 'selected': '' }}>
@@ -119,17 +119,17 @@
                                         </option>
                                     </select>
                                 </div>
-                                <div class="col-sm-6 col-md-3">
+                                <div class="col-sm-6 col-md-4 col-lg-3">
                                     {{ trans('from-date') }}
                                     <input type="date" name="datefrom" value="{{ fsc.datefrom }}"
                                            class="form-control mb-3" required/>
                                 </div>
-                                <div class="col-sm-6 col-md-3">
+                                <div class="col-sm-6 col-md-4 col-lg-3">
                                     {{ trans('until-date') }}
                                     <input type="date" name="dateto" value="{{ fsc.dateto }}" class="form-control mb-3"
                                            required/>
                                 </div>
-                                <div class="col-sm-6 col-md-3">
+                                <div class="col-sm-6 col-md-4 col-lg-3">
                                     {{ trans('format') }}
                                     <select name="format" class="form-select mb-3">
                                         <option value="PDF">PDF</option>
