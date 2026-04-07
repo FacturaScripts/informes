@@ -284,6 +284,7 @@ class ReportTaxes extends Controller
         $data = [];
         foreach ($this->dataBase->select($sql) as $row) {
             $pvpTotal = floatval($row['pvptotal']) * (100 - floatval($row['dtopor1'])) * (100 - floatval($row['dtopor2'])) / 10000;
+            $row['suplido'] = filter_var($row['suplido'], FILTER_VALIDATE_BOOLEAN);
             $code = $row['codigo'] . '-' . $row['iva'] . '-' . $row['recargo'] . '-' . $row['irpf'] . '-' . $row['suplido'];
             if (isset($data[$code])) {
                 $data[$code]['neto'] += $row['suplido'] ? 0 : $pvpTotal;
