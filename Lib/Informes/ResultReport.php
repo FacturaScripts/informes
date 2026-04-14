@@ -136,7 +136,7 @@ class ResultReport
             if ($variante->loadWhere($where)) {
                 $articulo = true;
                 $producto->load($variante->idproducto);
-                $descripcion = strlen($producto->descripcion) > 50 ? substr($producto->descripcion, 0, 50) . '...' : $producto->descripcion;
+                $descripcion = mb_strlen($producto->descripcion) > 50 ? mb_substr($producto->descripcion, 0, 50) . '...' : $producto->descripcion;
                 $descripcion = $descripcion != '' ? ' - ' . $descripcion : $descripcion;
                 $art_desc = $referencia . $descripcion;
                 $codfamilia = $producto->codfamilia;

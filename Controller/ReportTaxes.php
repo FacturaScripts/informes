@@ -448,10 +448,13 @@ class ReportTaxes extends Controller
         $columnDate = $this->typeDate === 'create' ? 'f.fecha' : 'COALESCE(f.fechadevengo, f.fecha)';
         switch ($this->source) {
             case 'purchases':
-                $sql = 'SELECT f.idfactura, f.codserie, f.codigo, f.numproveedor, f.fecha, f.fechadevengo, f.nombre, f.cifnif,'
-                    . ' f.total, pr.codsubcuenta'
-                    . ' FROM facturasprov AS f'
+                $sql .= 'SELECT f.codserie, f.codigo, f.numproveedor, f.fecha, f.fechadevengo, f.nombre, f.cifnif, l.pvptotal,'
+                    . ' l.iva, l.recargo, l.irpf, l.suplido, f.dtopor1, f.dtopor2, f.total, f.operacion, pr.codsubcuenta,'
+                    . ' c.ciudad, c.provincia, c.codpostal, c.codpais'
+                    . ' FROM lineasfacturasprov AS l'
+                    . ' LEFT JOIN facturasprov AS f ON l.idfactura = f.idfactura '
                     . ' LEFT JOIN proveedores AS pr ON f.codproveedor = pr.codproveedor'
+                    . ' LEFT JOIN contactos AS c ON pr.idcontacto = c.idcontacto'
                     . ' WHERE f.idempresa = ' . $this->dataBase->var2str($this->idempresa)
                     . ' AND ' . $columnDate . ' >= ' . $this->dataBase->var2str($this->datefrom)
                     . ' AND ' . $columnDate . ' <= ' . $this->dataBase->var2str($this->dateto)
