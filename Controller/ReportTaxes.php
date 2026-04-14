@@ -23,11 +23,14 @@ use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Core\Base\ControllerPermissions;
 use FacturaScripts\Core\DataSrc\Divisas;
 use FacturaScripts\Core\DataSrc\Paises;
+use FacturaScripts\Core\Lib\Calculator;
+use FacturaScripts\Core\Model\Base\BusinessDocument;
 use FacturaScripts\Core\Response;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Lib\ExportManager;
-use FacturaScripts\Dinamic\Lib\InvoiceOperation;
 use FacturaScripts\Dinamic\Model\Divisa;
+use FacturaScripts\Dinamic\Model\FacturaCliente;
+use FacturaScripts\Dinamic\Model\FacturaProveedor;
 use FacturaScripts\Dinamic\Model\Pais;
 use FacturaScripts\Dinamic\Model\Serie;
 use FacturaScripts\Dinamic\Model\User;
@@ -109,6 +112,68 @@ class ReportTaxes extends Controller
 
         if ('export' === $this->request->input('action')) {
             $this->exportAction();
+        }
+    }
+
+    protected function addAmountToRows(array &$rows, string $field, float $amount): void
+    {
+        if (empty($rows) || abs($amount) <= 0.0001) {
+            return;
+        }
+
+        $weightedIndexes = [];
+        $totalWeight = 0.0;
+        foreach ($rows as $index => $row) {
+            $weight = abs((float)$row['neto']);
+            if ($weight <= 0.0) {
+                continue;
+            }
+
+            $weightedIndexes[] = $index;
+            $totalWeight += $weight;
+        }
+
+        if (empty($weightedIndexes) || $totalWeight <= 0.0) {
+            $firstKey = array_key_first($rows);
+            $rows[$firstKey][$field] = Tools::round($rows[$firstKey][$field] + $amount);
+            return;
+        }
+
+        $remaining = $amount;
+        $lastIndex = end($weightedIndexes);
+        foreach ($weightedIndexes as $index) {
+            if ($index === $lastIndex) {
+                $rows[$index][$field] = Tools::round($rows[$index][$field] + $remaining);
+                break;
+            }
+
+            $share = Tools::round($amount * abs((float)$rows[$index]['neto']) / $totalWeight);
+            $rows[$index][$field] = Tools::round($rows[$index][$field] + $share);
+            $remaining -= $share;
+        }
+    }
+
+    /**
+     * Construye un mapa de datos calculados agregados por factura desde los datos del reporte
+     *
+     * @param array $reportData Datos del reporte obtenidos de getReportData()
+     * @return void
+     */
+    protected function buildCalculatedByInvoiceMap(array $reportData): void
+    {
+        $this->calculatedByInvoice = [];
+        foreach ($reportData as $row) {
+            $codigo = $row['codigo'];
+            if (!isset($this->calculatedByInvoice[$codigo])) {
+                $this->calculatedByInvoice[$codigo] = [
+                    'neto' => 0.0,
+                    'totaliva' => 0.0,
+                    'totalrecargo' => 0.0
+                ];
+            }
+            $this->calculatedByInvoice[$codigo]['neto'] += $row['neto'];
+            $this->calculatedByInvoice[$codigo]['totaliva'] += $row['totaliva'];
+            $this->calculatedByInvoice[$codigo]['totalrecargo'] += $row['totalrecargo'];
         }
     }
 
@@ -205,6 +270,99 @@ class ReportTaxes extends Controller
         };
     }
 
+    /**
+     * Encuentra las facturas con posibles diferencias y genera los mensajes de error
+     * Hace una sola consulta SQL independientemente de cuántos campos tengan diferencias
+     *
+     * @param array $fieldsWithDifferences Array con los campos que tienen diferencias: ['neto', 'totaliva', 'totalrecargo']
+     * @param array $differences Array con los valores: ['neto' => ['calculated' => X, 'database' => Y], ...]
+     * @return bool Siempre retorna false ya que hay diferencias
+     */
+    protected function findProblematicInvoices(array $fieldsWithDifferences, array $differences): bool
+    {
+        $tableName = $this->source === 'sales' ? 'facturascli' : 'facturasprov';
+        $columnDate = $this->typeDate === 'create' ? 'fecha' : 'COALESCE(fechadevengo, fecha)';
+
+        // Construir la consulta una sola vez para obtener todos los campos necesarios
+        $sql = 'SELECT codigo, neto, totaliva, totalrecargo FROM ' . $tableName
+            . ' WHERE idempresa = ' . $this->dataBase->var2str($this->idempresa)
+            . ' AND ' . $columnDate . ' >= ' . $this->dataBase->var2str($this->datefrom)
+            . ' AND ' . $columnDate . ' <= ' . $this->dataBase->var2str($this->dateto)
+            . ' AND coddivisa = ' . $this->dataBase->var2str($this->coddivisa);
+
+        if ($this->codserie) {
+            $sql .= ' AND codserie = ' . $this->dataBase->var2str($this->codserie);
+        }
+
+        if ($this->codpais && $this->source === 'sales') {
+            $sql .= ' AND codpais = ' . $this->dataBase->var2str($this->codpais);
+        }
+
+        $sql .= ' ORDER BY codigo ASC;';
+
+        // Agrupar facturas problemáticas por campo
+        $invoicesByField = [];
+        foreach ($fieldsWithDifferences as $field) {
+            $invoicesByField[$field] = [];
+        }
+
+        // Comparar datos de base de datos con datos calculados ya preconstruidos
+        foreach ($this->dataBase->select($sql) as $row) {
+            $codigo = $row['codigo'];
+            foreach ($fieldsWithDifferences as $field) {
+                $dbValue = (float)$row[$field];
+                $calculatedValue = $this->calculatedByInvoice[$codigo][$field] ?? 0.0;
+
+                if (abs($calculatedValue - $dbValue) > self::MAX_TOTAL_DIFF) {
+                    $invoicesByField[$field][] = $codigo;
+                }
+            }
+        }
+
+        $printError = false;
+
+        // Generar los mensajes de error para cada campo con diferencias
+        foreach ($fieldsWithDifferences as $field) {
+            $problematicInvoices = array_unique($invoicesByField[$field]);
+            $invoiceList = implode(', ', $problematicInvoices);
+
+            // Mapeo de campos a mensajes de error
+            $errorMessages = [
+                'neto' => [
+                    'key' => 'calculated-net-diff',
+                    'calculated' => '%net%',
+                    'database' => '%net2%'
+                ],
+                'totaliva' => [
+                    'key' => 'calculated-tax-diff',
+                    'calculated' => '%tax%',
+                    'database' => '%tax2%'
+                ],
+                'totalrecargo' => [
+                    'key' => 'calculated-surcharge-diff',
+                    'calculated' => '%surcharge%',
+                    'database' => '%surcharge2%'
+                ]
+            ];
+
+            if (isset($errorMessages[$field])) {
+                $printError = true;
+                $errorMsg = $errorMessages[$field];
+                Tools::log()->warning($errorMsg['key'], [
+                    $errorMsg['calculated'] => $differences[$field]['calculated'],
+                    $errorMsg['database'] => $differences[$field]['database'],
+                    '%invoices%' => $invoiceList
+                ]);
+            }
+        }
+
+        if ($printError) {
+            Tools::log()->info('report-taxes-solutions');
+        }
+
+        return false;
+    }
+
     protected function getQuarterDate(bool $start): string
     {
         $month = (int)date('m');
@@ -237,38 +395,84 @@ class ReportTaxes extends Controller
 
     protected function getReportData(): array
     {
-        $sql = '';
+        $data = [];
+        foreach ($this->getReportInvoices() as $invoiceData) {
+            $document = $this->getReportDocument();
+            if (false === $document->load((int)$invoiceData['idfactura'])) {
+                continue;
+            }
+
+            foreach ($this->getReportDataFromDocument($invoiceData, $document) as $row) {
+                $data[] = $row;
+            }
+        }
+
+        return $data;
+    }
+
+    protected function getReportDataFromDocument(array $invoiceData, BusinessDocument $document): array
+    {
+        $subtotals = Calculator::getSubtotals($document, $document->getLines());
+        $rows = [];
+        foreach ($subtotals['iva'] as $taxData) {
+            $rows[] = $this->newReportDataRow(
+                $invoiceData,
+                $document,
+                (float)$taxData['neto'],
+                (float)$taxData['iva'],
+                (float)$taxData['totaliva'],
+                (float)$taxData['recargo'],
+                (float)$taxData['totalrecargo']
+            );
+        }
+
+        if (empty($rows) && abs((float)$subtotals['totalsuplidos']) > 0.0001) {
+            $rows[] = $this->newReportDataRow($invoiceData, $document, 0.0, 0.0, 0.0, 0.0, 0.0);
+        }
+
+        $this->addAmountToRows($rows, 'totalirpf', (float)$subtotals['totalirpf']);
+        $this->addAmountToRows($rows, 'suplidos', (float)$subtotals['totalsuplidos']);
+
+        return $rows;
+    }
+
+    protected function getReportDocument()
+    {
+        return $this->source === 'sales' ? new FacturaCliente() : new FacturaProveedor();
+    }
+
+    protected function getReportInvoices(): array
+    {
         $db_type = Tools::config('db_type');
         $numCol = strtolower($db_type) == 'postgresql' ? 'CAST(f.numero as integer)' : 'CAST(f.numero as unsigned)';
         $columnDate = $this->typeDate === 'create' ? 'f.fecha' : 'COALESCE(f.fechadevengo, f.fecha)';
         switch ($this->source) {
             case 'purchases':
-                $sql .= 'SELECT f.codserie, f.codigo, f.numproveedor, f.fecha, f.fechadevengo, f.nombre, f.cifnif, l.pvptotal,'
-                    . ' l.iva, l.recargo, l.irpf, l.suplido, f.dtopor1, f.dtopor2, f.total, f.operacion, pr.codsubcuenta'
-                    . ' FROM lineasfacturasprov AS l'
-                    . ' LEFT JOIN facturasprov AS f ON l.idfactura = f.idfactura '
+                $sql = 'SELECT f.idfactura, f.codserie, f.codigo, f.numproveedor, f.fecha, f.fechadevengo, f.nombre, f.cifnif,'
+                    . ' f.total, pr.codsubcuenta'
+                    . ' FROM facturasprov AS f'
                     . ' LEFT JOIN proveedores AS pr ON f.codproveedor = pr.codproveedor'
                     . ' WHERE f.idempresa = ' . $this->dataBase->var2str($this->idempresa)
                     . ' AND ' . $columnDate . ' >= ' . $this->dataBase->var2str($this->datefrom)
                     . ' AND ' . $columnDate . ' <= ' . $this->dataBase->var2str($this->dateto)
-                    . ' AND (l.pvptotal <> 0.00 OR l.iva <> 0.00)'
-                    . ' AND f.coddivisa = ' . $this->dataBase->var2str($this->coddivisa);
+                    . ' AND f.coddivisa = ' . $this->dataBase->var2str($this->coddivisa)
+                    . ' AND EXISTS (SELECT 1 FROM lineasfacturasprov AS l'
+                    . ' WHERE l.idfactura = f.idfactura AND (l.pvptotal <> 0.00 OR l.iva <> 0.00))';
                 break;
 
             case 'sales':
-                $sql .= 'SELECT f.codserie, f.codigo, f.numero2, f.fecha, f.fechadevengo, f.nombrecliente AS nombre, f.cifnif, l.pvptotal,'
-                    . ' l.iva, l.recargo, l.irpf, l.suplido, f.dtopor1, f.dtopor2, f.total, f.operacion, f.codpais, cl.codsubcuenta,'
-                    . ' f.ciudad, f.provincia, f.codpostal'
-                    . ' FROM lineasfacturascli AS l'
-                    . ' LEFT JOIN facturascli AS f ON l.idfactura = f.idfactura '
+                $sql = 'SELECT f.idfactura, f.codserie, f.codigo, f.numero2, f.fecha, f.fechadevengo, f.nombrecliente AS nombre,'
+                    . ' f.cifnif, f.total, f.codpais, cl.codsubcuenta, f.ciudad, f.provincia, f.codpostal'
+                    . ' FROM facturascli AS f'
                     . ' LEFT JOIN clientes AS cl ON f.codcliente = cl.codcliente'
                     . ' WHERE f.idempresa = ' . $this->dataBase->var2str($this->idempresa)
                     . ' AND ' . $columnDate . ' >= ' . $this->dataBase->var2str($this->datefrom)
                     . ' AND ' . $columnDate . ' <= ' . $this->dataBase->var2str($this->dateto)
-                    . ' AND (l.pvptotal <> 0.00 OR l.iva <> 0.00)'
-                    . ' AND f.coddivisa = ' . $this->dataBase->var2str($this->coddivisa);
+                    . ' AND f.coddivisa = ' . $this->dataBase->var2str($this->coddivisa)
+                    . ' AND EXISTS (SELECT 1 FROM lineasfacturascli AS l'
+                    . ' WHERE l.idfactura = f.idfactura AND (l.pvptotal <> 0.00 OR l.iva <> 0.00))';
                 if ($this->codpais) {
-                    $sql .= ' AND codpais = ' . $this->dataBase->var2str($this->codpais);
+                    $sql .= ' AND f.codpais = ' . $this->dataBase->var2str($this->codpais);
                 }
                 break;
 
@@ -276,63 +480,13 @@ class ReportTaxes extends Controller
                 Tools::log()->warning('wrong-source');
                 return [];
         }
+
         if ($this->codserie) {
             $sql .= ' AND f.codserie = ' . $this->dataBase->var2str($this->codserie);
         }
+
         $sql .= ' ORDER BY ' . $columnDate . ', ' . $numCol . ' ASC;';
-
-        $data = [];
-        foreach ($this->dataBase->select($sql) as $row) {
-            $pvpTotal = floatval($row['pvptotal']) * (100 - floatval($row['dtopor1'])) * (100 - floatval($row['dtopor2'])) / 10000;
-            $row['suplido'] = filter_var($row['suplido'], FILTER_VALIDATE_BOOLEAN);
-            $code = $row['codigo'] . '-' . $row['iva'] . '-' . $row['recargo'] . '-' . $row['irpf'] . '-' . $row['suplido'];
-            if (isset($data[$code])) {
-                $data[$code]['neto'] += $row['suplido'] ? 0 : $pvpTotal;
-                $data[$code]['totaliva'] += $row['suplido'] || $row['operacion'] === InvoiceOperation::INTRA_COMMUNITY ? 0 : (float)$row['iva'] * $pvpTotal / 100;
-                $data[$code]['totalrecargo'] += $row['suplido'] ? 0 : (float)$row['recargo'] * $pvpTotal / 100;
-                $data[$code]['totalirpf'] += $row['suplido'] ? 0 : (float)$row['irpf'] * $pvpTotal / 100;
-                $data[$code]['suplidos'] += $row['suplido'] ? $pvpTotal : 0;
-                continue;
-            }
-
-            $data[$code] = [
-                'ciudad' => $row['ciudad'] ?? null,
-                'provincia' => $row['provincia'] ?? null,
-                'codpostal' => $row['codpostal'] ?? null,
-                'codpais' => $row['codpais'] ?? null,
-                'codserie' => $row['codserie'],
-                'codigo' => $row['codigo'],
-                'numero2' => $row['numero2'] ?? null,
-                'numproveedor' => $row['numproveedor'] ?? null,
-                'fecha' => $this->typeDate == 'create' ?
-                    $row['fecha'] :
-                    $row['fechadevengo'] ?? $row['fecha'],
-                'nombre' => $row['nombre'],
-                'codsubcuenta' => $row['codsubcuenta'],
-                'cifnif' => $row['cifnif'],
-                'neto' => $row['suplido'] ? 0 : $pvpTotal,
-                'iva' => $row['suplido'] ? 0 : (float)$row['iva'],
-                'totaliva' => $row['suplido'] || $row['operacion'] === InvoiceOperation::INTRA_COMMUNITY ? 0 : (float)$row['iva'] * $pvpTotal / 100,
-                'recargo' => $row['suplido'] ? 0 : (float)$row['recargo'],
-                'totalrecargo' => $row['suplido'] ? 0 : (float)$row['recargo'] * $pvpTotal / 100,
-                'irpf' => $row['suplido'] ? 0 : (float)$row['irpf'],
-                'totalirpf' => $row['suplido'] ? 0 : (float)$row['irpf'] * $pvpTotal / 100,
-                'suplidos' => $row['suplido'] ? $pvpTotal : 0,
-                'total' => (float)$row['total']
-            ];
-        }
-
-        // round
-        $nf0 = Tools::settings('default', 'decimals', 2);
-        foreach ($data as $key => $value) {
-            $data[$key]['neto'] = round($value['neto'], $nf0);
-            $data[$key]['totaliva'] = round($value['totaliva'], $nf0);
-            $data[$key]['totalrecargo'] = round($value['totalrecargo'], $nf0);
-            $data[$key]['totalirpf'] = round($value['totalirpf'], $nf0);
-            $data[$key]['suplidos'] = round($value['suplidos'], $nf0);
-        }
-
-        return $data;
+        return $this->dataBase->select($sql);
     }
 
     protected function getTotals(array $data): array
@@ -404,6 +558,42 @@ class ReportTaxes extends Controller
         $this->format = $this->request->input('format');
         $this->source = $this->request->input('source');
         $this->typeDate = $this->request->input('type-date');
+    }
+
+    protected function newReportDataRow(
+        array $invoiceData,
+        BusinessDocument $document,
+        float $neto,
+        float $iva,
+        float $totalIva,
+        float $recargo,
+        float $totalRecargo
+    ): array {
+        return [
+            'ciudad' => $invoiceData['ciudad'] ?? null,
+            'provincia' => $invoiceData['provincia'] ?? null,
+            'codpostal' => $invoiceData['codpostal'] ?? null,
+            'codpais' => $invoiceData['codpais'] ?? null,
+            'codserie' => $invoiceData['codserie'],
+            'codigo' => $invoiceData['codigo'],
+            'numero2' => $invoiceData['numero2'] ?? null,
+            'numproveedor' => $invoiceData['numproveedor'] ?? null,
+            'fecha' => $this->typeDate == 'create' ?
+                $invoiceData['fecha'] :
+                $invoiceData['fechadevengo'] ?? $invoiceData['fecha'],
+            'nombre' => $invoiceData['nombre'],
+            'codsubcuenta' => $invoiceData['codsubcuenta'] ?? null,
+            'cifnif' => $invoiceData['cifnif'],
+            'neto' => Tools::round($neto),
+            'iva' => $iva,
+            'totaliva' => Tools::round($totalIva),
+            'recargo' => $recargo,
+            'totalrecargo' => Tools::round($totalRecargo),
+            'irpf' => (float)$document->irpf,
+            'totalirpf' => 0.0,
+            'suplidos' => 0.0,
+            'total' => (float)$document->total,
+        ];
     }
 
     protected function processLayout(array &$lines, array &$totals): void
@@ -531,122 +721,5 @@ class ReportTaxes extends Controller
         }
 
         return true;
-    }
-
-    /**
-     * Construye un mapa de datos calculados agregados por factura desde los datos del reporte
-     *
-     * @param array $reportData Datos del reporte obtenidos de getReportData()
-     * @return void
-     */
-    protected function buildCalculatedByInvoiceMap(array $reportData): void
-    {
-        $this->calculatedByInvoice = [];
-        foreach ($reportData as $row) {
-            $codigo = $row['codigo'];
-            if (!isset($this->calculatedByInvoice[$codigo])) {
-                $this->calculatedByInvoice[$codigo] = [
-                    'neto' => 0.0,
-                    'totaliva' => 0.0,
-                    'totalrecargo' => 0.0
-                ];
-            }
-            $this->calculatedByInvoice[$codigo]['neto'] += $row['neto'];
-            $this->calculatedByInvoice[$codigo]['totaliva'] += $row['totaliva'];
-            $this->calculatedByInvoice[$codigo]['totalrecargo'] += $row['totalrecargo'];
-        }
-    }
-
-    /**
-     * Encuentra las facturas con posibles diferencias y genera los mensajes de error
-     * Hace una sola consulta SQL independientemente de cuántos campos tengan diferencias
-     *
-     * @param array $fieldsWithDifferences Array con los campos que tienen diferencias: ['neto', 'totaliva', 'totalrecargo']
-     * @param array $differences Array con los valores: ['neto' => ['calculated' => X, 'database' => Y], ...]
-     * @return bool Siempre retorna false ya que hay diferencias
-     */
-    protected function findProblematicInvoices(array $fieldsWithDifferences, array $differences): bool
-    {
-        $tableName = $this->source === 'sales' ? 'facturascli' : 'facturasprov';
-        $columnDate = $this->typeDate === 'create' ? 'fecha' : 'COALESCE(fechadevengo, fecha)';
-
-        // Construir la consulta una sola vez para obtener todos los campos necesarios
-        $sql = 'SELECT codigo, neto, totaliva, totalrecargo FROM ' . $tableName
-            . ' WHERE idempresa = ' . $this->dataBase->var2str($this->idempresa)
-            . ' AND ' . $columnDate . ' >= ' . $this->dataBase->var2str($this->datefrom)
-            . ' AND ' . $columnDate . ' <= ' . $this->dataBase->var2str($this->dateto)
-            . ' AND coddivisa = ' . $this->dataBase->var2str($this->coddivisa);
-
-        if ($this->codserie) {
-            $sql .= ' AND codserie = ' . $this->dataBase->var2str($this->codserie);
-        }
-
-        if ($this->codpais && $this->source === 'sales') {
-            $sql .= ' AND codpais = ' . $this->dataBase->var2str($this->codpais);
-        }
-
-        $sql .= ' ORDER BY codigo ASC;';
-
-        // Agrupar facturas problemáticas por campo
-        $invoicesByField = [];
-        foreach ($fieldsWithDifferences as $field) {
-            $invoicesByField[$field] = [];
-        }
-
-        // Comparar datos de base de datos con datos calculados ya preconstruidos
-        foreach ($this->dataBase->select($sql) as $row) {
-            $codigo = $row['codigo'];
-            foreach ($fieldsWithDifferences as $field) {
-                $dbValue = (float)$row[$field];
-                $calculatedValue = $this->calculatedByInvoice[$codigo][$field] ?? 0.0;
-
-                if (abs($calculatedValue - $dbValue) > self::MAX_TOTAL_DIFF) {
-                    $invoicesByField[$field][] = $codigo;
-                }
-            }
-        }
-
-        $printError = false;
-
-        // Generar los mensajes de error para cada campo con diferencias
-        foreach ($fieldsWithDifferences as $field) {
-            $problematicInvoices = array_unique($invoicesByField[$field]);
-            $invoiceList = implode(', ', $problematicInvoices);
-
-            // Mapeo de campos a mensajes de error
-            $errorMessages = [
-                'neto' => [
-                    'key' => 'calculated-net-diff',
-                    'calculated' => '%net%',
-                    'database' => '%net2%'
-                ],
-                'totaliva' => [
-                    'key' => 'calculated-tax-diff',
-                    'calculated' => '%tax%',
-                    'database' => '%tax2%'
-                ],
-                'totalrecargo' => [
-                    'key' => 'calculated-surcharge-diff',
-                    'calculated' => '%surcharge%',
-                    'database' => '%surcharge2%'
-                ]
-            ];
-
-            if (isset($errorMessages[$field])) {
-                $printError = true;
-                $errorMsg = $errorMessages[$field];
-                Tools::log()->warning($errorMsg['key'], [
-                    $errorMsg['calculated'] => $differences[$field]['calculated'],
-                    $errorMsg['database'] => $differences[$field]['database'],
-                    '%invoices%' => $invoiceList
-                ]);
-            }
-        }
-
-        if ($printError) {
-            Tools::log()->info('report-taxes-solutions');
-        }
-
-        return false;
     }
 }
