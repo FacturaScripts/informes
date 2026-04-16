@@ -24,7 +24,7 @@ use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Model\ReportBoardUser;
 
 /**
- * @author Daniel Fernández Giménez <hola@danielfg.es>
+ * @author Daniel Fernández Giménez <contacto@danielfg.es>
  */
 class Dashboard
 {

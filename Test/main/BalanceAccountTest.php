@@ -30,7 +30,7 @@ use PHPUnit\Framework\TestCase;
  * Description of BalanceAccount
  *
  * @author Carlos García Gómez     <carlos@facturascripts.com>
- * @author Daniel Ferández Giménez <hola@danielfg.es>
+ * @author Daniel Ferández Giménez <contacto@danielfg.es>
  */
 final class BalanceAccountTest extends TestCase
 {
