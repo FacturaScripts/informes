@@ -20,7 +20,7 @@
 namespace FacturaScripts\Plugins\Informes\Controller;
 
 /**
- * Controlador para generar un informe de proveedores con diferentes métricas (activos, por país, por grupo, etc.)
+ * Controlador para generar un informe de proveedores con diferentes métricas (activos, por país, acreedores, etc.)
  *
  * @author Esteban Sánchez Martínez
  */
@@ -33,6 +33,51 @@ use FacturaScripts\Plugins\Informes\Model\Report;
 
 class ReportSupplier extends Controller
 {
+    /** @var array todas las empresas a listar en el formulario [idEmpresa => nombre empresa] */
+    public $companies = [];
+
+    /** @var int|string|null el idempresa sugerido por el usuario (puede ser 'all') */
+    public $idempresa;
+
+    /** @var int Total de proveedores */
+    public $totalSuppliers;
+
+    /** @var int Proveedores activos en el último año */
+    public $activeSupplier;
+
+    /** @var int Proveedores activos en el año actual */
+    public $activeSuppliersYear;
+
+    /** @var int Proveedores marcados como baja */
+    public $inactiveSuppliers;
+
+    /** @var int Nuevos proveedores en los últimos 30 días */
+    public $newSuppliers30Days;
+
+    /** @var int Proveedores con facturas pendientes de pago */
+    public $suppliersWithPayables;
+
+    /** @var array Reportes*/
+    public $charts = [];
+
+    /** @var array Resultado agrupado por país */
+    public $suppliersByCountry;
+
+    /** @var string Nombre del país de la empresa */
+    public $companyCountry;
+
+    /** @var string Código del país de la empresa */
+    public $companyCountryCode;
+
+    /** @var string Año actual */
+    protected $currentYear;
+
+    /** @var string Filtros WHERE para facturasprov según empresa */
+    protected $whereEmpresaFacturasProv = '';
+
+    /** @var string Filtros WHERE para proveedores según empresa */
+    protected $whereEmpresaProveedores = '';
+
 
     public function getPageData(): array
     {
@@ -115,7 +160,7 @@ class ReportSupplier extends Controller
     protected function loadTotalSuppliers(): void
     {
         $sqlTotal = "SELECT COUNT(*) as total FROM proveedores" . $this->whereEmpresaProveedores;
-        $this->totalCustomers = $this->dataBase->select($sqlTotal)[0]['total'];
+        $this->totalSuppliers = (int)$this->dataBase->select($sqlTotal)[0]['total'];
     }
 
     protected function loadActiveSupplier(): void
@@ -131,18 +176,18 @@ class ReportSupplier extends Controller
         $this->activeSuppliersYear = $this->dataBase->select($sqlActiveYear)[0]['total'];
     }
 
-    protected function loadInactiveSupplier()
+    protected function loadInactiveSupplier(): void
     {
         $sqlInactive = "SELECT COUNT(*) as total FROM proveedores";
         if ($this->idempresa !== 'all') {
-            $sqlInactive .= " WHERE debaja = true AND codproveedor IN (SELECT codproveedor FROM facturasporv WHERE idempresa = " . $this->idempresa . ")";
+            $sqlInactive .= " WHERE debaja = true AND codproveedor IN (SELECT codproveedor FROM facturasprov WHERE idempresa = " . $this->idempresa . ")";
         } else {
             $sqlInactive .= " WHERE debaja = true";
         }
         $this->inactiveSuppliers = $this->dataBase->select($sqlInactive)[0]['total'];
     }
 
-    protected function loadNewSuppliers30Days()
+    protected function loadNewSuppliers30Days(): void
     {
         $sql = "SELECT COUNT(*) as total FROM proveedores WHERE fechaalta >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)";
 
@@ -216,21 +261,113 @@ class ReportSupplier extends Controller
 
     protected function loadSuppliersByProvince(): void
     {
+        $report = new Report();
+        $report->type = Report::TYPE_TREE_MAP;
+        $report->table = 'proveedores pv';
+        $report->xcolumn = "COALESCE(NULLIF(c.provincia, ''), '" . Tools::trans('no-data') . "')";
+        $report->ycolumn = '*';
+        $report->yoperation = 'COUNT';
+
+        // añadimos el JOIN con contactos para obtener provincia y país
+        Report::activateAdvancedReport(true);
+        $report->addCustomJoin('LEFT JOIN contactos c ON pv.idcontacto = c.idcontacto');
+
+        // filtramos por el país de la empresa para mostrar solo provincias del país
+        $report->addCustomFilter('c.codpais', '=', $this->companyCountryCode);
+
+        // aplicamos el filtro de empresa si no se están mostrando todas
+        if ($this->idempresa !== 'all') {
+            $report->addCustomFilter(
+                'pv.codproveedor',
+                'IN',
+                'SELECT codproveedor FROM facturasprov WHERE idempresa = ' . (int)$this->idempresa
+            );
+        }
+
+        $this->charts['suppliersByProvince'] = $report;
     }
 
-    protected function loadInvoicesByProvince()
+    protected function loadInvoicesByProvince(): void
     {
+        $report = new Report();
+        $report->type = Report::TYPE_TREE_MAP;
+        $report->table = 'facturasprov f';
+        $report->xcolumn = "COALESCE(NULLIF(c.provincia, ''), '" . Tools::trans('no-data') . "')";
+        $report->ycolumn = 'DISTINCT f.codproveedor';
+        $report->yoperation = 'COUNT';
+
+        // añadimos los JOINs necesarios para obtener la provincia del contacto
+        Report::activateAdvancedReport(true);
+        $report->addCustomJoin('LEFT JOIN proveedores pv ON f.codproveedor = pv.codproveedor');
+        $report->addCustomJoin('LEFT JOIN contactos c ON pv.idcontacto = c.idcontacto');
+
+        // aplicamos el filtro de empresa si no se están mostrando todas
+        if ($this->idempresa !== 'all') {
+            $report->addCustomFilter('f.idempresa', '=', (int)$this->idempresa);
+        }
+
+        $this->charts['invoicesByProvince'] = $report;
     }
 
     protected function loadSuppliersWithPayables(): void
     {
+        $sql = "SELECT COUNT(DISTINCT codproveedor) as total FROM facturasprov WHERE pagada = " . $this->dataBase->var2str(false);
+
+        if ($this->idempresa !== 'all') {
+            $sql .= " AND idempresa = " . $this->dataBase->var2str((int)$this->idempresa);
+        }
+
+        $this->suppliersWithPayables = (int)$this->dataBase->select($sql)[0]['total'];
     }
 
     protected function loadCreditors(): void
     {
+        $report = new Report();
+        $report->type = Report::TYPE_TREE_MAP;
+        $report->table = 'facturasprov f';
+        $report->xcolumn = 'f.nombre';
+        $report->ycolumn = 'f.total';
+        $report->yoperation = 'SUM';
+
+        Report::activateAdvancedReport(true);
+        $report->addCustomSql($this->getCreditorsSql());
+
+        $this->charts['creditors'] = $report;
     }
 
     protected function loadTopCreditors(): void
     {
+        $report = new Report();
+        $report->type = Report::TYPE_BAR;
+        $report->table = 'facturasprov f';
+        $report->xcolumn = 'f.nombre';
+        $report->ycolumn = 'f.total';
+        $report->yoperation = 'SUM';
+
+        Report::activateAdvancedReport(true);
+        $report->addCustomSql($this->getCreditorsSql(10));
+
+        $this->charts['topCreditors'] = $report;
+    }
+
+    protected function getCreditorsSql(int $limit = 0): string
+    {
+        $sql = "SELECT "
+            . "f.codproveedor as codproveedor, "
+            . "COALESCE(NULLIF(f.nombre, ''), f.codproveedor, '" . Tools::trans('no-data') . "') as xcol, "
+            . "SUM(f.total) as ycol "
+            . "FROM facturasprov f "
+            . "WHERE f.pagada = " . $this->dataBase->var2str(false);
+
+        if ($this->idempresa !== 'all') {
+            $sql .= " AND f.idempresa = " . $this->dataBase->var2str((int)$this->idempresa);
+        }
+
+        $sql .= " GROUP BY f.codproveedor, xcol ORDER BY ycol DESC, xcol ASC";
+        if ($limit > 0) {
+            $sql .= " LIMIT " . $limit;
+        }
+
+        return $sql . ';';
     }
 }
