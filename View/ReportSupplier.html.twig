@@ -1,0 +1,322 @@
+{#
+* Copyright (C) 2026 Carlos García Gómez <carlos@facturascripts.com>
+* Author Esteban Sánchez Martínez
+#}
+
+{% extends "Master/MenuBgTemplate.html.twig" %}
+{% import "Macro/Forms.html.twig" as forms %}
+
+{% block body %}
+    <div class="container-fluid">
+        <div class="row mt-3">
+            <div class="col-12 text-center">
+                <h1 class="h3 mb-3 text-gray-800">
+                    <i class="fa-solid fa-users"></i>
+                    {{ trans('suppliers') }} - {{ trans('report') }}
+                </h1>
+            </div>
+        </div>
+
+        <div class="row mb-4 justify-content-center">
+            <div class="col-auto">
+                <form action="{{ fsc.url() }}" method="get" id="reportForm">
+                    <div class="d-flex align-items-center p-2 bg-white rounded shadow-sm border">
+                        <div style="min-width: 300px;">
+                            {{ forms.simpleSelect('selectEmpresa', 'idempresa', fsc.idempresa, fsc.companies, null, 'fa-solid fa-building') }}
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">{{ trans('total') }} {{ trans('suppliers')|lower }}</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.totalSuppliers }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-users fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">{{ trans('active-suppliers') }}</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.activeSupplier }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-user-check fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
+                <div class="card border-left-info shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">{{ trans('active-suppliers-year') }}</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.activeSuppliersYear }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-file-invoice-dollar fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
+                <div class="card border-left-secondary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">{{ trans('inactive-suppliers') }}</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.inactiveSuppliers }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-user-slash fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
+                <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">{{ trans('new-suppliers-30-days') }}</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.newSuppliers30Days }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-user-plus fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
+                <div class="card border-left-danger shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">{{ trans('suppliers-with-payables') }}</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.suppliersWithPayables }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-triangle-exclamation fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fa-solid fa-chart-area me-1"></i>
+                            {{ trans('new-suppliers') }}
+                            ({{ trans('last-12-months') }})</h6>
+                    </div>
+                    <div class="card-body">
+                        {{ fsc.charts.reportTest.getChart().render({'height':250}) | raw }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fa-solid fa-chart-column me-1"></i>
+                            {{ trans('new-suppliers') }}
+                            ({{ trans('year') }})
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        {{ fsc.charts.newSuppliersByYear.getChart().render({'height':250}) | raw }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-lg-6 d-flex">
+                <div class="card shadow mb-4 w-100 h-100">
+                    <div class="card-header py-3 text-center">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fa-solid fa-earth-europe me-1"></i>
+                            {{ trans('suppliers-by-country') }}
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div id="regions_div" style="min-height: 320px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 d-flex">
+                <div class="card shadow mb-4 w-100 h-100">
+                    <div class="card-header py-3 text-center">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fa-solid fa-map-location-dot me-1"></i>
+                            {{ trans('suppliers-by-province') }}
+                            ({{ fsc.companyCountry }})</h6>
+                    </div>
+                    <div class="card-body">
+                        {{ fsc.charts.suppliersByProvince.getChart().render({'height':320}) | raw }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fa-solid fa-map-pin me-1"></i>
+                            {{ trans('suppliers-by-invoice-province') }}
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        {{ fsc.charts.invoicesByProvince.getChart().render({'height':320}) | raw }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow mb-4 border-bottom-danger">
+                    <div class="card-header py-3 bg-danger d-flex justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-white">
+                            <i class="fa-solid fa-triangle-exclamation me-1"></i>
+                            {{ trans('creditors') }}
+                        </h6>
+                        <span class="badge bg-white text-danger" id="totalCreditors">0</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-5">
+                                <h6 class="text-danger mb-1">
+                                    <i class="fa-solid fa-ranking-star me-1"></i>
+                                    {{ trans('top-creditors') }}
+                                </h6>
+                                <p class="text-muted small mb-3">Ranking por importe pendiente.</p>
+                                {{ fsc.charts.topCreditors.getChart().render({'height':360, 'horizontal': true}) | raw }}
+                            </div>
+                            <div class="col-md-7">
+                                {% for s_name, source in fsc.charts.creditors.getChart().getDataSources() %}
+                                    {% set totalCreditors = 0 %}
+                                    {% for item in source %}
+                                        {% set totalCreditors = totalCreditors + item.ycol %}
+                                    {% endfor %}
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-hover mb-0">
+                                            <thead>
+                                            <tr>
+                                                <th>{{ trans('name') }}</th>
+                                                <th class="text-end">%</th>
+                                                <th class="text-end">{{ trans('debt') }}</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody class="creditors-table-body">
+                                            {% for item in source %}
+                                                {% set creditorsPercentage = totalCreditors > 0 ? ((item.ycol * 100) / totalCreditors) : 0 %}
+                                                <tr>
+                                                    <td>
+                                                        {% if item.codproveedor %}
+                                                            <a href="EditProveedor?code={{ item.codproveedor|url_encode }}">
+                                                                {{ item.xcol }}
+                                                            </a>
+                                                        {% else %}
+                                                            {{ item.xcol }}
+                                                        {% endif %}
+                                                    </td>
+                                                    <td class="text-end text-muted">
+                                                        {{ creditorsPercentage|round(1) }}%
+                                                    </td>
+                                                    <td class="text-danger text-end">
+                                                        {{ number(item.ycol) }}
+                                                    </td>
+                                                </tr>
+                                            {% else %}
+                                                <tr>
+                                                    <td colspan="3" class="table-warning">{{ trans('no-data') }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                            {% if totalCreditors > 0 %}
+                                                <tfoot class="sticky-bottom bg-light fw-bold">
+                                                <tr>
+                                                    <td colspan="2" class="text-end">{{ trans('total') }}</td>
+                                                    <td class="text-end text-danger">{{ number(totalCreditors) }}</td>
+                                                </tr>
+                                                </tfoot>
+                                            {% endif %}
+                                        </table>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('Plugins/Informes/node_modules/apexcharts/dist/apexcharts.min.js') }}"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#selectEmpresa').val('{{ fsc.idempresa }}')
+
+            $('#selectEmpresa').on('change', function () {
+                $('#reportForm').submit();
+            });
+
+            $('#totalCreditors').text(
+                $('.creditors-table-body tr').filter(function () {
+                    return $(this).find('td[colspan]').length === 0;
+                }).length
+            );
+
+            google.charts.load('current', {'packages': ['geochart']});
+            google.charts.setOnLoadCallback(drawRegionsMap);
+
+            function drawRegionsMap() {
+                var data = google.visualization.arrayToDataTable([
+                    ['{{ trans("country") }}', '{{ trans("total") }}'],
+                    {% for row in fsc.suppliersByCountry %}
+                    ['{{ row.codiso ? row.codiso : row.codpais }}', {{ row.total }}],
+                    {% endfor %}
+                ]);
+
+                var options = {
+                    colorAxis: {colors: ['#e0efff', '#4e73df']}
+                };
+
+                var chart = new google.visualization.GeoChart(document.getElementById('regions_div'));
+                chart.draw(data, options);
+            }
+        });
+    </script>
+{% endblock %}
