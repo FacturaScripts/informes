@@ -84,7 +84,7 @@ final class Init extends InitClass
         // checks the role permissions
         $nameControllers = [
             'ReportTreasury','ReportTransport','ReportTaxes','ReportResult',
-            'ReportProducto','ReportClients','ReportContacts','ReportBreakdown','ReportBooks',
+            'ReportProducto','ReportClients','ReportSupplier','ReportContacts','ReportBreakdown','ReportBooks',
             'ListReportAccounting','ListReport',
             'EditReportLedger','EditReportBoard','EditReportBalance','EditReportAmount','EditReport','EditBalanceCode'
         ];
