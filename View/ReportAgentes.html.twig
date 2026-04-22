@@ -32,7 +32,7 @@
                         </h6>
                     </div>
                     <div class="card-body">
-                        {{ fsc.facturas.getChart().render({'height': 250}) | raw }}
+                        {{ fsc.facturas.getChart().render({'height': 260}) | raw }}
                     </div>
                 </div>
             </div>
@@ -82,7 +82,7 @@
                         </h6>
                     </div>
                     <div class="card-body">
-                        {{ fsc.albaranes.getChart().render({'height': 250}) | raw }}
+                        {{ fsc.albaranes.getChart().render({'height': 260}) | raw }}
                     </div>
                 </div>
             </div>
@@ -132,7 +132,7 @@
                         </h6>
                     </div>
                     <div class="card-body">
-                        {{ fsc.pedidos.getChart().render({'height': 250}) | raw }}
+                        {{ fsc.pedidos.getChart().render({'height': 260}) | raw }}
                     </div>
                 </div>
             </div>
@@ -182,7 +182,7 @@
                         </h6>
                     </div>
                     <div class="card-body">
-                        {{ fsc.presupuestos.getChart().render({'height': 250}) | raw }}
+                        {{ fsc.presupuestos.getChart().render({'height': 260}) | raw }}
                     </div>
                 </div>
             </div>
@@ -215,5 +215,74 @@
                 </div>
             </div>
         </div>
+        {# === COMISIONES (solo si plugin Comisiones está activo) === #}
+        {% if fsc.comisionesEnabled %}
+            <div class="row">
+                <div class="col-12 text-center mb-4">
+                    <h1 class="h3 mb-0 text-gray-800">{{ trans('commissions') }}</h1>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-success">
+                                <i class="fa-solid fa-hand-holding-dollar me-1"></i>
+                                {{ trans('commissions-by-month') }}
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            {{ fsc.comisionesByMonth.getChart().render({'height': 250}) | raw }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-success">
+                                <i class="fa-solid fa-chart-column me-1"></i>
+                                {{ trans('commissions-by-year') }}
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            {{ fsc.comisionesByYear.getChart().render({'height': 250}) | raw }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 text-center mb-4">
+                    <h1 class="h3 mb-0 text-gray-800">{{ trans('settlements') }}</h1>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-info">
+                                <i class="fa-solid fa-money-bill-transfer me-1"></i>
+                                {{ trans('settlements-by-month') }}
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            {{ fsc.liquidacionesByMonth.getChart().render({'height': 250}) | raw }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-info">
+                                <i class="fa-solid fa-chart-column me-1"></i>
+                                {{ trans('settlements-by-year') }}
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            {{ fsc.liquidacionesByYear.getChart().render({'height': 250}) | raw }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
     </div>
 {% endblock %}

@@ -1,6 +1,11 @@
 {
     "active-customers": "Clientes activos",
     "agents-report": "Informe de agentes",
+    "commissions": "Comisiones",
+    "commissions-by-month": "Comisiones por mes (último año)",
+    "commissions-by-year": "Comisiones por año",
+    "settlements-by-month": "Liquidaciones por mes (último año)",
+    "settlements-by-year": "Liquidaciones por año",
     "delivery-notes-by-agent": "Albaranes por agente",
     "delivery-notes-by-month": "Albaranes por mes (último año)",
     "delivery-notes-by-year": "Albaranes por año",

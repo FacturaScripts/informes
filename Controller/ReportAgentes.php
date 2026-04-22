@@ -20,6 +20,7 @@
 namespace FacturaScripts\Plugins\Informes\Controller;
 
 use FacturaScripts\Core\Base\Controller;
+use FacturaScripts\Core\Plugins;
 use FacturaScripts\Plugins\Informes\Model\Report;
 
 class ReportAgentes extends Controller
@@ -29,6 +30,21 @@ class ReportAgentes extends Controller
 
     /** @var Report gráfica de albaranes por agente */
     public $albaranes;
+
+    /** @var Report gráfica de comisiones por mes */
+    public $comisionesByMonth;
+
+    /** @var Report gráfica de comisiones por año */
+    public $comisionesByYear;
+
+    /** @var bool indica si el plugin Comisiones está activo */
+    public $comisionesEnabled = false;
+
+    /** @var Report gráfica de liquidaciones por mes */
+    public $liquidacionesByMonth;
+
+    /** @var Report gráfica de liquidaciones por año */
+    public $liquidacionesByYear;
 
     /** @var Report gráfica de albaranes por mes (último año) */
     public $albaranesByMonth;
@@ -76,6 +92,8 @@ class ReportAgentes extends Controller
     {
         parent::privateCore($response, $user, $permissions);
 
+        $this->comisionesEnabled = Plugins::isEnabled('Comisiones');
+
         $this->loadAgentes();
         $this->loadAlbaranes();
         $this->loadAlbaranesByMonth();
@@ -89,6 +107,13 @@ class ReportAgentes extends Controller
         $this->loadPresupuestos();
         $this->loadPresupuestosByMonth();
         $this->loadPresupuestosByYear();
+
+        if ($this->comisionesEnabled) {
+            $this->loadComisionesByMonth();
+            $this->loadComisionesByYear();
+            $this->loadLiquidacionesByMonth();
+            $this->loadLiquidacionesByYear();
+        }
     }
 
     protected function loadAgentes(): void
@@ -143,6 +168,68 @@ class ReportAgentes extends Controller
         $report->addFieldXName('');
 
         $this->albaranesByYear = $report;
+    }
+
+    protected function loadComisionesByMonth(): void
+    {
+        $report = new Report();
+        $report->type = Report::TYPE_BAR;
+        $report->table = 'facturascli';
+        $report->xcolumn = 'fecha';
+        $report->ycolumn = 'totalcomision';
+        $report->xoperation = 'MONTHS';
+        $report->yoperation = 'SUM';
+        $report->addFieldXName('');
+        $report->addCustomFilter('fecha', '>=', '{-1 year}');
+        $report->addCustomFilter('fecha', '<=', '{today}');
+        $report->addCustomFilter('codagente', 'IS NOT NULL', '');
+
+        $this->comisionesByMonth = $report;
+    }
+
+    protected function loadComisionesByYear(): void
+    {
+        $report = new Report();
+        $report->type = Report::TYPE_BAR;
+        $report->table = 'facturascli';
+        $report->xcolumn = 'fecha';
+        $report->ycolumn = 'totalcomision';
+        $report->xoperation = 'YEAR';
+        $report->yoperation = 'SUM';
+        $report->addFieldXName('');
+        $report->addCustomFilter('codagente', 'IS NOT NULL', '');
+
+        $this->comisionesByYear = $report;
+    }
+
+    protected function loadLiquidacionesByMonth(): void
+    {
+        $report = new Report();
+        $report->type = Report::TYPE_BAR;
+        $report->table = 'liquidacionescomisiones';
+        $report->xcolumn = 'fecha';
+        $report->ycolumn = 'total';
+        $report->xoperation = 'MONTHS';
+        $report->yoperation = 'SUM';
+        $report->addFieldXName('');
+        $report->addCustomFilter('fecha', '>=', '{-1 year}');
+        $report->addCustomFilter('fecha', '<=', '{today}');
+
+        $this->liquidacionesByMonth = $report;
+    }
+
+    protected function loadLiquidacionesByYear(): void
+    {
+        $report = new Report();
+        $report->type = Report::TYPE_BAR;
+        $report->table = 'liquidacionescomisiones';
+        $report->xcolumn = 'fecha';
+        $report->ycolumn = 'total';
+        $report->xoperation = 'YEAR';
+        $report->yoperation = 'SUM';
+        $report->addFieldXName('');
+
+        $this->liquidacionesByYear = $report;
     }
 
     protected function loadFacturas(): void
