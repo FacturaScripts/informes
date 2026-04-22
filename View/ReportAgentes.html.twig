@@ -1,0 +1,219 @@
+{#
+* Copyright (C) 2026 Carlos García Gómez <carlos@facturascripts.com>
+#}
+
+{% extends "Master/MenuBgTemplate.html.twig" %}
+
+{% block body %}
+    <script src="{{ asset('Plugins/Informes/node_modules/apexcharts/dist/apexcharts.min.js') }}"></script>
+    <div class="container-fluid">
+        <div class="row mt-3 mb-4">
+            <div class="col-12 text-center">
+                <h1 class="h3 mb-0 text-gray-800">
+                    <i class="fa-solid fa-user-tie"></i>
+                    {{ trans('agents-report') }}
+                </h1>
+            </div>
+        </div>
+
+        {# === FACTURAS === #}
+        <div class="row">
+            <div class="col-12 text-center mb-4">
+                <h1 class="h3 mb-0 text-gray-800">{{ trans('invoices') }}</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-3">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fa-solid fa-file-invoice me-1"></i>
+                            {{ trans('invoices-by-agent') }}
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        {{ fsc.facturas.getChart().render({'height': 250}) | raw }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-9">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fa-solid fa-chart-bar me-1"></i>
+                            {{ trans('invoices-by-month') }}
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        {{ fsc.facturasByMonth.getChart().render({'height': 250}) | raw }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fa-solid fa-chart-column me-1"></i>
+                            {{ trans('invoices-by-year') }}
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        {{ fsc.facturasByYear.getChart().render({'height': 250}) | raw }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# === ALBARANES === #}
+        <div class="row">
+            <div class="col-12 text-center mb-4">
+                <h1 class="h3 mb-0 text-gray-800">{{ trans('delivery-notes') }}</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-3">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fa-solid fa-truck me-1"></i>
+                            {{ trans('delivery-notes-by-agent') }}
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        {{ fsc.albaranes.getChart().render({'height': 250}) | raw }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-9">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fa-solid fa-chart-bar me-1"></i>
+                            {{ trans('delivery-notes-by-month') }}
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        {{ fsc.albaranesByMonth.getChart().render({'height': 250}) | raw }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fa-solid fa-chart-column me-1"></i>
+                            {{ trans('delivery-notes-by-year') }}
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        {{ fsc.albaranesByYear.getChart().render({'height': 250}) | raw }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# === PEDIDOS === #}
+        <div class="row">
+            <div class="col-12 text-center mb-4">
+                <h1 class="h3 mb-0 text-gray-800">{{ trans('orders') }}</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-3">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fa-solid fa-cart-shopping me-1"></i>
+                            {{ trans('orders-by-agent') }}
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        {{ fsc.pedidos.getChart().render({'height': 250}) | raw }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-9">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fa-solid fa-chart-bar me-1"></i>
+                            {{ trans('orders-by-month') }}
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        {{ fsc.pedidosByMonth.getChart().render({'height': 250}) | raw }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fa-solid fa-chart-column me-1"></i>
+                            {{ trans('orders-by-year') }}
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        {{ fsc.pedidosByYear.getChart().render({'height': 250}) | raw }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# === PRESUPUESTOS === #}
+        <div class="row">
+            <div class="col-12 text-center mb-4">
+                <h1 class="h3 mb-0 text-gray-800">{{ trans('estimates') }}</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-3">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fa-solid fa-file-lines me-1"></i>
+                            {{ trans('estimates-by-agent') }}
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        {{ fsc.presupuestos.getChart().render({'height': 250}) | raw }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-9">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fa-solid fa-chart-bar me-1"></i>
+                            {{ trans('estimates-by-month') }}
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        {{ fsc.presupuestosByMonth.getChart().render({'height': 250}) | raw }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fa-solid fa-chart-column me-1"></i>
+                            {{ trans('estimates-by-year') }}
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        {{ fsc.presupuestosByYear.getChart().render({'height': 250}) | raw }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
