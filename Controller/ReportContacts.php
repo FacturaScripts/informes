@@ -19,8 +19,8 @@
 
 namespace FacturaScripts\Plugins\Informes\Controller;
 
-use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Core\Base\DataBase;
+use FacturaScripts\Core\Template\Controller;
 use FacturaScripts\Core\Plugins;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\Pais;
@@ -54,9 +54,9 @@ class ReportContacts extends Controller
         return $data;
     }
 
-    public function privateCore(&$response, $user, $permissions)
+    public function run(): void
     {
-        parent::privateCore($response, $user, $permissions);
+        parent::run();
         $this->isEnabledCRM = Plugins::isEnabled('CRM');
 
         // cargar datos
@@ -80,6 +80,8 @@ class ReportContacts extends Controller
         $this->comparison = ContactsReport::comparison12vsPrevious12();
         $this->months_history = ContactsReport::historyByMonths(12);
         $this->years_history = ContactsReport::historyByYears();
+
+        $this->view('ReportContacts.html.twig');
     }
 
     protected function loadData(): void

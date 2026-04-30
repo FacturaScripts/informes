@@ -19,7 +19,7 @@
 
 namespace FacturaScripts\Plugins\Informes\Controller;
 
-use FacturaScripts\Core\Base\Controller;
+use FacturaScripts\Core\Template\Controller;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\Empresa;
 use FacturaScripts\Dinamic\Model\Pais;
@@ -30,7 +30,7 @@ use FacturaScripts\Plugins\Informes\Model\Report;
  *
  * @author Abderrahim Darghal Belkacemi
  */
-class ReportClients extends Controller
+class ReportCustomers extends Controller
 {
     /** @var int */
     public $activeCustomers;
@@ -86,9 +86,9 @@ class ReportClients extends Controller
         return $data;
     }
 
-    public function privateCore(&$response, $user, $permissions)
+    public function run(): void
     {
-        parent::privateCore($response, $user, $permissions);
+        parent::run();
 
         // cargar empresas
         $this->loadCompanies();
@@ -109,19 +109,21 @@ class ReportClients extends Controller
         $this->loadInvoicesByProvince();
         $this->loadTopDebtors();
         $this->loadDebtors();
+
+        $this->view('ReportCustomers.html.twig');
     }
 
     protected function loadActiveCustomers(): void
     {
         $oneYearAgo = date('Y-m-d', strtotime('-1 year'));
         $sqlActive = "SELECT COUNT(DISTINCT codcliente) as total FROM facturascli WHERE fecha >= '$oneYearAgo'" . $this->whereEmpresaFacturas;
-        $this->activeCustomers = $this->dataBase->select($sqlActive)[0]['total'];
+        $this->activeCustomers = $this->db()->select($sqlActive)[0]['total'];
     }
 
     protected function loadActiveCustomersYear(): void
     {
         $sqlActiveYear = "SELECT COUNT(DISTINCT codcliente) as total FROM facturascli WHERE fecha >= '$this->currentYear-01-01'" . $this->whereEmpresaFacturas;
-        $this->activeCustomersYear = $this->dataBase->select($sqlActiveYear)[0]['total'];
+        $this->activeCustomersYear = $this->db()->select($sqlActiveYear)[0]['total'];
     }
 
     protected function loadCustomersByCountry(): void
@@ -134,7 +136,7 @@ class ReportClients extends Controller
             $sqlCountries .= " WHERE cl.codcliente IN (SELECT codcliente FROM facturascli WHERE idempresa = " . $this->idempresa . ")";
         }
         $sqlCountries .= " GROUP BY c.codpais, p.codiso, p.nombre ORDER BY total DESC";
-        $this->customersByCountry = $this->dataBase->select($sqlCountries);
+        $this->customersByCountry = $this->db()->select($sqlCountries);
     }
 
     protected function loadCustomersByGroup(): void
@@ -259,7 +261,7 @@ class ReportClients extends Controller
         } else {
             $sqlInactive .= " WHERE debaja = true";
         }
-        $this->inactiveCustomers = $this->dataBase->select($sqlInactive)[0]['total'];
+        $this->inactiveCustomers = $this->db()->select($sqlInactive)[0]['total'];
     }
 
     protected function loadInvoicesByProvince(): void
@@ -292,7 +294,7 @@ class ReportClients extends Controller
             $sql .= " AND codcliente IN (SELECT codcliente FROM facturascli WHERE idempresa = " . (int)$this->idempresa . ")";
         }
 
-        $this->newCustomers30Days = (int)$this->dataBase->select($sql)[0]['total'];
+        $this->newCustomers30Days = (int)$this->db()->select($sql)[0]['total'];
     }
 
     protected function loadNewCustomersByMonth(): void
@@ -361,13 +363,13 @@ class ReportClients extends Controller
 
     protected function loadCustomersWithDebt(): void
     {
-        $sql = "SELECT COUNT(DISTINCT codcliente) as total FROM facturascli WHERE pagada = " . $this->dataBase->var2str(false);
+        $sql = "SELECT COUNT(DISTINCT codcliente) as total FROM facturascli WHERE pagada = " . $this->db()->var2str(false);
 
         if ($this->idempresa !== 'all') {
-            $sql .= " AND idempresa = " . $this->dataBase->var2str((int)$this->idempresa);
+            $sql .= " AND idempresa = " . $this->db()->var2str((int)$this->idempresa);
         }
 
-        $this->customersWithDebt = (int)$this->dataBase->select($sql)[0]['total'];
+        $this->customersWithDebt = (int)$this->db()->select($sql)[0]['total'];
     }
 
     protected function getDebtorsSql(int $limit = 0): string
@@ -377,10 +379,10 @@ class ReportClients extends Controller
             . "COALESCE(NULLIF(f.nombrecliente, ''), f.codcliente, '" . Tools::trans('no-data') . "') as xcol, "
             . "SUM(f.total) as ycol "
             . "FROM facturascli f "
-            . "WHERE f.pagada = " . $this->dataBase->var2str(false);
+            . "WHERE f.pagada = " . $this->db()->var2str(false);
 
         if ($this->idempresa !== 'all') {
-            $sql .= " AND f.idempresa = " . $this->dataBase->var2str((int)$this->idempresa);
+            $sql .= " AND f.idempresa = " . $this->db()->var2str((int)$this->idempresa);
         }
 
         $sql .= " GROUP BY f.codcliente, xcol ORDER BY ycol DESC, xcol ASC";
@@ -394,6 +396,6 @@ class ReportClients extends Controller
     protected function loadTotalCustomers(): void
     {
         $sqlTotal = "SELECT COUNT(*) as total FROM clientes" . $this->whereEmpresaClientes;
-        $this->totalCustomers = $this->dataBase->select($sqlTotal)[0]['total'];
+        $this->totalCustomers = $this->db()->select($sqlTotal)[0]['total'];
     }
 }

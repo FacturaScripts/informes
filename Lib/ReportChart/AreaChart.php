@@ -107,10 +107,13 @@ class AreaChart extends Chart
             return [];
         }
 
-        // agrupamos las etiquetas
+        // agrupamos las etiquetas (descartando nulos/vacíos para que ApexCharts no falle)
         $labels = [];
         foreach ($sources as $source) {
             foreach ($source as $row) {
+                if ($row['xcol'] === null || $row['xcol'] === '') {
+                    continue;
+                }
                 if (!in_array($row['xcol'], $labels)) {
                     $labels[] = $row['xcol'];
                 }

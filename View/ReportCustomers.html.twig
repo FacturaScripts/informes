@@ -1,6 +1,6 @@
 {#
 * Copyright (C) 2026 Carlos García Gómez <carlos@facturascripts.com>
-* Author Esteban Sánchez Martínez
+* Author Abderrahim Darghal Belkacemi
 #}
 
 {% extends "Master/MenuBgTemplate.html.twig" %}
@@ -8,35 +8,27 @@
 
 {% block body %}
     <div class="container-fluid">
-        <div class="row mt-3">
-            <div class="col-12 text-center">
-                <h1 class="h3 mb-3 text-gray-800">
-                    <i class="fa-solid fa-users"></i>
-                    {{ trans('suppliers') }} - {{ trans('report') }}
-                </h1>
-            </div>
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mt-3 mb-4">
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fa-solid fa-users"></i>
+                {{ trans('clients') }} - {{ trans('report') }}
+            </h1>
+            <form action="{{ fsc.url() }}" method="get" id="reportForm" class="mb-0">
+                <div style="min-width: 300px;">
+                    {{ forms.simpleSelect('selectEmpresa', 'idempresa', fsc.idempresa, fsc.companies, null, 'fa-solid fa-building') }}
+                </div>
+            </form>
         </div>
 
-        <div class="row mb-4 justify-content-center">
-            <div class="col-auto">
-                <form action="{{ fsc.url() }}" method="get" id="reportForm">
-                    <div class="d-flex align-items-center p-2 bg-white rounded shadow-sm border">
-                        <div style="min-width: 300px;">
-                            {{ forms.simpleSelect('selectEmpresa', 'idempresa', fsc.idempresa, fsc.companies, null, 'fa-solid fa-building') }}
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-
+        {# 1. KPIs #}
         <div class="row">
             <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
                 <div class="card border-left-primary shadow h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">{{ trans('total') }} {{ trans('suppliers')|lower }}</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.totalSuppliers }}</div>
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">{{ trans('total-customers') }}</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.totalCustomers }}</div>
                             </div>
                             <div class="col-auto">
                                 <i class="fas fa-users fa-2x text-gray-300"></i>
@@ -50,8 +42,8 @@
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">{{ trans('active-suppliers') }}</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.activeSupplier }}</div>
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">{{ trans('active-customers') }}</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.activeCustomers }}</div>
                             </div>
                             <div class="col-auto">
                                 <i class="fas fa-user-check fa-2x text-gray-300"></i>
@@ -65,8 +57,8 @@
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">{{ trans('active-suppliers-year') }}</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.activeSuppliersYear }}</div>
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">{{ trans('active-customers-year') }}</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.activeCustomersYear }}</div>
                             </div>
                             <div class="col-auto">
                                 <i class="fas fa-file-invoice-dollar fa-2x text-gray-300"></i>
@@ -80,8 +72,8 @@
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">{{ trans('inactive-suppliers') }}</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.inactiveSuppliers }}</div>
+                                <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">{{ trans('inactive-customers') }}</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.inactiveCustomers }}</div>
                             </div>
                             <div class="col-auto">
                                 <i class="fas fa-user-slash fa-2x text-gray-300"></i>
@@ -95,8 +87,8 @@
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">{{ trans('new-suppliers-30-days') }}</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.newSuppliers30Days }}</div>
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Nuevos 30 días</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.newCustomers30Days }}</div>
                             </div>
                             <div class="col-auto">
                                 <i class="fas fa-user-plus fa-2x text-gray-300"></i>
@@ -110,8 +102,8 @@
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">{{ trans('suppliers-with-payables') }}</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.suppliersWithPayables }}</div>
+                                <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Con deuda</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.customersWithDebt }}</div>
                             </div>
                             <div class="col-auto">
                                 <i class="fas fa-triangle-exclamation fa-2x text-gray-300"></i>
@@ -122,13 +114,14 @@
             </div>
         </div>
 
+        {# Tendencia de Nuevos Clientes #}
         <div class="row">
             <div class="col-12">
                 <div class="card shadow mb-4">
                     <div class="card-header py-3">
                         <h6 class="m-0 font-weight-bold text-primary">
                             <i class="fa-solid fa-chart-area me-1"></i>
-                            {{ trans('new-suppliers') }}
+                            {{ trans('new-customers') }}
                             ({{ trans('last-12-months') }})</h6>
                     </div>
                     <div class="card-body">
@@ -144,24 +137,25 @@
                     <div class="card-header py-3">
                         <h6 class="m-0 font-weight-bold text-primary">
                             <i class="fa-solid fa-chart-column me-1"></i>
-                            {{ trans('new-suppliers') }}
+                            {{ trans('new-customers') }}
                             ({{ trans('year') }})
                         </h6>
                     </div>
                     <div class="card-body">
-                        {{ fsc.charts.newSuppliersByYear.getChart().render({'height':250}) | raw }}
+                        {{ fsc.charts.newCustomersByYear.getChart().render({'height':250}) | raw }}
                     </div>
                 </div>
             </div>
         </div>
 
+        {# Distribución Geográfica y Grupos #}
         <div class="row mb-4">
-            <div class="col-lg-6 d-flex">
+            <div class="col-lg-4 d-flex">
                 <div class="card shadow mb-4 w-100 h-100">
                     <div class="card-header py-3 text-center">
                         <h6 class="m-0 font-weight-bold text-primary">
                             <i class="fa-solid fa-earth-europe me-1"></i>
-                            {{ trans('suppliers-by-country') }}
+                            {{ trans('customers-by-country') }}
                         </h6>
                     </div>
                     <div class="card-body">
@@ -169,28 +163,42 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-6 d-flex">
+            <div class="col-lg-4 d-flex">
                 <div class="card shadow mb-4 w-100 h-100">
                     <div class="card-header py-3 text-center">
                         <h6 class="m-0 font-weight-bold text-primary">
                             <i class="fa-solid fa-map-location-dot me-1"></i>
-                            {{ trans('suppliers-by-province') }}
+                            {{ trans('customers-by-province') }}
                             ({{ fsc.companyCountry }})</h6>
                     </div>
                     <div class="card-body">
-                        {{ fsc.charts.suppliersByProvince.getChart().render({'height':320}) | raw }}
+                        {{ fsc.charts.customersByProvince.getChart().render({'height':320}) | raw }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 d-flex">
+                <div class="card shadow mb-4 w-100 h-100">
+                    <div class="card-header py-3 text-center">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fa-solid fa-layer-group me-1"></i>
+                            {{ trans('customers-by-group') }}
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        {{ fsc.charts.customersByGroup.getChart().render({'height':320}) | raw }}
                     </div>
                 </div>
             </div>
         </div>
 
+        {# Clientes por provincia (Facturas) #}
         <div class="row">
             <div class="col-12">
                 <div class="card shadow mb-4">
                     <div class="card-header py-3">
                         <h6 class="m-0 font-weight-bold text-primary">
                             <i class="fa-solid fa-map-pin me-1"></i>
-                            {{ trans('suppliers-by-invoice-province') }}
+                            {{ trans('customers-by-invoice-province') }}
                         </h6>
                     </div>
                     <div class="card-body">
@@ -200,31 +208,32 @@
             </div>
         </div>
 
+        {# Deudores #}
         <div class="row">
             <div class="col-12">
                 <div class="card shadow mb-4 border-bottom-danger">
                     <div class="card-header py-3 bg-danger d-flex justify-content-between">
                         <h6 class="m-0 font-weight-bold text-white">
                             <i class="fa-solid fa-triangle-exclamation me-1"></i>
-                            {{ trans('creditors') }}
+                            {{ trans('debtors') }}
                         </h6>
-                        <span class="badge bg-white text-danger" id="totalCreditors">0</span>
+                        <span class="badge bg-white text-danger" id="totalDebtors">0</span>
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-5">
                                 <h6 class="text-danger mb-1">
                                     <i class="fa-solid fa-ranking-star me-1"></i>
-                                    {{ trans('top-creditors') }}
+                                    Top 10 {{ trans('debtors')|lower }}
                                 </h6>
                                 <p class="text-muted small mb-3">Ranking por importe pendiente.</p>
-                                {{ fsc.charts.topCreditors.getChart().render({'height':360, 'horizontal': true}) | raw }}
+                                {{ fsc.charts.topDebtors.getChart().render({'height':360, 'horizontal': true}) | raw }}
                             </div>
                             <div class="col-md-7">
-                                {% for s_name, source in fsc.charts.creditors.getChart().getDataSources() %}
-                                    {% set totalCreditors = 0 %}
+                                {% for s_name, source in fsc.charts.debtors.getChart().getDataSources() %}
+                                    {% set totalDebtors = 0 %}
                                     {% for item in source %}
-                                        {% set totalCreditors = totalCreditors + item.ycol %}
+                                        {% set totalDebtors = totalDebtors + item.ycol %}
                                     {% endfor %}
                                     <div class="table-responsive">
                                         <table class="table table-sm table-hover mb-0">
@@ -235,13 +244,13 @@
                                                 <th class="text-end">{{ trans('debt') }}</th>
                                             </tr>
                                             </thead>
-                                            <tbody class="creditors-table-body">
+                                            <tbody class="debtors-table-body">
                                             {% for item in source %}
-                                                {% set creditorsPercentage = totalCreditors > 0 ? ((item.ycol * 100) / totalCreditors) : 0 %}
+                                                {% set debtorsPercentage = totalDebtors > 0 ? ((item.ycol * 100) / totalDebtors) : 0 %}
                                                 <tr>
                                                     <td>
-                                                        {% if item.codproveedor %}
-                                                            <a href="EditProveedor?code={{ item.codproveedor|url_encode }}">
+                                                        {% if item.codcliente %}
+                                                            <a href="EditCliente?code={{ item.codcliente|url_encode }}">
                                                                 {{ item.xcol }}
                                                             </a>
                                                         {% else %}
@@ -249,7 +258,7 @@
                                                         {% endif %}
                                                     </td>
                                                     <td class="text-end text-muted">
-                                                        {{ creditorsPercentage|round(1) }}%
+                                                        {{ debtorsPercentage|round(1) }}%
                                                     </td>
                                                     <td class="text-danger text-end">
                                                         {{ number(item.ycol) }}
@@ -261,11 +270,11 @@
                                                 </tr>
                                             {% endfor %}
                                             </tbody>
-                                            {% if totalCreditors > 0 %}
+                                            {% if totalDebtors > 0 %}
                                                 <tfoot class="sticky-bottom bg-light fw-bold">
                                                 <tr>
                                                     <td colspan="2" class="text-end">{{ trans('total') }}</td>
-                                                    <td class="text-end text-danger">{{ number(totalCreditors) }}</td>
+                                                    <td class="text-end text-danger">{{ number(totalDebtors) }}</td>
                                                 </tr>
                                                 </tfoot>
                                             {% endif %}
@@ -287,25 +296,30 @@
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script>
         $(document).ready(function () {
+            // establecer el valor actual
             $('#selectEmpresa').val('{{ fsc.idempresa }}')
 
+            // autoenviar al cambiar el valor
             $('#selectEmpresa').on('change', function () {
                 $('#reportForm').submit();
             });
 
-            $('#totalCreditors').text(
-                $('.creditors-table-body tr').filter(function () {
+            // contamos cuántos deudores hay y actualizamos el badge
+            $('#totalDebtors').text(
+                $('.debtors-table-body tr').filter(function () {
                     return $(this).find('td[colspan]').length === 0;
                 }).length
             );
 
+            // Google Maps
             google.charts.load('current', {'packages': ['geochart']});
             google.charts.setOnLoadCallback(drawRegionsMap);
 
             function drawRegionsMap() {
+                // 2. Países
                 var data = google.visualization.arrayToDataTable([
                     ['{{ trans("country") }}', '{{ trans("total") }}'],
-                    {% for row in fsc.suppliersByCountry %}
+                    {% for row in fsc.customersByCountry %}
                     ['{{ row.codiso ? row.codiso : row.codpais }}', {{ row.total }}],
                     {% endfor %}
                 ]);

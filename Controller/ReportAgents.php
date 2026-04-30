@@ -19,11 +19,11 @@
 
 namespace FacturaScripts\Plugins\Informes\Controller;
 
-use FacturaScripts\Core\Base\Controller;
+use FacturaScripts\Core\Template\Controller;
 use FacturaScripts\Core\Plugins;
 use FacturaScripts\Plugins\Informes\Model\Report;
 
-class ReportAgentes extends Controller
+class ReportAgents extends Controller
 {
     /** @var array lista de agentes [codagente => nombre] */
     public $agents = [];
@@ -83,14 +83,14 @@ class ReportAgentes extends Controller
     {
         $data = parent::getPageData();
         $data['menu'] = 'reports';
-        $data['title'] = 'agents-report';
+        $data['title'] = 'agents';
         $data['icon'] = 'fa-solid fa-user-tie';
         return $data;
     }
 
-    public function privateCore(&$response, $user, $permissions)
+    public function run(): void
     {
-        parent::privateCore($response, $user, $permissions);
+        parent::run();
 
         $this->comisionesEnabled = Plugins::isEnabled('Comisiones');
 
@@ -114,11 +114,13 @@ class ReportAgentes extends Controller
             $this->loadLiquidacionesByMonth();
             $this->loadLiquidacionesByYear();
         }
+
+        $this->view('ReportAgents.html.twig');
     }
 
     protected function loadAgentes(): void
     {
-        $rows = $this->dataBase->select("SELECT codagente, nombre FROM agentes WHERE debaja = false ORDER BY nombre ASC");
+        $rows = $this->db()->select("SELECT codagente, nombre FROM agentes WHERE debaja = false ORDER BY nombre ASC");
         foreach ($rows as $row) {
             $this->agents[$row['codagente']] = $row['nombre'];
         }
