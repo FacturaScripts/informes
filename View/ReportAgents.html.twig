@@ -3,6 +3,7 @@
 #}
 
 {% extends "Master/MenuBgTemplate.html.twig" %}
+{% import "Macro/Forms.html.twig" as forms %}
 
 {% block body %}
     <script src="{{ asset('Plugins/Informes/node_modules/apexcharts/dist/apexcharts.min.js') }}"></script>
@@ -51,14 +52,17 @@
                     </li>
                 {% endif %}
             </ul>
+            <form action="{{ fsc.url() }}" method="get" id="reportForm" class="mb-0 ms-auto" style="min-width: 260px;">
+                {{ forms.simpleSelect('selectEmpresa', 'idempresa', fsc.idempresa, fsc.companies, null, 'fa-solid fa-building') }}
+            </form>
         </div>
 
         <div class="tab-content" id="agentsTabsContent">
             {# === FACTURAS === #}
             <div class="tab-pane fade show active" id="tab-invoices" role="tabpanel">
                 <div class="row">
-                    <div class="col-xl-4 col-lg-5">
-                        <div class="card shadow mb-4">
+                    <div class="col-xl-4 col-lg-5 mb-4 d-flex">
+                        <div class="card shadow w-100">
                             <div class="card-header py-3">
                                 <h6 class="m-0 font-weight-bold text-primary">
                                     <i class="fa-solid fa-file-invoice me-1"></i>
@@ -70,8 +74,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-xl-8 col-lg-7">
-                        <div class="card shadow mb-4">
+                    <div class="col-xl-8 col-lg-7 mb-4 d-flex">
+                        <div class="card shadow w-100">
                             <div class="card-header py-3">
                                 <h6 class="m-0 font-weight-bold text-primary">
                                     <i class="fa-solid fa-chart-bar me-1"></i>
@@ -92,7 +96,7 @@
                         </h6>
                     </div>
                     <div class="card-body">
-                        {{ fsc.facturasByYear.getChart().render({'height': 250}) | raw }}
+                        {{ fsc.facturasByYear.getChart().render({'height': 350}) | raw }}
                     </div>
                 </div>
             </div>
@@ -100,8 +104,8 @@
             {# === ALBARANES === #}
             <div class="tab-pane fade" id="tab-delivery" role="tabpanel">
                 <div class="row">
-                    <div class="col-xl-4 col-lg-5">
-                        <div class="card shadow mb-4">
+                    <div class="col-xl-4 col-lg-5 mb-4 d-flex">
+                        <div class="card shadow w-100">
                             <div class="card-header py-3">
                                 <h6 class="m-0 font-weight-bold text-primary">
                                     <i class="fa-solid fa-truck me-1"></i>
@@ -113,8 +117,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-xl-8 col-lg-7">
-                        <div class="card shadow mb-4">
+                    <div class="col-xl-8 col-lg-7 mb-4 d-flex">
+                        <div class="card shadow w-100">
                             <div class="card-header py-3">
                                 <h6 class="m-0 font-weight-bold text-primary">
                                     <i class="fa-solid fa-chart-bar me-1"></i>
@@ -135,7 +139,7 @@
                         </h6>
                     </div>
                     <div class="card-body">
-                        {{ fsc.albaranesByYear.getChart().render({'height': 250}) | raw }}
+                        {{ fsc.albaranesByYear.getChart().render({'height': 350}) | raw }}
                     </div>
                 </div>
             </div>
@@ -143,8 +147,8 @@
             {# === PEDIDOS === #}
             <div class="tab-pane fade" id="tab-orders" role="tabpanel">
                 <div class="row">
-                    <div class="col-xl-4 col-lg-5">
-                        <div class="card shadow mb-4">
+                    <div class="col-xl-4 col-lg-5 mb-4 d-flex">
+                        <div class="card shadow w-100">
                             <div class="card-header py-3">
                                 <h6 class="m-0 font-weight-bold text-primary">
                                     <i class="fa-solid fa-cart-shopping me-1"></i>
@@ -156,8 +160,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-xl-8 col-lg-7">
-                        <div class="card shadow mb-4">
+                    <div class="col-xl-8 col-lg-7 mb-4 d-flex">
+                        <div class="card shadow w-100">
                             <div class="card-header py-3">
                                 <h6 class="m-0 font-weight-bold text-primary">
                                     <i class="fa-solid fa-chart-bar me-1"></i>
@@ -178,7 +182,7 @@
                         </h6>
                     </div>
                     <div class="card-body">
-                        {{ fsc.pedidosByYear.getChart().render({'height': 250}) | raw }}
+                        {{ fsc.pedidosByYear.getChart().render({'height': 350}) | raw }}
                     </div>
                 </div>
             </div>
@@ -186,8 +190,8 @@
             {# === PRESUPUESTOS === #}
             <div class="tab-pane fade" id="tab-estimates" role="tabpanel">
                 <div class="row">
-                    <div class="col-xl-4 col-lg-5">
-                        <div class="card shadow mb-4">
+                    <div class="col-xl-4 col-lg-5 mb-4 d-flex">
+                        <div class="card shadow w-100">
                             <div class="card-header py-3">
                                 <h6 class="m-0 font-weight-bold text-primary">
                                     <i class="fa-solid fa-file-lines me-1"></i>
@@ -199,8 +203,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-xl-8 col-lg-7">
-                        <div class="card shadow mb-4">
+                    <div class="col-xl-8 col-lg-7 mb-4 d-flex">
+                        <div class="card shadow w-100">
                             <div class="card-header py-3">
                                 <h6 class="m-0 font-weight-bold text-primary">
                                     <i class="fa-solid fa-chart-bar me-1"></i>
@@ -221,7 +225,7 @@
                         </h6>
                     </div>
                     <div class="card-body">
-                        {{ fsc.presupuestosByYear.getChart().render({'height': 250}) | raw }}
+                        {{ fsc.presupuestosByYear.getChart().render({'height': 350}) | raw }}
                     </div>
                 </div>
             </div>
@@ -239,7 +243,7 @@
                                     </h6>
                                 </div>
                                 <div class="card-body">
-                                    {{ fsc.comisionesByMonth.getChart().render({'height': 250}) | raw }}
+                                    {{ fsc.comisionesByMonth.getChart().render({'height': 260}) | raw }}
                                 </div>
                             </div>
                         </div>
@@ -252,7 +256,7 @@
                                     </h6>
                                 </div>
                                 <div class="card-body">
-                                    {{ fsc.comisionesByYear.getChart().render({'height': 250}) | raw }}
+                                    {{ fsc.comisionesByYear.getChart().render({'height': 350}) | raw }}
                                 </div>
                             </div>
                         </div>
@@ -267,7 +271,7 @@
                                     </h6>
                                 </div>
                                 <div class="card-body">
-                                    {{ fsc.liquidacionesByMonth.getChart().render({'height': 250}) | raw }}
+                                    {{ fsc.liquidacionesByMonth.getChart().render({'height': 260}) | raw }}
                                 </div>
                             </div>
                         </div>
@@ -280,7 +284,7 @@
                                     </h6>
                                 </div>
                                 <div class="card-body">
-                                    {{ fsc.liquidacionesByYear.getChart().render({'height': 250}) | raw }}
+                                    {{ fsc.liquidacionesByYear.getChart().render({'height': 350}) | raw }}
                                 </div>
                             </div>
                         </div>
@@ -289,4 +293,16 @@
             {% endif %}
         </div>
     </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function () {
+            $('#selectEmpresa').val('{{ fsc.idempresa }}');
+            $('#selectEmpresa').on('change', function () {
+                $('#reportForm').submit();
+            });
+        });
+    </script>
 {% endblock %}

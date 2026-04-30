@@ -19,14 +19,21 @@
 
 namespace FacturaScripts\Plugins\Informes\Controller;
 
-use FacturaScripts\Core\Template\Controller;
+use FacturaScripts\Core\DataSrc\Empresas;
 use FacturaScripts\Core\Plugins;
+use FacturaScripts\Core\Template\Controller;
 use FacturaScripts\Plugins\Informes\Model\Report;
 
 class ReportAgents extends Controller
 {
     /** @var array lista de agentes [codagente => nombre] */
     public $agents = [];
+
+    /** @var array todas las empresas a listar en el formulario [idEmpresa => nombre empresa] */
+    public $companies = [];
+
+    /** @var int empresa seleccionada (obligatoria) */
+    public $idempresa;
 
     /** @var Report gráfica de albaranes por agente */
     public $albaranes;
@@ -94,6 +101,7 @@ class ReportAgents extends Controller
 
         $this->comisionesEnabled = Plugins::isEnabled('Comisiones');
 
+        $this->loadCompanies();
         $this->loadAgentes();
         $this->loadAlbaranes();
         $this->loadAlbaranesByMonth();
@@ -126,18 +134,38 @@ class ReportAgents extends Controller
         }
     }
 
+    protected function loadCompanies(): void
+    {
+        foreach (Empresas::all() as $company) {
+            $this->companies[$company->idempresa] = $company->nombrecorto;
+        }
+
+        $requested = $this->request()->queryOrInput('idempresa', null);
+        $this->idempresa = $requested === null ? Empresas::default()->idempresa : (int)$requested;
+
+        if (!isset($this->companies[$this->idempresa])) {
+            $this->idempresa = Empresas::default()->idempresa;
+        }
+    }
+
+    protected function applyEmpresaFilter(Report $report, string $column = 'idempresa'): void
+    {
+        $report->addCustomFilter($column, '=', (int)$this->idempresa);
+    }
+
     protected function loadAlbaranes(): void
     {
         $report = new Report();
         $report->type = Report::TYPE_PIE;
         $report->table = 'albaranescli f';
         $report->xcolumn = 'COALESCE(a.nombre, f.codagente)';
-        $report->ycolumn = '*';
-        $report->yoperation = 'COUNT';
+        $report->ycolumn = 'f.neto';
+        $report->yoperation = 'SUM';
 
         Report::activateAdvancedReport(true);
         $report->addCustomJoin('LEFT JOIN agentes a ON f.codagente = a.codagente');
         $report->addCustomFilter('f.codagente', 'IS NOT NULL', '');
+        $this->applyEmpresaFilter($report, 'f.idempresa');
 
         $this->albaranes = $report;
     }
@@ -145,15 +173,16 @@ class ReportAgents extends Controller
     protected function loadAlbaranesByMonth(): void
     {
         $report = new Report();
-        $report->type = Report::TYPE_BAR;
+        $report->type = Report::TYPE_LINE;
         $report->table = 'albaranescli';
         $report->xcolumn = 'fecha';
-        $report->ycolumn = 'idalbaran';
+        $report->ycolumn = 'neto';
         $report->xoperation = 'MONTHS';
-        $report->yoperation = 'COUNT';
+        $report->yoperation = 'SUM';
         $report->addFieldXName('');
         $report->addCustomFilter('fecha', '>=', '{-1 year}');
         $report->addCustomFilter('fecha', '<=', '{today}');
+        $this->applyEmpresaFilter($report);
 
         $this->albaranesByMonth = $report;
     }
@@ -164,10 +193,11 @@ class ReportAgents extends Controller
         $report->type = Report::TYPE_BAR;
         $report->table = 'albaranescli';
         $report->xcolumn = 'fecha';
-        $report->ycolumn = 'idalbaran';
+        $report->ycolumn = 'neto';
         $report->xoperation = 'YEAR';
-        $report->yoperation = 'COUNT';
+        $report->yoperation = 'SUM';
         $report->addFieldXName('');
+        $this->applyEmpresaFilter($report);
 
         $this->albaranesByYear = $report;
     }
@@ -175,7 +205,7 @@ class ReportAgents extends Controller
     protected function loadComisionesByMonth(): void
     {
         $report = new Report();
-        $report->type = Report::TYPE_BAR;
+        $report->type = Report::TYPE_LINE;
         $report->table = 'facturascli';
         $report->xcolumn = 'fecha';
         $report->ycolumn = 'totalcomision';
@@ -185,6 +215,7 @@ class ReportAgents extends Controller
         $report->addCustomFilter('fecha', '>=', '{-1 year}');
         $report->addCustomFilter('fecha', '<=', '{today}');
         $report->addCustomFilter('codagente', 'IS NOT NULL', '');
+        $this->applyEmpresaFilter($report);
 
         $this->comisionesByMonth = $report;
     }
@@ -200,6 +231,7 @@ class ReportAgents extends Controller
         $report->yoperation = 'SUM';
         $report->addFieldXName('');
         $report->addCustomFilter('codagente', 'IS NOT NULL', '');
+        $this->applyEmpresaFilter($report);
 
         $this->comisionesByYear = $report;
     }
@@ -207,7 +239,7 @@ class ReportAgents extends Controller
     protected function loadLiquidacionesByMonth(): void
     {
         $report = new Report();
-        $report->type = Report::TYPE_BAR;
+        $report->type = Report::TYPE_LINE;
         $report->table = 'liquidacionescomisiones';
         $report->xcolumn = 'fecha';
         $report->ycolumn = 'total';
@@ -216,6 +248,7 @@ class ReportAgents extends Controller
         $report->addFieldXName('');
         $report->addCustomFilter('fecha', '>=', '{-1 year}');
         $report->addCustomFilter('fecha', '<=', '{today}');
+        $this->applyEmpresaFilter($report);
 
         $this->liquidacionesByMonth = $report;
     }
@@ -230,6 +263,7 @@ class ReportAgents extends Controller
         $report->xoperation = 'YEAR';
         $report->yoperation = 'SUM';
         $report->addFieldXName('');
+        $this->applyEmpresaFilter($report);
 
         $this->liquidacionesByYear = $report;
     }
@@ -240,12 +274,13 @@ class ReportAgents extends Controller
         $report->type = Report::TYPE_PIE;
         $report->table = 'facturascli f';
         $report->xcolumn = 'COALESCE(a.nombre, f.codagente)';
-        $report->ycolumn = '*';
-        $report->yoperation = 'COUNT';
+        $report->ycolumn = 'f.neto';
+        $report->yoperation = 'SUM';
 
         Report::activateAdvancedReport(true);
         $report->addCustomJoin('LEFT JOIN agentes a ON f.codagente = a.codagente');
         $report->addCustomFilter('f.codagente', 'IS NOT NULL', '');
+        $this->applyEmpresaFilter($report, 'f.idempresa');
 
         $this->facturas = $report;
     }
@@ -253,15 +288,16 @@ class ReportAgents extends Controller
     protected function loadFacturasByMonth(): void
     {
         $report = new Report();
-        $report->type = Report::TYPE_BAR;
+        $report->type = Report::TYPE_LINE;
         $report->table = 'facturascli';
         $report->xcolumn = 'fecha';
-        $report->ycolumn = 'idfactura';
+        $report->ycolumn = 'neto';
         $report->xoperation = 'MONTHS';
-        $report->yoperation = 'COUNT';
+        $report->yoperation = 'SUM';
         $report->addFieldXName('');
         $report->addCustomFilter('fecha', '>=', '{-1 year}');
         $report->addCustomFilter('fecha', '<=', '{today}');
+        $this->applyEmpresaFilter($report);
 
         $this->facturasByMonth = $report;
     }
@@ -272,10 +308,11 @@ class ReportAgents extends Controller
         $report->type = Report::TYPE_BAR;
         $report->table = 'facturascli';
         $report->xcolumn = 'fecha';
-        $report->ycolumn = 'idfactura';
+        $report->ycolumn = 'neto';
         $report->xoperation = 'YEAR';
-        $report->yoperation = 'COUNT';
+        $report->yoperation = 'SUM';
         $report->addFieldXName('');
+        $this->applyEmpresaFilter($report);
 
         $this->facturasByYear = $report;
     }
@@ -286,12 +323,13 @@ class ReportAgents extends Controller
         $report->type = Report::TYPE_PIE;
         $report->table = 'pedidoscli f';
         $report->xcolumn = 'COALESCE(a.nombre, f.codagente)';
-        $report->ycolumn = '*';
-        $report->yoperation = 'COUNT';
+        $report->ycolumn = 'f.neto';
+        $report->yoperation = 'SUM';
 
         Report::activateAdvancedReport(true);
         $report->addCustomJoin('LEFT JOIN agentes a ON f.codagente = a.codagente');
         $report->addCustomFilter('f.codagente', 'IS NOT NULL', '');
+        $this->applyEmpresaFilter($report, 'f.idempresa');
 
         $this->pedidos = $report;
     }
@@ -299,15 +337,16 @@ class ReportAgents extends Controller
     protected function loadPedidosByMonth(): void
     {
         $report = new Report();
-        $report->type = Report::TYPE_BAR;
+        $report->type = Report::TYPE_LINE;
         $report->table = 'pedidoscli';
         $report->xcolumn = 'fecha';
-        $report->ycolumn = 'idpedido';
+        $report->ycolumn = 'neto';
         $report->xoperation = 'MONTHS';
-        $report->yoperation = 'COUNT';
+        $report->yoperation = 'SUM';
         $report->addFieldXName('');
         $report->addCustomFilter('fecha', '>=', '{-1 year}');
         $report->addCustomFilter('fecha', '<=', '{today}');
+        $this->applyEmpresaFilter($report);
 
         $this->pedidosByMonth = $report;
     }
@@ -318,10 +357,11 @@ class ReportAgents extends Controller
         $report->type = Report::TYPE_BAR;
         $report->table = 'pedidoscli';
         $report->xcolumn = 'fecha';
-        $report->ycolumn = 'idpedido';
+        $report->ycolumn = 'neto';
         $report->xoperation = 'YEAR';
-        $report->yoperation = 'COUNT';
+        $report->yoperation = 'SUM';
         $report->addFieldXName('');
+        $this->applyEmpresaFilter($report);
 
         $this->pedidosByYear = $report;
     }
@@ -332,12 +372,13 @@ class ReportAgents extends Controller
         $report->type = Report::TYPE_PIE;
         $report->table = 'presupuestoscli f';
         $report->xcolumn = 'COALESCE(a.nombre, f.codagente)';
-        $report->ycolumn = '*';
-        $report->yoperation = 'COUNT';
+        $report->ycolumn = 'f.neto';
+        $report->yoperation = 'SUM';
 
         Report::activateAdvancedReport(true);
         $report->addCustomJoin('LEFT JOIN agentes a ON f.codagente = a.codagente');
         $report->addCustomFilter('f.codagente', 'IS NOT NULL', '');
+        $this->applyEmpresaFilter($report, 'f.idempresa');
 
         $this->presupuestos = $report;
     }
@@ -345,15 +386,16 @@ class ReportAgents extends Controller
     protected function loadPresupuestosByMonth(): void
     {
         $report = new Report();
-        $report->type = Report::TYPE_BAR;
+        $report->type = Report::TYPE_LINE;
         $report->table = 'presupuestoscli';
         $report->xcolumn = 'fecha';
-        $report->ycolumn = 'idpresupuesto';
+        $report->ycolumn = 'neto';
         $report->xoperation = 'MONTHS';
-        $report->yoperation = 'COUNT';
+        $report->yoperation = 'SUM';
         $report->addFieldXName('');
         $report->addCustomFilter('fecha', '>=', '{-1 year}');
         $report->addCustomFilter('fecha', '<=', '{today}');
+        $this->applyEmpresaFilter($report);
 
         $this->presupuestosByMonth = $report;
     }
@@ -364,10 +406,11 @@ class ReportAgents extends Controller
         $report->type = Report::TYPE_BAR;
         $report->table = 'presupuestoscli';
         $report->xcolumn = 'fecha';
-        $report->ycolumn = 'idpresupuesto';
+        $report->ycolumn = 'neto';
         $report->xoperation = 'YEAR';
-        $report->yoperation = 'COUNT';
+        $report->yoperation = 'SUM';
         $report->addFieldXName('');
+        $this->applyEmpresaFilter($report);
 
         $this->presupuestosByYear = $report;
     }
