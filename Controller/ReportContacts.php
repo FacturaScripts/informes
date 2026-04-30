@@ -20,6 +20,7 @@
 namespace FacturaScripts\Plugins\Informes\Controller;
 
 use FacturaScripts\Core\Base\Controller;
+use FacturaScripts\Core\Base\DataBase;
 use FacturaScripts\Core\Plugins;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\Pais;
@@ -33,6 +34,7 @@ class ReportContacts extends Controller
     public $charts = [];
     public $totals = [];
     public $countries = [];
+    public $provinces = [];
     public $companyCountry = '';
     public $companyCountryCode = '';
 
@@ -124,6 +126,14 @@ class ReportContacts extends Controller
 
     protected function loadContactsByProvince(): void
     {
+        $db = new DataBase();
+        $sql = "SELECT COALESCE(NULLIF(c.provincia, ''), '-') AS provincia, COUNT(*) as total
+                FROM contactos c
+                WHERE c.codpais = " . $db->var2str($this->companyCountryCode) . "
+                GROUP BY COALESCE(NULLIF(c.provincia, ''), '-')
+                ORDER BY total DESC;";
+        $this->provinces = $db->select($sql);
+
         $report = new Report();
         $report->type = Report::TYPE_TREE_MAP;
         $report->table = 'contactos c';
@@ -154,6 +164,10 @@ class ReportContacts extends Controller
 
     protected function loadInterestsChart(): void
     {
+        if (false === (new DataBase())->tableExists('crm_intereses_contactos')) {
+            return;
+        }
+
         $report = new Report();
         $report->type = Report::TYPE_DOUGHNUT;
         $report->table = 'contactos c';
