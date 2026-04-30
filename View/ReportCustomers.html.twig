@@ -98,19 +98,21 @@
                 </div>
             </div>
             <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
-                <div class="card border-left-danger shadow h-100 py-2">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Con deuda</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.customersWithDebt }}</div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-triangle-exclamation fa-2x text-gray-300"></i>
+                <a href="#debtors-section" class="text-decoration-none">
+                    <div class="card border-left-danger shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Con deuda</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.customersWithDebt }}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-triangle-exclamation fa-2x text-gray-300"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
         </div>
 
@@ -209,7 +211,7 @@
         </div>
 
         {# Deudores #}
-        <div class="row">
+        <div class="row" id="debtors-section">
             <div class="col-12">
                 <div class="card shadow mb-4 border-bottom-danger">
                     <div class="card-header py-3 bg-danger d-flex justify-content-between">

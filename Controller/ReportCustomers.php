@@ -19,6 +19,7 @@
 
 namespace FacturaScripts\Plugins\Informes\Controller;
 
+use FacturaScripts\Core\DataSrc\Empresas;
 use FacturaScripts\Core\Template\Controller;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Dinamic\Model\Empresa;
@@ -56,7 +57,7 @@ class ReportCustomers extends Controller
     /** @var array */
     public $customersByCountry;
 
-    /** @var int|string|null el idempesa sugerido por el usuario (puede ser 'all') */
+    /** @var int empresa seleccionada (obligatoria) */
     public $idempresa;
 
     /** @var int */
@@ -128,14 +129,12 @@ class ReportCustomers extends Controller
 
     protected function loadCustomersByCountry(): void
     {
-        $sqlCountries = "SELECT c.codpais, p.codiso, p.nombre, COUNT(*) as total 
-                         FROM clientes cl 
-                         LEFT JOIN contactos c ON cl.idcontactofact = c.idcontacto 
-                         LEFT JOIN paises p ON c.codpais = p.codpais";
-        if ($this->idempresa !== 'all') {
-            $sqlCountries .= " WHERE cl.codcliente IN (SELECT codcliente FROM facturascli WHERE idempresa = " . $this->idempresa . ")";
-        }
-        $sqlCountries .= " GROUP BY c.codpais, p.codiso, p.nombre ORDER BY total DESC";
+        $sqlCountries = "SELECT c.codpais, p.codiso, p.nombre, COUNT(*) as total
+                         FROM clientes cl
+                         LEFT JOIN contactos c ON cl.idcontactofact = c.idcontacto
+                         LEFT JOIN paises p ON c.codpais = p.codpais
+                         WHERE cl.codcliente IN (SELECT codcliente FROM facturascli WHERE idempresa = " . (int)$this->idempresa . ")
+                         GROUP BY c.codpais, p.codiso, p.nombre ORDER BY total DESC";
         $this->customersByCountry = $this->db()->select($sqlCountries);
     }
 
@@ -152,14 +151,11 @@ class ReportCustomers extends Controller
         Report::activateAdvancedReport(true);
         $report->addCustomJoin('LEFT JOIN gruposclientes g ON c.codgrupo = g.codgrupo');
 
-        // aplicamos el filtro de empresa si no se están mostrando todas
-        if ($this->idempresa !== 'all') {
-            $report->addCustomFilter(
-                'c.codcliente',
-                'IN',
-                'SELECT codcliente FROM facturascli WHERE idempresa = ' . (int)$this->idempresa
-            );
-        }
+        $report->addCustomFilter(
+            'c.codcliente',
+            'IN',
+            'SELECT codcliente FROM facturascli WHERE idempresa = ' . (int)$this->idempresa
+        );
 
         $this->charts['customersByGroup'] = $report;
     }
@@ -180,36 +176,26 @@ class ReportCustomers extends Controller
         // filtramos por el país de la empresa para mostrar solo provincias del país
         $report->addCustomFilter('c.codpais', '=', $this->companyCountryCode);
 
-        // aplicamos el filtro de empresa si no se están mostrando todas
-        if ($this->idempresa !== 'all') {
-            $report->addCustomFilter(
-                'cl.codcliente',
-                'IN',
-                'SELECT codcliente FROM facturascli WHERE idempresa = ' . (int)$this->idempresa
-            );
-        }
+        $report->addCustomFilter(
+            'cl.codcliente',
+            'IN',
+            'SELECT codcliente FROM facturascli WHERE idempresa = ' . (int)$this->idempresa
+        );
 
         $this->charts['customersByProvince'] = $report;
     }
 
     protected function loadCompanies(): void
     {
-        $this->companies = ['all' => Tools::trans('all-companies')];
-        foreach (Empresa::all() as $company) {
+        foreach (Empresas::all() as $company) {
             $this->companies[$company->idempresa] = $company->nombrecorto;
         }
 
-        // empresa seleccionada
-        $this->idempresa = $this->request()->queryOrInput('idempresa', null);
-        if (null === $this->idempresa) {
-            // seleccionar todas por defecto si no hay nada
-            $this->idempresa = 'all';
-        } elseif ($this->idempresa === 'all') {
-            // seleccionar todas
-            $this->idempresa = 'all';
-        } else {
-            // seleccionar sugerida
-            $this->idempresa = (int)$this->idempresa;
+        $requested = $this->request()->queryOrInput('idempresa', null);
+        $this->idempresa = $requested === null ? Empresas::default()->idempresa : (int)$requested;
+
+        if (!isset($this->companies[$this->idempresa])) {
+            $this->idempresa = Empresas::default()->idempresa;
         }
     }
 
@@ -218,11 +204,9 @@ class ReportCustomers extends Controller
         $this->currentYear = date('Y');
         $this->companyCountryCode = Tools::settings('default', 'codpais');
 
-        if ($this->idempresa !== 'all') {
-            $company = new Empresa();
-            if ($company->load($this->idempresa) && !empty($company->codpais)) {
-                $this->companyCountryCode = $company->codpais;
-            }
+        $company = new Empresa();
+        if ($company->load($this->idempresa) && !empty($company->codpais)) {
+            $this->companyCountryCode = $company->codpais;
         }
 
         $country = new Pais();
@@ -232,10 +216,8 @@ class ReportCustomers extends Controller
             $this->companyCountry = $this->companyCountryCode;
         }
 
-        if ($this->idempresa !== 'all') {
-            $this->whereEmpresaFacturas = " AND idempresa = " . $this->idempresa;
-            $this->whereEmpresaClientes = " WHERE codcliente IN (SELECT codcliente FROM facturascli WHERE idempresa = " . $this->idempresa . ")";
-        }
+        $this->whereEmpresaFacturas = " AND idempresa = " . (int)$this->idempresa;
+        $this->whereEmpresaClientes = " WHERE codcliente IN (SELECT codcliente FROM facturascli WHERE idempresa = " . (int)$this->idempresa . ")";
     }
 
     protected function loadDebtors(): void
@@ -255,12 +237,8 @@ class ReportCustomers extends Controller
 
     protected function loadInactiveCustomers(): void
     {
-        $sqlInactive = "SELECT COUNT(*) as total FROM clientes";
-        if ($this->idempresa !== 'all') {
-            $sqlInactive .= " WHERE debaja = true AND codcliente IN (SELECT codcliente FROM facturascli WHERE idempresa = " . $this->idempresa . ")";
-        } else {
-            $sqlInactive .= " WHERE debaja = true";
-        }
+        $sqlInactive = "SELECT COUNT(*) as total FROM clientes WHERE debaja = true"
+            . " AND codcliente IN (SELECT codcliente FROM facturascli WHERE idempresa = " . (int)$this->idempresa . ")";
         $this->inactiveCustomers = $this->db()->select($sqlInactive)[0]['total'];
     }
 
@@ -278,21 +256,15 @@ class ReportCustomers extends Controller
         $report->addCustomJoin('LEFT JOIN clientes cl ON f.codcliente = cl.codcliente');
         $report->addCustomJoin('LEFT JOIN contactos c ON cl.idcontactofact = c.idcontacto');
 
-        // aplicamos el filtro de empresa si no se están mostrando todas
-        if ($this->idempresa !== 'all') {
-            $report->addCustomFilter('f.idempresa', '=', (int)$this->idempresa);
-        }
+        $report->addCustomFilter('f.idempresa', '=', (int)$this->idempresa);
 
         $this->charts['invoicesByProvince'] = $report;
     }
 
     protected function loadNewCustomers30Days(): void
     {
-        $sql = "SELECT COUNT(*) as total FROM clientes WHERE fechaalta >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)";
-
-        if ($this->idempresa !== 'all') {
-            $sql .= " AND codcliente IN (SELECT codcliente FROM facturascli WHERE idempresa = " . (int)$this->idempresa . ")";
-        }
+        $sql = "SELECT COUNT(*) as total FROM clientes WHERE fechaalta >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)"
+            . " AND codcliente IN (SELECT codcliente FROM facturascli WHERE idempresa = " . (int)$this->idempresa . ")";
 
         $this->newCustomers30Days = (int)$this->db()->select($sql)[0]['total'];
     }
@@ -310,15 +282,12 @@ class ReportCustomers extends Controller
         $report->addCustomFilter('fechaalta', '>=', '{-1 year}');
         $report->addCustomFilter('fechaalta', '<=', '{today}');
 
-        // aplicamos el filtro de empresa si no se están mostrando todas
-        if ($this->idempresa !== 'all') {
-            Report::activateAdvancedReport(true);
-            $report->addCustomFilter(
-                'codcliente',
-                'IN',
-                'SELECT codcliente FROM facturascli WHERE idempresa = ' . (int)$this->idempresa
-            );
-        }
+        Report::activateAdvancedReport(true);
+        $report->addCustomFilter(
+            'codcliente',
+            'IN',
+            'SELECT codcliente FROM facturascli WHERE idempresa = ' . (int)$this->idempresa
+        );
 
         $this->charts['reportTest'] = $report;
     }
@@ -334,14 +303,12 @@ class ReportCustomers extends Controller
         $report->yoperation = 'COUNT';
         $report->addFieldXName('');
 
-        if ($this->idempresa !== 'all') {
-            Report::activateAdvancedReport(true);
-            $report->addCustomFilter(
-                'codcliente',
-                'IN',
-                'SELECT codcliente FROM facturascli WHERE idempresa = ' . (int)$this->idempresa
-            );
-        }
+        Report::activateAdvancedReport(true);
+        $report->addCustomFilter(
+            'codcliente',
+            'IN',
+            'SELECT codcliente FROM facturascli WHERE idempresa = ' . (int)$this->idempresa
+        );
 
         $this->charts['newCustomersByYear'] = $report;
     }
@@ -363,11 +330,8 @@ class ReportCustomers extends Controller
 
     protected function loadCustomersWithDebt(): void
     {
-        $sql = "SELECT COUNT(DISTINCT codcliente) as total FROM facturascli WHERE pagada = " . $this->db()->var2str(false);
-
-        if ($this->idempresa !== 'all') {
-            $sql .= " AND idempresa = " . $this->db()->var2str((int)$this->idempresa);
-        }
+        $sql = "SELECT COUNT(DISTINCT codcliente) as total FROM facturascli WHERE pagada = " . $this->db()->var2str(false)
+            . " AND idempresa = " . $this->db()->var2str((int)$this->idempresa);
 
         $this->customersWithDebt = (int)$this->db()->select($sql)[0]['total'];
     }
@@ -379,11 +343,8 @@ class ReportCustomers extends Controller
             . "COALESCE(NULLIF(f.nombrecliente, ''), f.codcliente, '" . Tools::trans('no-data') . "') as xcol, "
             . "SUM(f.total) as ycol "
             . "FROM facturascli f "
-            . "WHERE f.pagada = " . $this->db()->var2str(false);
-
-        if ($this->idempresa !== 'all') {
-            $sql .= " AND f.idempresa = " . $this->db()->var2str((int)$this->idempresa);
-        }
+            . "WHERE f.pagada = " . $this->db()->var2str(false)
+            . " AND f.idempresa = " . $this->db()->var2str((int)$this->idempresa);
 
         $sql .= " GROUP BY f.codcliente, xcol ORDER BY ycol DESC, xcol ASC";
         if ($limit > 0) {
