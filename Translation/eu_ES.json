@@ -1,6 +1,8 @@
 {
     "active-customers": "Bezero aktiboak",
     "active-customers-year": "Aurtengo bezero aktiboak",
+    "active-suppliers": "Proveedores activos",
+    "active-suppliers-year": "Proyeedores activos este año",
     "active-year": "Activos este año",
     "amortization-intangible-assets": "Aktibo ukiezinen amortizazioak",
     "amortization-intangible-material": "Material ukiezinen amortizazioak",
@@ -67,6 +69,7 @@
     "group-by-months": "Hilabeteetan taldeatu",
     "has-a-value": "Balioa du",
     "inactive-customers": "Egoera itxita duten bezeroak",
+    "inactive-suppliers": "Inactivos",
     "income-book": "Diru-sarreren liburua",
     "income-book-description": "Igorritako faktura guztiak erregistratzen ditu",
     "input-tax": "Sarrerako BEZa",
@@ -80,6 +83,8 @@
     "monthly-average": "Hileko batez bestekoa",
     "negative": "Negatiboa",
     "negative-results-other-exercises": "Emaitza negatiboa beste urteetan",
+    "new-30-days": "Nuevos 30 días",
+    "new-suppliers": "Nuevos proveedores",
     "no-family": "Familiarik gabe",
     "opening": "Apertura",
     "passed-tax": "Irteerako BEZa",
@@ -252,6 +257,7 @@
     "treasury": "Diruzaintza",
     "treemap": "Zuhaitzeko mapa",
     "voluntary-reserves": "Borondatezko erreserbak",
+    "with-debt": "Con deuda",
     "without-opening": "Irekitzapenik gabe",
     "y-operation": "Y gaineko eragiketa"
 }

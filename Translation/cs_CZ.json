@@ -1,6 +1,8 @@
 {
     "active-customers": "Aktivní zákazníci",
     "active-customers-year": "Aktivní zákazníci v tomto roce",
+    "active-suppliers": "Proveedores activos",
+    "active-suppliers-year": "Proyeedores activos este año",
     "active-year": "Aktivní tento rok",
     "amortization-intangible-assets": "Amortizaciones inmovilizado intangible",
     "amortization-intangible-material": "Amortizaciones inmovilizado material",
@@ -67,6 +69,7 @@
     "group-by-months": "Seskupit podle měsíců",
     "has-a-value": "Má hodnotu",
     "inactive-customers": "Neaktivní zákazníci",
+    "inactive-suppliers": "Inactivos",
     "income-book": "Kniha příjmů",
     "income-book-description": "Zaznamenává všechny vystavené faktury",
     "input-tax": "IVA soportado",
@@ -80,6 +83,8 @@
     "monthly-average": "Media mensual",
     "negative": "Negativní",
     "negative-results-other-exercises": "Resultado negativo otros ejercicios",
+    "new-30-days": "Nuevos 30 días",
+    "new-suppliers": "Nuevos proveedores",
     "no-family": "Sin familia",
     "opening": "Otevření",
     "passed-tax": "IVA repercutido",
@@ -252,6 +257,7 @@
     "treasury": "Tesorería",
     "treemap": "Mapa stromu",
     "voluntary-reserves": "Reservas voluntarias",
+    "with-debt": "Con deuda",
     "without-opening": "Bez otevření",
     "y-operation": "Operace na Y."
 }

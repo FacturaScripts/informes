@@ -340,13 +340,13 @@ class ReportCustomers extends Controller
     {
         $sql = "SELECT "
             . "f.codcliente as codcliente, "
-            . "COALESCE(NULLIF(f.nombrecliente, ''), f.codcliente, '" . Tools::trans('no-data') . "') as xcol, "
+            . "COALESCE(NULLIF(MAX(f.nombrecliente), ''), f.codcliente, '" . Tools::trans('no-data') . "') as xcol, "
             . "SUM(f.total) as ycol "
             . "FROM facturascli f "
             . "WHERE f.pagada = " . $this->db()->var2str(false)
             . " AND f.idempresa = " . $this->db()->var2str((int)$this->idempresa);
 
-        $sql .= " GROUP BY f.codcliente, xcol ORDER BY ycol DESC, xcol ASC";
+        $sql .= " GROUP BY f.codcliente ORDER BY ycol DESC, xcol ASC";
         if ($limit > 0) {
             $sql .= " LIMIT " . $limit;
         }

@@ -18,11 +18,11 @@
         {# KPIs #}
         <div class="row justify-content-center">
             <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
-                <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card border-left-primary shadow-sm h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">{{ trans('total') }} {{ trans('b-contactos') }}</div>
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">{{ trans('total') }}</div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.totals.total }}</div>
                             </div>
                             <div class="col-auto">
@@ -34,7 +34,7 @@
             </div>
 
             <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
-                <div class="card border-left-success shadow h-100 py-2">
+                <div class="card border-left-success shadow-sm h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
@@ -50,7 +50,7 @@
             </div>
 
             <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
-                <div class="card border-left-info shadow h-100 py-2">
+                <div class="card border-left-info shadow-sm h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
@@ -66,11 +66,11 @@
             </div>
 
             <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
-                <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card border-left-warning shadow-sm h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Nuevos 30 días</div>
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">{{ trans('new-30-days') }}</div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.totals.new_30_days }}</div>
                             </div>
                             <div class="col-auto">
@@ -82,7 +82,7 @@
             </div>
 
             <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
-                <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card border-left-danger shadow-sm h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
@@ -98,7 +98,7 @@
             </div>
 
             <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
-                <div class="card border-left-secondary shadow h-100 py-2">
+                <div class="card border-left-secondary shadow-sm h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
@@ -117,7 +117,7 @@
         {# Charts: new contacts by months and years #}
         <div class="row">
             <div class="col-12">
-                <div class="card shadow mb-4">
+                <div class="card shadow-sm mb-4">
                     <div class="card-header py-3">
                         <h6 class="m-0 font-weight-bold text-primary">
                             <i class="fa-solid fa-chart-area me-1"></i>
@@ -132,7 +132,7 @@
 
         <div class="row">
             <div class="col-12">
-                <div class="card shadow mb-4">
+                <div class="card shadow-sm mb-4">
                     <div class="card-header py-3">
                         <h6 class="m-0 font-weight-bold text-primary">
                             <i class="fa-solid fa-chart-column me-1"></i>
@@ -149,7 +149,7 @@
         {# Distribution by country and pies for sources/interests #}
         <div class="row mb-4">
             <div class="col-xl-3 col-md-6 d-flex">
-                <div class="card shadow mb-4 w-100 h-100">
+                <div class="card shadow-sm mb-4 w-100 h-100">
                     <div class="card-header py-3 text-center">
                         <h6 class="m-0 font-weight-bold text-primary">
                             <i class="fa-solid fa-earth-europe me-1"></i>
@@ -195,7 +195,7 @@
                 </div>
             </div>
             <div class="col-xl-3 col-md-6 d-flex">
-                <div class="card shadow mb-4 w-100 h-100">
+                <div class="card shadow-sm mb-4 w-100 h-100">
                     <div class="card-header py-3 text-center">
                         <h6 class="m-0 font-weight-bold text-primary">
                             <i class="fa-solid fa-map-location-dot me-1"></i>
@@ -244,7 +244,7 @@
             </div>
             {% if fsc.isEnabledCRM %}
                 <div class="col-xl-3 col-md-6 d-flex">
-                    <div class="card shadow mb-4 w-100 h-100">
+                    <div class="card shadow-sm mb-4 w-100 h-100">
                         <div class="card-header py-3 text-center">
                             <h6 class="m-0 font-weight-bold text-primary">
                                 <i class="fa-solid fa-layer-group me-1"></i>
@@ -294,7 +294,7 @@
             {% endif %}
             {% if fsc.isEnabledCRM %}
                 <div class="col-xl-3 col-md-6 d-flex">
-                    <div class="card shadow mb-4 w-100 h-100">
+                    <div class="card shadow-sm mb-4 w-100 h-100">
                         <div class="card-header py-3 text-center">
                             <h6 class="m-0 font-weight-bold text-primary">
                                 <i class="fa-solid fa-tags me-1"></i>

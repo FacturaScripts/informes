@@ -1,6 +1,8 @@
 {
     "active-customers": "Clients actius",
     "active-customers-year": "Clients actius enguany",
+    "active-suppliers": "Proveedores activos",
+    "active-suppliers-year": "Proyeedores activos este año",
     "active-year": "Actius enguany",
     "amortization-intangible-assets": "Amortitzacions immobilitzat intangible",
     "amortization-intangible-material": "Amortitzacions immobilitzat material",
@@ -67,6 +69,7 @@
     "group-by-months": "Agrupar per mesos",
     "has-a-value": "Té valor",
     "inactive-customers": "Clients donats de baixa",
+    "inactive-suppliers": "Inactivos",
     "income-book": "Llibre d'ingressos",
     "income-book-description": "Registra totes les factures emeses",
     "input-tax": "IVA soportado",
@@ -80,6 +83,8 @@
     "monthly-average": "Media mensual",
     "negative": "Negatiu",
     "negative-results-other-exercises": "Resultado negativo otros ejercicios",
+    "new-30-days": "Nuevos 30 días",
+    "new-suppliers": "Nuevos proveedores",
     "no-family": "Sin familia",
     "opening": "Apertura",
     "passed-tax": "IVA repercutido",
@@ -252,6 +257,7 @@
     "treasury": "Tesorería",
     "treemap": "Mapa d'arbre",
     "voluntary-reserves": "Reservas voluntarias",
+    "with-debt": "Con deuda",
     "without-opening": "Sense obertura",
     "y-operation": "Operació sobre Y"
 }

@@ -22,11 +22,11 @@
 
         <div class="row">
             <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
-                <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card border-left-primary shadow-sm h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">{{ trans('total') }} {{ trans('suppliers')|lower }}</div>
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">{{ trans('total') }}</div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.totalSuppliers }}</div>
                             </div>
                             <div class="col-auto">
@@ -37,7 +37,7 @@
                 </div>
             </div>
             <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
-                <div class="card border-left-success shadow h-100 py-2">
+                <div class="card border-left-success shadow-sm h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
@@ -52,7 +52,7 @@
                 </div>
             </div>
             <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
-                <div class="card border-left-info shadow h-100 py-2">
+                <div class="card border-left-info shadow-sm h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
@@ -67,7 +67,7 @@
                 </div>
             </div>
             <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
-                <div class="card border-left-secondary shadow h-100 py-2">
+                <div class="card border-left-secondary shadow-sm h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
@@ -82,11 +82,11 @@
                 </div>
             </div>
             <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
-                <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card border-left-warning shadow-sm h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">{{ trans('new-suppliers-30-days') }}</div>
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">{{ trans('new-30-days') }}</div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.newSuppliers30Days }}</div>
                             </div>
                             <div class="col-auto">
@@ -97,25 +97,27 @@
                 </div>
             </div>
             <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
-                <div class="card border-left-danger shadow h-100 py-2">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">{{ trans('suppliers-with-payables') }}</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.suppliersWithPayables }}</div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-triangle-exclamation fa-2x text-gray-300"></i>
+                <a href="#creditors-section" class="text-decoration-none">
+                    <div class="card border-left-danger shadow-sm h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">{{ trans('with-debt') }}</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.suppliersWithPayables }}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-triangle-exclamation fa-2x text-gray-300"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
         </div>
 
         <div class="row">
             <div class="col-12">
-                <div class="card shadow mb-4">
+                <div class="card shadow-sm mb-4">
                     <div class="card-header py-3">
                         <h6 class="m-0 font-weight-bold text-primary">
                             <i class="fa-solid fa-chart-area me-1"></i>
@@ -131,7 +133,7 @@
 
         <div class="row">
             <div class="col-12">
-                <div class="card shadow mb-4">
+                <div class="card shadow-sm mb-4">
                     <div class="card-header py-3">
                         <h6 class="m-0 font-weight-bold text-primary">
                             <i class="fa-solid fa-chart-column me-1"></i>
@@ -148,7 +150,7 @@
 
         <div class="row mb-4">
             <div class="col-lg-6 d-flex">
-                <div class="card shadow mb-4 w-100 h-100">
+                <div class="card shadow-sm mb-4 w-100 h-100">
                     <div class="card-header py-3 text-center">
                         <h6 class="m-0 font-weight-bold text-primary">
                             <i class="fa-solid fa-earth-europe me-1"></i>
@@ -161,7 +163,7 @@
                 </div>
             </div>
             <div class="col-lg-6 d-flex">
-                <div class="card shadow mb-4 w-100 h-100">
+                <div class="card shadow-sm mb-4 w-100 h-100">
                     <div class="card-header py-3 text-center">
                         <h6 class="m-0 font-weight-bold text-primary">
                             <i class="fa-solid fa-map-location-dot me-1"></i>
@@ -177,7 +179,7 @@
 
         <div class="row">
             <div class="col-12">
-                <div class="card shadow mb-4">
+                <div class="card shadow-sm mb-4">
                     <div class="card-header py-3">
                         <h6 class="m-0 font-weight-bold text-primary">
                             <i class="fa-solid fa-map-pin me-1"></i>
@@ -191,9 +193,9 @@
             </div>
         </div>
 
-        <div class="row">
+        <div class="row" id="creditors-section">
             <div class="col-12">
-                <div class="card shadow mb-4 border-bottom-danger">
+                <div class="card shadow-sm mb-4 border-bottom-danger">
                     <div class="card-header py-3 bg-danger d-flex justify-content-between">
                         <h6 class="m-0 font-weight-bold text-white">
                             <i class="fa-solid fa-triangle-exclamation me-1"></i>
