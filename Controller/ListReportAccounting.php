@@ -107,6 +107,14 @@ class ListReportAccounting extends ListController
             ->setSettings('btnPrint', false);
 
         $this->addCommonFilters($viewName);
+
+        $this->listView($viewName)->addFilterSelect('type', 'type', 'type', [
+            ['code' => '', 'description' => '------'],
+            ['code' => ReportBalance::TYPE_SHEET, 'description' => Tools::trans(ReportBalance::TYPE_SHEET)],
+            ['code' => ReportBalance::TYPE_PROFIT, 'description' => Tools::trans(ReportBalance::TYPE_PROFIT)],
+            ['code' => ReportBalance::TYPE_INCOME, 'description' => Tools::trans(ReportBalance::TYPE_INCOME)],
+        ]);
+
         $this->addGenerateButton($viewName);
     }
 
@@ -143,19 +151,18 @@ class ListReportAccounting extends ListController
             ->addSearchFields(['codbalance', 'nature', 'description1', 'description2', 'description3', 'description4']);
 
         // añadimos filtros
-        $i18n = Tools::lang();
         $subTypes = $this->codeModel->all('balance_codes', 'subtype', 'subtype');
         foreach ($subTypes as $subtype) {
-            $subtype->description = $i18n->trans($subtype->description);
+            $subtype->description = Tools::trans($subtype->description);
         }
 
         $this->listView($viewName)
             ->addFilterSelect('nature', 'nature', 'nature', [
                 ['code' => '', 'description' => '------'],
-                ['code' => 'A', 'description' => $i18n->trans('asset')],
-                ['code' => 'P', 'description' => $i18n->trans('liabilities')],
-                ['code' => 'PG', 'description' => $i18n->trans('profit-and-loss')],
-                ['code' => 'IG', 'description' => $i18n->trans('income-and-expenses')]
+                ['code' => 'A', 'description' => Tools::trans('asset')],
+                ['code' => 'P', 'description' => Tools::trans('liabilities')],
+                ['code' => 'PG', 'description' => Tools::trans('profit-and-loss')],
+                ['code' => 'IG', 'description' => Tools::trans('income-and-expenses')]
             ])
             ->addFilterSelect('subtype', 'sub-type', 'subtype', $subTypes);
     }

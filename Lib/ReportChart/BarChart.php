@@ -22,7 +22,7 @@ namespace FacturaScripts\Plugins\Informes\Lib\ReportChart;
 /**
  * Description of BarChart
  *
- * @author Daniel Fernández Giménez <hola@danielfg.es>
+ * @author Daniel Fernández Giménez <contacto@danielfg.es>
  */
 class BarChart extends AreaChart
 {

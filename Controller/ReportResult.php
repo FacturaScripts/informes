@@ -29,7 +29,7 @@ use FacturaScripts\Dinamic\Lib\Informes\SalesPurchasesResultReport;
 use FacturaScripts\Dinamic\Lib\Informes\SummaryResultReport;
 
 /**
- * @author Daniel Fernández Giménez <hola@danielfg.es>
+ * @author Daniel Fernández Giménez <contacto@danielfg.es>
  */
 class ReportResult extends Controller
 {

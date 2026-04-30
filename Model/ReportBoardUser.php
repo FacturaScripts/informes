@@ -27,7 +27,7 @@ use FacturaScripts\Dinamic\Model\ReportBoard as DinReportBoard;
 use FacturaScripts\Dinamic\Model\User;
 
 /**
- * @author Daniel Fernández Giménez <hola@danielfg.es>
+ * @author Daniel Fernández Giménez <contacto@danielfg.es>
  */
 class ReportBoardUser extends ModelClass
 {

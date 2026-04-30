@@ -200,9 +200,17 @@ class BalanceSheet
 
     protected function getAccountAmounts(BalanceCode $balance, BalanceAccount $model, string $codejercicio, array $params): float
     {
-        $key = $codejercicio . '-' . $model->codcuenta;
+        $key = $codejercicio . '-' . $balance->id . '-' . $model->codcuenta;
         if (array_key_exists($key, $this->amounts)) {
             return $this->amounts[$key];
+        }
+
+        if ($model->codcuenta === '129') {
+            $total = $this->getRegularizationResult($balance, $model, $codejercicio, $params);
+            if ($total !== null) {
+                $this->amounts[$key] = $total;
+                return $total;
+            }
         }
 
         $total = 0.00;
@@ -245,6 +253,41 @@ class BalanceSheet
 
         $this->amounts[$key] = $total;
         return $total;
+    }
+
+    protected function getRegularizationResult(
+        BalanceCode $balance,
+        BalanceAccount $model,
+        string $codejercicio,
+        array $params
+    ): ?float {
+        $sql = "SELECT SUM(partidas.debe) AS debe, SUM(partidas.haber) AS haber"
+            . " FROM partidas"
+            . " LEFT JOIN asientos ON partidas.idasiento = asientos.idasiento"
+            . " WHERE asientos.codejercicio = " . $this->dataBase->var2str($codejercicio)
+            . " AND partidas.codsubcuenta LIKE '" . $model->codcuenta . "%'"
+            . " AND asientos.operacion = " . $this->dataBase->var2str(Asiento::OPERATION_REGULARIZATION);
+
+        if ($codejercicio === $this->exercise->codejercicio) {
+            $sql .= ' AND asientos.fecha BETWEEN ' . $this->dataBase->var2str($this->dateFrom)
+                . ' AND ' . $this->dataBase->var2str($this->dateTo);
+        } elseif ($codejercicio === $this->exercisePrev->codejercicio) {
+            $sql .= ' AND asientos.fecha BETWEEN ' . $this->dataBase->var2str($this->dateFromPrev)
+                . ' AND ' . $this->dataBase->var2str($this->dateToPrev);
+        }
+
+        $channel = $params['channel'] ?? '';
+        if (!empty($channel)) {
+            $sql .= ' AND asientos.canal = ' . $this->dataBase->var2str($channel);
+        }
+
+        foreach ($this->dataBase->select($sql) as $row) {
+            $debe = (float)$row['debe'];
+            $haber = (float)$row['haber'];
+            return empty($debe) && empty($haber) ? null : $balance->calculate($debe, $haber);
+        }
+
+        return null;
     }
 
     protected function getAmounts(BalanceCode $balance, string $codejercicio, array $params): float
