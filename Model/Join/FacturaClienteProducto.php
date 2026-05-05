@@ -50,7 +50,7 @@ class FacturaClienteProducto extends JoinModel
             'idproducto' => static::MAIN_TABLE . '.idproducto',
             'precio' => 'variantes.precio',
             'referencia' => static::MAIN_TABLE . '.referencia',
-            'stockfis' => 'variantes.stockfis'
+            'stockfis' => 'stocks.cantidad'
         ];
     }
 
@@ -58,7 +58,7 @@ class FacturaClienteProducto extends JoinModel
     {
         return static::DOC_TABLE . '.codalmacen, ' . static::MAIN_TABLE . '.idproducto, '
             . static::MAIN_TABLE . '.referencia, productos.codfabricante, productos.codfamilia, variantes.coste, '
-            . 'productos.descripcion, variantes.precio, variantes.stockfis';
+            . 'productos.descripcion, variantes.precio, stocks.cantidad';
     }
 
     protected function getSQLFrom(): string
@@ -66,11 +66,13 @@ class FacturaClienteProducto extends JoinModel
         return static::MAIN_TABLE
             . ' LEFT JOIN variantes ON ' . static::MAIN_TABLE . '.referencia = variantes.referencia'
             . ' LEFT JOIN productos ON variantes.idproducto = productos.idproducto'
-            . ' LEFT JOIN facturascli ON facturascli.idfactura = lineasfacturascli.idfactura';
+            . ' LEFT JOIN facturascli ON facturascli.idfactura = lineasfacturascli.idfactura'
+            . ' LEFT JOIN stocks ON stocks.referencia = ' . static::MAIN_TABLE . '.referencia'
+            . ' AND stocks.codalmacen = ' . static::DOC_TABLE . '.codalmacen';
     }
 
     protected function getTables(): array
     {
-        return [static::MAIN_TABLE, 'productos', 'variantes'];
+        return [static::MAIN_TABLE, 'productos', 'variantes', 'stocks'];
     }
 }
