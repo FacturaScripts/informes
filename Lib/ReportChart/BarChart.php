@@ -73,7 +73,9 @@ class BarChart extends AreaChart
             . '  },'
             . '  xaxis: {'
             . '    categories: ' . json_encode($data['labels']) . ','
-            . '    position: "' . ($horizontal ? 'bottom' : 'top') . '",'
+            . '    position: "' . ($horizontal ? 'bottom' : (
+                in_array($this->report->xoperation, ['YEAR', 'UNIXTIME_YEAR']) ? 'bottom' : 'top'
+            )) . '",'
             . '    axisBorder: {'
             . '      show: false'
             . '    },'

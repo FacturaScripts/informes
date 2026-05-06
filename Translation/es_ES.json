@@ -259,5 +259,10 @@
     "voluntary-reserves": "Reservas voluntarias",
     "with-debt": "Con deuda",
     "without-opening": "Sin apertura",
-    "y-operation": "Operación sobre Y"
+    "y-operation": "Operación sobre Y",
+    "agents-report": "Informe de agentes",
+    "estimates": "Presupuestos",
+    "invoices-by-agent": "Facturas por agente",
+    "invoices-by-month": "Facturas por mes",
+    "invoices-by-year": "Facturas por año"
 }
