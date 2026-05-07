@@ -99,6 +99,7 @@ class ReportCustomers extends Controller
         $this->loadTotalCustomers();
         $this->loadActiveCustomers();
         $this->loadInactiveCustomers();
+        $this->loadActiveCustomersByYear();
         $this->loadActiveCustomersYear();
         $this->loadNewCustomers30Days();
         $this->loadCustomersWithDebt();
@@ -119,6 +120,23 @@ class ReportCustomers extends Controller
         $oneYearAgo = date('Y-m-d', strtotime('-1 year'));
         $sqlActive = "SELECT COUNT(DISTINCT codcliente) as total FROM facturascli WHERE fecha >= '$oneYearAgo'" . $this->whereEmpresaFacturas;
         $this->activeCustomers = $this->db()->select($sqlActive)[0]['total'];
+    }
+
+    protected function loadActiveCustomersByYear(): void
+    {
+        $report = new Report();
+        $report->type = Report::TYPE_BAR;
+        $report->table = 'facturascli';
+        $report->xcolumn = 'fecha';
+        $report->ycolumn = 'codcliente';
+        $report->xoperation = 'YEAR';
+        $report->yoperation = 'COUNT_DISTINCT';
+        $report->addFieldXName('');
+
+        Report::activateAdvancedReport(true);
+        $report->addCustomFilter('idempresa', '=', (int)$this->idempresa);
+
+        $this->charts['activeCustomersByYear'] = $report;
     }
 
     protected function loadActiveCustomersYear(): void

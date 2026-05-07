@@ -180,6 +180,7 @@ abstract class Chart
             'MAXIMUM' => "MAX(" . $report->ycolumn . ")",
             'MINIMUM' => "MIN(" . $report->ycolumn . ")",
             'COUNT' => "COUNT(" . $report->ycolumn . ")",
+            'COUNT_DISTINCT' => "COUNT(DISTINCT " . $report->ycolumn . ")",
             default => empty($report->ycolumn) ? 'COUNT(*)' : 'SUM(' . $report->ycolumn . ')',
         };
 
@@ -249,6 +250,7 @@ abstract class Chart
             'MAXIMUM' => "MAX(" . $report->ycolumn . ")",
             'MINIMUM' => "MIN(" . $report->ycolumn . ")",
             'COUNT' => "COUNT(" . $report->ycolumn . ")",
+            'COUNT_DISTINCT' => "COUNT(DISTINCT " . $report->ycolumn . ")",
             default => empty($report->ycolumn) ? 'COUNT(*)' : 'SUM(' . $report->ycolumn . ')',
         };
 
