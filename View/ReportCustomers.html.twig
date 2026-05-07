@@ -150,6 +150,23 @@
             </div>
         </div>
 
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fa-solid fa-chart-column me-1"></i>
+                            {{ trans('active-customers') }}
+                            ({{ trans('year') }})
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        {{ fsc.charts.activeCustomersByYear.getChart().render({'height':250}) | raw }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
         {# Distribución Geográfica y Grupos #}
         <div class="row mb-4">
             <div class="col-lg-4 d-flex">
