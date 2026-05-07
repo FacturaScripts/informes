@@ -151,6 +151,7 @@ class ReportTaxes extends Controller
                 Tools::trans('date') => $hide ? '' : Tools::date($row['fecha']),
                 Tools::trans('name') => $hide ? '' : Tools::fixHtml($row['nombre']),
                 Tools::trans('cifnif') => $hide ? '' : $row['cifnif'],
+                Tools::trans('payment-method') => $hide ? '' : $row['codpago'] ?? '',
                 Tools::trans('subaccount') => $hide ? '' : $row['codsubcuenta'] ?? '',
                 Tools::trans('city') => $hide ? '' : $row['ciudad'] ?? '',
                 Tools::trans('province') => $hide ? '' : $row['provincia'] ?? '',
@@ -244,7 +245,7 @@ class ReportTaxes extends Controller
         switch ($this->source) {
             case 'purchases':
                 $sql .= 'SELECT f.codserie, f.codigo, f.numproveedor, f.fecha, f.fechadevengo, f.nombre, f.cifnif, l.pvptotal,'
-                    . ' l.iva, l.recargo, l.irpf, l.suplido, f.dtopor1, f.dtopor2, f.total, f.operacion, pr.codsubcuenta,'
+                    . ' l.iva, l.recargo, l.irpf, l.suplido, f.dtopor1, f.dtopor2, f.total, f.operacion, f.codpago, pr.codsubcuenta,'
                     . ' c.ciudad, c.provincia, c.codpostal, c.codpais'
                     . ' FROM lineasfacturasprov AS l'
                     . ' LEFT JOIN facturasprov AS f ON l.idfactura = f.idfactura '
@@ -259,7 +260,7 @@ class ReportTaxes extends Controller
 
             case 'sales':
                 $sql .= 'SELECT f.codserie, f.codigo, f.numero2, f.fecha, f.fechadevengo, f.nombrecliente AS nombre, f.cifnif, l.pvptotal,'
-                    . ' l.iva, l.recargo, l.irpf, l.suplido, f.dtopor1, f.dtopor2, f.total, f.operacion, f.codpais, cl.codsubcuenta,'
+                    . ' l.iva, l.recargo, l.irpf, l.suplido, f.dtopor1, f.dtopor2, f.total, f.operacion, f.codpago, f.codpais, cl.codsubcuenta,'
                     . ' f.ciudad, f.provincia, f.codpostal'
                     . ' FROM lineasfacturascli AS l'
                     . ' LEFT JOIN facturascli AS f ON l.idfactura = f.idfactura '
@@ -312,6 +313,7 @@ class ReportTaxes extends Controller
                 'nombre' => $row['nombre'],
                 'codsubcuenta' => $row['codsubcuenta'],
                 'cifnif' => $row['cifnif'],
+                'codpago' => $row['codpago'] ?? null,
                 'neto' => $row['suplido'] ? 0 : $pvpTotal,
                 'iva' => $row['suplido'] ? 0 : (float)$row['iva'],
                 'totaliva' => $row['suplido'] || $row['operacion'] === InvoiceOperation::INTRA_COMMUNITY ? 0 : (float)$row['iva'] * $pvpTotal / 100,
