@@ -37,6 +37,7 @@ class BarChart extends AreaChart
         $chartId = 'chart' . $num;
         $chartHeight = isset($dataChart['height']) && $dataChart['height'] > 0 ? $dataChart['height'] : 350;
         $horizontal = !empty($dataChart['horizontal']);
+        $colors = !empty($dataChart['colors']) && is_array($dataChart['colors']) ? $dataChart['colors'] : null;
 
         $series = [];
         foreach ($data['datasets'] as $dataset) {
@@ -50,6 +51,7 @@ class BarChart extends AreaChart
             . '<script>'
             . 'var options' . $num . ' = {'
             . '  series: ' . json_encode($series) . ','
+            . ($colors ? '  colors: ' . json_encode($colors) . ',' : '')
             . '  chart: {'
             . '    height: ' . $chartHeight . ','
             . '    type: "bar",'
