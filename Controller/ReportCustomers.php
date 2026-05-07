@@ -362,7 +362,7 @@ class ReportCustomers extends Controller
             . "WHERE f.pagada = " . $this->db()->var2str(false)
             . " AND f.idempresa = " . $this->db()->var2str((int)$this->idempresa);
 
-        $sql .= " GROUP BY f.codcliente ORDER BY ycol DESC, xcol ASC";
+        $sql .= " GROUP BY f.codcliente HAVING SUM(f.total) <> 0 ORDER BY ycol DESC, xcol ASC";
         if ($limit > 0) {
             $sql .= " LIMIT " . $limit;
         }

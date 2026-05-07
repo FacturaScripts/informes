@@ -118,8 +118,8 @@
         <div class="row">
             <div class="col-12">
                 <div class="card shadow-sm mb-4">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">
+                    <div class="card-body">
+                        <h6 class="font-weight-bold text-primary mb-3">
                             <i class="fa-solid fa-chart-area me-1"></i>
                             {{ trans('new-suppliers') }}
                             ({{ trans('last-12-months') }})</h6>
@@ -134,14 +134,12 @@
         <div class="row">
             <div class="col-12">
                 <div class="card shadow-sm mb-4">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">
+                    <div class="card-body">
+                        <h6 class="font-weight-bold text-primary mb-3">
                             <i class="fa-solid fa-chart-column me-1"></i>
                             {{ trans('new-suppliers') }}
                             ({{ trans('year') }})
                         </h6>
-                    </div>
-                    <div class="card-body">
                         {{ fsc.charts.newSuppliersByYear.getChart().render({'height':250}) | raw }}
                     </div>
                 </div>
@@ -151,26 +149,22 @@
         <div class="row mb-4">
             <div class="col-lg-6 d-flex">
                 <div class="card shadow-sm mb-4 w-100 h-100">
-                    <div class="card-header py-3 text-center">
-                        <h6 class="m-0 font-weight-bold text-primary">
+                    <div class="card-body">
+                        <h6 class="font-weight-bold text-primary mb-3">
                             <i class="fa-solid fa-earth-europe me-1"></i>
                             {{ trans('suppliers-by-country') }}
                         </h6>
-                    </div>
-                    <div class="card-body">
                         <div id="regions_div" style="min-height: 320px;"></div>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6 d-flex">
                 <div class="card shadow-sm mb-4 w-100 h-100">
-                    <div class="card-header py-3 text-center">
-                        <h6 class="m-0 font-weight-bold text-primary">
+                    <div class="card-body">
+                        <h6 class="font-weight-bold text-primary mb-3">
                             <i class="fa-solid fa-map-location-dot me-1"></i>
                             {{ trans('suppliers-by-province') }}
                             ({{ fsc.companyCountry }})</h6>
-                    </div>
-                    <div class="card-body">
                         {{ fsc.charts.suppliersByProvince.getChart().render({'height':320}) | raw }}
                     </div>
                 </div>
@@ -180,13 +174,11 @@
         <div class="row">
             <div class="col-12">
                 <div class="card shadow-sm mb-4">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">
+                    <div class="card-body">
+                        <h6 class="font-weight-bold text-primary mb-3">
                             <i class="fa-solid fa-map-pin me-1"></i>
                             {{ trans('suppliers-by-invoice-province') }}
                         </h6>
-                    </div>
-                    <div class="card-body">
                         {{ fsc.charts.invoicesByProvince.getChart().render({'height':320}) | raw }}
                     </div>
                 </div>

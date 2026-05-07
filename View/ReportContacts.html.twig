@@ -118,8 +118,8 @@
         <div class="row">
             <div class="col-12">
                 <div class="card shadow-sm mb-4">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">
+                    <div class="card-body">
+                        <h6 class="font-weight-bold text-primary mb-3">
                             <i class="fa-solid fa-chart-area me-1"></i>
                             {{ trans('r-contactos-new-months') }} ({{ trans('last-12-months') }})</h6>
                     </div>
@@ -133,13 +133,11 @@
         <div class="row">
             <div class="col-12">
                 <div class="card shadow-sm mb-4">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">
+                    <div class="card-body">
+                        <h6 class="font-weight-bold text-primary mb-3">
                             <i class="fa-solid fa-chart-column me-1"></i>
                             {{ trans('r-contactos-new-years') }}
                         </h6>
-                    </div>
-                    <div class="card-body">
                         {{ fsc.charts.newByYears.getChart().render({'height':250}) | raw }}
                     </div>
                 </div>
@@ -150,13 +148,11 @@
         <div class="row mb-4">
             <div class="col-xl-3 col-md-6 d-flex">
                 <div class="card shadow-sm mb-4 w-100 h-100">
-                    <div class="card-header py-3 text-center">
-                        <h6 class="m-0 font-weight-bold text-primary">
+                    <div class="card-body">
+                        <h6 class="font-weight-bold text-primary mb-3">
                             <i class="fa-solid fa-earth-europe me-1"></i>
                             {{ trans('r-contactos-countries') }}
                         </h6>
-                    </div>
-                    <div class="card-body">
                         <div id="regions_div" style="min-height: 320px;"></div>
                         {% if fsc.countries %}
                             <div class="mt-3">
@@ -196,14 +192,12 @@
             </div>
             <div class="col-xl-3 col-md-6 d-flex">
                 <div class="card shadow-sm mb-4 w-100 h-100">
-                    <div class="card-header py-3 text-center">
-                        <h6 class="m-0 font-weight-bold text-primary">
+                    <div class="card-body">
+                        <h6 class="font-weight-bold text-primary mb-3">
                             <i class="fa-solid fa-map-location-dot me-1"></i>
                             Contactos por provincia
                             ({{ fsc.companyCountry }})
                         </h6>
-                    </div>
-                    <div class="card-body">
                         {{ fsc.charts.contactsByProvince.getChart().render({'height':320}) | raw }}
                         {% if fsc.provinces %}
                             <div class="mt-3">
@@ -245,13 +239,11 @@
             {% if fsc.isEnabledCRM %}
                 <div class="col-xl-3 col-md-6 d-flex">
                     <div class="card shadow-sm mb-4 w-100 h-100">
-                        <div class="card-header py-3 text-center">
-                            <h6 class="m-0 font-weight-bold text-primary">
+                        <div class="card-body">
+                            <h6 class="font-weight-bold text-primary mb-3">
                                 <i class="fa-solid fa-layer-group me-1"></i>
                                 {{ trans('sources') }}
                             </h6>
-                        </div>
-                        <div class="card-body">
                             {{ fsc.charts.sources.getChart().render({'height':320}) | raw }}
 
                             {# Period breakdowns for sources (30/90/365) #}
@@ -295,13 +287,11 @@
             {% if fsc.isEnabledCRM %}
                 <div class="col-xl-3 col-md-6 d-flex">
                     <div class="card shadow-sm mb-4 w-100 h-100">
-                        <div class="card-header py-3 text-center">
-                            <h6 class="m-0 font-weight-bold text-primary">
+                        <div class="card-body">
+                            <h6 class="font-weight-bold text-primary mb-3">
                                 <i class="fa-solid fa-tags me-1"></i>
                                 {{ trans('interests') }}
                             </h6>
-                        </div>
-                        <div class="card-body">
                             {{ fsc.charts.interests.getChart().render({'height':320}) | raw }}
 
                             {# Period breakdowns for interests (30/90/365) #}

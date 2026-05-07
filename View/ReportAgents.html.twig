@@ -39,7 +39,7 @@
                     <button class="nav-link" id="tab-estimates-btn" data-bs-toggle="pill"
                             data-bs-target="#tab-estimates" type="button" role="tab">
                         <i class="fa-solid fa-file-lines me-1"></i>
-                        {{ trans('estimates') }}
+                        {{ trans('estimations') }}
                     </button>
                 </li>
                 {% if fsc.comisionesEnabled %}
@@ -63,39 +63,33 @@
                 <div class="row">
                     <div class="col-xl-4 col-lg-5 mb-4 d-flex">
                         <div class="card shadow-sm w-100">
-                            <div class="card-header py-3">
-                                <h6 class="m-0 font-weight-bold text-primary">
-                                    <i class="fa-solid fa-file-invoice me-1"></i>
-                                    {{ trans('invoices-by-agent') }}
-                                </h6>
-                            </div>
                             <div class="card-body">
+                                <h6 class="font-weight-bold text-primary mb-3">
+                                    <i class="fa-solid fa-file-invoice me-1"></i>
+                                    {{ trans('by-agent') }}
+                                </h6>
                                 {{ fsc.facturas.getChart().render({'height': 260}) | raw }}
                             </div>
                         </div>
                     </div>
                     <div class="col-xl-8 col-lg-7 mb-4 d-flex">
                         <div class="card shadow-sm w-100">
-                            <div class="card-header py-3">
-                                <h6 class="m-0 font-weight-bold text-primary">
-                                    <i class="fa-solid fa-chart-bar me-1"></i>
-                                    {{ trans('invoices-by-month') }}
-                                </h6>
-                            </div>
                             <div class="card-body">
+                                <h6 class="font-weight-bold text-primary mb-3">
+                                    <i class="fa-solid fa-chart-bar me-1"></i>
+                                    {{ trans('by-month') }}
+                                </h6>
                                 {{ fsc.facturasByMonth.getChart().render({'height': 260}) | raw }}
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="card shadow-sm mb-4">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">
-                            <i class="fa-solid fa-chart-column me-1"></i>
-                            {{ trans('invoices-by-year') }}
-                        </h6>
-                    </div>
                     <div class="card-body">
+                        <h6 class="font-weight-bold text-primary mb-3">
+                            <i class="fa-solid fa-chart-column me-1"></i>
+                            {{ trans('by-year') }}
+                        </h6>
                         {{ fsc.facturasByYear.getChart().render({'height': 350}) | raw }}
                     </div>
                 </div>
@@ -106,39 +100,33 @@
                 <div class="row">
                     <div class="col-xl-4 col-lg-5 mb-4 d-flex">
                         <div class="card shadow-sm w-100">
-                            <div class="card-header py-3">
-                                <h6 class="m-0 font-weight-bold text-primary">
-                                    <i class="fa-solid fa-truck me-1"></i>
-                                    {{ trans('delivery-notes-by-agent') }}
-                                </h6>
-                            </div>
                             <div class="card-body">
+                                <h6 class="font-weight-bold text-primary mb-3">
+                                    <i class="fa-solid fa-truck me-1"></i>
+                                    {{ trans('by-agent') }}
+                                </h6>
                                 {{ fsc.albaranes.getChart().render({'height': 260}) | raw }}
                             </div>
                         </div>
                     </div>
                     <div class="col-xl-8 col-lg-7 mb-4 d-flex">
                         <div class="card shadow-sm w-100">
-                            <div class="card-header py-3">
-                                <h6 class="m-0 font-weight-bold text-primary">
-                                    <i class="fa-solid fa-chart-bar me-1"></i>
-                                    {{ trans('delivery-notes-by-month') }}
-                                </h6>
-                            </div>
                             <div class="card-body">
+                                <h6 class="font-weight-bold text-primary mb-3">
+                                    <i class="fa-solid fa-chart-bar me-1"></i>
+                                    {{ trans('by-month') }}
+                                </h6>
                                 {{ fsc.albaranesByMonth.getChart().render({'height': 260}) | raw }}
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="card shadow-sm mb-4">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">
-                            <i class="fa-solid fa-chart-column me-1"></i>
-                            {{ trans('delivery-notes-by-year') }}
-                        </h6>
-                    </div>
                     <div class="card-body">
+                        <h6 class="font-weight-bold text-primary mb-3">
+                            <i class="fa-solid fa-chart-column me-1"></i>
+                            {{ trans('by-year') }}
+                        </h6>
                         {{ fsc.albaranesByYear.getChart().render({'height': 350}) | raw }}
                     </div>
                 </div>
@@ -149,39 +137,33 @@
                 <div class="row">
                     <div class="col-xl-4 col-lg-5 mb-4 d-flex">
                         <div class="card shadow-sm w-100">
-                            <div class="card-header py-3">
-                                <h6 class="m-0 font-weight-bold text-primary">
-                                    <i class="fa-solid fa-cart-shopping me-1"></i>
-                                    {{ trans('orders-by-agent') }}
-                                </h6>
-                            </div>
                             <div class="card-body">
+                                <h6 class="font-weight-bold text-primary mb-3">
+                                    <i class="fa-solid fa-cart-shopping me-1"></i>
+                                    {{ trans('by-agent') }}
+                                </h6>
                                 {{ fsc.pedidos.getChart().render({'height': 260}) | raw }}
                             </div>
                         </div>
                     </div>
                     <div class="col-xl-8 col-lg-7 mb-4 d-flex">
                         <div class="card shadow-sm w-100">
-                            <div class="card-header py-3">
-                                <h6 class="m-0 font-weight-bold text-primary">
-                                    <i class="fa-solid fa-chart-bar me-1"></i>
-                                    {{ trans('orders-by-month') }}
-                                </h6>
-                            </div>
                             <div class="card-body">
+                                <h6 class="font-weight-bold text-primary mb-3">
+                                    <i class="fa-solid fa-chart-bar me-1"></i>
+                                    {{ trans('by-month') }}
+                                </h6>
                                 {{ fsc.pedidosByMonth.getChart().render({'height': 260}) | raw }}
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="card shadow-sm mb-4">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">
-                            <i class="fa-solid fa-chart-column me-1"></i>
-                            {{ trans('orders-by-year') }}
-                        </h6>
-                    </div>
                     <div class="card-body">
+                        <h6 class="font-weight-bold text-primary mb-3">
+                            <i class="fa-solid fa-chart-column me-1"></i>
+                            {{ trans('by-year') }}
+                        </h6>
                         {{ fsc.pedidosByYear.getChart().render({'height': 350}) | raw }}
                     </div>
                 </div>
@@ -192,39 +174,33 @@
                 <div class="row">
                     <div class="col-xl-4 col-lg-5 mb-4 d-flex">
                         <div class="card shadow-sm w-100">
-                            <div class="card-header py-3">
-                                <h6 class="m-0 font-weight-bold text-primary">
-                                    <i class="fa-solid fa-file-lines me-1"></i>
-                                    {{ trans('estimates-by-agent') }}
-                                </h6>
-                            </div>
                             <div class="card-body">
+                                <h6 class="font-weight-bold text-primary mb-3">
+                                    <i class="fa-solid fa-file-lines me-1"></i>
+                                    {{ trans('by-agent') }}
+                                </h6>
                                 {{ fsc.presupuestos.getChart().render({'height': 260}) | raw }}
                             </div>
                         </div>
                     </div>
                     <div class="col-xl-8 col-lg-7 mb-4 d-flex">
                         <div class="card shadow-sm w-100">
-                            <div class="card-header py-3">
-                                <h6 class="m-0 font-weight-bold text-primary">
-                                    <i class="fa-solid fa-chart-bar me-1"></i>
-                                    {{ trans('estimates-by-month') }}
-                                </h6>
-                            </div>
                             <div class="card-body">
+                                <h6 class="font-weight-bold text-primary mb-3">
+                                    <i class="fa-solid fa-chart-bar me-1"></i>
+                                    {{ trans('by-month') }}
+                                </h6>
                                 {{ fsc.presupuestosByMonth.getChart().render({'height': 260}) | raw }}
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="card shadow-sm mb-4">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">
-                            <i class="fa-solid fa-chart-column me-1"></i>
-                            {{ trans('estimates-by-year') }}
-                        </h6>
-                    </div>
                     <div class="card-body">
+                        <h6 class="font-weight-bold text-primary mb-3">
+                            <i class="fa-solid fa-chart-column me-1"></i>
+                            {{ trans('by-year') }}
+                        </h6>
                         {{ fsc.presupuestosByYear.getChart().render({'height': 350}) | raw }}
                     </div>
                 </div>
@@ -236,26 +212,22 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="card shadow-sm mb-4">
-                                <div class="card-header py-3">
-                                    <h6 class="m-0 font-weight-bold text-success">
-                                        <i class="fa-solid fa-hand-holding-dollar me-1"></i>
-                                        {{ trans('commissions-by-month') }}
-                                    </h6>
-                                </div>
                                 <div class="card-body">
+                                    <h6 class="font-weight-bold text-success mb-3">
+                                        <i class="fa-solid fa-hand-holding-dollar me-1"></i>
+                                        {{ trans('by-month') }}
+                                    </h6>
                                     {{ fsc.comisionesByMonth.getChart().render({'height': 260}) | raw }}
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="card shadow-sm mb-4">
-                                <div class="card-header py-3">
-                                    <h6 class="m-0 font-weight-bold text-success">
-                                        <i class="fa-solid fa-chart-column me-1"></i>
-                                        {{ trans('commissions-by-year') }}
-                                    </h6>
-                                </div>
                                 <div class="card-body">
+                                    <h6 class="font-weight-bold text-success mb-3">
+                                        <i class="fa-solid fa-chart-column me-1"></i>
+                                        {{ trans('by-year') }}
+                                    </h6>
                                     {{ fsc.comisionesByYear.getChart().render({'height': 350}) | raw }}
                                 </div>
                             </div>
@@ -264,26 +236,22 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="card shadow-sm mb-4">
-                                <div class="card-header py-3">
-                                    <h6 class="m-0 font-weight-bold text-info">
+                                <div class="card-body">
+                                    <h6 class="font-weight-bold text-info mb-3">
                                         <i class="fa-solid fa-money-bill-transfer me-1"></i>
                                         {{ trans('settlements-by-month') }}
                                     </h6>
-                                </div>
-                                <div class="card-body">
                                     {{ fsc.liquidacionesByMonth.getChart().render({'height': 260}) | raw }}
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="card shadow-sm mb-4">
-                                <div class="card-header py-3">
-                                    <h6 class="m-0 font-weight-bold text-info">
+                                <div class="card-body">
+                                    <h6 class="font-weight-bold text-info mb-3">
                                         <i class="fa-solid fa-chart-column me-1"></i>
                                         {{ trans('settlements-by-year') }}
                                     </h6>
-                                </div>
-                                <div class="card-body">
                                     {{ fsc.liquidacionesByYear.getChart().render({'height': 350}) | raw }}
                                 </div>
                             </div>
