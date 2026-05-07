@@ -57,15 +57,15 @@ class BarChart extends AreaChart
             . '  plotOptions: {'
             . '    bar: {'
             . '      horizontal: ' . ($horizontal ? 'true' : 'false') . ','
-            . '      borderRadius: 0,' // si se quieren redondear las barras
+            . '      borderRadius: 0,'
             . '      dataLabels: {'
             . '        position: "' . ($horizontal ? 'center' : 'top') . '",'
             . '      },'
             . '    }'
             . '  },'
             . '  dataLabels: {'
-            . '    enabled: false,' // esto en true para activar los numeritos encima de las barras
-            . '    offsetY: 0,' // poner a -20 para que los numeritos estén encima (no queda muy bien)
+            . '    enabled: false,'
+            . '    offsetY: 0,'
             . '    style: {'
             . '      fontSize: "12px",'
             . '      colors: ["#304758"]'

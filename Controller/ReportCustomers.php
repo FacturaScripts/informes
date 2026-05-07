@@ -132,8 +132,6 @@ class ReportCustomers extends Controller
         $report->xoperation = 'YEAR';
         $report->yoperation = 'COUNT_DISTINCT';
         $report->addFieldXName('');
-
-        Report::activateAdvancedReport(true);
         $report->addCustomFilter('idempresa', '=', (int)$this->idempresa);
 
         $this->charts['activeCustomersByYear'] = $report;

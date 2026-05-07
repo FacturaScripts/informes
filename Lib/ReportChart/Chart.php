@@ -142,7 +142,7 @@ abstract class Chart
                 break;
 
             case 'WEEK':
-                $xCol = "DATE_FORMAT(" . $report->xcolumn . ", '%Y-%u')";
+                $xCol = "DATE_FORMAT(" . $report->xcolumn . ", '%x-%v')";
                 break;
 
             case 'MONTH':
@@ -158,7 +158,7 @@ abstract class Chart
                 break;
 
             case 'UNIXTIME_WEEK':
-                $xCol = "DATE_FORMAT(FROM_UNIXTIME(" . $report->xcolumn . "), '%Y-%u')";
+                $xCol = "DATE_FORMAT(FROM_UNIXTIME(" . $report->xcolumn . "), '%x-%v')";
                 break;
 
             case 'UNIXTIME_MONTH':
@@ -208,11 +208,11 @@ abstract class Chart
                 break;
 
             case 'DAY':
-                $xCol = "to_char(" . $report->xcolumn . ", 'YY-MM-DD')";
+                $xCol = "to_char(" . $report->xcolumn . ", 'YYYY-MM-DD')";
                 break;
 
             case 'WEEK':
-                $xCol = "to_char(" . $report->xcolumn . ", 'YY-WW')";
+                $xCol = "to_char(" . $report->xcolumn . ", 'IYYY-IW')";
                 break;
 
             case 'MONTH':
@@ -220,27 +220,27 @@ abstract class Chart
                 break;
 
             case 'MONTHS':
-                $xCol = "to_char(" . $report->xcolumn . ", 'YY-MM')";
+                $xCol = "to_char(" . $report->xcolumn . ", 'YYYY-MM')";
                 break;
 
             case 'UNIXTIME_DAY':
-                $xCol = "to_char(FROM_UNIXTIME(" . $report->xcolumn . "), 'YY-MM-DD')";
+                $xCol = "to_char(to_timestamp(" . $report->xcolumn . "), 'YYYY-MM-DD')";
                 break;
 
             case 'UNIXTIME_WEEK':
-                $xCol = "to_char(FROM_UNIXTIME(" . $report->xcolumn . "), 'YY-WW')";
+                $xCol = "to_char(to_timestamp(" . $report->xcolumn . "), 'IYYY-IW')";
                 break;
 
             case 'UNIXTIME_MONTH':
-                $xCol = "to_char(FROM_UNIXTIME(" . $report->xcolumn . "), 'YY-MM')";
+                $xCol = "to_char(to_timestamp(" . $report->xcolumn . "), 'YYYY-MM')";
                 break;
 
             case 'UNIXTIME_YEAR':
-                $xCol = "to_char(FROM_UNIXTIME(" . $report->xcolumn . "), 'YY')";
+                $xCol = "to_char(to_timestamp(" . $report->xcolumn . "), 'YYYY')";
                 break;
 
             case 'YEAR':
-                $xCol = "to_char(" . $report->xcolumn . ", 'YY')";
+                $xCol = "to_char(" . $report->xcolumn . ", 'YYYY')";
                 break;
         }
 
