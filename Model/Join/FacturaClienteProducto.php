@@ -19,7 +19,7 @@
 
 namespace FacturaScripts\Plugins\Informes\Model\Join;
 
-use FacturaScripts\Core\Model\Base\JoinModel;
+use FacturaScripts\Core\Template\JoinModel;
 
 /**
  * Description of FacturaClienteProducto
