@@ -35,6 +35,8 @@ class AlbaranProveedorProducto extends FacturaProveedorProducto
         return static::MAIN_TABLE
             . ' LEFT JOIN variantes ON ' . static::MAIN_TABLE . '.referencia = variantes.referencia'
             . ' LEFT JOIN productos ON variantes.idproducto = productos.idproducto'
-            . ' LEFT JOIN albaranesprov ON albaranesprov.idalbaran = lineasalbaranesprov.idalbaran';
+            . ' LEFT JOIN albaranesprov ON albaranesprov.idalbaran = lineasalbaranesprov.idalbaran'
+            . ' LEFT JOIN stocks ON stocks.referencia = ' . static::MAIN_TABLE . '.referencia'
+            . ' AND stocks.codalmacen = ' . static::DOC_TABLE . '.codalmacen';
     }
 }

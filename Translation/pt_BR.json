@@ -1,6 +1,8 @@
 {
     "active-customers": "Clientes ativos",
     "active-customers-year": "Clientes ativos este ano",
+    "active-suppliers": "Fornecedores ativos",
+    "active-suppliers-year": "Ativos este ano",
     "active-year": "Ativos este ano",
     "amortization-intangible-assets": "Amortização de ativos intangíveis",
     "amortization-intangible-material": "Amortização de material intangível",
@@ -67,6 +69,7 @@
     "group-by-months": "Unificar por meses",
     "has-a-value": "Tem valor",
     "inactive-customers": "Clientes dados de baixa",
+    "inactive-suppliers": "Fornecedores inativos",
     "income-book": "Livro de receitas",
     "income-book-description": "Registra todas as faturas emitidas",
     "input-tax": "Imposto de Valor Agregado suportado",
@@ -80,6 +83,8 @@
     "monthly-average": "Média mensal",
     "negative": "Negativo",
     "negative-results-other-exercises": "Resultado negativo de outros exercícios",
+    "new-30-days": "Novos 30 dias",
+    "new-suppliers": "Novos fornecedores",
     "no-family": "Sem família",
     "opening": "Abertura",
     "passed-tax": "Imposto sobre o valor adicionado",
@@ -252,6 +257,7 @@
     "treasury": "Tesouro",
     "treemap": "Mapa de árvore",
     "voluntary-reserves": "Reservas voluntárias",
+    "with-debt": "Com dívida",
     "without-opening": "Sem abertura",
     "y-operation": "Operação sobre Y"
 }

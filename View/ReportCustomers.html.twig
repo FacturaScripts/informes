@@ -8,36 +8,26 @@
 
 {% block body %}
     <div class="container-fluid">
-        <div class="row mt-3">
-            <div class="col-12 text-center">
-                <h1 class="h3 mb-3 text-gray-800">
-                    <i class="fa-solid fa-users"></i>
-                    {{ trans('clients') }} - {{ trans('report') }}
-                </h1>
-            </div>
-        </div>
-
-        {# Selector de Empresa Centrado #}
-        <div class="row mb-4 justify-content-center">
-            <div class="col-auto">
-                <form action="{{ fsc.url() }}" method="get" id="reportForm">
-                    <div class="d-flex align-items-center p-2 bg-white rounded shadow-sm border">
-                        <div style="min-width: 300px;">
-                            {{ forms.simpleSelect('selectEmpresa', 'idempresa', fsc.idempresa, fsc.companies, null, 'fa-solid fa-building') }}
-                        </div>
-                    </div>
-                </form>
-            </div>
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mt-3 mb-4">
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fa-solid fa-users"></i>
+                {{ trans('clients') }} - {{ trans('report') }}
+            </h1>
+            <form action="{{ fsc.url() }}" method="get" id="reportForm" class="mb-0">
+                <div style="min-width: 300px;">
+                    {{ forms.simpleSelect('selectEmpresa', 'idempresa', fsc.idempresa, fsc.companies, null, 'fa-solid fa-building') }}
+                </div>
+            </form>
         </div>
 
         {# 1. KPIs #}
         <div class="row">
             <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
-                <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card border-left-primary shadow-sm h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">{{ trans('total-customers') }}</div>
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">{{ trans('total') }}</div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.totalCustomers }}</div>
                             </div>
                             <div class="col-auto">
@@ -48,7 +38,7 @@
                 </div>
             </div>
             <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
-                <div class="card border-left-success shadow h-100 py-2">
+                <div class="card border-left-success shadow-sm h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
@@ -63,7 +53,7 @@
                 </div>
             </div>
             <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
-                <div class="card border-left-info shadow h-100 py-2">
+                <div class="card border-left-info shadow-sm h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
@@ -78,7 +68,7 @@
                 </div>
             </div>
             <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
-                <div class="card border-left-secondary shadow h-100 py-2">
+                <div class="card border-left-secondary shadow-sm h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
@@ -93,11 +83,11 @@
                 </div>
             </div>
             <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
-                <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card border-left-warning shadow-sm h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Nuevos 30 días</div>
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">{{ trans('new-30-days') }}</div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.newCustomers30Days }}</div>
                             </div>
                             <div class="col-auto">
@@ -108,28 +98,30 @@
                 </div>
             </div>
             <div class="col-xl-2 col-md-4 col-sm-6 mb-4">
-                <div class="card border-left-danger shadow h-100 py-2">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Con deuda</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.customersWithDebt }}</div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-triangle-exclamation fa-2x text-gray-300"></i>
+                <a href="#debtors-section" class="text-decoration-none">
+                    <div class="card border-left-danger shadow-sm h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">{{ trans('with-debt') }}</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ fsc.customersWithDebt }}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-triangle-exclamation fa-2x text-gray-300"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
         </div>
 
         {# Tendencia de Nuevos Clientes #}
         <div class="row">
             <div class="col-12">
-                <div class="card shadow mb-4">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h6 class="font-weight-bold text-primary mb-3">
                             <i class="fa-solid fa-chart-area me-1"></i>
                             {{ trans('new-customers') }}
                             ({{ trans('last-12-months') }})</h6>
@@ -143,16 +135,29 @@
 
         <div class="row">
             <div class="col-12">
-                <div class="card shadow mb-4">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h6 class="font-weight-bold text-primary mb-3">
                             <i class="fa-solid fa-chart-column me-1"></i>
                             {{ trans('new-customers') }}
                             ({{ trans('year') }})
                         </h6>
-                    </div>
-                    <div class="card-body">
                         {{ fsc.charts.newCustomersByYear.getChart().render({'height':250}) | raw }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h6 class="font-weight-bold text-primary mb-3">
+                            <i class="fa-solid fa-chart-column me-1"></i>
+                            {{ trans('active-customers') }}
+                            ({{ trans('year') }})
+                        </h6>
+                        {{ fsc.charts.activeCustomersByYear.getChart().render({'height':250, 'colors':['#28a745']}) | raw }}
                     </div>
                 </div>
             </div>
@@ -161,40 +166,34 @@
         {# Distribución Geográfica y Grupos #}
         <div class="row mb-4">
             <div class="col-lg-4 d-flex">
-                <div class="card shadow mb-4 w-100 h-100">
-                    <div class="card-header py-3 text-center">
-                        <h6 class="m-0 font-weight-bold text-primary">
+                <div class="card shadow-sm mb-4 w-100 h-100">
+                    <div class="card-body">
+                        <h6 class="font-weight-bold text-primary mb-3">
                             <i class="fa-solid fa-earth-europe me-1"></i>
                             {{ trans('customers-by-country') }}
                         </h6>
-                    </div>
-                    <div class="card-body">
                         <div id="regions_div" style="min-height: 320px;"></div>
                     </div>
                 </div>
             </div>
             <div class="col-lg-4 d-flex">
-                <div class="card shadow mb-4 w-100 h-100">
-                    <div class="card-header py-3 text-center">
-                        <h6 class="m-0 font-weight-bold text-primary">
+                <div class="card shadow-sm mb-4 w-100 h-100">
+                    <div class="card-body">
+                        <h6 class="font-weight-bold text-primary mb-3">
                             <i class="fa-solid fa-map-location-dot me-1"></i>
                             {{ trans('customers-by-province') }}
                             ({{ fsc.companyCountry }})</h6>
-                    </div>
-                    <div class="card-body">
                         {{ fsc.charts.customersByProvince.getChart().render({'height':320}) | raw }}
                     </div>
                 </div>
             </div>
             <div class="col-lg-4 d-flex">
-                <div class="card shadow mb-4 w-100 h-100">
-                    <div class="card-header py-3 text-center">
-                        <h6 class="m-0 font-weight-bold text-primary">
+                <div class="card shadow-sm mb-4 w-100 h-100">
+                    <div class="card-body">
+                        <h6 class="font-weight-bold text-primary mb-3">
                             <i class="fa-solid fa-layer-group me-1"></i>
                             {{ trans('customers-by-group') }}
                         </h6>
-                    </div>
-                    <div class="card-body">
                         {{ fsc.charts.customersByGroup.getChart().render({'height':320}) | raw }}
                     </div>
                 </div>
@@ -204,14 +203,12 @@
         {# Clientes por provincia (Facturas) #}
         <div class="row">
             <div class="col-12">
-                <div class="card shadow mb-4">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h6 class="font-weight-bold text-primary mb-3">
                             <i class="fa-solid fa-map-pin me-1"></i>
                             {{ trans('customers-by-invoice-province') }}
                         </h6>
-                    </div>
-                    <div class="card-body">
                         {{ fsc.charts.invoicesByProvince.getChart().render({'height':320}) | raw }}
                     </div>
                 </div>
@@ -219,9 +216,9 @@
         </div>
 
         {# Deudores #}
-        <div class="row">
+        <div class="row" id="debtors-section">
             <div class="col-12">
-                <div class="card shadow mb-4 border-bottom-danger">
+                <div class="card shadow-sm mb-4 border-bottom-danger">
                     <div class="card-header py-3 bg-danger d-flex justify-content-between">
                         <h6 class="m-0 font-weight-bold text-white">
                             <i class="fa-solid fa-triangle-exclamation me-1"></i>

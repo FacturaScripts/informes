@@ -37,6 +37,7 @@ class BarChart extends AreaChart
         $chartId = 'chart' . $num;
         $chartHeight = isset($dataChart['height']) && $dataChart['height'] > 0 ? $dataChart['height'] : 350;
         $horizontal = !empty($dataChart['horizontal']);
+        $colors = !empty($dataChart['colors']) && is_array($dataChart['colors']) ? $dataChart['colors'] : null;
 
         $series = [];
         foreach ($data['datasets'] as $dataset) {
@@ -50,6 +51,7 @@ class BarChart extends AreaChart
             . '<script>'
             . 'var options' . $num . ' = {'
             . '  series: ' . json_encode($series) . ','
+            . ($colors ? '  colors: ' . json_encode($colors) . ',' : '')
             . '  chart: {'
             . '    height: ' . $chartHeight . ','
             . '    type: "bar",'
@@ -57,15 +59,15 @@ class BarChart extends AreaChart
             . '  plotOptions: {'
             . '    bar: {'
             . '      horizontal: ' . ($horizontal ? 'true' : 'false') . ','
-            . '      borderRadius: 0,' // si se quieren redondear las barras
+            . '      borderRadius: 0,'
             . '      dataLabels: {'
             . '        position: "' . ($horizontal ? 'center' : 'top') . '",'
             . '      },'
             . '    }'
             . '  },'
             . '  dataLabels: {'
-            . '    enabled: false,' // esto en true para activar los numeritos encima de las barras
-            . '    offsetY: 0,' // poner a -20 para que los numeritos estén encima (no queda muy bien)
+            . '    enabled: false,'
+            . '    offsetY: 0,'
             . '    style: {'
             . '      fontSize: "12px",'
             . '      colors: ["#304758"]'
@@ -73,7 +75,7 @@ class BarChart extends AreaChart
             . '  },'
             . '  xaxis: {'
             . '    categories: ' . json_encode($data['labels']) . ','
-            . '    position: "' . ($horizontal ? 'bottom' : 'top') . '",'
+            . '    position: "bottom",'
             . '    axisBorder: {'
             . '      show: false'
             . '    },'
@@ -109,8 +111,8 @@ class BarChart extends AreaChart
             . '  },'
             . '  title: {'
             . '    text: "' . $this->report->name . '",'
-            . '    floating: ' . ($horizontal ? 'false' : 'true') . ','
-            . '    offsetY: ' . ($horizontal ? 0 : ($chartHeight - 20)) . ','
+            . '    floating: false,'
+            . '    offsetY: 0,'
             . '    align: "' . ($horizontal ? 'left' : 'center') . '",'
             . '    style: {'
             . '      color: "#444"'
