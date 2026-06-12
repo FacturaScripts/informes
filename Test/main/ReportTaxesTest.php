@@ -37,6 +37,42 @@ final class ReportTaxesTest extends TestCase
     use LogErrorsTrait;
     use RandomDataTrait;
 
+    public function testIntraCommunityPurchaseKeepsVatRateButNeutralizesAmount(): void
+    {
+        if (Tools::config('codpais') !== 'ESP') {
+            $this->markTestSkipped('country-is-not-spain');
+        }
+
+        $supplier = $this->getRandomSupplier();
+        $this->assertTrue($supplier->save(), 'can-not-save-supplier');
+
+        $invoice = new FacturaProveedor();
+        $invoice->operacion = InvoiceOperation::INTRA_COMMUNITY;
+        $this->assertTrue($invoice->setSubject($supplier), 'can-not-assign-supplier');
+        $this->assertTrue($invoice->save(), 'can-not-save-invoice');
+
+        $line = $invoice->getNewLine();
+        $line->cantidad = 1;
+        $line->pvpunitario = 100;
+        $line->iva = 21;
+        $this->assertTrue($line->save(), 'can-not-save-line');
+
+        $lines = $invoice->getLines();
+        $this->assertTrue(Calculator::calculate($invoice, $lines, true), 'can-not-calculate-invoice');
+        $this->assertTrue($invoice->load($invoice->idfactura), 'can-not-reload-invoice');
+
+        $rows = ReportTaxesTestAccess::getReportRowsFromPurchaseInvoice($invoice);
+        $this->assertCount(1, $rows, 'bad-rows-count');
+        $this->assertEquals(100.0, $rows[0]['neto'], 'bad-neto');
+        $this->assertEquals(21.0, $rows[0]['iva'], 'bad-iva');
+        $this->assertEquals(0.0, $rows[0]['totaliva'], 'bad-totaliva');
+        $this->assertEquals($invoice->totaliva, array_sum(array_column($rows, 'totaliva')), 'bad-report-totaliva');
+
+        $this->assertTrue($invoice->delete(), 'can-not-delete-invoice');
+        $this->assertTrue($supplier->getDefaultAddress()->delete(), 'contacto-cant-delete');
+        $this->assertTrue($supplier->delete(), 'supplier-cant-delete');
+    }
+
     public function testIntraCommunitySaleUsesSameTaxBreakdownAsInvoice(): void
     {
         if (Tools::config('codpais') !== 'ESP') {
@@ -73,7 +109,7 @@ final class ReportTaxesTest extends TestCase
         $this->assertTrue($customer->delete(), 'customer-cant-delete');
     }
 
-    public function testIntraCommunityPurchaseKeepsVatRateButNeutralizesAmount(): void
+    public function testPurchaseReportQueryReturnsInvoiceOnceWithMatchingVat(): void
     {
         if (Tools::config('codpais') !== 'ESP') {
             $this->markTestSkipped('country-is-not-spain');
@@ -83,26 +119,40 @@ final class ReportTaxesTest extends TestCase
         $this->assertTrue($supplier->save(), 'can-not-save-supplier');
 
         $invoice = new FacturaProveedor();
-        $invoice->operacion = InvoiceOperation::INTRA_COMMUNITY;
         $this->assertTrue($invoice->setSubject($supplier), 'can-not-assign-supplier');
         $this->assertTrue($invoice->save(), 'can-not-save-invoice');
 
-        $line = $invoice->getNewLine();
-        $line->cantidad = 1;
-        $line->pvpunitario = 100;
-        $line->iva = 21;
-        $this->assertTrue($line->save(), 'can-not-save-line');
+        // dos líneas para comprobar que la factura no se duplica en el informe
+        $line1 = $invoice->getNewLine();
+        $line1->cantidad = 1;
+        $line1->pvpunitario = 100;
+        $line1->iva = 21;
+        $this->assertTrue($line1->save(), 'can-not-save-line-1');
+
+        $line2 = $invoice->getNewLine();
+        $line2->cantidad = 1;
+        $line2->pvpunitario = 50;
+        $line2->iva = 21;
+        $this->assertTrue($line2->save(), 'can-not-save-line-2');
 
         $lines = $invoice->getLines();
         $this->assertTrue(Calculator::calculate($invoice, $lines, true), 'can-not-calculate-invoice');
         $this->assertTrue($invoice->load($invoice->idfactura), 'can-not-reload-invoice');
 
-        $rows = ReportTaxesTestAccess::getReportRowsFromPurchaseInvoice($invoice);
-        $this->assertCount(1, $rows, 'bad-rows-count');
-        $this->assertEquals(100.0, $rows[0]['neto'], 'bad-neto');
-        $this->assertEquals(21.0, $rows[0]['iva'], 'bad-iva');
-        $this->assertEquals(0.0, $rows[0]['totaliva'], 'bad-totaliva');
-        $this->assertEquals($invoice->totaliva, array_sum(array_column($rows, 'totaliva')), 'bad-report-totaliva');
+        $rows = ReportTaxesTestAccess::getReportRowsFromPurchaseQuery($invoice);
+
+        // la factura aparece una sola vez (todas las filas son del mismo código)
+        $codes = array_unique(array_column($rows, 'codigo'));
+        $this->assertCount(1, $codes, 'invoice-should-appear-once');
+        $this->assertEquals($invoice->codigo, $codes[0], 'bad-invoice-code');
+
+        // el IVA del informe coincide con el de la factura
+        $reportVat = array_sum(array_column($rows, 'totaliva'));
+        $this->assertEquals($invoice->totaliva, $reportVat, 'bad-report-totaliva');
+
+        // el neto del informe coincide con el de la factura
+        $reportNet = array_sum(array_column($rows, 'neto'));
+        $this->assertEquals($invoice->neto, $reportNet, 'bad-report-neto');
 
         $this->assertTrue($invoice->delete(), 'can-not-delete-invoice');
         $this->assertTrue($supplier->getDefaultAddress()->delete(), 'contacto-cant-delete');
@@ -304,6 +354,21 @@ class ReportTaxesTestAccess extends ReportTaxes
             'cifnif' => $invoice->cifnif,
             'total' => $invoice->total,
         ], $invoice);
+    }
+
+    public static function getReportRowsFromPurchaseQuery(FacturaProveedor $invoice): array
+    {
+        $controller = new self('ReportTaxes');
+        $controller->source = 'purchases';
+        $controller->typeDate = 'create';
+        $controller->idempresa = $invoice->idempresa;
+        $controller->coddivisa = $invoice->coddivisa;
+        $controller->datefrom = $invoice->fecha;
+        $controller->dateto = $invoice->fecha;
+        $controller->codserie = '';
+        $controller->codpais = '';
+
+        return $controller->getReportData();
     }
 
     public static function getReportRowsFromSalesInvoice(FacturaCliente $invoice): array

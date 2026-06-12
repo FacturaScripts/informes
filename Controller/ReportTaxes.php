@@ -53,12 +53,6 @@ class ReportTaxes extends Controller
     /** @var string */
     public $codserie;
 
-    /** @var array */
-    protected $columns = [];
-
-    /** @var array */
-    protected $calculatedByInvoice = [];
-
     /** @var string */
     public $datefrom;
 
@@ -85,6 +79,12 @@ class ReportTaxes extends Controller
 
     /** @var string */
     public $typeDate;
+
+    /** @var array */
+    protected $calculatedByInvoice = [];
+
+    /** @var array */
+    protected $columns = [];
 
     public function getPageData(): array
     {
@@ -449,11 +449,9 @@ class ReportTaxes extends Controller
         $columnDate = $this->typeDate === 'create' ? 'f.fecha' : 'COALESCE(f.fechadevengo, f.fecha)';
         switch ($this->source) {
             case 'purchases':
-                $sql .= 'SELECT f.codserie, f.codigo, f.numproveedor, f.fecha, f.fechadevengo, f.nombre, f.cifnif, l.pvptotal,'
-                    . ' l.iva, l.recargo, l.irpf, l.suplido, f.dtopor1, f.dtopor2, f.total, f.operacion, f.codpago, pr.codsubcuenta,'
-                    . ' c.ciudad, c.provincia, c.codpostal, c.codpais'
-                    . ' FROM lineasfacturasprov AS l'
-                    . ' LEFT JOIN facturasprov AS f ON l.idfactura = f.idfactura '
+                $sql = 'SELECT f.idfactura, f.codserie, f.codigo, f.numproveedor, f.fecha, f.fechadevengo, f.nombre,'
+                    . ' f.cifnif, f.total, f.codpago, pr.codsubcuenta, c.ciudad, c.provincia, c.codpostal, c.codpais'
+                    . ' FROM facturasprov AS f'
                     . ' LEFT JOIN proveedores AS pr ON f.codproveedor = pr.codproveedor'
                     . ' LEFT JOIN contactos AS c ON pr.idcontacto = c.idcontacto'
                     . ' WHERE f.idempresa = ' . $this->dataBase->var2str($this->idempresa)
@@ -466,7 +464,7 @@ class ReportTaxes extends Controller
 
             case 'sales':
                 $sql = 'SELECT f.idfactura, f.codserie, f.codigo, f.numero2, f.fecha, f.fechadevengo, f.nombrecliente AS nombre,'
-                    . ' f.cifnif, f.total, f.codpais, cl.codsubcuenta, f.ciudad, f.provincia, f.codpostal'
+                    . ' f.cifnif, f.total, f.codpago, f.codpais, cl.codsubcuenta, f.ciudad, f.provincia, f.codpostal'
                     . ' FROM facturascli AS f'
                     . ' LEFT JOIN clientes AS cl ON f.codcliente = cl.codcliente'
                     . ' WHERE f.idempresa = ' . $this->dataBase->var2str($this->idempresa)
@@ -588,6 +586,7 @@ class ReportTaxes extends Controller
             'nombre' => $invoiceData['nombre'],
             'codsubcuenta' => $invoiceData['codsubcuenta'] ?? null,
             'cifnif' => $invoiceData['cifnif'],
+            'codpago' => $invoiceData['codpago'] ?? null,
             'neto' => Tools::round($neto),
             'iva' => $iva,
             'totaliva' => Tools::round($totalIva),
