@@ -1,9 +1,10 @@
 {
     "active-customers": "Clienti attivi",
     "active-customers-year": "Clienti attivi quest'anno",
-    "active-suppliers": "Fornitori attivi",
-    "active-suppliers-year": "Fornitori attivi quest'anno",
+    "active-suppliers": "Attivi",
+    "active-suppliers-year": "Attivi quest'anno",
     "active-year": "Attivi quest'anno",
+    "agents-report": "Rapporto agenti",
     "amortization-intangible-assets": "Ammortamenti immateriali",
     "amortization-intangible-material": "Ammortamenti materiali",
     "annual-result": "Risultato annuale",
@@ -36,6 +37,7 @@
     "bars": "Barre",
     "books": "Libri",
     "books-p": "Libri contabili per lavoratori autonomi",
+    "by-month": "Per mese",
     "calculated-net-diff": "Differenza riscontrata nel calcolo del netto delle fatture %invoices%: %net% - %net2%",
     "calculated-surcharge-diff": "Differenza riscontrata nel calcolo della maggiorazione di equivalenza delle fatture %invoices%: %surcharge% - %surcharge2%",
     "calculated-tax-diff": "Differenza riscontrata nel calcolo dell'IVA delle fatture %invoices%: %tax% - %tax2%",
@@ -73,7 +75,6 @@
     "income-book": "Libro delle entrate",
     "income-book-description": "Registra tutte le fatture emesse",
     "input-tax": "IVA deducibile",
-    "last-12-months": "Ultimi 12 mesi",
     "legal-reserve": "Riserva legale",
     "map": "Mappa",
     "marketing-permission": "Autorizzazione alla commercializzazione",
@@ -257,7 +258,7 @@
     "treasury": "Tesoreria",
     "treemap": "Mappa dell'albero",
     "voluntary-reserves": "riserve volontarie",
-    "with-debt": "In debito",
+    "with-debt": "Con debito",
     "without-opening": "Senza apertura",
     "y-operation": "Operazione su Y"
 }
