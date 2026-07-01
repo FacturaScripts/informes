@@ -98,11 +98,30 @@ class ReportResult extends Controller
 
     protected function loadCurrentExercise(): void
     {
-        foreach ($this->user->getCompany()->getExercises() as $exercise) {
-            if (date('Y', strtotime($exercise->fechafin)) === date('Y')) {
+        // el usuario puede no tener empresa asignada (idempresa null),
+        // en ese caso usamos la empresa predeterminada
+        $company = $this->user->getCompany();
+        if (empty($company->idempresa)) {
+            $company = Empresas::default();
+        }
+
+        $currentYear = date('Y');
+        $fallback = null;
+        foreach ($company->getExercises() as $exercise) {
+            // preferimos el ejercicio del año en curso
+            if (date('Y', strtotime($exercise->fechafin)) === $currentYear) {
                 $this->codejercicio = $exercise->codejercicio;
-                break;
+                return;
             }
+
+            // si no hay del año en curso, nos quedamos con el más reciente por fecha de fin
+            if (null === $fallback || strtotime($exercise->fechafin) > strtotime($fallback->fechafin)) {
+                $fallback = $exercise;
+            }
+        }
+
+        if (null !== $fallback) {
+            $this->codejercicio = $fallback->codejercicio;
         }
     }
 
