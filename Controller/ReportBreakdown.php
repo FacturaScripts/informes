@@ -19,8 +19,8 @@
 
 namespace FacturaScripts\Plugins\Informes\Controller;
 
-use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Core\DataSrc\Empresas;
+use FacturaScripts\Core\Template\Controller;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Lib\ExportManager;
@@ -206,16 +206,16 @@ class ReportBreakdown extends Controller
         return $this->urlProductCache[$referencia] = $referencia;
     }
 
-    public function privateCore(&$response, $user, $permissions)
+    public function run(): void
     {
-        parent::privateCore($response, $user, $permissions);
+        parent::run();
 
-        $action = $this->request->input('action', '');
+        $action = $this->request()->input('action', '');
         switch ($action) {
             case 'autocomplete-shipping-address':
             case 'autocomplete-billing-address':
                 $this->autocompleteCustomerAddressAction();
-                break;
+                return;
 
             case 'autocomplete-customer':
                 $this->autocompleteCustomerAction();
@@ -247,19 +247,24 @@ class ReportBreakdown extends Controller
 
                 // solo generamos el informe cuando el usuario envía el formulario (POST),
                 // así al abrir la página no se muestran resultados
-                if ($this->request->isMethod('POST')) {
+                if ($this->request()->isMethod('POST')) {
                     $this->generarInforme();
+
+                    // si el informe se ha exportado (XLS/PDF) la respuesta ya se ha enviado
+                    if (in_array($this->format, ['XLS', 'PDF'], true)) {
+                        return;
+                    }
                 }
+
+                $this->view('ReportBreakdown.html.twig');
         }
     }
 
     protected function autocompleteCustomerAction(): void
     {
-        $this->setTemplate(false);
-
         $list = [];
         $cliente = new Cliente();
-        $query = $this->request->input('query');
+        $query = $this->request()->input('query');
         foreach ($cliente->codeModelSearch($query, 'codcliente') as $value) {
             $list[] = [
                 'key' => Tools::fixHtml($value->code),
@@ -271,17 +276,15 @@ class ReportBreakdown extends Controller
             $list[] = ['key' => null, 'value' => Tools::trans('no-data')];
         }
 
-        $this->response->setContent(json_encode($list));
+        $this->response()->json($list);
     }
 
     protected function autocompleteCustomerAddressAction(): void
     {
-        $this->setTemplate(false);
-
         $list = [];
         $where = [
-            Where::eq('codcliente', $this->request->input('customer')),
-            Where::like('direccion', $this->request->input('query'))
+            Where::eq('codcliente', $this->request()->input('customer')),
+            Where::like('direccion', $this->request()->input('query'))
         ];
         $orderBy = ['apellidos' => 'ASC', 'nombre' => 'ASC'];
         foreach (Contacto::all($where, $orderBy) as $contacto) {
@@ -295,16 +298,14 @@ class ReportBreakdown extends Controller
             $list[] = ['key' => null, 'value' => Tools::trans('no-data')];
         }
 
-        $this->response->setContent(json_encode($list));
+        $this->response()->json($list);
     }
 
     protected function autocompleteSupplierAction(): void
     {
-        $this->setTemplate(false);
-
         $list = [];
         $proveedor = new Proveedor();
-        $query = $this->request->input('query');
+        $query = $this->request()->input('query');
         foreach ($proveedor->codeModelSearch($query, 'codproveedor') as $value) {
             $list[] = [
                 'key' => Tools::fixHtml($value->code),
@@ -316,16 +317,14 @@ class ReportBreakdown extends Controller
             $list[] = ['key' => null, 'value' => Tools::trans('no-data')];
         }
 
-        $this->response->setContent(json_encode($list));
+        $this->response()->json($list);
     }
 
     protected function autocompleteVariantAction(): void
     {
-        $this->setTemplate(false);
-
         $list = [];
         $variant = new Variante();
-        $query = $this->request->input('query');
+        $query = $this->request()->input('query');
         foreach ($variant->codeModelSearch($query, 'referencia') as $value) {
             $list[] = [
                 'key' => Tools::fixHtml($value->code),
@@ -337,7 +336,7 @@ class ReportBreakdown extends Controller
             $list[] = ['key' => null, 'value' => Tools::trans('no-data')];
         }
 
-        $this->response->setContent(json_encode($list));
+        $this->response()->json($list);
     }
 
     protected function buildDocumentExportRows(
@@ -558,7 +557,6 @@ class ReportBreakdown extends Controller
 
     protected function generarInformeExport(): void
     {
-        $this->setTemplate(false);
         $exportManager = new ExportManager();
         $exportManager->setOrientation('landscape');
         $exportManager->newDoc($this->format, $this->getTitleExport());
@@ -597,7 +595,9 @@ class ReportBreakdown extends Controller
         ];
         $exportManager->addTablePage($documentHeaders, $documentRows, $documentOptions, Tools::trans($this->type));
 
-        $exportManager->show($this->response);
+        $response = $this->response();
+        $exportManager->show($response);
+        $response->send();
     }
 
     protected function getDatosAgrupados(array $data, array $keys, string $valueField = 'total'): array
@@ -743,37 +743,37 @@ class ReportBreakdown extends Controller
         $sql = '';
 
         if ($this->codalmacen) {
-            $sql .= " AND d.codalmacen = " . $this->dataBase->var2str($this->codalmacen);
+            $sql .= " AND d.codalmacen = " . $this->db()->var2str($this->codalmacen);
         }
 
         if ($this->coddivisa) {
-            $sql .= " AND d.coddivisa = " . $this->dataBase->var2str($this->coddivisa);
+            $sql .= " AND d.coddivisa = " . $this->db()->var2str($this->coddivisa);
         }
 
         if ($this->codpago) {
-            $sql .= " AND d.codpago = " . $this->dataBase->var2str($this->codpago);
+            $sql .= " AND d.codpago = " . $this->db()->var2str($this->codpago);
         }
 
         if ($this->codserie) {
-            $sql .= " AND d.codserie = " . $this->dataBase->var2str($this->codserie);
+            $sql .= " AND d.codserie = " . $this->db()->var2str($this->codserie);
         }
 
         if (!empty($this->proveedor->id())) {
-            $sql .= " AND d.codproveedor = " . $this->dataBase->var2str($this->proveedor->id());
+            $sql .= " AND d.codproveedor = " . $this->db()->var2str($this->proveedor->id());
         }
 
         if ($this->purchase_minimo) {
-            $sql .= " AND d.neto > " . $this->dataBase->var2str($this->purchase_minimo);
+            $sql .= " AND d.neto > " . $this->db()->var2str($this->purchase_minimo);
         }
 
         if (!empty($this->variant->id())) {
             if ($withLineAlias) {
-                $sql .= " AND l.referencia = " . $this->dataBase->var2str($this->variant->referencia);
+                $sql .= " AND l.referencia = " . $this->db()->var2str($this->variant->referencia);
             } else {
                 $lineTable = $this->type === 'invoices' ? 'lineasfacturasprov' : 'lineasalbaranesprov';
                 $code = $this->type === 'invoices' ? 'idfactura' : 'idalbaran';
                 $sql .= " AND d." . $code . " IN (SELECT " . $code . " FROM " . $lineTable
-                    . " WHERE referencia = " . $this->dataBase->var2str($this->variant->referencia) . ")";
+                    . " WHERE referencia = " . $this->db()->var2str($this->variant->referencia) . ")";
             }
         }
 
@@ -788,13 +788,13 @@ class ReportBreakdown extends Controller
         $sql = "SELECT d." . $code . " as id, d.codigo, d.codproveedor, d.nombre, d.fecha,"
             . " EXTRACT(YEAR FROM d.fecha) as anyo, EXTRACT(MONTH FROM d.fecha) as mes, d.neto, d.total"
             . " FROM " . $table . " d"
-            . " WHERE d.fecha >= " . $this->dataBase->var2str($this->desde)
-            . " AND d.fecha <= " . $this->dataBase->var2str($this->hasta)
-            . " AND d.idempresa = " . $this->dataBase->var2str($this->idempresa)
+            . " WHERE d.fecha >= " . $this->db()->var2str($this->desde)
+            . " AND d.fecha <= " . $this->db()->var2str($this->hasta)
+            . " AND d.idempresa = " . $this->db()->var2str($this->idempresa)
             . $this->getInformeComprasDataWhere(false)
             . " ORDER BY d.fecha ASC, d.hora ASC;";
 
-        return $this->dataBase->select($sql);
+        return $this->db()->select($sql);
     }
 
     protected function getInformeComprasUnidadesData(): array
@@ -810,16 +810,16 @@ class ReportBreakdown extends Controller
             . " FROM " . $table . " d, " . $line . " l"
             . " WHERE l." . $code . " = d." . $code
             . " AND l.referencia IS NOT NULL"
-            . " AND d.idempresa = " . $this->dataBase->var2str($this->idempresa)
-            . " AND d.fecha >= " . $this->dataBase->var2str($this->desde)
-            . " AND d.fecha <= " . $this->dataBase->var2str($this->hasta)
+            . " AND d.idempresa = " . $this->db()->var2str($this->idempresa)
+            . " AND d.fecha >= " . $this->db()->var2str($this->desde)
+            . " AND d.fecha <= " . $this->db()->var2str($this->hasta)
             . $this->getInformeComprasDataWhere()
             . " GROUP BY d.codproveedor, d.nombre, l.referencia,"
             . " EXTRACT(YEAR FROM d.fecha), EXTRACT(MONTH FROM d.fecha)"
             . " ORDER BY d.codproveedor ASC, l.referencia ASC,"
             . " EXTRACT(YEAR FROM d.fecha) DESC, EXTRACT(MONTH FROM d.fecha) DESC;";
 
-        $data = $this->dataBase->select($sql);
+        $data = $this->db()->select($sql);
         if (empty($data)) {
             return [];
         }
@@ -832,57 +832,57 @@ class ReportBreakdown extends Controller
     {
         $sql = '';
         if (!empty($this->cliente->id())) {
-            $sql .= " AND d.codcliente = " . $this->dataBase->var2str($this->cliente->id());
+            $sql .= " AND d.codcliente = " . $this->db()->var2str($this->cliente->id());
         }
 
         if (!empty($this->billingAddress->id())) {
-            $sql .= " AND d.idcontactofact = " . $this->dataBase->var2str($this->billingAddress->id());
+            $sql .= " AND d.idcontactofact = " . $this->db()->var2str($this->billingAddress->id());
         }
 
         if (!empty($this->shippingAddress->id())) {
-            $sql .= " AND d.idcontactoenv = " . $this->dataBase->var2str($this->shippingAddress->id());
+            $sql .= " AND d.idcontactoenv = " . $this->db()->var2str($this->shippingAddress->id());
         }
 
         if ($this->codagente) {
-            $sql .= " AND d.codagente = " . $this->dataBase->var2str($this->codagente);
+            $sql .= " AND d.codagente = " . $this->db()->var2str($this->codagente);
         }
 
         if ($this->codalmacen) {
-            $sql .= " AND d.codalmacen = " . $this->dataBase->var2str($this->codalmacen);
+            $sql .= " AND d.codalmacen = " . $this->db()->var2str($this->codalmacen);
         }
 
         if ($this->coddivisa) {
-            $sql .= " AND d.coddivisa = " . $this->dataBase->var2str($this->coddivisa);
+            $sql .= " AND d.coddivisa = " . $this->db()->var2str($this->coddivisa);
         }
 
         if ($this->codpago) {
-            $sql .= " AND d.codpago = " . $this->dataBase->var2str($this->codpago);
+            $sql .= " AND d.codpago = " . $this->db()->var2str($this->codpago);
         }
 
         if ($this->codpais) {
-            $sql .= " AND d.codpais = " . $this->dataBase->var2str($this->codpais);
+            $sql .= " AND d.codpais = " . $this->db()->var2str($this->codpais);
         }
 
         if ($this->codserie) {
-            $sql .= " AND d.codserie = " . $this->dataBase->var2str($this->codserie);
+            $sql .= " AND d.codserie = " . $this->db()->var2str($this->codserie);
         }
 
         if ($this->provincia) {
-            $sql .= " AND lower(d.provincia) = lower(" . $this->dataBase->var2str($this->provincia) . ")";
+            $sql .= " AND lower(d.provincia) = lower(" . $this->db()->var2str($this->provincia) . ")";
         }
 
         if ($this->sale_minimo) {
-            $sql .= " AND d.neto > " . $this->dataBase->var2str($this->sale_minimo);
+            $sql .= " AND d.neto > " . $this->db()->var2str($this->sale_minimo);
         }
 
         if (!empty($this->variant->id())) {
             if ($withLineAlias) {
-                $sql .= " AND l.referencia = " . $this->dataBase->var2str($this->variant->referencia);
+                $sql .= " AND l.referencia = " . $this->db()->var2str($this->variant->referencia);
             } else {
                 $lineTable = $this->type === 'invoices' ? 'lineasfacturascli' : 'lineasalbaranescli';
                 $code = $this->type === 'invoices' ? 'idfactura' : 'idalbaran';
                 $sql .= " AND d." . $code . " IN (SELECT " . $code . " FROM " . $lineTable
-                    . " WHERE referencia = " . $this->dataBase->var2str($this->variant->referencia) . ")";
+                    . " WHERE referencia = " . $this->db()->var2str($this->variant->referencia) . ")";
             }
         }
 
@@ -897,13 +897,13 @@ class ReportBreakdown extends Controller
         $sql = "SELECT d." . $code . " as id, d.codigo, d.codcliente, d.nombrecliente, d.fecha,"
             . " EXTRACT(YEAR FROM d.fecha) as anyo, EXTRACT(MONTH FROM d.fecha) as mes, d.neto, d.total"
             . " FROM " . $table . " d"
-            . " WHERE d.fecha >= " . $this->dataBase->var2str($this->desde)
-            . " AND d.fecha <= " . $this->dataBase->var2str($this->hasta)
-            . " AND d.idempresa = " . $this->dataBase->var2str($this->idempresa)
+            . " WHERE d.fecha >= " . $this->db()->var2str($this->desde)
+            . " AND d.fecha <= " . $this->db()->var2str($this->hasta)
+            . " AND d.idempresa = " . $this->db()->var2str($this->idempresa)
             . $this->getInformeVentasDataWhere(false)
             . " ORDER BY d.fecha ASC, d.hora ASC;";
 
-        return $this->dataBase->select($sql);
+        return $this->db()->select($sql);
     }
 
     protected function getInformeVentasUnidadesData(): array
@@ -919,16 +919,16 @@ class ReportBreakdown extends Controller
             . " FROM " . $table . " d, " . $line . " l"
             . " WHERE l." . $code . " = d." . $code
             . " AND l.referencia IS NOT NULL"
-            . " AND d.idempresa = " . $this->dataBase->var2str($this->idempresa)
-            . " AND d.fecha >= " . $this->dataBase->var2str($this->desde)
-            . " AND d.fecha <= " . $this->dataBase->var2str($this->hasta)
+            . " AND d.idempresa = " . $this->db()->var2str($this->idempresa)
+            . " AND d.fecha >= " . $this->db()->var2str($this->desde)
+            . " AND d.fecha <= " . $this->db()->var2str($this->hasta)
             . $this->getInformeVentasDataWhere()
             . " GROUP BY d.codcliente, d.nombrecliente, l.referencia,"
             . " EXTRACT(YEAR FROM d.fecha), EXTRACT(MONTH FROM d.fecha)"
             . " ORDER BY d.codcliente ASC, l.referencia ASC,"
             . " EXTRACT(YEAR FROM d.fecha) DESC, EXTRACT(MONTH FROM d.fecha) DESC;";
 
-        $data = $this->dataBase->select($sql);
+        $data = $this->db()->select($sql);
         if (empty($data)) {
             return [];
         }
@@ -958,28 +958,24 @@ class ReportBreakdown extends Controller
 
     protected function getPaymentMethods(): void
     {
-        $this->setTemplate(false);
-
         $html = '<option value="">------</option>';
-        $this->idempresa = $this->request->input('idempresa');
+        $this->idempresa = $this->request()->input('idempresa');
         $where = [Where::eq('idempresa', $this->idempresa)];
         foreach (FormaPago::all($where) as $paymentMethod) {
             $html .= '<option value="' . $paymentMethod->codpago . '">' . Tools::fixHtml($paymentMethod->descripcion) . '</option>';
         }
 
-        $this->response->setContent(json_encode($html));
+        $this->response()->header('Content-Type', 'application/json')->setContent(json_encode($html))->send();
     }
 
     protected function getProvincias(): void
     {
-        $this->setTemplate(false);
-
         $html = '<option value="">------</option>';
-        $this->provincia = $this->request->input('provincia');
-        $this->codpais = $this->request->input('codpais');
+        $this->provincia = $this->request()->input('provincia');
+        $this->codpais = $this->request()->input('codpais');
         if (!empty($this->codpais)) {
-            $sql = "select distinct provincia from facturascli as fc where fc.codpais = " . $this->dataBase->var2str($this->codpais);
-            $lineas = $this->dataBase->select($sql);
+            $sql = "select distinct provincia from facturascli as fc where fc.codpais = " . $this->db()->var2str($this->codpais);
+            $lineas = $this->db()->select($sql);
             foreach ($lineas as $dl) {
                 if (!is_null($dl['provincia'])) {
                     $check = $this->provincia == $dl['provincia'] ? 'selected' : '';
@@ -988,7 +984,7 @@ class ReportBreakdown extends Controller
             }
         }
 
-        $this->response->setContent(json_encode($html));
+        $this->response()->header('Content-Type', 'application/json')->setContent(json_encode($html))->send();
     }
 
     protected function getTitleExport(): string
@@ -1010,16 +1006,14 @@ class ReportBreakdown extends Controller
 
     protected function getWarehouses(): void
     {
-        $this->setTemplate(false);
-
         $html = '<option value="">------</option>';
-        $this->idempresa = $this->request->input('idempresa');
+        $this->idempresa = $this->request()->input('idempresa');
         $where = [Where::eq('idempresa', $this->idempresa)];
         foreach (Almacen::all($where) as $warehouse) {
             $html .= '<option value="' . $warehouse->codalmacen . '">' . Tools::fixHtml($warehouse->nombre) . '</option>';
         }
 
-        $this->response->setContent(json_encode($html));
+        $this->response()->header('Content-Type', 'application/json')->setContent(json_encode($html))->send();
     }
 
     /**
@@ -1028,254 +1022,44 @@ class ReportBreakdown extends Controller
     protected function iniFilters(): void
     {
         // filtros generales
-        $this->desde = $this->request->input('desde', date('Y') . '-01-01');
-        $this->hasta = $this->request->input('hasta', date('Y') . '-12-31');
-        $this->idempresa = $this->request->input('idempresa', Tools::settings('default', 'idempresa'));
-        $this->codalmacen = $this->request->input('codalmacen');
-        $this->codserie = $this->request->input('codserie');
-        $this->codpago = $this->request->input('codpago');
-        $this->coddivisa = $this->request->input('coddivisa', Tools::settings('default', 'coddivisa'));
-        $this->codagente = $this->request->input('codagente');
-        $this->type = $this->request->input('type', 'invoices');
+        $this->desde = $this->request()->input('desde', date('Y') . '-01-01');
+        $this->hasta = $this->request()->input('hasta', date('Y') . '-12-31');
+        $this->idempresa = $this->request()->input('idempresa', Tools::settings('default', 'idempresa'));
+        $this->codalmacen = $this->request()->input('codalmacen');
+        $this->codserie = $this->request()->input('codserie');
+        $this->codpago = $this->request()->input('codpago');
+        $this->coddivisa = $this->request()->input('coddivisa', Tools::settings('default', 'coddivisa'));
+        $this->codagente = $this->request()->input('codagente');
+        $this->type = $this->request()->input('type', 'invoices');
         if (!in_array($this->type, ['invoices', 'delivery-notes'], true)) {
             $this->type = 'invoices';
         }
-        $this->format = $this->request->input('format', 'screen');
-        $this->generar = $this->request->input('generar', 'informe_ventas');
+        $this->format = $this->request()->input('format', 'screen');
+        $this->generar = $this->request()->input('generar', 'informe_ventas');
 
         $this->variant = new Variante();
-        $whereVariant = [Where::eq('referencia', $this->request->input('refvariant'))];
+        $whereVariant = [Where::eq('referencia', $this->request()->input('refvariant'))];
         $this->variant->loadWhere($whereVariant);
 
         // filtros de ventas
-        $this->codpais = $this->request->input('codpais');
-        $this->provincia = $this->request->input('provincia', false);
-        $this->sale_minimo = (float)$this->request->input('sale-minimo', false);
+        $this->codpais = $this->request()->input('codpais');
+        $this->provincia = $this->request()->input('provincia', false);
+        $this->sale_minimo = (float)$this->request()->input('sale-minimo', false);
 
         $this->cliente = new Cliente();
-        $this->cliente->load($this->request->input('codcliente'));
+        $this->cliente->load($this->request()->input('codcliente'));
 
         $this->billingAddress = new Contacto();
-        $this->billingAddress->load($this->request->input('idcontactofact'));
+        $this->billingAddress->load($this->request()->input('idcontactofact'));
 
         $this->shippingAddress = new Contacto();
-        $this->shippingAddress->load($this->request->input('idcontactoenv'));
+        $this->shippingAddress->load($this->request()->input('idcontactoenv'));
 
         // filtros de compras
         $this->proveedor = new Proveedor();
-        $this->proveedor->load($this->request->input('codproveedor'));
+        $this->proveedor->load($this->request()->input('codproveedor'));
 
-        $this->purchase_minimo = (float)$this->request->input('purchase-minimo', false);
+        $this->purchase_minimo = (float)$this->request()->input('purchase-minimo', false);
     }
 
-
-    protected function getMonthsTitlesRows(): string
-    {
-        return substr(Tools::trans('january'), 0, 3) . ';'
-            . substr(Tools::trans('february'), 0, 3) . ';'
-            . substr(Tools::trans('march'), 0, 3) . ';'
-            . substr(Tools::trans('april'), 0, 3) . ';'
-            . substr(Tools::trans('may'), 0, 3) . ';'
-            . substr(Tools::trans('june'), 0, 3) . ';'
-            . substr(Tools::trans('july'), 0, 3) . ';'
-            . substr(Tools::trans('august'), 0, 3) . ';'
-            . substr(Tools::trans('september'), 0, 3) . ';'
-            . substr(Tools::trans('october'), 0, 3) . ';'
-            . substr(Tools::trans('november'), 0, 3) . ';'
-            . substr(Tools::trans('december'), 0, 3) . ';';
-    }
-
-    protected function getNombreCliente(string $codcliente): string
-    {
-        $cliente = new Cliente();
-        if ($codcliente && $cliente->load($codcliente)) {
-            return Tools::fixHtml($cliente->nombre);
-        }
-
-        return '-';
-    }
-
-    protected function getNombreProveedor(string $codproveedor): string
-    {
-        $proveedor = new Proveedor();
-        if ($codproveedor && $proveedor->load($codproveedor)) {
-            return Tools::fixHtml($proveedor->nombre);
-        }
-
-        return '-';
-    }
-
-    protected function getTotalesAgrupados(array $agrupados): array
-    {
-        $totales = [];
-        foreach ($agrupados as $years) {
-            foreach ($years as $year => $meses) {
-                if (!isset($totales[$year])) {
-                    $totales[$year] = [
-                        1 => 0, // enero
-                        2 => 0,
-                        3 => 0,
-                        4 => 0,
-                        5 => 0,
-                        6 => 0,
-                        7 => 0,
-                        8 => 0,
-                        9 => 0,
-                        10 => 0,
-                        11 => 0,
-                        12 => 0, // diciembre
-                        13 => 0 // total anual
-                    ];
-                }
-
-                foreach ($meses as $mes => $total) {
-                    $totales[$year][$mes] += $total;
-                }
-            }
-        }
-
-        return $totales;
-    }
-
-    protected function informeCompras(): void
-    {
-        // imprimimos las cabeceras
-        $this->setTemplate(false);
-        header("content-type:application/csv;charset=UTF-8");
-        header('Content-Disposition: attachment; filename="'
-            . str_replace(' ', '_', strtolower(Tools::trans('purchase-report'))) . '.csv"');
-        echo 'codproveedor;'
-            . Tools::trans('name') . ';'
-            . Tools::trans('year') . ';'
-            . $this->getMonthsTitlesRows()
-            . Tools::trans('total') . "\n";
-
-        // agrupamos los datos por proveedor, año y mes
-        //$agrupados = $this->getDatosAgrupados($data, 'codproveedor');
-
-        // imprimimos las líneas
-        foreach ($agrupados as $codproveedor => $years) {
-            foreach ($years as $year => $meses) {
-                // ahora para cada año imprimimos una línea
-                echo '"' . $codproveedor . '";' . $this->getNombreProveedor($codproveedor) . ';' . $year;
-                foreach ($meses as $mes) {
-                    echo ';' . number_format($mes, FS_NF0, ',', '');
-                }
-                echo "\n";
-            }
-            echo ";;;;;;;;;;;;;;;\n";
-        }
-
-        // imprimimos los totales por año
-        foreach ($this->getTotalesAgrupados($agrupados) as $year => $meses) {
-            echo ";" . strtoupper(Tools::trans('totals')) . ";" . $year;
-            foreach ($meses as $mes) {
-                echo ';' . number_format($mes, FS_NF0, ',', '');
-            }
-            echo ";\n";
-        }
-    }
-
-    protected function informeComprasUnidades(): void
-    {
-        // imprimimos las cabeceras
-        $this->setTemplate(false);
-        header("content-type:application/csv;charset=UTF-8");
-        header("Content-Disposition: attachment; filename=\""
-            . str_replace(' ', '_', strtolower(Tools::trans('units-purchase-report'))) . ".csv\"");
-        echo 'codproveedor;'
-            . Tools::trans('name') . ';'
-            . Tools::trans('reference') . ';'
-            . Tools::trans('year') . ';'
-            . $this->getMonthsTitlesRows()
-            . Tools::trans('total') . "\n";
-
-        // agrupamos los datos por proveedor, referencia, año y mes
-        //$agrupados = $this->getDatosAgrupadosRef($data, 'codproveedor');
-
-        // imprimimos las líneas
-        foreach ($agrupados as $codproveedor => $referencias) {
-            foreach ($referencias as $referencia => $years) {
-                foreach ($years as $year => $meses) {
-                    echo '"' . $codproveedor . '";' . $this->getNombreProveedor($codproveedor) . ';"' . $referencia . '";' . $year;
-                    foreach ($meses as $mes) {
-                        echo ';' . number_format($mes, FS_NF0, ',', '');
-                    }
-                    echo "\n";
-                }
-                echo ";;;;;;;;;;;;;;;\n";
-            }
-            echo ";;;;;;;;;;;;;;;\n";
-        }
-    }
-
-    protected function informeVentas(): void
-    {
-        // imprimimos las cabeceras
-        $this->setTemplate(false);
-        header("content-type:application/csv;charset=UTF-8");
-        header("Content-Disposition: attachment; filename=\""
-            . str_replace(' ', '_', strtolower(Tools::trans('sale-report'))) . ".csv\"");
-        echo 'codcliente;'
-            . Tools::trans('name') . ';'
-            . Tools::trans('year') . ';'
-            . $this->getMonthsTitlesRows()
-            . Tools::trans('total') . "\n";
-
-        // agrupamos los datos por cliente, año y mes
-        //$agrupados = $this->getDatosAgrupados($data, 'codcliente');
-
-        // imprimimos las líneas
-        foreach ($agrupados as $codcliente => $years) {
-            foreach ($years as $year => $meses) {
-                echo '"' . $codcliente . '";' . $this->getNombreCliente($codcliente) . ';' . $year;
-                foreach ($meses as $mes) {
-                    echo ';' . number_format($mes, FS_NF0, ',', '');
-                }
-                echo "\n";
-            }
-            echo ";;;;;;;;;;;;;;;\n";
-        }
-
-        // imprimimos los totales por año
-        foreach ($this->getTotalesAgrupados($agrupados) as $year => $meses) {
-            echo ";" . strtoupper(Tools::trans('totals')) . ";" . $year;
-            foreach ($meses as $mes) {
-                echo ';' . number_format($mes, FS_NF0, ',', '');
-            }
-            echo ";\n";
-        }
-    }
-
-    protected function informeVentasUnidades(): void
-    {
-        $this->setTemplate(false);
-        header("content-type:application/csv;charset=UTF-8");
-        header("Content-Disposition: attachment; filename=\""
-            . str_replace(' ', '_', strtolower(Tools::trans('units-sale-report'))) . ".csv\"");
-        echo 'codcliente;'
-            . Tools::trans('name') . ';'
-            . Tools::trans('reference') . ';'
-            . Tools::trans('year') . ';'
-            . $this->getMonthsTitlesRows()
-            . Tools::trans('total') . "\n";
-
-        // agrupamos los datos por cliente, referencia, añi y mes
-        //$agrupados = $this->getDatosAgrupadosRef($data, 'codcliente');
-
-        // imprimimos las líneas
-        foreach ($agrupados as $codcliente => $referencias) {
-            foreach ($referencias as $referencia => $years) {
-                foreach ($years as $year => $meses) {
-                    echo '"' . $codcliente . '";' . $this->getNombreCliente($codcliente) . ';"' . $referencia . '";' . $year;
-                    foreach ($meses as $mes) {
-                        echo ';' . number_format($mes, FS_NF0, ',', '');
-                    }
-                    echo "\n";
-                }
-                echo ";;;;;;;;;;;;;;;;\n";
-            }
-            echo ";;;;;;;;;;;;;;;;\n";
-        }
-    }
 }
