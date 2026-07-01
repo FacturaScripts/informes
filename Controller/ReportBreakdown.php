@@ -104,6 +104,15 @@ class ReportBreakdown extends Controller
     /** @var Variante */
     public $variant;
 
+    /** @var array */
+    private $urlCustomerCache = [];
+
+    /** @var array */
+    private $urlDocumentCache = [];
+
+    /** @var array */
+    private $urlProductCache = [];
+
     public function getAddress(?Contacto $contacto): string
     {
         if (null === $contacto || empty($contacto->id())) {
@@ -135,17 +144,29 @@ class ReportBreakdown extends Controller
 
     public function getUrlCustomer(string $customerName): string
     {
+        // memoizamos por nombre para evitar recargar el mismo cliente en cada fila
+        if (array_key_exists($customerName, $this->urlCustomerCache)) {
+            return $this->urlCustomerCache[$customerName];
+        }
+
         $customer = new Cliente();
         $customerNameArr = explode(' | ', $customerName);
         if (!empty($customerNameArr[0]) && $customer->load($customerNameArr[0])) {
-            return '<a href="' . $customer->url() . '" target="_blank">' . $customerName . '</a>';
+            $html = '<a href="' . $customer->url() . '" target="_blank">' . $customerName . '</a>';
+        } else {
+            $html = $customerName;
         }
 
-        return $customerName;
+        return $this->urlCustomerCache[$customerName] = $html;
     }
 
     public function getUrlDocument(string $codigo): string
     {
+        // memoizamos por código para evitar recargar el mismo documento en cada fila
+        if (array_key_exists($codigo, $this->urlDocumentCache)) {
+            return $this->urlDocumentCache[$codigo];
+        }
+
         $isVentas = $this->generar === 'informe_ventas';
         if ($isVentas && $this->type === 'invoices') {
             $document = new FacturaCliente();
@@ -156,26 +177,33 @@ class ReportBreakdown extends Controller
         } elseif (!$isVentas && $this->type === 'delivery-notes') {
             $document = new AlbaranProveedor();
         } else {
-            return $codigo;
+            return $this->urlDocumentCache[$codigo] = $codigo;
         }
 
         $where = [Where::eq('codigo', $codigo)];
         if ($document->loadWhere($where)) {
-            return '<a href="' . $document->url() . '" target="_blank">' . $codigo . '</a>';
+            $html = '<a href="' . $document->url() . '" target="_blank">' . $codigo . '</a>';
+        } else {
+            $html = $codigo;
         }
 
-        return $codigo;
+        return $this->urlDocumentCache[$codigo] = $html;
     }
 
     public function getUrlProduct(string $referencia): string
     {
+        // memoizamos por referencia para evitar recargar la misma variante en cada fila
+        if (array_key_exists($referencia, $this->urlProductCache)) {
+            return $this->urlProductCache[$referencia];
+        }
+
         $variant = new Variante();
         $where = [Where::eq('referencia', $referencia)];
         if ($variant->loadWhere($where)) {
-            return '<a href="' . $variant->url() . '" target="_blank">' . $referencia . '</a>';
+            return $this->urlProductCache[$referencia] = '<a href="' . $variant->url() . '" target="_blank">' . $referencia . '</a>';
         }
 
-        return $referencia;
+        return $this->urlProductCache[$referencia] = $referencia;
     }
 
     public function privateCore(&$response, $user, $permissions)
@@ -317,7 +345,8 @@ class ReportBreakdown extends Controller
         string $customerHeader,
         string $dateHeader,
         string $totalHeader
-    ): array {
+    ): array
+    {
         $rows = [];
         $documents = $this->data[$this->type] ?? [];
         foreach ($documents as $document) {
@@ -466,11 +495,12 @@ class ReportBreakdown extends Controller
     }
 
     protected function buildUnitsExportRows(
-        array $monthHeaderMap,
+        array  $monthHeaderMap,
         string $customerHeader,
         string $productHeader,
         string $yearHeader
-    ): array {
+    ): array
+    {
         $rows = [];
         $previousCustomer = '';
         $previousProduct = '';
@@ -505,14 +535,16 @@ class ReportBreakdown extends Controller
         switch ($this->generar) {
             case 'informe_compras':
                 $this->data['units'] = $this->getInformeComprasUnidadesData();
-                $this->data['net'] = $this->getInformeComprasNetoData();
+                // reutilizamos las filas de documentos para calcular el neto y evitar una consulta duplicada
                 $this->data[$this->type] = $this->getInformeComprasDocumentData();
+                $this->data['net'] = $this->getNetoFromDocuments($this->data[$this->type], ['codproveedor', 'nombre']);
                 break;
 
             case 'informe_ventas':
                 $this->data['units'] = $this->getInformeVentasUnidadesData();
-                $this->data['net'] = $this->getInformeVentasNetoData();
+                // reutilizamos las filas de documentos para calcular el neto y evitar una consulta duplicada
                 $this->data[$this->type] = $this->getInformeVentasDocumentData();
+                $this->data['net'] = $this->getNetoFromDocuments($this->data[$this->type], ['codcliente', 'nombrecliente']);
                 break;
         }
 
@@ -568,7 +600,7 @@ class ReportBreakdown extends Controller
         $exportManager->show($this->response);
     }
 
-    protected function getDatosAgrupados(array $data, array $keys): array
+    protected function getDatosAgrupados(array $data, array $keys, string $valueField = 'total'): array
     {
         if (empty($keys)) {
             return [];
@@ -586,32 +618,82 @@ class ReportBreakdown extends Controller
                 $keyValue .= ' | ' . $row[$key];
             }
 
-            $year = date('Y', strtotime($row['fecha']));
-            $mes = strtolower(date('F', strtotime($row['fecha'])));
+            // el año y el mes vienen ya calculados desde SQL (EXTRACT), evitamos strtotime por fila
+            $year = (string)(int)$row['anyo'];
+            $mes = $this->getMonthKey($row['mes']);
+            if (empty($mes)) {
+                continue;
+            }
+
             if (!isset($agrupados[$keyValue][$year])) {
-                $agrupados[$keyValue][$year] = [
-                    'january' => 0, // enero
-                    'february' => 0, // febrero
-                    'march' => 0,
-                    'april' => 0,
-                    'may' => 0,
-                    'june' => 0,
-                    'july' => 0,
-                    'august' => 0,
-                    'september' => 0,
-                    'october' => 0,
-                    'november' => 0,
-                    'december' => 0, // diciembre
-                    'total' => 0 // total anual
-                ];
+                $agrupados[$keyValue][$year] = $this->getEmptyMonths();
             }
 
             // acumulamos mes a mes
-            $agrupados[$keyValue][$year][$mes] += floatval($row['total']);
+            $agrupados[$keyValue][$year][$mes] += floatval($row[$valueField]);
 
             // acumulamos el año
-            $agrupados[$keyValue][$year]['total'] += floatval($row['total']);
+            $agrupados[$keyValue][$year]['total'] += floatval($row[$valueField]);
         }
+
+        return $agrupados;
+    }
+
+    protected function getEmptyMonths(): array
+    {
+        return [
+            'january' => 0, // enero
+            'february' => 0, // febrero
+            'march' => 0,
+            'april' => 0,
+            'may' => 0,
+            'june' => 0,
+            'july' => 0,
+            'august' => 0,
+            'september' => 0,
+            'october' => 0,
+            'november' => 0,
+            'december' => 0, // diciembre
+            'total' => 0 // total anual
+        ];
+    }
+
+    protected function getMonthKey($mes): string
+    {
+        $names = [
+            1 => 'january',
+            2 => 'february',
+            3 => 'march',
+            4 => 'april',
+            5 => 'may',
+            6 => 'june',
+            7 => 'july',
+            8 => 'august',
+            9 => 'september',
+            10 => 'october',
+            11 => 'november',
+            12 => 'december'
+        ];
+
+        return $names[(int)$mes] ?? '';
+    }
+
+    protected function getNetoFromDocuments(array $documents, array $keys): array
+    {
+        if (empty($documents)) {
+            return [];
+        }
+
+        // agrupamos el neto reutilizando las filas ya obtenidas para la pestaña de documentos
+        $agrupados = $this->getDatosAgrupados($documents, $keys, 'neto');
+
+        // los documentos vienen ordenados por fecha, así que reordenamos para mantener
+        // el comportamiento previo: cliente/proveedor ascendente y año descendente (más reciente primero)
+        ksort($agrupados);
+        foreach ($agrupados as &$years) {
+            krsort($years);
+        }
+        unset($years);
 
         return $agrupados;
     }
@@ -635,24 +717,15 @@ class ReportBreakdown extends Controller
             }
 
             $ref = $row['referencia'];
-            $year = date('Y', strtotime($row['fecha']));
-            $mes = strtolower(date('F', strtotime($row['fecha'])));
+            // el año y el mes vienen ya calculados desde SQL (EXTRACT), evitamos strtotime por fila
+            $year = (string)(int)$row['anyo'];
+            $mes = $this->getMonthKey($row['mes']);
+            if (empty($mes)) {
+                continue;
+            }
+
             if (!isset($agrupados[$keyVal][$ref][$year])) {
-                $agrupados[$keyVal][$ref][$year] = [
-                    'january' => 0, // enero
-                    'february' => 0, // febrero
-                    'march' => 0,
-                    'april' => 0,
-                    'may' => 0,
-                    'june' => 0,
-                    'july' => 0,
-                    'august' => 0,
-                    'september' => 0,
-                    'october' => 0,
-                    'november' => 0,
-                    'december' => 0, // diciembre
-                    'total' => 0 // total anual
-                ];
+                $agrupados[$keyVal][$ref][$year] = $this->getEmptyMonths();
             }
 
             // acumulamos mes a mes
@@ -712,7 +785,8 @@ class ReportBreakdown extends Controller
         $table = $this->type === 'invoices' ? 'facturasprov' : 'albaranesprov';
         $code = $this->type === 'invoices' ? 'idfactura' : 'idalbaran';
 
-        $sql = "SELECT d." . $code . " as id, d.codigo, d.codproveedor, d.nombre, d.fecha, d.total"
+        $sql = "SELECT d." . $code . " as id, d.codigo, d.codproveedor, d.nombre, d.fecha,"
+            . " EXTRACT(YEAR FROM d.fecha) as anyo, EXTRACT(MONTH FROM d.fecha) as mes, d.neto, d.total"
             . " FROM " . $table . " d"
             . " WHERE d.fecha >= " . $this->dataBase->var2str($this->desde)
             . " AND d.fecha <= " . $this->dataBase->var2str($this->hasta)
@@ -723,35 +797,16 @@ class ReportBreakdown extends Controller
         return $this->dataBase->select($sql);
     }
 
-    protected function getInformeComprasNetoData(): array
-    {
-        $table = $this->type === 'invoices' ? 'facturasprov' : 'albaranesprov';
-        $code = $this->type === 'invoices' ? 'idfactura' : 'idalbaran';
-
-        $sql = "SELECT d.codproveedor, d.nombre, d.fecha, d.neto as total"
-            . " FROM " . $table . " d"
-            . " WHERE d.fecha >= " . $this->dataBase->var2str($this->desde)
-            . " AND d.fecha <= " . $this->dataBase->var2str($this->hasta)
-            . " AND d.idempresa = " . $this->dataBase->var2str($this->idempresa)
-            . $this->getInformeComprasDataWhere(false)
-            . " ORDER BY d.codproveedor ASC, d.fecha DESC;";
-
-        $data = $this->dataBase->select($sql);
-        if (empty($data)) {
-            return [];
-        }
-
-        // agrupamos los datos por proveedor, año y mes
-        return $this->getDatosAgrupados($data, ['codproveedor', 'nombre']);
-    }
-
     protected function getInformeComprasUnidadesData(): array
     {
         $table = $this->type === 'invoices' ? 'facturasprov' : 'albaranesprov';
         $line = $this->type === 'invoices' ? 'lineasfacturasprov' : 'lineasalbaranesprov';
         $code = $this->type === 'invoices' ? 'idfactura' : 'idalbaran';
 
-        $sql = "SELECT d.codproveedor, d.nombre, d.fecha, l.referencia, SUM(l.cantidad) as total"
+        // agrupamos por año y mes en SQL para reducir filas y evitar re-agrupar por fecha en PHP
+        $sql = "SELECT d.codproveedor, d.nombre, l.referencia,"
+            . " EXTRACT(YEAR FROM d.fecha) as anyo, EXTRACT(MONTH FROM d.fecha) as mes,"
+            . " SUM(l.cantidad) as total"
             . " FROM " . $table . " d, " . $line . " l"
             . " WHERE l." . $code . " = d." . $code
             . " AND l.referencia IS NOT NULL"
@@ -759,8 +814,10 @@ class ReportBreakdown extends Controller
             . " AND d.fecha >= " . $this->dataBase->var2str($this->desde)
             . " AND d.fecha <= " . $this->dataBase->var2str($this->hasta)
             . $this->getInformeComprasDataWhere()
-            . " GROUP BY d.codproveedor, d.nombre, d.fecha, l.referencia, l.descripcion"
-            . " ORDER BY d.codproveedor ASC, l.referencia ASC, d.fecha DESC;";
+            . " GROUP BY d.codproveedor, d.nombre, l.referencia,"
+            . " EXTRACT(YEAR FROM d.fecha), EXTRACT(MONTH FROM d.fecha)"
+            . " ORDER BY d.codproveedor ASC, l.referencia ASC,"
+            . " EXTRACT(YEAR FROM d.fecha) DESC, EXTRACT(MONTH FROM d.fecha) DESC;";
 
         $data = $this->dataBase->select($sql);
         if (empty($data)) {
@@ -832,33 +889,13 @@ class ReportBreakdown extends Controller
         return $sql;
     }
 
-    protected function getInformeVentasNetoData(): array
-    {
-        $table = $this->type === 'invoices' ? 'facturascli' : 'albaranescli';
-
-        $sql = "SELECT d.codcliente, d.nombrecliente, d.fecha, d.neto as total"
-            . " FROM " . $table . " d"
-            . " WHERE d.fecha >= " . $this->dataBase->var2str($this->desde)
-            . " AND d.fecha <= " . $this->dataBase->var2str($this->hasta)
-            . " AND d.idempresa = " . $this->dataBase->var2str($this->idempresa)
-            . $this->getInformeVentasDataWhere(false)
-            . " ORDER BY d.codcliente ASC, d.fecha DESC;";
-
-        $data = $this->dataBase->select($sql);
-        if (empty($data)) {
-            return [];
-        }
-
-        // agrupamos los datos por cliente, año y mes
-        return $this->getDatosAgrupados($data, ['codcliente', 'nombrecliente']);
-    }
-
     protected function getInformeVentasDocumentData(): array
     {
         $table = $this->type === 'invoices' ? 'facturascli' : 'albaranescli';
         $code = $this->type === 'invoices' ? 'idfactura' : 'idalbaran';
 
-        $sql = "SELECT d." . $code . " as id, d.codigo, d.codcliente, d.nombrecliente, d.fecha, d.total"
+        $sql = "SELECT d." . $code . " as id, d.codigo, d.codcliente, d.nombrecliente, d.fecha,"
+            . " EXTRACT(YEAR FROM d.fecha) as anyo, EXTRACT(MONTH FROM d.fecha) as mes, d.neto, d.total"
             . " FROM " . $table . " d"
             . " WHERE d.fecha >= " . $this->dataBase->var2str($this->desde)
             . " AND d.fecha <= " . $this->dataBase->var2str($this->hasta)
@@ -875,7 +912,10 @@ class ReportBreakdown extends Controller
         $line = $this->type === 'invoices' ? 'lineasfacturascli' : 'lineasalbaranescli';
         $code = $this->type === 'invoices' ? 'idfactura' : 'idalbaran';
 
-        $sql = "SELECT d.codcliente, d.nombrecliente, d.fecha, l.referencia, SUM(l.cantidad) as total"
+        // agrupamos por año y mes en SQL para reducir filas y evitar re-agrupar por fecha en PHP
+        $sql = "SELECT d.codcliente, d.nombrecliente, l.referencia,"
+            . " EXTRACT(YEAR FROM d.fecha) as anyo, EXTRACT(MONTH FROM d.fecha) as mes,"
+            . " SUM(l.cantidad) as total"
             . " FROM " . $table . " d, " . $line . " l"
             . " WHERE l." . $code . " = d." . $code
             . " AND l.referencia IS NOT NULL"
@@ -883,8 +923,10 @@ class ReportBreakdown extends Controller
             . " AND d.fecha >= " . $this->dataBase->var2str($this->desde)
             . " AND d.fecha <= " . $this->dataBase->var2str($this->hasta)
             . $this->getInformeVentasDataWhere()
-            . " GROUP BY d.codcliente, d.nombrecliente, d.fecha, l.referencia, l.descripcion"
-            . " ORDER BY d.codcliente ASC, l.referencia ASC, d.fecha DESC;";
+            . " GROUP BY d.codcliente, d.nombrecliente, l.referencia,"
+            . " EXTRACT(YEAR FROM d.fecha), EXTRACT(MONTH FROM d.fecha)"
+            . " ORDER BY d.codcliente ASC, l.referencia ASC,"
+            . " EXTRACT(YEAR FROM d.fecha) DESC, EXTRACT(MONTH FROM d.fecha) DESC;";
 
         $data = $this->dataBase->select($sql);
         if (empty($data)) {
