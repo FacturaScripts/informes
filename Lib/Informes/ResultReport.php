@@ -70,6 +70,9 @@ class ResultReport
     /** @var string */
     protected static $year;
 
+    /** @var array caché por referencia de los datos de producto/familia resueltos en build_data */
+    protected static $buildDataCache = [];
+
     protected static function apply(array $formData): void
     {
         $eje = new Ejercicio();
@@ -125,8 +128,22 @@ class ResultReport
 
     protected static function build_data($dl): array
     {
-        $pvp_total = round($dl['pvptotal'], FS_NF0);
-        $referencia = $dl['referencia'];
+        $referencia = $dl['referencia'] ?? null;
+
+        // los datos de producto/familia solo dependen de la referencia (no del año ni del importe),
+        // así que los resolvemos una vez por referencia y los reutilizamos
+        $key = (string)$referencia;
+        if (!array_key_exists($key, self::$buildDataCache)) {
+            self::$buildDataCache[$key] = self::resolveReferencia($referencia);
+        }
+
+        return array_merge(self::$buildDataCache[$key], [
+            'pvptotal' => round($dl['pvptotal'], FS_NF0)
+        ]);
+    }
+
+    protected static function resolveReferencia($referencia): array
+    {
         $producto = new Producto();
         $variante = new Variante();
 
@@ -163,8 +180,7 @@ class ResultReport
             'ref' => $referencia,
             'art_desc' => $art_desc,
             'codfamilia' => $codfamilia,
-            'familia' => $familia,
-            'pvptotal' => $pvp_total
+            'familia' => $familia
         ];
     }
 
@@ -322,17 +338,17 @@ class ResultReport
                 $date['hasta'] = date($dia_mes . '-' . $mes . '-' . $year);
 
                 self::setGastos($db, $codejercicio, $date, $mes, $gastos_total_meses, $gastos);
-
-                // Las descripciones solo las necesitamos en el año seleccionado,
-                // en el año anterior se omite
-                if ($year == self::$year) {
-                    $gastos = self::setDescriptionAccount($gastos, $codejercicio);
-                }
             }
 
             if ($gastos['total_mes'][$mes] > 0) {
                 $countMonth++;
             }
+        }
+
+        // Las descripciones solo las necesitamos en el año seleccionado, en el año anterior se omiten.
+        // Se calculan una sola vez al terminar el bucle mensual, no en cada uno de los 12 meses.
+        if ($year && $year == self::$year) {
+            $gastos = self::setDescriptionAccount($gastos, $codejercicio);
         }
 
         /**
@@ -758,17 +774,17 @@ class ResultReport
                 ${$key} = self::invoiceLines(${$key}, $date, $codejercicio, $mes, $ventas_total_fam_meses, $countMonth, $table_name);
                 // Recorremos las facturas
                 ${$key} = self::dataInvoices(${$key}, $date, $codejercicio, $mes, $ventas_total_ser_meses, $ventas_total_pag_meses, $ventas_total_age_meses, $model);
-
-
-                // Las descripciones solo las necesitamos en el año seleccionado,
-                // en el año anterior se omite
-                if ($year == self::$year) {
-                    ${$key} = self::setDescriptionFamilies(${$key}, $codejercicio);
-                    ${$key} = self::setDescriptionSeries(${$key});
-                    ${$key} = self::setDescriptionPayments(${$key});
-                    ${$key} = self::setDescriptionAgents(${$key});
-                }
             }
+        }
+
+        // Las descripciones solo las necesitamos en el año seleccionado, en el año anterior se omiten.
+        // Se calculan una sola vez al terminar el bucle mensual (operan sobre los arrays ya acumulados),
+        // en lugar de repetirlas en cada uno de los 12 meses.
+        if ($year && $year == self::$year) {
+            ${$key} = self::setDescriptionFamilies(${$key}, $codejercicio);
+            ${$key} = self::setDescriptionSeries(${$key});
+            ${$key} = self::setDescriptionPayments(${$key});
+            ${$key} = self::setDescriptionAgents(${$key});
         }
 
         /**
