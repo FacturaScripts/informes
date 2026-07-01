@@ -104,9 +104,9 @@ class ReportBreakdown extends Controller
     /** @var Variante */
     public $variant;
 
-    public function getAddress(Contacto $contacto): string
+    public function getAddress(?Contacto $contacto): string
     {
-        if (empty($contacto->id())) {
+        if (null === $contacto || empty($contacto->id())) {
             return '';
         }
 
@@ -214,8 +214,14 @@ class ReportBreakdown extends Controller
                 return;
 
             default:
+                // inicializamos los filtros para poder pintar el formulario con sus valores por defecto
                 $this->iniFilters();
-                $this->generarInforme();
+
+                // solo generamos el informe cuando el usuario envía el formulario (POST),
+                // así al abrir la página no se muestran resultados
+                if ($this->request->isMethod('POST')) {
+                    $this->generarInforme();
+                }
         }
     }
 
