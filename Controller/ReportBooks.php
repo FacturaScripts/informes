@@ -21,6 +21,7 @@ namespace FacturaScripts\Plugins\Informes\Controller;
 
 use FacturaScripts\Core\Base\Controller;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Dinamic\Model\Asiento;
 use FacturaScripts\Dinamic\Model\CodeModel;
 
 /**
@@ -157,6 +158,7 @@ class ReportBooks extends Controller
             . " COALESCE(p.iva, 0) as line_iva,"
             . " COALESCE(p.recargo, 0) as line_recargo,"
             . " p.debe,"
+            . " p.haber,"
             . " COALESCE(f.totaliva, 0) as invoice_totaliva,"
             . " COALESCE(f.totalrecargo, 0) as invoice_totalrecargo,"
             . " COALESCE(f.total, 0) as invoice_total"
@@ -167,7 +169,11 @@ class ReportBooks extends Controller
             . " AND a.fecha <= " . $this->dataBase->var2str($this->hasta)
             . " AND a.idempresa = " . $this->dataBase->var2str($this->idempresa)
             . " AND p.codsubcuenta LIKE '6%'"
-            . " AND p.debe > 0"
+            . " AND (p.debe > 0 OR p.haber > 0)"
+            // excluimos regularización y cierre: abonan todas las cuentas 6xx a final de ejercicio
+            . " AND (a.operacion IS NULL OR a.operacion NOT IN ("
+            . $this->dataBase->var2str(Asiento::OPERATION_REGULARIZATION) . ", "
+            . $this->dataBase->var2str(Asiento::OPERATION_CLOSING) . "))"
             . " ORDER BY a.fecha ASC, CAST(a.numero AS UNSIGNED) ASC, p.codsubcuenta ASC;";
 
         $data = $this->dataBase->select($sql);
@@ -240,7 +246,12 @@ class ReportBooks extends Controller
     protected static function getExpenseBookBase(array $row): float
     {
         $base = (float)($row['line_baseimponible'] ?? 0);
-        return self::hasAmount($base) ? $base : (float)($row['debe'] ?? 0);
+        if (self::hasAmount($base)) {
+            return $base;
+        }
+
+        // las rectificativas llevan el gasto al haber: lo tratamos como gasto negativo
+        return (float)($row['debe'] ?? 0) - (float)($row['haber'] ?? 0);
     }
 
     protected static function getExpenseBookLineAmounts(array $row, float $entryBaseTotal): array

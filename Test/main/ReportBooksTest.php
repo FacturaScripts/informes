@@ -60,6 +60,46 @@ final class ReportBooksTest extends TestCase
         $this->assertEquals(72.6, $amounts['gasto']);
     }
 
+    public function testCreditNoteInvoiceAmountsAreNegative(): void
+    {
+        // rectificativa de compra: el gasto (6xx) va al haber y la factura tiene totales negativos
+        $amounts = ReportBooksTestAccess::getLineAmounts([
+            'line_baseimponible' => 0,
+            'line_iva' => 0,
+            'line_recargo' => 0,
+            'debe' => 0,
+            'haber' => 100,
+            'invoice_total' => -121,
+            'invoice_totaliva' => -21,
+            'invoice_totalrecargo' => 0,
+        ], -100);
+
+        $this->assertEquals(-100.0, $amounts['baseimponible']);
+        $this->assertEquals(-21.0, $amounts['iva']);
+        $this->assertEquals(0.0, $amounts['recargo']);
+        $this->assertEquals(-121.0, $amounts['gasto']);
+    }
+
+    public function testCreditNoteWithoutInvoiceStaysInTaxBase(): void
+    {
+        // abono manual sin factura: solo base imponible negativa, sin gasto calculado
+        $amounts = ReportBooksTestAccess::getLineAmounts([
+            'line_baseimponible' => 0,
+            'line_iva' => 0,
+            'line_recargo' => 0,
+            'debe' => 0,
+            'haber' => 250.5,
+            'invoice_total' => 0,
+            'invoice_totaliva' => 0,
+            'invoice_totalrecargo' => 0,
+        ], -250.5);
+
+        $this->assertEquals(-250.5, $amounts['baseimponible']);
+        $this->assertEquals(0.0, $amounts['iva']);
+        $this->assertEquals(0.0, $amounts['recargo']);
+        $this->assertEquals(0.0, $amounts['gasto']);
+    }
+
     public function testManualVatLineKeepsComputedTotal(): void
     {
         $amounts = ReportBooksTestAccess::getLineAmounts([
