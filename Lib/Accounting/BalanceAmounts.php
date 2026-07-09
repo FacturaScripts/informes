@@ -89,11 +89,15 @@ class BalanceAmounts
         // si se solicita, cargamos las partidas del asiento de apertura indexadas por codsubcuenta
         $openingAmounts = $this->showBalanceOpening ? $this->getOpeningData($params) : [];
 
+        // añadimos las subcuentas que solo aparecen en el asiento de apertura, sin movimientos en el periodo,
+        // para que su saldo de apertura no desaparezca del informe
+        $this->addOpeningOnlyAmounts($amounts, $openingAmounts, $subaccounts);
+
         $rows = [];
         foreach ($accounts as $account) {
             $debe = $haber = 0.00;
             $this->combineData($account, $accounts, $amounts, $debe, $haber);
-            if ($debe == 0 && $haber == 0) {
+            if ($debe == 0 && $haber == 0 && false === $this->hasOpening($account, $accounts, $amounts, $openingAmounts)) {
                 continue;
             }
 
@@ -182,6 +186,49 @@ class BalanceAmounts
 
         // every page is a table
         return [$rows, $totals];
+    }
+
+    /**
+     * Añade a $amounts las subcuentas que aparecen en el asiento de apertura pero no tienen
+     * movimientos en el periodo, con debe y haber a cero, para que se incluyan en el informe.
+     *
+     * @param array $amounts
+     * @param array $openingAmounts
+     * @param Subcuenta[] $subaccounts
+     */
+    protected function addOpeningOnlyAmounts(array &$amounts, array $openingAmounts, array $subaccounts): void
+    {
+        if (empty($openingAmounts)) {
+            return;
+        }
+
+        $existing = [];
+        foreach ($amounts as $row) {
+            $existing[$row['codsubcuenta']] = true;
+        }
+
+        $added = false;
+        foreach ($subaccounts as $subaccount) {
+            if (isset($existing[$subaccount->codsubcuenta]) || false === isset($openingAmounts[$subaccount->codsubcuenta])) {
+                continue;
+            }
+
+            $amounts[] = [
+                'idcuenta' => $subaccount->idcuenta,
+                'idsubcuenta' => $subaccount->idsubcuenta,
+                'codsubcuenta' => $subaccount->codsubcuenta,
+                'debe' => 0.00,
+                'haber' => 0.00,
+            ];
+            $added = true;
+        }
+
+        // mantenemos el orden por codsubcuenta
+        if ($added) {
+            usort($amounts, function ($a, $b) {
+                return strcmp($a['codsubcuenta'], $b['codsubcuenta']);
+            });
+        }
     }
 
     /**
@@ -324,6 +371,43 @@ class BalanceAmounts
         }
 
         return $where;
+    }
+
+    /**
+     * Comprueba si la cuenta (o alguna de sus cuentas hijas) tiene alguna subcuenta
+     * presente en el asiento de apertura.
+     *
+     * @param Cuenta $selAccount
+     * @param Cuenta[] $accounts
+     * @param array $amounts
+     * @param array $openingAmounts
+     * @param int $max
+     */
+    protected function hasOpening(Cuenta &$selAccount, array &$accounts, array &$amounts, array &$openingAmounts, int $max = 7): bool
+    {
+        if (empty($openingAmounts)) {
+            return false;
+        }
+
+        $max--;
+        if ($max < 0) {
+            return false;
+        }
+
+        foreach ($amounts as $row) {
+            if ($row['idcuenta'] == $selAccount->idcuenta && isset($openingAmounts[$row['codsubcuenta']])) {
+                return true;
+            }
+        }
+
+        foreach ($accounts as $account) {
+            if ($account->parent_idcuenta == $selAccount->idcuenta &&
+                $this->hasOpening($account, $accounts, $amounts, $openingAmounts, $max)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     protected function getSubAccountWhere(array $params = []): array
