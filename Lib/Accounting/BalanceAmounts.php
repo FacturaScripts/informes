@@ -73,7 +73,7 @@ class BalanceAmounts
 
         $this->dateFrom = $dateFrom;
         $this->dateTo = $dateTo;
-        $this->format = $params['format'] ?? 'pdf';
+        $this->format = strtoupper($params['format'] ?? 'PDF');
         $this->showBalanceOpening = (bool)($params['show_balance_opening'] ?? false);
         $level = (int)($params['level'] ?? '0');
 
@@ -97,7 +97,8 @@ class BalanceAmounts
         foreach ($accounts as $account) {
             $debe = $haber = 0.00;
             $this->combineData($account, $accounts, $amounts, $debe, $haber);
-            if ($debe == 0 && $haber == 0 && false === $this->hasOpening($account, $accounts, $amounts, $openingAmounts)) {
+            if (abs($debe) < 0.01 && abs($haber) < 0.01 &&
+                false === $this->hasOpening($account, $accounts, $amounts, $openingAmounts)) {
                 continue;
             }
 
@@ -151,7 +152,7 @@ class BalanceAmounts
                     $haber2 += (float)$amount['haber'];
                 }
             }
-            if (empty($debe2) && empty($haber2)) {
+            if (abs($debe2) < 0.01 && abs($haber2) < 0.01) {
                 continue;
             }
 
@@ -312,7 +313,20 @@ class BalanceAmounts
             . ' GROUP BY 1, 2, 3'
             . ' ORDER BY 3 ASC';
 
-        return $this->dataBase->select($sql);
+        // descartamos las partidas cuya subcuenta ya no existe: ninguna cuenta las recogería
+        // en las filas del informe, pero sí se sumarían en los totales, descuadrándolos
+        $amounts = [];
+        foreach ($this->dataBase->select($sql) as $row) {
+            if (empty($row['idcuenta'])) {
+                Tools::log()->warning('subaccount-not-found', [
+                    '%subAccountCode%' => $row['codsubcuenta'],
+                    '%code%' => $row['codsubcuenta'],
+                ]);
+                continue;
+            }
+            $amounts[] = $row;
+        }
+        return $amounts;
     }
 
     protected function getAccountWhere(array $params = []): array
