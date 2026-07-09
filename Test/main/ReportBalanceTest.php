@@ -51,7 +51,7 @@ final class ReportBalanceTest extends TestCase
         $reportBalance = new ReportBalance();
 
         $this->assertIsArray($reportBalance->subtypeList());
-        $this->assertCount(2, $reportBalance->subtypeList());
+        $this->assertCount(3, $reportBalance->subtypeList());
 
     }
 

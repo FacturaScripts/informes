@@ -94,6 +94,9 @@ class ProfitAndLoss
         $this->format = $params['format'] ?? 'pdf';
 
         $return = [$this->getData('PG', $params)];
+        if (empty($return[0])) {
+            return [];
+        }
 
         // Si se ha elegido sin comparativo, eliminamos los datos del comparativo
         if (!($params['comparative'] ?? false)) {
@@ -266,8 +269,24 @@ class ProfitAndLoss
             Where::eq('subtype', $params['subtype'] ?? 'normal'),
             Where::notEq('level1', '')
         ];
-        $order = ['integer:level1' => 'ASC', 'integer:level2' => 'ASC', 'integer:level3' => 'ASC', 'integer:level4' => 'ASC'];
-        $balances = BalanceCode::all($where, $order, 0, 0);
+        // ordenamos en PHP con comparación natural: los niveles mezclan letras y números
+        // ('A', '2', '10'...) y castear a entero en el ORDER BY falla en PostgreSQL
+        $balances = BalanceCode::all($where, [], 0, 0);
+        usort($balances, function (BalanceCode $a, BalanceCode $b) {
+            return strnatcmp((string)$a->level1, (string)$b->level1)
+                ?: strnatcmp((string)$a->level2, (string)$b->level2)
+                ?: strnatcmp((string)$a->level3, (string)$b->level3)
+                ?: strnatcmp((string)$a->level4, (string)$b->level4);
+        });
+
+        // sin códigos de balance el informe saldría en blanco: avisamos y no generamos nada
+        if (empty($balances)) {
+            Tools::log()->warning('no-balance-codes-found', [
+                '%nature%' => $nature,
+                '%subtype%' => $params['subtype'] ?? 'normal'
+            ]);
+            return [];
+        }
 
         // get amounts
         $amountsE1 = [];

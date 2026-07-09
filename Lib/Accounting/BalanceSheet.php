@@ -100,6 +100,11 @@ class BalanceSheet
             $this->getData('P', $params)
         ];
 
+        // si falta alguna de las dos naturalezas, no generamos el informe
+        if (empty($return[0]) || empty($return[1])) {
+            return [];
+        }
+
         // Si se ha elegido sin comparativo, eliminamos los datos del comparativo
         if (!($params['comparative'] ?? false)) {
             $code2 = $this->exercisePrev->codejercicio ?? '-';
@@ -319,6 +324,15 @@ class BalanceSheet
         ];
         $order = ['level1' => 'ASC', 'level2' => 'ASC', 'level3' => 'ASC', 'level4' => 'ASC'];
         $balances = BalanceCode::all($where, $order, 0, 0);
+
+        // sin códigos de balance el informe saldría en blanco: avisamos y no generamos nada
+        if (empty($balances)) {
+            Tools::log()->warning('no-balance-codes-found', [
+                '%nature%' => $nature,
+                '%subtype%' => $params['subtype'] ?? 'normal'
+            ]);
+            return [];
+        }
 
         // get amounts
         $amountsE1 = [];

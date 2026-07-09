@@ -90,6 +90,9 @@ class IncomeAndExpenditure
         $this->format = $params['format'] ?? 'pdf';
 
         $return = [$this->getData('IG', $params)];
+        if (empty($return[0])) {
+            return [];
+        }
 
         // Si se ha elegido sin comparativo, eliminamos los datos del comparativo
         if (!($params['comparative'] ?? false)) {
@@ -222,6 +225,15 @@ class IncomeAndExpenditure
         ];
         $order = ['level1' => 'ASC', 'level2' => 'ASC', 'level3' => 'ASC', 'level4' => 'ASC'];
         $balances = BalanceCode::all($where, $order, 0, 0);
+
+        // sin códigos de balance el informe saldría en blanco: avisamos y no generamos nada
+        if (empty($balances)) {
+            Tools::log()->warning('no-balance-codes-found', [
+                '%nature%' => $nature,
+                '%subtype%' => $params['subtype'] ?? 'normal'
+            ]);
+            return [];
+        }
 
         // get amounts
         $amountsE1 = [];

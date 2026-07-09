@@ -86,6 +86,7 @@
     "negative-results-other-exercises": "Negative result other years exercises",
     "new-30-days": "New 30 days",
     "new-suppliers": "New suppliers",
+    "no-balance-codes-found": "No balance codes found for nature %nature% and subtype %subtype%. Check the balance codes tab.",
     "no-family": "No family",
     "opening": "Opening",
     "passed-tax": "Output VAT",

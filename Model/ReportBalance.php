@@ -134,7 +134,8 @@ class ReportBalance extends ModelClass
         $i18n = Tools::lang();
         return [
             ['value' => self::SUBTYPE_ABBREVIATED, 'title' => $i18n->trans(self::SUBTYPE_ABBREVIATED)],
-            ['value' => self::SUBTYPE_NORMAL, 'title' => $i18n->trans(self::SUBTYPE_NORMAL)]
+            ['value' => self::SUBTYPE_NORMAL, 'title' => $i18n->trans(self::SUBTYPE_NORMAL)],
+            ['value' => self::SUBTYPE_PYMES, 'title' => $i18n->trans(self::SUBTYPE_PYMES)]
         ];
     }
 
