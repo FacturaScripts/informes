@@ -93,19 +93,40 @@ class BalanceAmounts
         // para que su saldo de apertura no desaparezca del informe
         $this->addOpeningOnlyAmounts($amounts, $openingAmounts, $subaccounts);
 
+        // indexamos importes, cuentas hijas y subcuentas para evitar escaneos lineales dentro del bucle
+        $amountsByCuenta = [];
+        foreach ($amounts as $row) {
+            $amountsByCuenta[$row['idcuenta']][] = $row;
+        }
+        $childrenByParent = [];
+        foreach ($accounts as $account) {
+            if ($account->parent_idcuenta) {
+                $childrenByParent[$account->parent_idcuenta][] = $account;
+            }
+        }
+        $subaccountsById = [];
+        foreach ($subaccounts as $subaccount) {
+            $subaccountsById[$subaccount->idsubcuenta] = $subaccount;
+        }
+
+        $ignoreOpening = (bool)($params['ignore_opening'] ?? false);
+        $ignoreRegularization = (bool)($params['ignoreregularization'] ?? false);
+        $ignoreClosure = (bool)($params['ignoreclosure'] ?? false);
+
         $rows = [];
         foreach ($accounts as $account) {
+            if ($level > 0 && $level <= 4 && strlen($account->codcuenta) > $level) {
+                continue;
+            }
+
             $debe = $haber = 0.00;
-            $this->combineData($account, $accounts, $amounts, $debe, $haber);
+            $this->combineData($account, $amountsByCuenta, $childrenByParent, $debe, $haber);
             if (abs($debe) < 0.01 && abs($haber) < 0.01 &&
-                false === $this->hasOpening($account, $accounts, $amounts, $openingAmounts)) {
+                false === $this->hasOpening($account, $amountsByCuenta, $childrenByParent, $openingAmounts)) {
                 continue;
             }
 
             $saldo = $debe - $haber;
-            if ($level > 0 && $level <= 4 && strlen($account->codcuenta) > $level) {
-                continue;
-            }
 
             // añadimos la línea de la cuenta (opening siempre es 0 para cuentas agrupación)
             $bold = strlen($account->codcuenta) <= 1;
@@ -128,10 +149,8 @@ class BalanceAmounts
             // añadimos las líneas de las subcuentas y recalculamos debe y haber para comprobar que cuadren
             $debe2 = $haber2 = 0.00;
 
-            // filtramos los importes que pertenecen a esta cuenta
-            $accountAmounts = array_filter($amounts, function ($amount) use ($account) {
-                return $amount['idcuenta'] == $account->idcuenta;
-            });
+            // importes que pertenecen a esta cuenta
+            $accountAmounts = $amountsByCuenta[$account->idcuenta] ?? [];
 
             // si hay nivel intermedio, agrupamos las subcuentas por prefijo según el nivel indicado
             if ($level > 0 && $level < $this->exercise->longsubcuenta) {
@@ -147,7 +166,7 @@ class BalanceAmounts
                         continue;
                     }
 
-                    $rows[] = $this->processAmountLine($subaccounts, $amount, $openingAmounts);
+                    $rows[] = $this->processAmountLine($subaccountsById, $amount, $openingAmounts);
                     $debe2 += (float)$amount['debe'];
                     $haber2 += (float)$amount['haber'];
                 }
@@ -157,9 +176,6 @@ class BalanceAmounts
             }
 
             // si se ha marcado la opción de ignorar asientos de apertura, regularización o cierre, no comprobamos que cuadren
-            $ignoreOpening = (bool)($params['ignore_opening'] ?? false);
-            $ignoreRegularization = (bool)($params['ignoreregularization'] ?? false);
-            $ignoreClosure = (bool)($params['ignoreclosure'] ?? false);
             if ($ignoreOpening || $ignoreRegularization || $ignoreClosure) {
                 continue;
             }
@@ -234,13 +250,13 @@ class BalanceAmounts
 
     /**
      * @param Cuenta $selAccount
-     * @param Cuenta[] $accounts
-     * @param array $amounts
+     * @param array $amountsByCuenta
+     * @param array $childrenByParent
      * @param float $debe
      * @param float $haber
      * @param int $max
      */
-    protected function combineData(Cuenta &$selAccount, array &$accounts, array &$amounts, float &$debe, float &$haber, int $max = 7): void
+    protected function combineData(Cuenta &$selAccount, array &$amountsByCuenta, array &$childrenByParent, float &$debe, float &$haber, int $max = 7): void
     {
         $max--;
         if ($max < 0) {
@@ -249,18 +265,14 @@ class BalanceAmounts
         }
 
         // calculamos debe y haber de esta cuenta
-        foreach ($amounts as $row) {
-            if ($row['idcuenta'] == $selAccount->idcuenta) {
-                $debe += (float)$row['debe'];
-                $haber += (float)$row['haber'];
-            }
+        foreach ($amountsByCuenta[$selAccount->idcuenta] ?? [] as $row) {
+            $debe += (float)$row['debe'];
+            $haber += (float)$row['haber'];
         }
 
         // sumamos debe y haber de las cuentas hijas
-        foreach ($accounts as $account) {
-            if ($account->parent_idcuenta == $selAccount->idcuenta) {
-                $this->combineData($account, $accounts, $amounts, $debe, $haber, $max);
-            }
+        foreach ($childrenByParent[$selAccount->idcuenta] ?? [] as $account) {
+            $this->combineData($account, $amountsByCuenta, $childrenByParent, $debe, $haber, $max);
         }
     }
 
@@ -392,12 +404,12 @@ class BalanceAmounts
      * presente en el asiento de apertura.
      *
      * @param Cuenta $selAccount
-     * @param Cuenta[] $accounts
-     * @param array $amounts
+     * @param array $amountsByCuenta
+     * @param array $childrenByParent
      * @param array $openingAmounts
      * @param int $max
      */
-    protected function hasOpening(Cuenta &$selAccount, array &$accounts, array &$amounts, array &$openingAmounts, int $max = 7): bool
+    protected function hasOpening(Cuenta &$selAccount, array &$amountsByCuenta, array &$childrenByParent, array &$openingAmounts, int $max = 7): bool
     {
         if (empty($openingAmounts)) {
             return false;
@@ -408,15 +420,14 @@ class BalanceAmounts
             return false;
         }
 
-        foreach ($amounts as $row) {
-            if ($row['idcuenta'] == $selAccount->idcuenta && isset($openingAmounts[$row['codsubcuenta']])) {
+        foreach ($amountsByCuenta[$selAccount->idcuenta] ?? [] as $row) {
+            if (isset($openingAmounts[$row['codsubcuenta']])) {
                 return true;
             }
         }
 
-        foreach ($accounts as $account) {
-            if ($account->parent_idcuenta == $selAccount->idcuenta &&
-                $this->hasOpening($account, $accounts, $amounts, $openingAmounts, $max)) {
+        foreach ($childrenByParent[$selAccount->idcuenta] ?? [] as $account) {
+            if ($this->hasOpening($account, $amountsByCuenta, $childrenByParent, $openingAmounts, $max)) {
                 return true;
             }
         }
@@ -564,7 +575,7 @@ class BalanceAmounts
         return $rows;
     }
 
-    protected function processAmountLine(array $subaccounts, array $amount, array $openingAmounts = []): array
+    protected function processAmountLine(array $subaccountsById, array $amount, array $openingAmounts = []): array
     {
         $debe = (float)$amount['debe'];
         $haber = (float)$amount['haber'];
@@ -582,25 +593,10 @@ class BalanceAmounts
             }
         }
 
-        foreach ($subaccounts as $subc) {
-            if ($subc->idsubcuenta == $amount['idsubcuenta']) {
-                $row = [
-                    'cuenta' => $subc->codsubcuenta,
-                    'descripcion' => $this->formatValue($subc->descripcion, 'text'),
-                    'debe' => $this->formatValue($debe),
-                    'haber' => $this->formatValue($haber),
-                    'saldo' => $this->formatValue($saldo),
-                ];
-                if ($openingSaldo !== null) {
-                    $row['opening'] = $this->formatValue((string)$openingSaldo);
-                }
-                return $row;
-            }
-        }
-
+        $subc = $subaccountsById[$amount['idsubcuenta']] ?? null;
         $row = [
-            'cuenta' => '---',
-            'descripcion' => '---',
+            'cuenta' => $subc ? $subc->codsubcuenta : '---',
+            'descripcion' => $subc ? $this->formatValue($subc->descripcion, 'text') : '---',
             'debe' => $this->formatValue($debe),
             'haber' => $this->formatValue($haber),
             'saldo' => $this->formatValue($saldo),
