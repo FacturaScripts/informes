@@ -130,8 +130,14 @@ class ProfitAndLoss
                 continue;
             }
 
+            // si no se guardó la descripción de la cuenta, la buscamos en el plan contable
+            $desccuenta = $model->desccuenta;
+            if (empty($desccuenta)) {
+                $desccuenta = $model->getCuenta($codejercicio)->descripcion;
+            }
+
             $rows[$key] = [
-                'descripcion' => '      ' . $model->codcuenta . '. ' . $model->desccuenta,
+                'descripcion' => '      ' . $model->codcuenta . '. ' . $desccuenta,
                 $codejercicio => $this->formatValue($total)
             ];
         }
