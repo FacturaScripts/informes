@@ -109,10 +109,6 @@ class BalanceAmounts
             $subaccountsById[$subaccount->idsubcuenta] = $subaccount;
         }
 
-        $ignoreOpening = (bool)($params['ignore_opening'] ?? false);
-        $ignoreRegularization = (bool)($params['ignoreregularization'] ?? false);
-        $ignoreClosure = (bool)($params['ignoreclosure'] ?? false);
-
         $rows = [];
         foreach ($accounts as $account) {
             if ($level > 0 && $level <= 4 && strlen($account->codcuenta) > $level) {
@@ -146,54 +142,23 @@ class BalanceAmounts
                 continue;
             }
 
-            // añadimos las líneas de las subcuentas y recalculamos debe y haber para comprobar que cuadren
-            $debe2 = $haber2 = 0.00;
-
-            // importes que pertenecen a esta cuenta
+            // añadimos las líneas de las subcuentas que pertenecen a esta cuenta
             $accountAmounts = $amountsByCuenta[$account->idcuenta] ?? [];
 
             // si hay nivel intermedio, agrupamos las subcuentas por prefijo según el nivel indicado
             if ($level > 0 && $level < $this->exercise->longsubcuenta) {
-                $groupedAmounts = $this->groupAmountsByLevel($level, $accountAmounts, $openingAmounts);
-                foreach ($groupedAmounts as $groupedAmount) {
+                foreach ($this->groupAmountsByLevel($level, $accountAmounts, $openingAmounts) as $groupedAmount) {
                     $rows[] = $groupedAmount;
-                    $debe2 += (float)$groupedAmount['_debe_raw'];
-                    $haber2 += (float)$groupedAmount['_haber_raw'];
                 }
-            } else {
-                foreach ($accountAmounts as $amount) {
-                    if ($level > 4 && strlen($amount['codsubcuenta']) > $level) {
-                        continue;
-                    }
-
-                    $rows[] = $this->processAmountLine($subaccountsById, $amount, $openingAmounts);
-                    $debe2 += (float)$amount['debe'];
-                    $haber2 += (float)$amount['haber'];
-                }
-            }
-            if (abs($debe2) < 0.01 && abs($haber2) < 0.01) {
                 continue;
             }
 
-            // si se ha marcado la opción de ignorar asientos de apertura, regularización o cierre, no comprobamos que cuadren
-            if ($ignoreOpening || $ignoreRegularization || $ignoreClosure) {
-                continue;
-            }
+            foreach ($accountAmounts as $amount) {
+                if ($level > 4 && strlen($amount['codsubcuenta']) > $level) {
+                    continue;
+                }
 
-            // comprobamos que cuadran debe y haber
-            if (abs($debe - $debe2) >= 0.01) {
-                Tools::log()->error(
-                    'debit-not-match-account',
-                    ['%account%' => $account->codcuenta, '%debit%' => $debe, '%sum%' => $debe2]
-                );
-                return [];
-            }
-            if (abs($haber - $haber2) >= 0.01) {
-                Tools::log()->error(
-                    'credit-not-match-account',
-                    ['%account%' => $account->codcuenta, '%credit%' => $haber, '%sum%' => $haber2]
-                );
-                return [];
+                $rows[] = $this->processAmountLine($subaccountsById, $amount, $openingAmounts);
             }
         }
 
@@ -505,8 +470,7 @@ class BalanceAmounts
 
     /**
      * Agrupa los importes de subcuentas por prefijo según el nivel indicado y devuelve
-     * las filas ya formateadas. Cada fila incluye las claves internas '_debe_raw' y '_haber_raw'
-     * con los valores numéricos para poder acumular los totales en el método llamante.
+     * las filas ya formateadas.
      *
      * Ejemplo con level=5 y subcuenta 4300000000:
      *   - El prefijo sería '43000' y se sumarían 4300000001, 4300000002, 4300000034, 4300004396.
@@ -560,9 +524,6 @@ class BalanceAmounts
                 'debe' => $this->formatValue((string)$debe),
                 'haber' => $this->formatValue((string)$haber),
                 'saldo' => $this->formatValue((string)$saldo),
-                // valores raw para acumular totales en el método llamante
-                '_debe_raw' => $debe,
-                '_haber_raw' => $haber,
             ];
 
             if ($group['opening'] !== null) {

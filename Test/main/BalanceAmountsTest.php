@@ -19,7 +19,10 @@
 
 namespace FacturaScripts\Test\Plugins;
 
+use FacturaScripts\Core\Where;
 use FacturaScripts\Dinamic\Model\Asiento;
+use FacturaScripts\Dinamic\Model\Cuenta;
+use FacturaScripts\Dinamic\Model\Subcuenta;
 use FacturaScripts\Plugins\Informes\Lib\Accounting\BalanceAmounts;
 use FacturaScripts\Test\Traits\DefaultSettingsTrait;
 use FacturaScripts\Test\Traits\LogErrorsTrait;
@@ -231,6 +234,60 @@ final class BalanceAmountsTest extends TestCase
         $this->assertTrue($asiento->delete(), 'asiento-cant-delete');
     }
 
+    public function testAccountWithDirectSubaccountsAndChildAccounts(): void
+    {
+        // creamos un asiento para disponer del ejercicio
+        $asiento = new Asiento();
+        $asiento->concepto = 'Test';
+        $this->assertTrue($asiento->save(), 'asiento-cant-save');
+        $exercise = $asiento->getExercise();
+
+        // subcuenta colgada directamente de la cuenta 11, que también tiene cuentas hijas (112, 113...)
+        $sub1 = $this->createSubcuenta('11', '1199999999', $exercise->codejercicio);
+
+        // subcuenta colgada de la cuenta hija 112
+        $sub2 = $this->createSubcuenta('112', '1129999999', $exercise->codejercicio);
+
+        // movimientos en ambas
+        $firstLine = $asiento->getNewLine();
+        $firstLine->codsubcuenta = $sub1->codsubcuenta;
+        $firstLine->concepto = 'Test linea 1';
+        $firstLine->debe = 200;
+        $this->assertTrue($firstLine->save(), 'linea-cant-save-1');
+
+        $secondLine = $asiento->getNewLine();
+        $secondLine->codsubcuenta = $sub2->codsubcuenta;
+        $secondLine->concepto = 'Test linea 2';
+        $secondLine->haber = 200;
+        $this->assertTrue($secondLine->save(), 'linea-cant-save-2');
+
+        // generamos con las casillas de ignorar desmarcadas: la antigua comprobación de cuadre
+        // comparaba el total jerárquico de la cuenta 11 con sus subcuentas directas y abortaba
+        $balance = new BalanceAmounts();
+        $pages = $balance->generate($exercise->idempresa, $exercise->fechainicio, $exercise->fechafin, [
+            'format' => 'CSV',
+            'ignore_opening' => false,
+            'ignoreregularization' => false,
+            'ignoreclosure' => false
+        ]);
+        $this->assertNotEmpty($pages, 'balance-amounts-empty-mixed-account');
+        $rows = $pages[0];
+
+        // la cuenta 11 acumula la subcuenta directa y la de su cuenta hija
+        $row11 = $this->findRow($rows, '11');
+        $this->assertNotNull($row11, 'account-11-not-found');
+        $this->assertEquals(200.0, (float)$row11['debe']);
+        $this->assertEquals(200.0, (float)$row11['haber']);
+
+        // y ambas subcuentas aparecen listadas
+        $this->assertNotNull($this->findRow($rows, $sub1->codsubcuenta), 'direct-subaccount-not-found');
+        $this->assertNotNull($this->findRow($rows, $sub2->codsubcuenta), 'child-subaccount-not-found');
+
+        $this->assertTrue($asiento->delete(), 'asiento-cant-delete');
+        $this->assertTrue($sub1->delete(), 'subcuenta-cant-delete-1');
+        $this->assertTrue($sub2->delete(), 'subcuenta-cant-delete-2');
+    }
+
     public function testDatesOutsideExercise(): void
     {
         $balance = new BalanceAmounts();
@@ -262,6 +319,25 @@ final class BalanceAmountsTest extends TestCase
         $this->assertTrue($secondLine->save(), 'linea-cant-save-2');
 
         return $asiento;
+    }
+
+    /**
+     * Crea una subcuenta asociada explícitamente a la cuenta indicada.
+     */
+    private function createSubcuenta(string $codcuenta, string $codsubcuenta, string $codejercicio): Subcuenta
+    {
+        $cuenta = new Cuenta();
+        $where = [Where::eq('codejercicio', $codejercicio), Where::eq('codcuenta', $codcuenta)];
+        $this->assertTrue($cuenta->loadWhere($where), 'cuenta-not-found-' . $codcuenta);
+
+        $subcuenta = new Subcuenta();
+        $subcuenta->codcuenta = $cuenta->codcuenta;
+        $subcuenta->idcuenta = $cuenta->idcuenta;
+        $subcuenta->codejercicio = $codejercicio;
+        $subcuenta->codsubcuenta = $codsubcuenta;
+        $subcuenta->descripcion = 'Test ' . $codsubcuenta;
+        $this->assertTrue($subcuenta->save(), 'subcuenta-cant-save-' . $codsubcuenta);
+        return $subcuenta;
     }
 
     /**
