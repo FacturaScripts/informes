@@ -200,7 +200,7 @@ class ReportTaxes extends Controller
         $this->processLayout($lines, $totals);
     }
 
-    protected function exportFieldFormat(string $format, string $value): string
+    protected function exportFieldFormat(string $format, $value): string
     {
         return match ($format) {
             'number' => $this->format === 'PDF' ? Tools::number($value) : $value,
