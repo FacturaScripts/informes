@@ -25,9 +25,12 @@ use FacturaScripts\Core\DataSrc\Divisas;
 use FacturaScripts\Core\DataSrc\Paises;
 use FacturaScripts\Core\Response;
 use FacturaScripts\Core\Tools;
+use FacturaScripts\Core\Lib\ProductType;
+use FacturaScripts\Core\Lib\RegimenIVA;
 use FacturaScripts\Dinamic\Lib\ExportManager;
 use FacturaScripts\Dinamic\Lib\InvoiceOperation;
 use FacturaScripts\Dinamic\Model\Divisa;
+use FacturaScripts\Dinamic\Model\Empresa;
 use FacturaScripts\Dinamic\Model\Pais;
 use FacturaScripts\Dinamic\Model\Serie;
 use FacturaScripts\Dinamic\Model\User;
@@ -260,11 +263,13 @@ class ReportTaxes extends Controller
 
             case 'sales':
                 $sql .= 'SELECT f.codserie, f.codigo, f.numero2, f.fecha, f.fechadevengo, f.nombrecliente AS nombre, f.cifnif, l.pvptotal,'
-                    . ' l.iva, l.recargo, l.irpf, l.suplido, f.dtopor1, f.dtopor2, f.total, f.operacion, f.codpago, f.codpais, cl.codsubcuenta,'
-                    . ' f.ciudad, f.provincia, f.codpostal'
+                    . ' l.iva, l.recargo, l.irpf, l.suplido, l.cantidad, l.coste, f.dtopor1, f.dtopor2, f.total, f.operacion, f.codpago, f.codpais, cl.codsubcuenta,'
+                    . ' f.ciudad, f.provincia, f.codpostal, p.tipo AS producto_tipo, se.tipo AS serie_tipo'
                     . ' FROM lineasfacturascli AS l'
                     . ' LEFT JOIN facturascli AS f ON l.idfactura = f.idfactura '
                     . ' LEFT JOIN clientes AS cl ON f.codcliente = cl.codcliente'
+                    . ' LEFT JOIN productos AS p ON l.referencia = p.referencia'
+                    . ' LEFT JOIN series AS se ON f.codserie = se.codserie'
                     . ' WHERE f.idempresa = ' . $this->dataBase->var2str($this->idempresa)
                     . ' AND ' . $columnDate . ' >= ' . $this->dataBase->var2str($this->datefrom)
                     . ' AND ' . $columnDate . ' <= ' . $this->dataBase->var2str($this->dateto)
@@ -284,46 +289,32 @@ class ReportTaxes extends Controller
         }
         $sql .= ' ORDER BY ' . $columnDate . ', ' . $numCol . ' ASC;';
 
+        $companyRegimen = $this->getCompanyRegimen();
+
         $data = [];
         foreach ($this->dataBase->select($sql) as $row) {
             $pvpTotal = floatval($row['pvptotal']) * (100 - floatval($row['dtopor1'])) * (100 - floatval($row['dtopor2'])) / 10000;
             $row['suplido'] = filter_var($row['suplido'], FILTER_VALIDATE_BOOLEAN);
-            $code = $row['codigo'] . '-' . $row['iva'] . '-' . $row['recargo'] . '-' . $row['irpf'] . '-' . $row['suplido'];
-            if (isset($data[$code])) {
-                $data[$code]['neto'] += $row['suplido'] ? 0 : $pvpTotal;
-                $data[$code]['totaliva'] += $row['suplido'] || $row['operacion'] === InvoiceOperation::INTRA_COMMUNITY ? 0 : (float)$row['iva'] * $pvpTotal / 100;
-                $data[$code]['totalrecargo'] += $row['suplido'] ? 0 : (float)$row['recargo'] * $pvpTotal / 100;
-                $data[$code]['totalirpf'] += $row['suplido'] ? 0 : (float)$row['irpf'] * $pvpTotal / 100;
-                $data[$code]['suplidos'] += $row['suplido'] ? $pvpTotal : 0;
+
+            // venta de bienes usados (REBU): el IVA se calcula sobre el margen, no sobre el total
+            if ($this->isUsedGoodsSale($row, $companyRegimen)) {
+                $this->addUsedGoodsAmounts($data, $row, $pvpTotal);
                 continue;
             }
 
-            $data[$code] = [
-                'ciudad' => $row['ciudad'] ?? null,
-                'provincia' => $row['provincia'] ?? null,
-                'codpostal' => $row['codpostal'] ?? null,
-                'codpais' => $row['codpais'] ?? null,
-                'codserie' => $row['codserie'],
-                'codigo' => $row['codigo'],
-                'numero2' => $row['numero2'] ?? null,
-                'numproveedor' => $row['numproveedor'] ?? null,
-                'fecha' => $this->typeDate == 'create' ?
-                    $row['fecha'] :
-                    $row['fechadevengo'] ?? $row['fecha'],
-                'nombre' => $row['nombre'],
-                'codsubcuenta' => $row['codsubcuenta'],
-                'cifnif' => $row['cifnif'],
-                'codpago' => $row['codpago'] ?? null,
-                'neto' => $row['suplido'] ? 0 : $pvpTotal,
-                'iva' => $row['suplido'] ? 0 : (float)$row['iva'],
-                'totaliva' => $row['suplido'] || $row['operacion'] === InvoiceOperation::INTRA_COMMUNITY ? 0 : (float)$row['iva'] * $pvpTotal / 100,
-                'recargo' => $row['suplido'] ? 0 : (float)$row['recargo'],
-                'totalrecargo' => $row['suplido'] ? 0 : (float)$row['recargo'] * $pvpTotal / 100,
-                'irpf' => $row['suplido'] ? 0 : (float)$row['irpf'],
-                'totalirpf' => $row['suplido'] ? 0 : (float)$row['irpf'] * $pvpTotal / 100,
-                'suplidos' => $row['suplido'] ? $pvpTotal : 0,
-                'total' => (float)$row['total']
+            $intraCommunity = $row['operacion'] === InvoiceOperation::INTRA_COMMUNITY;
+            $amounts = [
+                'iva' => $row['suplido'] ? 0.0 : (float)$row['iva'],
+                'recargo' => $row['suplido'] ? 0.0 : (float)$row['recargo'],
+                'irpf' => $row['suplido'] ? 0.0 : (float)$row['irpf'],
+                'neto' => $row['suplido'] ? 0.0 : $pvpTotal,
+                'totaliva' => $row['suplido'] || $intraCommunity ? 0.0 : (float)$row['iva'] * $pvpTotal / 100,
+                'totalrecargo' => $row['suplido'] ? 0.0 : (float)$row['recargo'] * $pvpTotal / 100,
+                'totalirpf' => $row['suplido'] ? 0.0 : (float)$row['irpf'] * $pvpTotal / 100,
+                'suplidos' => $row['suplido'] ? $pvpTotal : 0.0
             ];
+            $code = $row['codigo'] . '-' . $row['iva'] . '-' . $row['recargo'] . '-' . $row['irpf'] . '-' . $row['suplido'];
+            $this->addAmounts($data, $code, $row, $amounts);
         }
 
         // round
@@ -337,6 +328,110 @@ class ReportTaxes extends Controller
         }
 
         return $data;
+    }
+
+    /**
+     * Acumula un conjunto de importes en $data bajo la clave $code, creando la fila si no existe.
+     */
+    protected function addAmounts(array &$data, string $code, array $row, array $amounts): void
+    {
+        if (isset($data[$code])) {
+            $data[$code]['neto'] += $amounts['neto'];
+            $data[$code]['totaliva'] += $amounts['totaliva'];
+            $data[$code]['totalrecargo'] += $amounts['totalrecargo'];
+            $data[$code]['totalirpf'] += $amounts['totalirpf'];
+            $data[$code]['suplidos'] += $amounts['suplidos'];
+            return;
+        }
+
+        $data[$code] = [
+            'ciudad' => $row['ciudad'] ?? null,
+            'provincia' => $row['provincia'] ?? null,
+            'codpostal' => $row['codpostal'] ?? null,
+            'codpais' => $row['codpais'] ?? null,
+            'codserie' => $row['codserie'],
+            'codigo' => $row['codigo'],
+            'numero2' => $row['numero2'] ?? null,
+            'numproveedor' => $row['numproveedor'] ?? null,
+            'fecha' => $this->typeDate == 'create' ?
+                $row['fecha'] :
+                $row['fechadevengo'] ?? $row['fecha'],
+            'nombre' => $row['nombre'],
+            'codsubcuenta' => $row['codsubcuenta'],
+            'cifnif' => $row['cifnif'],
+            'codpago' => $row['codpago'] ?? null,
+            'neto' => $amounts['neto'],
+            'iva' => $amounts['iva'],
+            'totaliva' => $amounts['totaliva'],
+            'recargo' => $amounts['recargo'],
+            'totalrecargo' => $amounts['totalrecargo'],
+            'irpf' => $amounts['irpf'],
+            'totalirpf' => $amounts['totalirpf'],
+            'suplidos' => $amounts['suplidos'],
+            'total' => (float)$row['total']
+        ];
+    }
+
+    /**
+     * Desdobla una línea de venta de bienes usados (REBU) en dos tramos: el coste al 0%
+     * y el margen al tipo de IVA de la línea, replicando el cálculo de la cabecera.
+     */
+    protected function addUsedGoodsAmounts(array &$data, array $row, float $pvpTotal): void
+    {
+        $totalCoste = (float)$row['cantidad'] * (float)$row['coste'];
+        $margin = $pvpTotal - $totalCoste;
+
+        // solo se repercute IVA si hay margen positivo o es una factura rectificativa
+        $applyIva = $margin > 0 || ($row['serie_tipo'] ?? '') === 'R';
+
+        // tramo del coste al 0%
+        if (abs($totalCoste) > 0.0) {
+            $codeCost = $row['codigo'] . '-0-0-0-' . $row['suplido'];
+            $this->addAmounts($data, $codeCost, $row, [
+                'iva' => 0.0,
+                'recargo' => 0.0,
+                'irpf' => 0.0,
+                'neto' => $totalCoste,
+                'totaliva' => 0.0,
+                'totalrecargo' => 0.0,
+                'totalirpf' => 0.0,
+                'suplidos' => 0.0
+            ]);
+        }
+
+        // tramo del margen al tipo de IVA de la línea (sin recargo, igual que el calculador)
+        $codeMargin = $row['codigo'] . '-' . $row['iva'] . '-' . $row['recargo'] . '-' . $row['irpf'] . '-' . $row['suplido'];
+        $this->addAmounts($data, $codeMargin, $row, [
+            'iva' => (float)$row['iva'],
+            'recargo' => (float)$row['recargo'],
+            'irpf' => (float)$row['irpf'],
+            'neto' => $margin,
+            'totaliva' => $applyIva ? (float)$row['iva'] * $margin / 100 : 0.0,
+            'totalrecargo' => 0.0,
+            'totalirpf' => (float)$row['irpf'] * $margin / 100,
+            'suplidos' => 0.0
+        ]);
+    }
+
+    /**
+     * Régimen de IVA de la empresa del informe (cadena vacía si no aplica o no es de ventas).
+     */
+    protected function getCompanyRegimen(): string
+    {
+        if ($this->source !== 'sales') {
+            return '';
+        }
+
+        $empresa = new Empresa();
+        return $empresa->loadFromCode($this->idempresa) ? (string)$empresa->regimeniva : '';
+    }
+
+    protected function isUsedGoodsSale(array $row, string $companyRegimen): bool
+    {
+        return $this->source === 'sales'
+            && false === $row['suplido']
+            && $companyRegimen === RegimenIVA::TAX_SYSTEM_USED_GOODS
+            && ($row['producto_tipo'] ?? '') === ProductType::SECOND_HAND;
     }
 
     protected function getTotals(array $data): array
