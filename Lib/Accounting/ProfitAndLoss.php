@@ -38,10 +38,16 @@ use FacturaScripts\Dinamic\Model\Partida;
 class ProfitAndLoss
 {
     /** @var array */
+    protected $accounts = [];
+
+    /** @var array */
     protected $amounts = [];
 
+    /** @var array */
+    protected $subaccounts = [];
+
     /** @var DataBase */
-    protected $dataBase;
+    protected $db;
 
     /** @var string */
     protected $dateFrom;
@@ -66,10 +72,12 @@ class ProfitAndLoss
 
     public function __construct()
     {
-        $this->dataBase = new DataBase();
+        $this->db = new DataBase();
+        $this->db->connect();
 
         // needed dependencies
         new Partida();
+        new BalanceAccount();
     }
 
     public function generate(int $idcompany, string $dateFrom, string $dateTo, array $params = []): array
@@ -115,8 +123,7 @@ class ProfitAndLoss
             return;
         }
 
-        $where = [Where::eq('idbalance', $balance->id)];
-        foreach (BalanceAccount::all($where, [], 0, 0) as $model) {
+        foreach ($this->getBalanceAccounts($balance) as $model) {
             $total = $this->getAccountAmounts($balance, $model, $codejercicio, $params);
 
             // si no tiene saldo, no lo mostramos
@@ -179,7 +186,7 @@ class ProfitAndLoss
         ];
     }
 
-    protected function formatValue(string $value, string $type = 'money', bool $bold = false): string
+    protected function formatValue($value, string $type = 'money', bool $bold = false): string
     {
         $prefix = $bold ? '<b>' : '';
         $suffix = $bold ? '</b>' : '';
@@ -201,50 +208,113 @@ class ProfitAndLoss
 
     protected function getAccountAmounts(BalanceCode $balance, BalanceAccount $model, string $codejercicio, array $params): float
     {
-        $key = $codejercicio . '-' . $model->codcuenta;
+        $channel = $params['channel'] ?? '';
+        $key = $codejercicio . '-' . $balance->id . '-' . $model->codcuenta . '-' . $channel;
         if (array_key_exists($key, $this->amounts)) {
             return $this->amounts[$key];
         }
 
-        $total = 0.00;
-        $sql = "SELECT SUM(partidas.debe) AS debe, SUM(partidas.haber) AS haber"
+        // la cuenta 129 tiene un cálculo especial (resultado del ejercicio)
+        if ($model->codcuenta === '129') {
+            $total = $this->getResultAmount($balance, $model, $codejercicio, $channel);
+            $this->amounts[$key] = $total;
+            return $total;
+        }
+
+        // sumamos los saldos precargados de las subcuentas cuyo código empieza por el de la cuenta
+        $debe = $haber = 0.00;
+        $prefix = $model->codcuenta;
+        $length = strlen($prefix);
+        foreach ($this->getSubaccountBalances($codejercicio, $channel) as $codsubcuenta => $amounts) {
+            if (strncmp($codsubcuenta, $prefix, $length) === 0) {
+                $debe += $amounts['debe'];
+                $haber += $amounts['haber'];
+            }
+        }
+
+        $total = $balance->calculate($debe, $haber);
+        $this->amounts[$key] = $total;
+        return $total;
+    }
+
+    /**
+     * Filtros comunes (rango de fechas, canal y exclusión de regularización/cierre)
+     * para las consultas de saldos sobre la tabla de asientos.
+     */
+    protected function asientoFilters(string $codejercicio, string $channel): string
+    {
+        $sql = '';
+        if ($codejercicio === $this->exercise->codejercicio) {
+            $sql .= ' AND asientos.fecha BETWEEN ' . $this->db->var2str($this->dateFrom)
+                . ' AND ' . $this->db->var2str($this->dateTo);
+        } elseif ($codejercicio === $this->exercisePrev->codejercicio) {
+            $sql .= ' AND asientos.fecha BETWEEN ' . $this->db->var2str($this->dateFromPrev)
+                . ' AND ' . $this->db->var2str($this->dateToPrev);
+        }
+
+        if (!empty($channel)) {
+            $sql .= ' AND asientos.canal = ' . $this->db->var2str($channel);
+        }
+
+        return $sql . ' AND (asientos.operacion IS NULL OR asientos.operacion NOT IN '
+            . '(' . $this->db->var2str(Asiento::OPERATION_REGULARIZATION)
+            . ',' . $this->db->var2str(Asiento::OPERATION_CLOSING) . '))';
+    }
+
+    /**
+     * Devuelve, cacheados por ejercicio y canal, los saldos (debe/haber) agrupados
+     * por subcuenta en una única consulta, evitando una consulta por cuenta.
+     *
+     * @return array<string, array{debe: float, haber: float}>
+     */
+    protected function getSubaccountBalances(string $codejercicio, string $channel): array
+    {
+        $key = $codejercicio . '-' . $channel;
+        if (array_key_exists($key, $this->subaccounts)) {
+            return $this->subaccounts[$key];
+        }
+
+        $sql = "SELECT partidas.codsubcuenta AS codsubcuenta,"
+            . " SUM(partidas.debe) AS debe, SUM(partidas.haber) AS haber"
             . " FROM partidas"
             . " LEFT JOIN asientos ON partidas.idasiento = asientos.idasiento"
-            . " WHERE asientos.codejercicio = " . $this->dataBase->var2str($codejercicio)
-            . " AND partidas.codsubcuenta LIKE '" . $model->codcuenta . "%'";
+            . " WHERE asientos.codejercicio = " . $this->db->var2str($codejercicio)
+            . $this->asientoFilters($codejercicio, $channel)
+            . " GROUP BY partidas.codsubcuenta";
 
-        if ($model->codcuenta === '129') {
-            $sql = "SELECT SUM(partidas.debe) as debe, SUM(partidas.haber) as haber"
-                . " FROM partidas"
-                . " LEFT JOIN asientos ON partidas.idasiento = asientos.idasiento"
-                . " LEFT JOIN subcuentas ON partidas.idsubcuenta = subcuentas.idsubcuenta"
-                . " LEFT JOIN cuentas ON subcuentas.idcuenta = cuentas.idcuenta"
-                . " WHERE asientos.codejercicio = " . $this->dataBase->var2str($codejercicio)
-                . " AND (partidas.codsubcuenta LIKE '" . $model->codcuenta . "%' OR subcuentas.codcuenta LIKE '6%' OR subcuentas.codcuenta LIKE '7%')";
+        $balances = [];
+        foreach ($this->db->select($sql) as $row) {
+            $balances[$row['codsubcuenta']] = [
+                'debe' => (float)$row['debe'],
+                'haber' => (float)$row['haber']
+            ];
         }
 
-        if ($codejercicio === $this->exercise->codejercicio) {
-            $sql .= ' AND asientos.fecha BETWEEN ' . $this->dataBase->var2str($this->dateFrom)
-                . ' AND ' . $this->dataBase->var2str($this->dateTo);
-        } elseif ($codejercicio === $this->exercisePrev->codejercicio) {
-            $sql .= ' AND asientos.fecha BETWEEN ' . $this->dataBase->var2str($this->dateFromPrev)
-                . ' AND ' . $this->dataBase->var2str($this->dateToPrev);
-        }
+        $this->subaccounts[$key] = $balances;
+        return $balances;
+    }
 
-        $channel = $params['channel'] ?? '';
-        if (!empty($channel)) {
-            $sql .= ' AND asientos.canal = ' . $this->dataBase->var2str($channel);
-        }
+    /**
+     * Cálculo del resultado del ejercicio (cuenta 129) a partir de las cuentas
+     * de gastos (6) e ingresos (7).
+     */
+    protected function getResultAmount(BalanceCode $balance, BalanceAccount $model, string $codejercicio, string $channel): float
+    {
+        $sql = "SELECT SUM(partidas.debe) as debe, SUM(partidas.haber) as haber"
+            . " FROM partidas"
+            . " LEFT JOIN asientos ON partidas.idasiento = asientos.idasiento"
+            . " LEFT JOIN subcuentas ON partidas.idsubcuenta = subcuentas.idsubcuenta"
+            . " LEFT JOIN cuentas ON subcuentas.idcuenta = cuentas.idcuenta"
+            . " WHERE asientos.codejercicio = " . $this->db->var2str($codejercicio)
+            . " AND (partidas.codsubcuenta LIKE " . $this->db->var2str($model->codcuenta . '%')
+            . " OR subcuentas.codcuenta LIKE '6%' OR subcuentas.codcuenta LIKE '7%')"
+            . $this->asientoFilters($codejercicio, $channel);
 
-        $sql .= ' AND (asientos.operacion IS NULL OR asientos.operacion NOT IN '
-            . '(' . $this->dataBase->var2str(Asiento::OPERATION_REGULARIZATION)
-            . ',' . $this->dataBase->var2str(Asiento::OPERATION_CLOSING) . '))';
-
-        foreach ($this->dataBase->select($sql) as $row) {
+        $total = 0.00;
+        foreach ($this->db->select($sql) as $row) {
             $total += $balance->calculate((float)$row['debe'], (float)$row['haber']);
         }
 
-        $this->amounts[$key] = $total;
         return $total;
     }
 
@@ -255,12 +325,45 @@ class ProfitAndLoss
             return $total;
         }
 
-        $where = [Where::eq('idbalance', $balance->id)];
-        foreach (BalanceAccount::all($where, [], 0, 0) as $model) {
+        foreach ($this->getBalanceAccounts($balance) as $model) {
             $total += $this->getAccountAmounts($balance, $model, $codejercicio, $params);
         }
 
         return $total;
+    }
+
+    /**
+     * @param BalanceCode $balance
+     * @return BalanceAccount[]
+     */
+    protected function getBalanceAccounts(BalanceCode $balance): array
+    {
+        if (!array_key_exists($balance->id, $this->accounts)) {
+            $where = [Where::eq('idbalance', $balance->id)];
+            $this->accounts[$balance->id] = BalanceAccount::all($where, [], 0, 0);
+        }
+
+        return $this->accounts[$balance->id];
+    }
+
+    /**
+     * Ordena los códigos de balance por nivel con comparación natural.
+     * Se hace en PHP porque los niveles mezclan letras y números ('A', '2', '10'...)
+     * y castear a entero en el ORDER BY falla en PostgreSQL.
+     *
+     * @param BalanceCode[] $balances
+     * @return BalanceCode[]
+     */
+    protected function sortBalances(array $balances): array
+    {
+        usort($balances, function (BalanceCode $a, BalanceCode $b) {
+            return strnatcmp((string)$a->level1, (string)$b->level1)
+                ?: strnatcmp((string)$a->level2, (string)$b->level2)
+                ?: strnatcmp((string)$a->level3, (string)$b->level3)
+                ?: strnatcmp((string)$a->level4, (string)$b->level4);
+        });
+
+        return $balances;
     }
 
     protected function getData(string $nature = 'A', array $params = []): array
@@ -275,15 +378,7 @@ class ProfitAndLoss
             Where::eq('subtype', $params['subtype'] ?? 'normal'),
             Where::notEq('level1', '')
         ];
-        // ordenamos en PHP con comparación natural: los niveles mezclan letras y números
-        // ('A', '2', '10'...) y castear a entero en el ORDER BY falla en PostgreSQL
-        $balances = BalanceCode::all($where, [], 0, 0);
-        usort($balances, function (BalanceCode $a, BalanceCode $b) {
-            return strnatcmp((string)$a->level1, (string)$b->level1)
-                ?: strnatcmp((string)$a->level2, (string)$b->level2)
-                ?: strnatcmp((string)$a->level3, (string)$b->level3)
-                ?: strnatcmp((string)$a->level4, (string)$b->level4);
-        });
+        $balances = $this->sortBalances(BalanceCode::all($where, [], 0, 0));
 
         // sin códigos de balance el informe saldría en blanco: avisamos y no generamos nada
         if (empty($balances)) {
@@ -340,15 +435,13 @@ class ProfitAndLoss
 
             if ($bal->level4 != $level4 && !empty($bal->level4)) {
                 $level4 = $bal->level4;
-                if (empty($amountsE1[$bal->codbalance]) && empty($amountsE2[$bal->codbalance])) {
-                    continue;
+                if (!empty($amountsE1[$bal->codbalance]) || !empty($amountsE2[$bal->codbalance])) {
+                    $rows[] = [
+                        'descripcion' => '      ' . $bal->description4,
+                        $code1 => $this->formatValue($amountsE1[$bal->codbalance]),
+                        $code2 => $this->formatValue($amountsE2[$bal->codbalance])
+                    ];
                 }
-
-                $rows[] = [
-                    'descripcion' => '      ' . $bal->description4,
-                    $code1 => $this->formatValue($amountsE1[$bal->codbalance]),
-                    $code2 => $this->formatValue($amountsE2[$bal->codbalance])
-                ];
             }
 
             $this->addAccounts($rows, $bal, $code1, $params);

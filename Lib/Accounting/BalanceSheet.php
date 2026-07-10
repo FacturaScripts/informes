@@ -392,6 +392,26 @@ class BalanceSheet
         return $this->accounts[$balance->id];
     }
 
+    /**
+     * Ordena los códigos de balance por nivel con comparación natural.
+     * Se hace en PHP porque los niveles mezclan letras y números ('A', '2', '10'...)
+     * y castear a entero en el ORDER BY falla en PostgreSQL.
+     *
+     * @param BalanceCode[] $balances
+     * @return BalanceCode[]
+     */
+    protected function sortBalances(array $balances): array
+    {
+        usort($balances, function (BalanceCode $a, BalanceCode $b) {
+            return strnatcmp((string)$a->level1, (string)$b->level1)
+                ?: strnatcmp((string)$a->level2, (string)$b->level2)
+                ?: strnatcmp((string)$a->level3, (string)$b->level3)
+                ?: strnatcmp((string)$a->level4, (string)$b->level4);
+        });
+
+        return $balances;
+    }
+
     protected function getData(string $nature = 'A', array $params = []): array
     {
         $rows = [];
@@ -404,8 +424,7 @@ class BalanceSheet
             Where::eq('subtype', $params['subtype'] ?? 'normal'),
             Where::notEq('level1', '')
         ];
-        $order = ['level1' => 'ASC', 'level2' => 'ASC', 'level3' => 'ASC', 'level4' => 'ASC'];
-        $balances = BalanceCode::all($where, $order, 0, 0);
+        $balances = $this->sortBalances(BalanceCode::all($where, [], 0, 0));
 
         // sin códigos de balance el informe saldría en blanco: avisamos y no generamos nada
         if (empty($balances)) {
