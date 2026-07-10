@@ -296,9 +296,9 @@ class ReportTaxes extends Controller
             $pvpTotal = floatval($row['pvptotal']) * (100 - floatval($row['dtopor1'])) * (100 - floatval($row['dtopor2'])) / 10000;
             $row['suplido'] = filter_var($row['suplido'], FILTER_VALIDATE_BOOLEAN);
 
-            // venta de bienes usados (REBU): el IVA se calcula sobre el margen, no sobre el total
-            if ($this->isUsedGoodsSale($row, $companyRegimen)) {
-                $this->addUsedGoodsAmounts($data, $row, $pvpTotal);
+            // regímenes de margen (bienes usados REBU y agencias de viajes): el IVA va sobre el margen
+            if ($this->isMarginRegimeSale($row, $companyRegimen)) {
+                $this->addMarginRegimeAmounts($data, $row, $pvpTotal);
                 continue;
             }
 
@@ -373,10 +373,11 @@ class ReportTaxes extends Controller
     }
 
     /**
-     * Desdobla una línea de venta de bienes usados (REBU) en dos tramos: el coste al 0%
-     * y el margen al tipo de IVA de la línea, replicando el cálculo de la cabecera.
+     * Desdobla una línea de venta en régimen de margen (bienes usados o agencia de viajes)
+     * en dos tramos: el coste al 0% y el margen al tipo de IVA de la línea, replicando el
+     * cálculo de la cabecera (CalculatorModSpain::applyUsedGoods / applyTravel).
      */
-    protected function addUsedGoodsAmounts(array &$data, array $row, float $pvpTotal): void
+    protected function addMarginRegimeAmounts(array &$data, array $row, float $pvpTotal): void
     {
         $totalCoste = (float)$row['cantidad'] * (float)$row['coste'];
         $margin = $pvpTotal - $totalCoste;
@@ -426,11 +427,19 @@ class ReportTaxes extends Controller
         return $empresa->loadFromCode($this->idempresa) ? (string)$empresa->regimeniva : '';
     }
 
-    protected function isUsedGoodsSale(array $row, string $companyRegimen): bool
+    protected function isMarginRegimeSale(array $row, string $companyRegimen): bool
     {
-        return $this->source === 'sales'
-            && false === $row['suplido']
-            && $companyRegimen === RegimenIVA::TAX_SYSTEM_USED_GOODS
+        if ($this->source !== 'sales' || $row['suplido']) {
+            return false;
+        }
+
+        // agencias de viajes: el IVA sobre el margen aplica a todas las líneas
+        if ($companyRegimen === RegimenIVA::TAX_SYSTEM_TRAVEL) {
+            return true;
+        }
+
+        // bienes usados (REBU): solo a los productos de segunda mano
+        return $companyRegimen === RegimenIVA::TAX_SYSTEM_USED_GOODS
             && ($row['producto_tipo'] ?? '') === ProductType::SECOND_HAND;
     }
 
