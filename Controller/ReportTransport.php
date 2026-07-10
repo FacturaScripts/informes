@@ -58,8 +58,8 @@ class ReportTransport extends Controller
     public function getModelType(): array
     {
         return [
-            'AlbaranCliente' => Tools::lang()->trans('customer-delivery-notes'),
-            'FacturaCliente' => Tools::lang()->trans('customer-invoices')
+            'AlbaranCliente' => Tools::trans('customer-delivery-notes'),
+            'FacturaCliente' => Tools::trans('customer-invoices')
         ];
     }
 
@@ -169,8 +169,7 @@ class ReportTransport extends Controller
 
     protected function processLayout(array &$lines): void
     {
-        $i18n = Tools::lang();
-        $nameFile = $i18n->trans('carriers') . ' ' . $i18n->trans($this->modelname);
+        $nameFile = Tools::trans('carriers') . ' ' . Tools::trans($this->modelname);
         $userDate = date(ModelCore::DATE_STYLE, strtotime($this->date));
 
         $exportManager = new ExportManager();
@@ -179,10 +178,10 @@ class ReportTransport extends Controller
 
         // si el formato es PDF, añadimos la tabla de información primero
         if ($this->format === 'PDF') {
-            $exportManager->addTablePage([$i18n->trans('report'), $i18n->trans('date')], [
+            $exportManager->addTablePage([Tools::trans('report'), Tools::trans('date')], [
                 [
-                    $i18n->trans('report') => $nameFile,
-                    $i18n->trans('date') => date($userDate),
+                    Tools::trans('report') => $nameFile,
+                    Tools::trans('date') => date($userDate),
                 ]
             ]);
         }
@@ -199,10 +198,10 @@ class ReportTransport extends Controller
 
         // si el formato no es PDF, añadimos la tabla de información al final
         if ($this->format != 'PDF') {
-            $exportManager->addTablePage([$i18n->trans('report'), $i18n->trans('date')], [
+            $exportManager->addTablePage([Tools::trans('report'), Tools::trans('date')], [
                 [
-                    $i18n->trans('report') => $nameFile,
-                    $i18n->trans('date') => date($userDate),
+                    Tools::trans('report') => $nameFile,
+                    Tools::trans('date') => date($userDate),
                 ]
             ]);
         }

@@ -93,7 +93,7 @@ class ReportGenerator
             }
         }
 
-        $name = Tools::lang()->trans('b-agent', ['%name%' => $agent->nombre]);
+        $name = Tools::trans('b-agent', ['%name%' => $agent->nombre]);
         $tag = 'b-agent-' . $codagente;
         $done = static::generateBoard($name, $tag, $report_tags);
         if ($done) {
@@ -127,7 +127,7 @@ class ReportGenerator
             }
         }
 
-        $name = Tools::lang()->trans('b-customer', ['%name%' => $customer->nombre]);
+        $name = Tools::trans('b-customer', ['%name%' => $customer->nombre]);
         $tag = 'b-customer-' . $codcliente;
         $done = static::generateBoard($name, $tag, $report_tags);
         if ($done) {
@@ -161,7 +161,7 @@ class ReportGenerator
             }
         }
 
-        $name = Tools::lang()->trans('b-supplier', ['%name%' => $supplier->nombre]);
+        $name = Tools::trans('b-supplier', ['%name%' => $supplier->nombre]);
         $tag = 'b-supplier-' . $codproveedor;
         $done = static::generateBoard($name, $tag, $report_tags);
         if ($done) {
@@ -196,7 +196,7 @@ class ReportGenerator
             }
         }
 
-        $name = Tools::lang()->trans('b-user', ['%name%' => $user->nick]);
+        $name = Tools::trans('b-user', ['%name%' => $user->nick]);
         $tag = 'b-user-' . $username;
         $done = static::generateBoard($name, $tag, $report_tags);
         if ($done) {
@@ -226,7 +226,7 @@ class ReportGenerator
                 $report_tags[] = $report->tag;
             }
 
-            $name = Tools::lang()->trans('b-' . $table_name);
+            $name = Tools::trans('b-' . $table_name);
             $tag = 'b-' . $table_name;
             $done = static::generateBoard($name, $tag, $report_tags);
             if ($done) {
@@ -235,7 +235,7 @@ class ReportGenerator
         }
 
         // ventas anuales
-        $name = Tools::lang()->trans('b-annual-sales');
+        $name = Tools::trans('b-annual-sales');
         $tag = 'b-annual-sales';
         $done = static::generateBoard(
             $name,
@@ -249,7 +249,7 @@ class ReportGenerator
         }
 
         // ventas mensuales
-        $name = Tools::lang()->trans('b-monthly-sales');
+        $name = Tools::trans('b-monthly-sales');
         $tag = 'b-monthly-sales';
         $done = static::generateBoard(
             $name,
@@ -263,7 +263,7 @@ class ReportGenerator
         }
 
         // compras anuales
-        $name = Tools::lang()->trans('b-annual-purchases');
+        $name = Tools::trans('b-annual-purchases');
         $tag = 'b-annual-purchases';
         $done = static::generateBoard(
             $name,
@@ -276,7 +276,7 @@ class ReportGenerator
         }
 
         // compras mensuales
-        $name = Tools::lang()->trans('b-monthly-purchases');
+        $name = Tools::trans('b-monthly-purchases');
         $tag = 'b-monthly-purchases';
         $done = static::generateBoard(
             $name,
@@ -343,7 +343,7 @@ class ReportGenerator
         $where = [Where::eq('tag', $tag)];
         if (false === $report->loadWhere($where)) {
             // creamos el informe
-            $report->name = Tools::lang()->trans('r-' . $table_name . '-total-agent', ['%name%' => $agent->nombre]);
+            $report->name = Tools::trans('r-' . $table_name . '-total-agent', ['%name%' => $agent->nombre]);
             $report->table = $table_name;
             $report->tag = $tag;
             $report->xcolumn = 'fecha';
@@ -366,7 +366,7 @@ class ReportGenerator
         $where = [Where::eq('tag', $tag)];
         if (false === $reportYear->loadWhere($where)) {
             // creamos el informe
-            $reportYear->name = Tools::lang()->trans('r-' . $table_name . '-total-agent-year', ['%name%' => $agent->nombre]);
+            $reportYear->name = Tools::trans('r-' . $table_name . '-total-agent-year', ['%name%' => $agent->nombre]);
             $reportYear->table = $table_name;
             $reportYear->tag = $tag;
             $reportYear->type = Report::TYPE_BAR;
@@ -402,7 +402,7 @@ class ReportGenerator
         $where = [Where::eq('tag', $tag)];
         if (false === $report->loadWhere($where)) {
             // creamos el informe
-            $report->name = Tools::lang()->trans('r-' . $table_name . '-total-customer', ['%name%' => $customer->nombre]);
+            $report->name = Tools::trans('r-' . $table_name . '-total-customer', ['%name%' => $customer->nombre]);
             $report->table = $table_name;
             $report->tag = $tag;
             $report->xcolumn = 'fecha';
@@ -425,7 +425,7 @@ class ReportGenerator
         $where = [Where::eq('tag', $tag)];
         if (false === $reportYear->loadWhere($where)) {
             // creamos el informe
-            $reportYear->name = Tools::lang()->trans('r-' . $table_name . '-total-customer-year', ['%name%' => $customer->nombre]);
+            $reportYear->name = Tools::trans('r-' . $table_name . '-total-customer-year', ['%name%' => $customer->nombre]);
             $reportYear->table = $table_name;
             $reportYear->tag = $tag;
             $reportYear->type = Report::TYPE_BAR;
@@ -458,7 +458,7 @@ class ReportGenerator
             $where = [Where::eq('tag', $tag)];
             if (false === $report->loadWhere($where)) {
                 // creamos el informe
-                $report->name = Tools::lang()->trans('r-' . $table_name . '-total-serie', ['%serie%' => $serie->descripcion]);
+                $report->name = Tools::trans('r-' . $table_name . '-total-serie', ['%serie%' => $serie->descripcion]);
                 $report->table = $table_name;
                 $report->tag = $tag;
                 $report->xcolumn = 'fecha';
@@ -481,7 +481,7 @@ class ReportGenerator
             $where = [Where::eq('tag', $tag)];
             if (false === $reportYear->loadWhere($where)) {
                 // creamos el informe
-                $reportYear->name = Tools::lang()->trans('r-' . $table_name . '-total-serie-year', ['%serie%' => $serie->descripcion]);
+                $reportYear->name = Tools::trans('r-' . $table_name . '-total-serie-year', ['%serie%' => $serie->descripcion]);
                 $reportYear->table = $table_name;
                 $reportYear->tag = $tag;
                 $reportYear->type = Report::TYPE_BAR;
@@ -518,7 +518,7 @@ class ReportGenerator
         $where = [Where::eq('tag', $tag)];
         if (false === $report->loadWhere($where)) {
             // creamos el informe
-            $report->name = Tools::lang()->trans('r-' . $table_name . '-total-supplier', ['%name%' => $supplier->nombre]);
+            $report->name = Tools::trans('r-' . $table_name . '-total-supplier', ['%name%' => $supplier->nombre]);
             $report->table = $table_name;
             $report->tag = $tag;
             $report->xcolumn = 'fecha';
@@ -541,7 +541,7 @@ class ReportGenerator
         $where = [Where::eq('tag', $tag)];
         if (false === $reportYear->loadWhere($where)) {
             // creamos el informe
-            $reportYear->name = Tools::lang()->trans('r-' . $table_name . '-total-supplier-year', ['%name%' => $supplier->nombre]);
+            $reportYear->name = Tools::trans('r-' . $table_name . '-total-supplier-year', ['%name%' => $supplier->nombre]);
             $reportYear->table = $table_name;
             $reportYear->tag = $tag;
             $reportYear->type = Report::TYPE_BAR;
@@ -577,7 +577,7 @@ class ReportGenerator
         $where = [Where::eq('tag', $tag)];
         if (false === $report->loadWhere($where)) {
             // creamos el informe
-            $report->name = Tools::lang()->trans('r-' . $table_name . '-total-user', ['%name%' => $user->nick]);
+            $report->name = Tools::trans('r-' . $table_name . '-total-user', ['%name%' => $user->nick]);
             $report->table = $table_name;
             $report->tag = $tag;
             $report->xcolumn = 'fecha';
@@ -600,7 +600,7 @@ class ReportGenerator
         $where = [Where::eq('tag', $tag)];
         if (false === $reportYear->loadWhere($where)) {
             // creamos el informe
-            $reportYear->name = Tools::lang()->trans('r-' . $table_name . '-total-user-year', ['%name%' => $user->nick]);
+            $reportYear->name = Tools::trans('r-' . $table_name . '-total-user-year', ['%name%' => $user->nick]);
             $reportYear->table = $table_name;
             $reportYear->tag = $tag;
             $reportYear->type = Report::TYPE_BAR;
@@ -638,7 +638,7 @@ class ReportGenerator
             $where = [Where::eq('tag', $tag)];
             if (false === $report->loadWhere($where)) {
                 // creamos el informe
-                $report->name = Tools::lang()->trans('r-' . $table_name . '-total-warehouse', ['%name%' => $warehouse->nombre]);
+                $report->name = Tools::trans('r-' . $table_name . '-total-warehouse', ['%name%' => $warehouse->nombre]);
                 $report->table = $table_name;
                 $report->tag = $tag;
                 $report->xcolumn = 'fecha';
@@ -661,7 +661,7 @@ class ReportGenerator
             $where = [Where::eq('tag', $tag)];
             if (false === $reportYear->loadWhere($where)) {
                 // creamos el informe
-                $reportYear->name = Tools::lang()->trans('r-' . $table_name . '-total-warehouse-year', ['%name%' => $warehouse->nombre]);
+                $reportYear->name = Tools::trans('r-' . $table_name . '-total-warehouse-year', ['%name%' => $warehouse->nombre]);
                 $reportYear->table = $table_name;
                 $reportYear->tag = $tag;
                 $reportYear->type = Report::TYPE_BAR;
@@ -710,7 +710,7 @@ class ReportGenerator
             $where = [Where::eq('tag', $tag)];
             if (false === $report->loadWhere($where)) {
                 // creamos el informe
-                $report->name = Tools::lang()->trans('r-' . $table_name . '-total-status', ['%name%' => $status->nombre]);
+                $report->name = Tools::trans('r-' . $table_name . '-total-status', ['%name%' => $status->nombre]);
                 $report->table = $table_name;
                 $report->tag = $tag;
                 $report->xcolumn = 'fecha';
@@ -733,7 +733,7 @@ class ReportGenerator
             $where = [Where::eq('tag', $tag)];
             if (false === $reportYear->loadWhere($where)) {
                 // creamos el informe
-                $reportYear->name = Tools::lang()->trans('r-' . $table_name . '-total-status-year', ['%name%' => $status->nombre]);
+                $reportYear->name = Tools::trans('r-' . $table_name . '-total-status-year', ['%name%' => $status->nombre]);
                 $reportYear->table = $table_name;
                 $reportYear->tag = $tag;
                 $reportYear->type = Report::TYPE_BAR;
@@ -766,7 +766,7 @@ class ReportGenerator
         }
 
         // creamos el informe
-        $report->name = Tools::lang()->trans('r-' . $table_name . '-countries');
+        $report->name = Tools::trans('r-' . $table_name . '-countries');
         $report->table = $table_name;
         $report->tag = $tag;
         $report->type = 'map';
@@ -791,7 +791,7 @@ class ReportGenerator
         $where = [Where::eq('tag', $tag)];
         if (false === $reportMonths->loadWhere($where)) {
             // creamos el informe mensual
-            $reportMonths->name = Tools::lang()->trans('r-' . $table_name . '-new-months');
+            $reportMonths->name = Tools::trans('r-' . $table_name . '-new-months');
             $reportMonths->table = $table_name;
             $reportMonths->tag = $tag;
             $reportMonths->xcolumn = 'fechaalta';
@@ -810,7 +810,7 @@ class ReportGenerator
         $where = [Where::eq('tag', $tag)];
         if (false === $reportYears->loadWhere($where)) {
             // creamos el informe anual
-            $reportYears->name = Tools::lang()->trans('r-' . $table_name . '-new-years');
+            $reportYears->name = Tools::trans('r-' . $table_name . '-new-years');
             $reportYears->table = $table_name;
             $reportYears->tag = 'r-' . $table_name . '-new-years';
             $reportYears->type = Report::TYPE_BAR;
@@ -837,7 +837,7 @@ class ReportGenerator
         $where = [Where::eq('tag', $tag)];
         if (false === $reportMonths->loadWhere($where)) {
             // creamos el informe mensual
-            $reportMonths->name = Tools::lang()->trans('r-' . $table_name . '-total-months');
+            $reportMonths->name = Tools::trans('r-' . $table_name . '-total-months');
             $reportMonths->table = $table_name;
             $reportMonths->tag = $tag;
             $reportMonths->xcolumn = 'fecha';
@@ -858,7 +858,7 @@ class ReportGenerator
         $where = [Where::eq('tag', $tag)];
         if (false === $reportYears->loadWhere($where)) {
             // creamos el informe anual
-            $reportYears->name = Tools::lang()->trans('r-' . $table_name . '-total-years');
+            $reportYears->name = Tools::trans('r-' . $table_name . '-total-years');
             $reportYears->table = $table_name;
             $reportYears->tag = 'r-' . $table_name . '-total-years';
             $reportYears->type = Report::TYPE_BAR;

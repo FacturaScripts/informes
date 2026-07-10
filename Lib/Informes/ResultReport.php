@@ -160,7 +160,7 @@ class ResultReport
 
                 if (empty($codfamilia)) {
                     $codfamilia = 'SIN_FAMILIA';
-                    $familia = Tools::lang()->trans('no-family');
+                    $familia = Tools::trans('no-family');
                 } else {
                     $modelFamilia = new Familia();
                     $modelFamilia->load($codfamilia);
@@ -171,7 +171,7 @@ class ResultReport
 
         if (!$articulo) {
             $referencia = 'SIN_REFERENCIA';
-            $art_desc = Tools::lang()->trans('no-product-desc');
+            $art_desc = Tools::trans('no-product-desc');
             $codfamilia = 'SIN_FAMILIA';
             $familia = 'SIN_FAMILIA';
         }
@@ -415,7 +415,7 @@ class ResultReport
     {
         foreach ($ventas['agentes'] as $codagente => $agentes) {
             if ($codagente === 'SIN_AGENTE') {
-                $ventas['agentes'][$codagente]['descripcion'] = Tools::lang()->trans('no-agent');
+                $ventas['agentes'][$codagente]['descripcion'] = Tools::trans('no-agent');
                 continue;
             }
 

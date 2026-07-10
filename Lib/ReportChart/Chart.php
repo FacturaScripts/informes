@@ -124,13 +124,13 @@ abstract class Chart
         $xCol = $report->xcolumn;
         switch ($report->xoperation) {
             case 'HAS_A_VALUE':
-                $xCol = "CASE WHEN " . $report->xcolumn . " IS NOT NULL THEN '" . Tools::lang()->trans('has-a-value')
-                    . "' ELSE '" . Tools::lang()->trans('does-not-have-a-value') . "' END";
+                $xCol = "CASE WHEN " . $report->xcolumn . " IS NOT NULL THEN '" . Tools::trans('has-a-value')
+                    . "' ELSE '" . Tools::trans('does-not-have-a-value') . "' END";
                 break;
 
             case 'DOES_NOT_HAVE_A_VALUE':
-                $xCol = "CASE WHEN " . $report->xcolumn . " IS NULL THEN '" . Tools::lang()->trans('has-a-value')
-                    . "' ELSE '" . Tools::lang()->trans('does-not-have-a-value') . "' END";
+                $xCol = "CASE WHEN " . $report->xcolumn . " IS NULL THEN '" . Tools::trans('has-a-value')
+                    . "' ELSE '" . Tools::trans('does-not-have-a-value') . "' END";
                 break;
 
             case 'HOUR':
@@ -194,13 +194,13 @@ abstract class Chart
         $xCol = $report->xcolumn;
         switch ($report->xoperation) {
             case 'HAS_A_VALUE':
-                $xCol = "CASE WHEN " . $report->xcolumn . " IS NOT NULL THEN '" . Tools::lang()->trans('has-a-value')
-                    . "' ELSE '" . Tools::lang()->trans('does-not-have-a-value') . "' END";
+                $xCol = "CASE WHEN " . $report->xcolumn . " IS NOT NULL THEN '" . Tools::trans('has-a-value')
+                    . "' ELSE '" . Tools::trans('does-not-have-a-value') . "' END";
                 break;
 
             case 'DOES_NOT_HAVE_A_VALUE':
-                $xCol = "CASE WHEN " . $report->xcolumn . " IS NULL THEN '" . Tools::lang()->trans('has-a-value')
-                    . "' ELSE '" . Tools::lang()->trans('does-not-have-a-value') . "' END";
+                $xCol = "CASE WHEN " . $report->xcolumn . " IS NULL THEN '" . Tools::trans('has-a-value')
+                    . "' ELSE '" . Tools::trans('does-not-have-a-value') . "' END";
                 break;
 
             case 'HOUR':

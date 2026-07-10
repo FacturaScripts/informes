@@ -121,21 +121,19 @@ class ReportBalance extends ModelClass
 
     public static function typeList(): array
     {
-        $i18n = Tools::lang();
         return [
-            ['value' => self::TYPE_SHEET, 'title' => $i18n->trans(self::TYPE_SHEET)],
-            ['value' => self::TYPE_PROFIT, 'title' => $i18n->trans(self::TYPE_PROFIT)],
-            ['value' => self::TYPE_INCOME, 'title' => $i18n->trans(self::TYPE_INCOME)]
+            ['value' => self::TYPE_SHEET, 'title' => Tools::trans(self::TYPE_SHEET)],
+            ['value' => self::TYPE_PROFIT, 'title' => Tools::trans(self::TYPE_PROFIT)],
+            ['value' => self::TYPE_INCOME, 'title' => Tools::trans(self::TYPE_INCOME)]
         ];
     }
 
     public static function subtypeList(): array
     {
-        $i18n = Tools::lang();
         return [
-            ['value' => self::SUBTYPE_ABBREVIATED, 'title' => $i18n->trans(self::SUBTYPE_ABBREVIATED)],
-            ['value' => self::SUBTYPE_NORMAL, 'title' => $i18n->trans(self::SUBTYPE_NORMAL)],
-            ['value' => self::SUBTYPE_PYMES, 'title' => $i18n->trans(self::SUBTYPE_PYMES)]
+            ['value' => self::SUBTYPE_ABBREVIATED, 'title' => Tools::trans(self::SUBTYPE_ABBREVIATED)],
+            ['value' => self::SUBTYPE_NORMAL, 'title' => Tools::trans(self::SUBTYPE_NORMAL)],
+            ['value' => self::SUBTYPE_PYMES, 'title' => Tools::trans(self::SUBTYPE_PYMES)]
         ];
     }
 

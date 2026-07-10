@@ -34,21 +34,21 @@ class PurchasesResultReport extends ResultReport
             . '<table class="table table-hover mb-0">'
             . '<thead>'
             . '<tr>'
-            . '<th class="title">' . Tools::lang()->trans('account') . '</th>'
+            . '<th class="title">' . Tools::trans('account') . '</th>'
             . '<th class="porc">%</th>'
-            . '<th class="total">' . Tools::lang()->trans('total') . '</th>'
-            . '<th class="month">' . Tools::lang()->trans('january') . '</th>'
-            . '<th class="month">' . Tools::lang()->trans('february') . '</th>'
-            . '<th class="month">' . Tools::lang()->trans('march') . '</th>'
-            . '<th class="month">' . Tools::lang()->trans('april') . '</th>'
-            . '<th class="month">' . Tools::lang()->trans('may') . '</th>'
-            . '<th class="month">' . Tools::lang()->trans('june') . '</th>'
-            . '<th class="month">' . Tools::lang()->trans('july') . '</th>'
-            . '<th class="month">' . Tools::lang()->trans('august') . '</th>'
-            . '<th class="month">' . Tools::lang()->trans('september') . '</th>'
-            . '<th class="month">' . Tools::lang()->trans('october') . '</th>'
-            . '<th class="month">' . Tools::lang()->trans('november') . '</th>'
-            . '<th class="month">' . Tools::lang()->trans('december') . '</th>'
+            . '<th class="total">' . Tools::trans('total') . '</th>'
+            . '<th class="month">' . Tools::trans('january') . '</th>'
+            . '<th class="month">' . Tools::trans('february') . '</th>'
+            . '<th class="month">' . Tools::trans('march') . '</th>'
+            . '<th class="month">' . Tools::trans('april') . '</th>'
+            . '<th class="month">' . Tools::trans('may') . '</th>'
+            . '<th class="month">' . Tools::trans('june') . '</th>'
+            . '<th class="month">' . Tools::trans('july') . '</th>'
+            . '<th class="month">' . Tools::trans('august') . '</th>'
+            . '<th class="month">' . Tools::trans('september') . '</th>'
+            . '<th class="month">' . Tools::trans('october') . '</th>'
+            . '<th class="month">' . Tools::trans('november') . '</th>'
+            . '<th class="month">' . Tools::trans('december') . '</th>'
             . '</tr>'
             . '</thead>'
             . '<tbody>';
@@ -56,7 +56,7 @@ class PurchasesResultReport extends ResultReport
         // fila de totales
         if (self::$gastos[self::$year]) {
             $html .= '<tr>'
-                . '<td class="title align-middle">' . Tools::lang()->trans('all') . '</td>'
+                . '<td class="title align-middle">' . Tools::trans('all') . '</td>'
                 . '<td class="porc align-middle">100.0 %</td>';
 
             for ($x = 0; $x <= 12; $x++) {
@@ -92,7 +92,7 @@ class PurchasesResultReport extends ResultReport
             $html .= '</td>';
 
             for ($x = 1; $x <= 12; $x++) {
-                $title = Tools::lang()->trans(strtolower(date("F", mktime(0, 0, 0, $x, 10))));
+                $title = Tools::trans(strtolower(date("F", mktime(0, 0, 0, $x, 10))));
                 $html .= '<td title="' . $title . '" class="month align-middle">';
                 $html .= isset(self::$gastos[self::$year]['total_cuenta_mes'][$key][$x]) ?
                     Tools::money(self::$gastos[self::$year]['total_cuenta_mes'][$key][$x]) :

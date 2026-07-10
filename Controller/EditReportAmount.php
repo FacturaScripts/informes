@@ -81,7 +81,7 @@ class EditReportAmount extends EditController
         $view = $this->views[$this->getMainViewName()];
         $this->exportManager->newDoc($format, $model->name);
         $this->exportManager->setCompany($model->idcompany);
-        $this->exportManager->addModelPage($view->model, $view->getColumns(), Tools::lang()->trans('accounting-reports'));
+        $this->exportManager->addModelPage($view->model, $view->getColumns(), Tools::trans('accounting-reports'));
 
         foreach ($pages as $data) {
             $headers = empty($data) ? [] : array_keys($data[0]);

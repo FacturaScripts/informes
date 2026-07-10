@@ -53,7 +53,7 @@ class AccountResultReport extends ResultReport
                 . '</td>';
 
             for ($x = 1; $x <= 12; $x++) {
-                $title = Tools::lang()->trans(strtolower(date("F", mktime(0, 0, 0, $x, 10))));
+                $title = Tools::trans(strtolower(date("F", mktime(0, 0, 0, $x, 10))));
                 $html .= '<td title="' . $title . '" class="month text-end align-middle">';
                 $html .= isset(self::$gastos[self::$year]['cuentas'][self::$parent_codcuenta][$key][$x]['pvptotal']) ?
                     Tools::money(self::$gastos[self::$year]['cuentas'][self::$parent_codcuenta][$key][$x]['pvptotal']) :

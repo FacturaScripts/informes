@@ -42,13 +42,13 @@ class SalesPurchasesResultReport extends ResultReport
             . '<table class="table table-hover mb-0">'
             . '<thead>'
             . '<tr>'
-            . '<th class="title">' . Tools::lang()->trans('family') . '</th>'
+            . '<th class="title">' . Tools::trans('family') . '</th>'
             . '<th class="porc">%</th>'
-            . '<th class="total">' . Tools::lang()->trans('total') . '</th>';
+            . '<th class="total">' . Tools::trans('total') . '</th>';
 
         // Añadir los meses usando un bucle
         foreach ($meses as $mes) {
-            $html .= '<th class="month">' . Tools::lang()->trans($mes) . '</th>';
+            $html .= '<th class="month">' . Tools::trans($mes) . '</th>';
         }
 
         // Finalizar la etiqueta de cabecera y la de cuerpo de la tabla
@@ -58,7 +58,7 @@ class SalesPurchasesResultReport extends ResultReport
 
         if (self::${$varName}[self::$year]) {
             $html .= '<tr>'
-                . '<td class="title align-middle">' . Tools::lang()->trans('all') . '</td>'
+                . '<td class="title align-middle">' . Tools::trans('all') . '</td>'
                 . '<td class="porc align-middle">100.0 %</td>';
 
             for ($x = 0; $x <= 12; $x++) {
@@ -101,7 +101,7 @@ class SalesPurchasesResultReport extends ResultReport
                 $html .= '</td>';
 
                 for ($x = 1; $x <= 12; $x++) {
-                    $title = Tools::lang()->trans(strtolower(date("F", mktime(0, 0, 0, $x, 10))));
+                    $title = Tools::trans(strtolower(date("F", mktime(0, 0, 0, $x, 10))));
                     $html .= '<td title="' . $title . '" class="month align-middle">';
                     $html .= isset(self::${$varName}[self::$year]['total_fam_mes'][$key][$x]) ?
                         Tools::money(self::${$varName}[self::$year]['total_fam_mes'][$key][$x]) :

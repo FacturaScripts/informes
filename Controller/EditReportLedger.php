@@ -81,7 +81,7 @@ class EditReportLedger extends EditController
         $this->exportManager->setCompany($model->idcompany);
 
         if ($format === 'PDF') {
-            $this->exportManager->addModelPage($view->model, $view->getColumns(), Tools::lang()->trans('accounting-reports'));
+            $this->exportManager->addModelPage($view->model, $view->getColumns(), Tools::trans('accounting-reports'));
         }
 
         foreach ($pages as $data) {

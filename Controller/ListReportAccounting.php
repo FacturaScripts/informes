@@ -215,7 +215,7 @@ class ListReportAccounting extends ListController
         if (false === $ledger->loadWhere($where)) {
             $ledger->enddate = $ejercicio->fechafin;
             $ledger->idcompany = $ejercicio->idempresa;
-            $ledger->name = Tools::lang()->trans('ledger') . ' ' . $ejercicio->nombre;
+            $ledger->name = Tools::trans('ledger') . ' ' . $ejercicio->nombre;
             $ledger->startdate = $ejercicio->fechainicio;
             $total += $ledger->save() ? 1 : 0;
         }
@@ -227,7 +227,7 @@ class ListReportAccounting extends ListController
             $amounts->idcompany = $ejercicio->idempresa;
             $amounts->ignoreclosure = true;
             $amounts->ignoreregularization = true;
-            $amounts->name = Tools::lang()->trans('balance-amounts') . ' ' . $ejercicio->nombre;
+            $amounts->name = Tools::trans('balance-amounts') . ' ' . $ejercicio->nombre;
             $amounts->startdate = $ejercicio->fechainicio;
             $total += $amounts->save() ? 1 : 0;
         }
@@ -244,7 +244,7 @@ class ListReportAccounting extends ListController
             if (false === $balance->loadWhere($where2)) {
                 $balance->enddate = $ejercicio->fechafin;
                 $balance->idcompany = $ejercicio->idempresa;
-                $balance->name = Tools::lang()->trans($type) . ' ' . $ejercicio->nombre;
+                $balance->name = Tools::trans($type) . ' ' . $ejercicio->nombre;
                 $balance->startdate = $ejercicio->fechainicio;
                 $balance->type = $type;
                 $total += $balance->save() ? 1 : 0;

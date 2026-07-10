@@ -39,10 +39,10 @@ class SummaryResultReport extends ResultReport
         $monthNames = ['total', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
         $categories = ['ventas' => 'sales', 'compras' => "purchases", 'gastos' => 'expenses', 'resultado' => 'result'];
 
-        $html = '<div class="table-responsive"><table class="table table-hover mb-0"><thead><tr><th class="title"><b>' . Tools::lang()->trans('summary') . '</b></th>';
+        $html = '<div class="table-responsive"><table class="table table-hover mb-0"><thead><tr><th class="title"><b>' . Tools::trans('summary') . '</b></th>';
 
         foreach ($monthNames as $month) {
-            $html .= '<th class="' . ($month === 'total' ? 'porc' : 'month') . '">' . Tools::lang()->trans($month) . '</th>';
+            $html .= '<th class="' . ($month === 'total' ? 'porc' : 'month') . '">' . Tools::trans($month) . '</th>';
         }
 
         $html .= '</tr></thead><tbody>';
@@ -58,8 +58,8 @@ class SummaryResultReport extends ResultReport
     private static function generateCategoryRow($categoryKey, $categoryName): string
     {
         $html = '<tr class="' . self::getRowClass($categoryName) . '">'
-            . '<td class="title align-middle"><b>' . Tools::lang()->trans($categoryName) . '</b><br/>'
-            . '<small>' . Tools::lang()->trans('previous') . '</small></td>';
+            . '<td class="title align-middle"><b>' . Tools::trans($categoryName) . '</b><br/>'
+            . '<small>' . Tools::trans('previous') . '</small></td>';
 
         for ($x = 0; $x <= 12; $x++) {
             $css = $x == 0 ? 'porc' : 'month';
@@ -116,7 +116,7 @@ class SummaryResultReport extends ResultReport
         arsort(self::$ventas[self::$year]['porc_fam']);
         foreach (self::$ventas[self::$year]['porc_fam'] as $codfamilia => $porc) {
             $total_aux = round(self::$ventas[self::$year]['total_fam'][$codfamilia], FS_NF0);
-            $fam_desc = Tools::lang()->trans('no-family');
+            $fam_desc = Tools::trans('no-family');
             if ($codfamilia != 'SIN_FAMILIA' && isset(self::$ventas[self::$year]['descripciones'][$codfamilia])) {
                 $fam_desc = self::$ventas[self::$year]['descripciones'][$codfamilia];
             }
