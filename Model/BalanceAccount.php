@@ -45,6 +45,23 @@ class BalanceAccount extends ModelClass
     /** @var int */
     public $idbalance;
 
+    /** @var string */
+    public $restriccion;
+
+    public function matchesRestriction(float $debe, float $haber): bool
+    {
+        switch ($this->restriccion) {
+            case 'debe':
+                return $debe > $haber;
+
+            case 'haber':
+                return $haber > $debe;
+
+            default:
+                return true;
+        }
+    }
+
     public function getBalanceCode(): BalanceCode
     {
         $balanceCode = new DinBalanceCode();
@@ -86,6 +103,7 @@ class BalanceAccount extends ModelClass
         // escapamos el html
         $this->codcuenta = Tools::noHtml($this->codcuenta);
         $this->desccuenta = Tools::noHtml($this->desccuenta);
+        $this->restriccion = Tools::noHtml($this->restriccion);
 
         return parent::test();
     }
