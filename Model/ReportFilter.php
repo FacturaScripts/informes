@@ -32,19 +32,19 @@ class ReportFilter extends ModelClass
 {
     use ModelTrait;
 
-    /** @var int */
+    /** @var int clave primaria */
     public $id;
 
-    /** @var int */
+    /** @var int id del informe al que pertenece el filtro */
     public $id_report;
 
-    /** @var string */
+    /** @var string operador de comparación (=, !=, >, <, IN, NOT IN, IS NULL...) */
     public $operator;
 
-    /** @var string */
+    /** @var string columna (con su tabla) sobre la que se aplica el filtro */
     public $table_column;
 
-    /** @var string */
+    /** @var string valor de comparación del filtro, puede ser un valor dinámico como {today} */
     public $value;
 
     public static function getDynamicValue(string $value): string

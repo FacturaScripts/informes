@@ -33,37 +33,37 @@ class ReportLedger extends ModelClass
 {
     use ModelTrait;
 
-    /** @var int */
+    /** @var int canal de la empresa a incluir en el informe */
     public $channel;
 
-    /** @var string */
+    /** @var string subcuenta final del rango a incluir */
     public $endcodsubaccount;
 
-    /** @var string */
+    /** @var string fecha final del periodo del informe */
     public $enddate;
 
-    /** @var int */
+    /** @var int número de asiento final del rango a incluir */
     public $endentry;
 
-    /** @var bool */
+    /** @var bool si se agrupan los apuntes */
     public $groupingtype;
 
-    /** @var int */
+    /** @var int clave primaria */
     public $id;
 
-    /** @var int */
+    /** @var int id de la empresa del informe */
     public $idcompany;
 
-    /** @var string */
+    /** @var string nombre del informe */
     public $name;
 
-    /** @var string */
+    /** @var string subcuenta inicial del rango a incluir */
     public $startcodsubaccount;
 
-    /** @var string */
+    /** @var string fecha inicial del periodo del informe */
     public $startdate;
 
-    /** @var int */
+    /** @var int número de asiento inicial del rango a incluir */
     public $startentry;
 
     public function clear(): void

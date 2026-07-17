@@ -30,43 +30,43 @@ class BalanceCode extends ModelClass
 {
     use ModelTrait;
 
-    /** @var string */
+    /** @var string modo de cálculo del saldo: positive, negative o según la naturaleza */
     public $calculation;
 
-    /** @var string */
+    /** @var string código del balance */
     public $codbalance;
 
-    /** @var string */
+    /** @var string descripción del nivel 1 */
     public $description1;
 
-    /** @var string */
+    /** @var string descripción del nivel 2 */
     public $description2;
 
-    /** @var string */
+    /** @var string descripción del nivel 3 */
     public $description3;
 
-    /** @var string */
+    /** @var string descripción del nivel 4 */
     public $description4;
 
-    /** @var int */
+    /** @var int clave primaria */
     public $id;
 
-    /** @var string */
+    /** @var string código del nivel 1 */
     public $level1;
 
-    /** @var string */
+    /** @var string código del nivel 2 */
     public $level2;
 
-    /** @var string */
+    /** @var string código del nivel 3 */
     public $level3;
 
-    /** @var string */
+    /** @var string código del nivel 4 */
     public $level4;
 
-    /** @var string */
+    /** @var string naturaleza del balance: A (activo) o P (pasivo) */
     public $nature;
 
-    /** @var string */
+    /** @var string subtipo de balance: normal, abbreviated o pymes */
     public $subtype;
 
     public function calculate(float $debe, float $haber): float

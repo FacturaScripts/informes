@@ -33,16 +33,16 @@ class BalanceAccount extends ModelClass
 {
     use ModelTrait;
 
-    /** @var string */
+    /** @var string código de la cuenta contable */
     public $codcuenta;
 
-    /** @var string */
+    /** @var string descripción de la cuenta contable */
     public $desccuenta;
 
-    /** @var int */
+    /** @var int clave primaria */
     public $id;
 
-    /** @var int */
+    /** @var int id del código de balance al que pertenece esta cuenta */
     public $idbalance;
 
     public function getBalanceCode(): BalanceCode

@@ -33,43 +33,43 @@ class ReportAmount extends ModelClass
 {
     use ModelTrait;
 
-    /** @var int */
+    /** @var int canal de la empresa a incluir en el informe */
     public $channel;
 
-    /** @var string */
+    /** @var string subcuenta final del rango a incluir */
     public $endcodsubaccount;
 
-    /** @var string */
+    /** @var string fecha final del periodo del informe */
     public $enddate;
 
-    /** @var int */
+    /** @var int clave primaria */
     public $id;
 
-    /** @var int */
+    /** @var int id de la empresa del informe */
     public $idcompany;
 
-    /** @var bool */
+    /** @var bool si se ignoran los asientos de cierre */
     public $ignoreclosure;
 
-    /** @var bool */
+    /** @var bool si se ignora el asiento de apertura */
     public $ignore_opening;
 
-    /** @var bool */
+    /** @var bool si se ignoran los asientos de regularización */
     public $ignoreregularization;
 
-    /** @var int */
+    /** @var int nivel de detalle de las subcuentas a mostrar */
     public $level;
 
-    /** @var string */
+    /** @var string nombre del informe */
     public $name;
 
-    /** @var bool */
+    /** @var bool si se muestra el saldo de apertura */
     public $show_balance_opening;
 
-    /** @var string */
+    /** @var string subcuenta inicial del rango a incluir */
     public $startcodsubaccount;
 
-    /** @var string */
+    /** @var string fecha inicial del periodo del informe */
     public $startdate;
 
     public function clear(): void

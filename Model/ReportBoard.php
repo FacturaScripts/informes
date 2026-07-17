@@ -31,19 +31,19 @@ class ReportBoard extends ModelClass
 {
     use ModelTrait;
 
-    /** @var string */
+    /** @var string fecha y hora de creación */
     public $creationdate;
 
-    /** @var bool */
+    /** @var bool si el tablero aparece destacado */
     public $featured;
 
-    /** @var int */
+    /** @var int clave primaria */
     public $id;
 
-    /** @var string */
+    /** @var string nombre del tablero */
     public $name;
 
-    /** @var string */
+    /** @var string etiqueta usada para agrupar tableros */
     public $tag;
 
     public function addLine(Report $report, int $pos = 1): bool
