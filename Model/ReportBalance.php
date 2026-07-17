@@ -41,31 +41,31 @@ class ReportBalance extends ModelClass
     const SUBTYPE_NORMAL = 'normal';
     const SUBTYPE_PYMES = 'pymes';
 
-    /** @var int */
+    /** @var int canal de la empresa a incluir en el informe */
     public $channel;
 
-    /** @var bool */
+    /** @var bool si se muestra el balance comparativo con el periodo anterior */
     public $comparative;
 
-    /** @var string */
+    /** @var string fecha final del periodo del informe */
     public $enddate;
 
-    /** @var int */
+    /** @var int clave primaria */
     public $id;
 
-    /** @var int */
+    /** @var int id de la empresa del informe */
     public $idcompany;
 
-    /** @var string */
+    /** @var string nombre del informe */
     public $name;
 
-    /** @var string */
+    /** @var string fecha inicial del periodo del informe */
     public $startdate;
 
-    /** @var string */
+    /** @var string tipo de balance: balance-sheet, profit-and-loss o income-and-expenses */
     public $type;
 
-    /** @var string */
+    /** @var string subtipo de balance: abbreviated, normal o pymes */
     public $subtype;
 
     public function clear(): void

@@ -41,52 +41,52 @@ class Report extends ModelClass
     const TYPE_PIE = 'pie';
     const TYPE_TREE_MAP = 'treemap';
 
-    /** @var int */
+    /** @var int id del informe con el que se compara este */
     public $compared;
 
-    /** @var string */
+    /** @var string fecha y hora de creación */
     public $creationdate;
 
-    /** @var int */
+    /** @var int clave primaria */
     public $id;
 
-    /** @var string */
+    /** @var string nombre del informe */
     public $name;
 
-    /** @var string */
+    /** @var string tabla de origen de los datos del informe */
     public $table;
 
-    /** @var string */
+    /** @var string etiqueta usada para agrupar informes */
     public $tag;
 
-    /** @var string */
+    /** @var string tipo de gráfico: bar, doughnut, area, map, pie o treemap */
     public $type;
 
-    /** @var string */
+    /** @var string columna o expresión SQL usada para los valores del eje X */
     public $xcolumn;
 
-    /** @var string */
+    /** @var string operación de transformación aplicada a la columna del eje X (p. ej. MONTHS, YEAR) */
     public $xoperation;
 
-    /** @var string */
+    /** @var string columna o expresión SQL usada para los valores del eje Y */
     public $ycolumn;
 
-    /** @var string */
+    /** @var string operación de agregación aplicada a la columna del eje Y (SUM, COUNT, AVERAGE...) */
     public $yoperation;
 
-    /** @var bool */
+    /** @var bool indica si están activadas las funciones avanzadas del informe (SQL crudo, joins personalizados, filtros IN/NOT IN) */
     private static $advancedReport = false;
 
-    /** @var array */
+    /** @var array filtros añadidos en tiempo de ejecución mediante addCustomFilter(), no se persisten en base de datos */
     private $customFilters = [];
 
-    /** @var array */
+    /** @var array cláusulas JOIN en SQL crudo añadidas en tiempo de ejecución mediante addCustomJoin() */
     private $customJoins = [];
 
-    /** @var string */
+    /** @var string fragmento de SQL crudo añadido mediante addCustomSql() cuando el modo avanzado está activo */
     private $customSql = '';
 
-    /** @var string */
+    /** @var string alias usado para la columna X en los resultados, sobrescrito mediante addFieldXName() */
     private $fieldXName;
 
     public function addFieldXName(string $name): void

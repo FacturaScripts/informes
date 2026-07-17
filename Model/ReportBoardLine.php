@@ -29,22 +29,22 @@ class ReportBoardLine extends ModelClass
 {
     use ModelTrait;
 
-    /** @var int */
+    /** @var int número de columnas que ocupa el informe en el tablero */
     public $columns;
 
-    /** @var int */
+    /** @var int alto en píxeles del informe en el tablero */
     public $height;
 
-    /** @var int */
+    /** @var int clave primaria */
     public $id;
 
-    /** @var int */
+    /** @var int id del informe mostrado en esta línea */
     public $idreport;
 
-    /** @var int */
+    /** @var int id del tablero al que pertenece esta línea */
     public $idreportboard;
 
-    /** @var int */
+    /** @var int posición de la línea dentro del tablero */
     public $sort;
 
     public function clear(): void

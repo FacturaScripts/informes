@@ -33,25 +33,25 @@ class ReportBoardUser extends ModelClass
 {
     use ModelTrait;
 
-    /** @var string */
+    /** @var string fecha y hora de creación */
     public $creation_date;
 
-    /** @var int */
+    /** @var int clave primaria */
     public $id;
 
-    /** @var int */
+    /** @var int id del tablero asociado */
     public $id_report_board;
 
-    /** @var string */
+    /** @var string nick del último usuario que modificó el registro */
     public $last_nick;
 
-    /** @var string */
+    /** @var string fecha y hora de la última modificación */
     public $last_update;
 
-    /** @var string */
+    /** @var string nick del usuario que creó el registro */
     public $nick;
 
-    /** @var string */
+    /** @var string nick del usuario al que se asigna el tablero */
     public $user_nick;
 
     public function getReportBoard(): DinReportBoard
