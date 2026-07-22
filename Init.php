@@ -57,8 +57,35 @@ final class Init extends InitClass
         $this->migrateOldBalances();
         $this->migrateOldReports();
 
+        // rellenamos la restricción en las cuentas duplicadas de pymes de instalaciones ya existentes
+        $this->fillAccountsRestriccion();
+
         // crea el role y permisos del plugin
         $this->createRoleForPlugin();
+    }
+
+    private function fillAccountsRestriccion(): void
+    {
+        $db = new DataBase();
+        if (false === $db->tableExists('balance_accounts') || false === $db->tableExists('balance_codes')) {
+            return;
+        }
+
+        $restrictions = [
+            'A-B-III' => ['debe', ['5523', '5524']],
+            'A-B-IV' => ['debe', ['551', '5525']],
+            'P-C-II-3' => ['haber', ['551', '5525']],
+            'P-C-III' => ['haber', ['5523', '5524']],
+        ];
+
+        foreach ($restrictions as $codbalance => [$restriccion, $accounts]) {
+            $accountsList = implode(',', array_map([$db, 'var2str'], $accounts));
+            $sql = 'UPDATE balance_accounts SET restriccion = ' . $db->var2str($restriccion)
+                . ' WHERE (restriccion IS NULL OR restriccion = \'\')'
+                . ' AND codcuenta IN (' . $accountsList . ')'
+                . ' AND idbalance IN (SELECT id FROM balance_codes WHERE subtype = \'pymes\' AND codbalance = ' . $db->var2str($codbalance) . ');';
+            $db->exec($sql);
+        }
     }
 
     private function createRoleForPlugin(): void
