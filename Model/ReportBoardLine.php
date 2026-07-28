@@ -23,6 +23,8 @@ use FacturaScripts\Core\Template\ModelClass;
 use FacturaScripts\Core\Template\ModelTrait;
 
 /**
+ * Modelo de una línea de un tablero, con el informe que muestra y su posición
+ *
  * @author Daniel Fernández Giménez <contacto@danielfg.es>
  */
 class ReportBoardLine extends ModelClass

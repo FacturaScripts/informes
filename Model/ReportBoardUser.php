@@ -27,6 +27,8 @@ use FacturaScripts\Dinamic\Model\ReportBoard as DinReportBoard;
 use FacturaScripts\Dinamic\Model\User;
 
 /**
+ * Modelo que asigna un tablero de informes a un usuario
+ *
  * @author Daniel Fernández Giménez <contacto@danielfg.es>
  */
 class ReportBoardUser extends ModelClass
