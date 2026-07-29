@@ -86,7 +86,10 @@ class SalesPurchasesResultReport extends ResultReport
 
                 $html .= ''
                     . '<tr codfamilia="' . $key . '" data-bs-target="#ventas-' . $cont . '" class="ventas pointer">'
-                    . '<td class="title">' . self::${$varName}[self::$year]['descripciones'][$key] . '</td>'
+                    . '<td class="title">'
+                    . '<i class="fa-solid fa-chevron-right fa-fw me-2 report-expand-icon" aria-hidden="true"></i>'
+                    . self::${$varName}[self::$year]['descripciones'][$key]
+                    . '</td>'
                     . '<td class="porc align-middle">';
 
                 $percentage = (float)self::${$varName}[self::$year]['porc_fam'][$key];

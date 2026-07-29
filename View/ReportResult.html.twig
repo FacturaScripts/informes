@@ -12,14 +12,37 @@
         {{ parent() }}
         <div class="row">
             <div class="col-md-7">
-                <div class="btn-group">
-                    <a class="btn btn-sm btn-secondary" href="{{ fsc.url() }}" title="{{ trans('refresh') }}">
-                        <i class="fa-solid fa-redo" aria-hidden="true"></i>
-                    </a>
-                    <a class="btn btn-sm btn-secondary" href="{{ fsc.url() }}?defaultPage=TRUE"
-                       title="{{ trans('mark-as-homepage') }}">
-                        <i class="fa-regular fa-bookmark" aria-hidden="true"></i>
-                    </a>
+                <div class="d-flex align-items-center">
+                    <div class="btn-group">
+                        <a class="btn btn-sm btn-secondary" href="{{ fsc.url() }}" title="{{ trans('refresh') }}"
+                           aria-label="{{ trans('refresh') }}">
+                            <i class="fa-solid fa-redo" aria-hidden="true"></i>
+                        </a>
+                        <a class="btn btn-sm btn-secondary" href="{{ fsc.url() }}?defaultPage=TRUE"
+                           title="{{ trans('mark-as-homepage') }}"
+                           aria-label="{{ trans('mark-as-homepage') }}">
+                            <i class="fa-regular fa-bookmark" aria-hidden="true"></i>
+                        </a>
+                    </div>
+
+                    <select class="form-select form-select-sm ms-2" id="selectExercise"
+                            title="{{ trans('exercise') }}" aria-label="{{ trans('exercise') }}">
+                        {% for company in fsc.getCompanies() %}
+                            <optgroup label="{{ company.nombrecorto }}">
+                                {% for exercise in company.getExercises() %}
+                                    {% if exercise.codejercicio == fsc.codejercicio %}
+                                        <option value="{{ exercise.codejercicio }}" selected>
+                                            {{ exercise.nombre }}
+                                        </option>
+                                    {% else %}
+                                        <option value="{{ exercise.codejercicio }}">
+                                            {{ exercise.nombre }}
+                                        </option>
+                                    {% endif %}
+                                {% endfor %}
+                            </optgroup>
+                        {% endfor %}
+                    </select>
                 </div>
             </div>
 
@@ -36,59 +59,61 @@
         <div class="row">
             <div class="col-sm-12">
                 <div class="card border-primary shadow mt-4">
-                    <div class="card-header bg-primary text-white d-flex flex-row">
-                        <select class="form-select" id="selectExercise">
-                            {% for company in fsc.getCompanies() %}
-                                <optgroup label="{{ company.nombrecorto }}">
-                                    {% for exercise in company.getExercises() %}
-                                        {% if exercise.codejercicio == fsc.codejercicio %}
-                                            <option value="{{ exercise.codejercicio }}" selected>
-                                                {{ exercise.nombre }}
-                                            </option>
-                                        {% else %}
-                                            <option value="{{ exercise.codejercicio }}">
-                                                {{ exercise.nombre }}
-                                            </option>
-                                        {% endif %}
-                                    {% endfor %}
-                                </optgroup>
-                            {% endfor %}
-                        </select>
+                    <div class="card-body h5">
+                        <i class="fa-solid fa-chart-line"></i> {{ trans('annual-result') }}
+                        <div class="small text-muted fw-normal mt-1">
+                            {{ trans('result-report-annual-result-info') }}
+                        </div>
                     </div>
-                    <div id="summaryData"></div>
+                    <div class="canva" id="chartsResume">
+                    </div>
+                    <div id="summaryData" class="border-top"></div>
+                    <div class="card-footer small text-muted">
+                        {{ trans('result-report-summary-info') }}
+                    </div>
                 </div>
 
                 <div class="card border-success shadow mt-4">
-                    <h5 class="card-header bg-success text-white pointer" id="showSales">
-                        {{ trans('sales') }}
-                        <button class="btn btn-success btn-sm btn-spin-action float-end">
+                    <h5 class="card-header bg-success text-white pointer d-flex align-items-center" id="showSales">
+                        <button type="button" class="btn btn-success btn-sm btn-spin-action me-2">
                             <i class="fa fa-plus"></i>
                         </button>
+                        {{ trans('sales') }}
                     </h5>
+                    <div class="card-body py-2 small text-muted">
+                        {{ trans('result-report-sales-info') }}
+                    </div>
                     <div id="salesReport" class="collapse">
                         <div class="card-body p-0"></div>
                     </div>
                 </div>
 
                 <div class="card border-warning shadow mt-4">
-                    <h5 class="card-header bg-warning text-white pointer" id="showPurchasesProductReport">
-                        {{ trans('purchases') }}
-                        <button class="btn btn-warning btn-sm btn-spin-action float-end">
+                    <h5 class="card-header bg-warning text-white pointer d-flex align-items-center"
+                        id="showPurchasesProductReport">
+                        <button type="button" class="btn btn-warning btn-sm btn-spin-action me-2">
                             <i class="fa fa-plus"></i>
                         </button>
+                        {{ trans('purchases') }}
                     </h5>
+                    <div class="card-body py-2 small text-muted">
+                        {{ trans('result-report-purchases-info') }}
+                    </div>
                     <div id="purchasesProductReport" class="collapse">
                         <div class="card-body p-0"></div>
                     </div>
                 </div>
 
                 <div class="card border-danger shadow mt-4">
-                    <h5 class="card-header bg-danger text-white pointer" id="showPurchases">
-                        {{ trans('expenses') }}
-                        <button class="btn btn-danger btn-sm btn-spin-action float-end">
+                    <h5 class="card-header bg-danger text-white pointer d-flex align-items-center" id="showPurchases">
+                        <button type="button" class="btn btn-danger btn-sm btn-spin-action me-2">
                             <i class="fa fa-plus"></i>
                         </button>
+                        {{ trans('expenses') }}
                     </h5>
+                    <div class="card-body py-2 small text-muted">
+                        {{ trans('result-report-expenses-info') }}
+                    </div>
                     <div id="purchasesReport" class="collapse">
                         <div class="card-body p-0"></div>
                     </div>
@@ -96,19 +121,13 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-12">
-                <div class="card shadow mt-4">
-                    <div class="card-body h5">
-                        <i class="fa-solid fa-chart-line"></i> {{ trans('annual-result') }}
-                    </div>
-                    <div class="canva" id="chartsResume">
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-3">
-                <div class="card shadow mt-4">
+            <div class="col-md-6 col-lg-3 d-flex mt-4">
+                <div class="card shadow w-100">
                     <div class="card-body h5">
                         <i class="fa-solid fa-chart-pie"></i> {{ trans('sales-per-family') }}
+                        <div class="small text-muted fw-normal mt-1">
+                            {{ trans('result-report-family-info') }}
+                        </div>
                     </div>
                     <div class="canva" id="chartsFamilies">
                     </div>
@@ -127,10 +146,13 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 col-lg-3">
-                <div class="card shadow mt-4">
+            <div class="col-md-6 col-lg-3 d-flex mt-4">
+                <div class="card shadow w-100">
                     <div class="card-body h5">
                         <i class="fa-solid fa-chart-pie"></i> {{ trans('sales-per-serie') }}
+                        <div class="small text-muted fw-normal mt-1">
+                            {{ trans('result-report-invoice-net-info') }}
+                        </div>
                     </div>
                     <div class="canva" id="chartsSeries">
                     </div>
@@ -149,10 +171,13 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 col-lg-3">
-                <div class="card shadow mt-4">
+            <div class="col-md-6 col-lg-3 d-flex mt-4">
+                <div class="card shadow w-100">
                     <div class="card-body h5">
                         <i class="fa-solid fa-chart-pie"></i> {{ trans('sales-per-paymethod') }}
+                        <div class="small text-muted fw-normal mt-1">
+                            {{ trans('result-report-invoice-net-info') }}
+                        </div>
                     </div>
                     <div class="canva" id="chartsPagos">
                     </div>
@@ -171,10 +196,13 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 col-lg-3">
-                <div class="card shadow mt-4">
+            <div class="col-md-6 col-lg-3 d-flex mt-4">
+                <div class="card shadow w-100">
                     <div class="card-body h5">
                         <i class="fa-solid fa-chart-pie"></i> {{ trans('sales-per-agent') }}
+                        <div class="small text-muted fw-normal mt-1">
+                            {{ trans('result-report-invoice-net-info') }}
+                        </div>
                     </div>
                     <div class="canva" id="chartsAgentes">
                     </div>
@@ -210,6 +238,15 @@
         }
 
         .card-header .collapsed .fa {
+            transform: rotate(90deg);
+        }
+
+        .report-expand-icon {
+            transition: transform .2s ease-in-out;
+            transform-origin: center;
+        }
+
+        tr.report-expanded .report-expand-icon {
             transform: rotate(90deg);
         }
 
@@ -568,6 +605,15 @@
                 return reportFlag;
             }
 
+            function setExpandedRow(element, rowSelector, expanded) {
+                const rows = $(element).closest('tbody').find(rowSelector);
+                rows.removeClass('report-expanded');
+
+                if (expanded) {
+                    $(element).addClass('report-expanded');
+                }
+            }
+
             function handleSubReportClick(element, reportFlag, parentAttribute, action) {
 
                 if (reportFlag) {
@@ -575,6 +621,7 @@
                     $(element).closest('tr').siblings('tr.subfamily').remove();
 
                     familyReport = action === 'load-family-sales' ? familyReportSales : familyReportPurchases;
+                    setExpandedRow(element, 'tr.ventas', familyReport !== parentValue);
 
                     if (familyReport === parentValue) {
                         action === 'load-family-sales' ? familyReportSales = '' : familyReportPurchases = '';
@@ -625,13 +672,16 @@
 
             $(document).on('click', '#purchasesReport tr.gastos', function () {
                 if (purchasesReport) {
-                    if (accountReport === $(this).attr('codcuenta')) {
-                        $('tr.subaccount').remove();
+                    const codcuenta = $(this).attr('codcuenta');
+                    $(this).closest('tbody').find('tr.subaccount').remove();
+                    setExpandedRow(this, 'tr.gastos', accountReport !== codcuenta);
+
+                    if (accountReport === codcuenta) {
                         accountReport = '';
                         return;
                     }
 
-                    accountReport = $(this).attr('codcuenta');
+                    accountReport = codcuenta;
 
                     let formData = new FormData();
                     formData.append('action', 'load-account');

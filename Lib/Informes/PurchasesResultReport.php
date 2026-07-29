@@ -77,7 +77,10 @@ class PurchasesResultReport extends ResultReport
         $cont = 1;
         foreach (self::$gastos[self::$year]['cuentas'] as $key => $value) {
             $html .= '<tr codcuenta="' . $key . '" data-bs-target="#gastos-' . $cont . '" class="gastos pointer">'
-                . '<td class="title align-middle">' . self::$gastos[self::$year]['descripciones'][$key] . '</td>'
+                . '<td class="title align-middle">'
+                . '<i class="fa-solid fa-chevron-right fa-fw me-2 report-expand-icon" aria-hidden="true"></i>'
+                . self::$gastos[self::$year]['descripciones'][$key]
+                . '</td>'
                 . '<td class="porc align-middle">';
 
             $percentage = (float)self::$gastos[self::$year]['porc_cuenta'][$key];
