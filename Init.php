@@ -27,7 +27,7 @@ use FacturaScripts\Core\Model\Role;
 use FacturaScripts\Core\Model\RoleAccess;
 use FacturaScripts\Dinamic\Model\BalanceAccount;
 use FacturaScripts\Dinamic\Model\BalanceCode;
-use FacturaScripts\Dinamic\Model\Empresa;
+use FacturaScripts\Dinamic\Model\Ejercicio;
 use ParseCsv\Csv;
 
 final class Init extends InitClass
@@ -40,6 +40,7 @@ final class Init extends InitClass
         $this->loadExtension(new Extension\Controller\EditProveedor());
         $this->loadExtension(new Extension\Controller\EditUser());
         $this->loadExtension(new Extension\Controller\Dashboard());
+        $this->loadExtension(new Extension\Model\Ejercicio());
     }
 
     public function uninstall(): void
@@ -50,8 +51,8 @@ final class Init extends InitClass
 
     public function update(): void
     {
-        // inicializamos empresa para que aplique los cambios en la tabla
-        new Empresa();
+        // inicializamos el modelo para que aplique los cambios en la tabla
+        new Ejercicio();
 
         // migramos los datos antiguos
         $this->migrateOldBalances();

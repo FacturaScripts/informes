@@ -7,14 +7,29 @@
     <div class="container-fluid mb-1 d-print-none">
         <div class="row">
             <div class="col-md-7">
-                <div class="btn-group">
-                    <a class="btn btn-sm btn-secondary" href="{{ fsc.url() }}" title="{{ trans('refresh') }}">
-                        <i class="fa-solid fa-redo" aria-hidden="true"></i>
-                    </a>
-                    <a class="btn btn-sm btn-secondary" href="{{ fsc.url() }}?defaultPage=TRUE"
-                       title="{{ trans('mark-as-homepage') }}">
-                        <i class="fa-regular fa-bookmark" aria-hidden="true"></i>
-                    </a>
+                <div class="d-flex align-items-center">
+                    <div class="btn-group">
+                        <a class="btn btn-sm btn-secondary" href="{{ fsc.url() }}" title="{{ trans('refresh') }}">
+                            <i class="fa-solid fa-redo" aria-hidden="true"></i>
+                        </a>
+                        <a class="btn btn-sm btn-secondary" href="{{ fsc.url() }}?defaultPage=TRUE"
+                           title="{{ trans('mark-as-homepage') }}">
+                            <i class="fa-regular fa-bookmark" aria-hidden="true"></i>
+                        </a>
+                    </div>
+
+                    <select class="form-select form-select-sm ms-2" id="selectExercise"
+                            title="{{ trans('exercise') }}" aria-label="{{ trans('exercise') }}">
+                        {% for company in fsc.getCompanies() %}
+                            <optgroup label="{{ company.nombrecorto }}">
+                                {% for exercise in company.getExercises() %}
+                                    <option value="{{ exercise.codejercicio }}" {{ fsc.code == exercise.codejercicio ? 'selected' : '' }}>
+                                        {{ exercise.nombre }}
+                                    </option>
+                                {% endfor %}
+                            </optgroup>
+                        {% endfor %}
+                    </select>
                 </div>
             </div>
 
@@ -26,26 +41,11 @@
             </div>
         </div>
     </div>
-    <div class="pb-5">
-        <div class="h5 text-success text-center">{{ trans('exercise') }}</div>
-        <select class="form-select mx-auto" id="selectExercise">
-            {% for company in fsc.getCompanies() %}
-                <optgroup label="{{ company.nombrecorto }}">
-                    {% for exercise in company.getExercises() %}
-                        <option value="{{ exercise.codejercicio }}" {{ fsc.code == exercise.codejercicio ? 'selected' : '' }}>
-                            {{ exercise.nombre }}
-                        </option>
-                    {% endfor %}
-                </optgroup>
-            {% endfor %}
-        </select>
-        <br/>
-    </div>
 {% endblock %}
 
 {% block body %}
     {{ parent() }}
-    <div class="container-fluid" style="margin-top: -50px;">
+    <div class="container-fluid mt-3">
         <div class="row">
             <div class="col-sm-6">
                 <div class="card border-info shadow mb-3">

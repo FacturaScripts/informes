@@ -177,7 +177,7 @@ class ReportTreasury extends Controller
         if ($this->da_impuestos["resultado"] < 0) {
             $this->da_impuestos["sociedades"] = 0;
         } else {
-            $sociedades = isset($this->ejercicio_ant->impsociedades) ? floatval($this->ejercicio_ant->impsociedades) : 0;
+            $sociedades = isset($this->ejercicio->impsociedades) ? floatval($this->ejercicio->impsociedades) : 0;
             $this->da_impuestos["sociedades"] = -1 * $this->da_impuestos["resultado"] * $sociedades / 100;
         }
 
