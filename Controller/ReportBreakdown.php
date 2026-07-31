@@ -20,6 +20,7 @@
 namespace FacturaScripts\Plugins\Informes\Controller;
 
 use FacturaScripts\Core\DataSrc\Empresas;
+use FacturaScripts\Core\Model\Familia;
 use FacturaScripts\Core\Template\Controller;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Core\Where;
@@ -33,6 +34,7 @@ use FacturaScripts\Dinamic\Model\Contacto;
 use FacturaScripts\Dinamic\Model\FacturaCliente;
 use FacturaScripts\Dinamic\Model\FacturaProveedor;
 use FacturaScripts\Dinamic\Model\FormaPago;
+use FacturaScripts\Dinamic\Model\Producto;
 use FacturaScripts\Dinamic\Model\Proveedor;
 use FacturaScripts\Dinamic\Model\Variante;
 
@@ -70,6 +72,9 @@ class ReportBreakdown extends Controller
 
     /** @var string */
     public $desde;
+
+    /** @var Familia */
+    public $family;
 
     /** @var string */
     public $format = 'screen';
@@ -439,6 +444,11 @@ class ReportBreakdown extends Controller
             $filterData[Tools::trans('product') . '/' . Tools::trans('variant')] = $this->variant->referencia;
         }
 
+        // Filtro de familia
+        if (!empty($this->family->codfamilia)) {
+            $filterData[Tools::trans('family')] = $this->family->descripcion ?: $this->family->codfamilia;
+        }
+
         // Convertimos el array asociativo a filas para la tabla
         $filterHeader = Tools::trans('filter');
         $valueHeader = Tools::trans('value');
@@ -738,6 +748,13 @@ class ReportBreakdown extends Controller
         return $agrupados;
     }
 
+    protected function getFamilyVariantsSql(): string
+    {
+        return "(SELECT v.referencia FROM " . Variante::tableName() . " v"
+            . " JOIN " . Producto::tableName() . " p ON v.idproducto = p.idproducto"
+            . " WHERE p.codfamilia = " . $this->db()->var2str($this->family->codfamilia) . ")";
+    }
+
     protected function getInformeComprasDataWhere(bool $withLineAlias = true): string
     {
         $sql = '';
@@ -774,6 +791,17 @@ class ReportBreakdown extends Controller
                 $code = $this->type === 'invoices' ? 'idfactura' : 'idalbaran';
                 $sql .= " AND d." . $code . " IN (SELECT " . $code . " FROM " . $lineTable
                     . " WHERE referencia = " . $this->db()->var2str($this->variant->referencia) . ")";
+            }
+        }
+
+        if (!empty($this->family->codfamilia)) {
+            if ($withLineAlias) {
+                $sql .= " AND l.referencia IN " . $this->getFamilyVariantsSql();
+            } else {
+                $lineTable = $this->type === 'invoices' ? 'lineasfacturasprov' : 'lineasalbaranesprov';
+                $code = $this->type === 'invoices' ? 'idfactura' : 'idalbaran';
+                $sql .= " AND d." . $code . " IN (SELECT " . $code . " FROM " . $lineTable
+                    . " WHERE referencia IN " . $this->getFamilyVariantsSql() . ")";
             }
         }
 
@@ -883,6 +911,17 @@ class ReportBreakdown extends Controller
                 $code = $this->type === 'invoices' ? 'idfactura' : 'idalbaran';
                 $sql .= " AND d." . $code . " IN (SELECT " . $code . " FROM " . $lineTable
                     . " WHERE referencia = " . $this->db()->var2str($this->variant->referencia) . ")";
+            }
+        }
+
+        if (!empty($this->family->codfamilia)) {
+            if ($withLineAlias) {
+                $sql .= " AND l.referencia IN " . $this->getFamilyVariantsSql();
+            } else {
+                $lineTable = $this->type === 'invoices' ? 'lineasfacturascli' : 'lineasalbaranescli';
+                $code = $this->type === 'invoices' ? 'idfactura' : 'idalbaran';
+                $sql .= " AND d." . $code . " IN (SELECT " . $code . " FROM " . $lineTable
+                    . " WHERE referencia IN " . $this->getFamilyVariantsSql() . ")";
             }
         }
 
@@ -1040,6 +1079,10 @@ class ReportBreakdown extends Controller
         $this->variant = new Variante();
         $whereVariant = [Where::eq('referencia', $this->request()->input('refvariant'))];
         $this->variant->loadWhere($whereVariant);
+
+        $this->family = new Familia();
+        $whereFamily = [Where::eq('codfamilia', $this->request()->input('codfamilia'))];
+        $this->family->loadWhere($whereFamily);
 
         // filtros de ventas
         $this->codpais = $this->request()->input('codpais');
