@@ -49,7 +49,7 @@ class ReportProducto extends ListController
     /**
      * Filtros comunes a todos los documentos
      */
-    private function addCommonFilters(string $viewName, string $dateField): void
+    private function addCommonFilters(string $viewName, string $dateField, string $warehouseField): void
     {
         // periodo
         $this->addFilterPeriod($viewName, 'fecha', 'date', $dateField);
@@ -75,7 +75,7 @@ class ReportProducto extends ListController
         // almacén
         $warehouses = Almacenes::codeModel();
         if (count($warehouses) > 2) {
-            $this->addFilterSelect($viewName, 'codalmacen', 'warehouse', 'codalmacen', $warehouses);
+            $this->addFilterSelect($viewName, 'codalmacen', 'warehouse', $warehouseField, $warehouses);
         } else {
             $this->views[$viewName]->disableColumn('warehouse');
         }
@@ -138,7 +138,7 @@ class ReportProducto extends ListController
             ->addOrderBy(['stockfis'], 'stock');
 
         // filtros
-        $this->addCommonFilters($viewName, 'albaranescli.fecha');
+        $this->addCommonFilters($viewName, 'albaranescli.fecha', 'albaranescli.codalmacen');
 
         // cliente
         $this->addFilterAutocomplete($viewName, 'codcliente', 'customer', 'codcliente', 'Cliente', 'codcliente', 'nombre');
@@ -163,7 +163,7 @@ class ReportProducto extends ListController
             ->addOrderBy(['stockfis'], 'stock');
 
         // filtros
-        $this->addCommonFilters($viewName, 'facturascli.fecha');
+        $this->addCommonFilters($viewName, 'facturascli.fecha', 'facturascli.codalmacen');
 
         // cliente
         $this->addFilterAutocomplete($viewName, 'codcliente', 'customer', 'codcliente', 'Cliente', 'codcliente', 'nombre');
@@ -187,7 +187,7 @@ class ReportProducto extends ListController
             ->addOrderBy(['stockfis'], 'stock');
 
         // filtros
-        $this->addCommonFilters($viewName, 'albaranesprov.fecha');
+        $this->addCommonFilters($viewName, 'albaranesprov.fecha', 'albaranesprov.codalmacen');
 
         // proveedor
         $this->addFilterAutocomplete($viewName, 'codproveedor', 'supplier', 'codproveedor', 'Proveedor', 'codproveedor', 'nombre');
@@ -203,7 +203,7 @@ class ReportProducto extends ListController
             ->addOrderBy(['cantidad'], 'quantity', 2);
 
         // filtros
-        $this->addCommonFilters($viewName, 'facturasprov.fecha');
+        $this->addCommonFilters($viewName, 'facturasprov.fecha', 'facturasprov.codalmacen');
 
         // proveedor
         $this->addFilterAutocomplete($viewName, 'codproveedor', 'supplier', 'codproveedor', 'Proveedor', 'codproveedor', 'nombre');
