@@ -241,7 +241,7 @@
     "result-exploitation": "Betriebsergebnis",
     "result-report": "Ergebnisse",
     "result-report-annual-result-info": "Ventas netas menos el mayor importe entre compras netas y gastos contables.",
-    "result-report-expenses-info": "Buchungspositionen von Aufwandskonten (Soll - Haben), ohne Abschlussbuchungen. Klicken Sie, um die Details anzuzeigen.",
+    "result-report-expenses-info": "Buchungsposten der Aufwandskonten (Soll - Haben), ohne Abschlussbuchungen. Klicken Sie, um die Details anzuzeigen.",
     "result-report-family-info": "Distribución del neto de las líneas de facturas de cliente, sin impuestos ni suplidos.",
     "result-report-invoice-net-info": "Verteilung basierend auf dem Nettobetrag der Kundenrechnungen, ohne Steuern.",
     "result-report-purchases-info": "Nettobetrag der Positionen aus Lieferantenrechnungen, ohne Steuern oder Auslagen. Klicken Sie, um die Details anzuzeigen.",

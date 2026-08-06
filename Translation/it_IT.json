@@ -245,7 +245,7 @@
     "result-report-family-info": "Distribuzione del netto delle righe delle fatture cliente, senza imposte né supplimenti.",
     "result-report-invoice-net-info": "Distribuzione basata sul netto delle fatture cliente, senza imposte.",
     "result-report-purchases-info": "Importo netto delle righe delle fatture fornitore, senza imposte né anticipi. Fai clic per vedere il dettaglio.",
-    "result-report-sales-info": "Importo netto delle righe delle fatture cliente, senza imposte né supplimenti. Fai clic per vedere il dettaglio.",
+    "result-report-sales-info": "Importo netto delle righe delle fatture cliente, senza imposte né anticipi. Fai clic per vedere il dettaglio.",
     "result-report-summary-info": "Confronta l'esercizio selezionato con quello precedente. Vendite e acquisti usano il netto delle righe, senza imposte né anticipi; le spese provengono da voci contabili.",
     "result-tax": "Risultato IVA",
     "sale-report-legend": "Ottieni un rapporto sulle vendite suddivise per cliente, anno e mese.",

@@ -246,7 +246,7 @@
     "result-report-invoice-net-info": "Distribució basada en el net de les factures de client, sense impostos.",
     "result-report-purchases-info": "Import net de les línies de factures de proveïdor, sense impostos ni suplits. Fes clic per a veure el detall.",
     "result-report-sales-info": "Import net de les línies de factures de client, sense impostos ni suplits. Fes clic per a veure el detall.",
-    "result-report-summary-info": "Compara l'exercici seleccionat amb l'anterior. Les vendes i compres usen el net de les línies, sense impostos ni suports; les despeses provenen de partides comptables.",
+    "result-report-summary-info": "Compara l'exercici seleccionat amb l'anterior. Les vendes i compres usen el net de les línies, sense impostos ni suplits; les despeses provenen de partides comptables.",
     "result-tax": "Resultado IVA",
     "sale-report-legend": "Obtén un informe de ventas desglosado por cliente, año y mes.",
     "sales-per-agent": "Ventas por agente",
