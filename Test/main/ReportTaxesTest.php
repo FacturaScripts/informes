@@ -50,6 +50,65 @@ final class ReportTaxesTest extends TestCase
         }
     }
 
+    public function testExportOnlyShowsInvoiceDataOnFirstTaxRow(): void
+    {
+        $data = [
+            $this->getExportRow(21.0, 100.0, 21.0),
+            $this->getExportRow(10.0, 50.0, 5.0),
+            $this->getExportRow(21.0, 200.0, 42.0, 'FAC-002', 242.0)
+        ];
+
+        $report = new class ('ReportTaxes') extends ReportTaxes {
+            public array $exportedLines = [];
+            public array $reportData = [];
+
+            public function exportReport(array $data, string $format): array
+            {
+                $this->reportData = $data;
+                $this->format = $format;
+                $this->source = 'sales';
+                $this->columns = [Tools::trans('code'), Tools::trans('name'), Tools::trans('total')];
+                $this->exportAction();
+
+                return $this->exportedLines;
+            }
+
+            protected function getReportData(): array
+            {
+                return $this->reportData;
+            }
+
+            protected function processLayout(array &$lines, array &$totals): void
+            {
+                $this->exportedLines = $lines;
+            }
+
+            protected function validateTotals(array $totalsData): bool
+            {
+                return true;
+            }
+        };
+
+        foreach (['CSV', 'XLS'] as $format) {
+            $lines = $report->exportReport($data, $format);
+            $this->assertSame(
+                ['FAC-001', '', 'FAC-002'],
+                array_column($lines, Tools::trans('code')),
+                'invoice-code-repeated-in-' . strtolower($format)
+            );
+            $this->assertSame(
+                ['Test customer', '', 'Test customer'],
+                array_column($lines, Tools::trans('name')),
+                'invoice-name-repeated-in-' . strtolower($format)
+            );
+            $this->assertSame(
+                ['176', '', '242'],
+                array_column($lines, Tools::trans('total')),
+                'invoice-total-repeated-in-' . strtolower($format)
+            );
+        }
+    }
+
     public function testSalesUsedGoodsMarginVat(): void
     {
         $tax = Impuestos::get('IVA21');
@@ -204,7 +263,7 @@ final class ReportTaxesTest extends TestCase
      */
     private function fetchSalesReport(int $idempresa, string $coddivisa, string $codserie): array
     {
-        $report = new class('ReportTaxes') extends ReportTaxes {
+        $report = new class ('ReportTaxes') extends ReportTaxes {
             public function fetchReportData(): array
             {
                 return $this->getReportData();
@@ -220,6 +279,38 @@ final class ReportTaxesTest extends TestCase
         $report->dateto = date('Y-12-31');
 
         return $report->fetchReportData();
+    }
+
+    private function getExportRow(
+        float $iva,
+        float $neto,
+        float $totalIva,
+        string $codigo = 'FAC-001',
+        float $total = 176.0
+    ): array {
+        return [
+            'codserie' => 'A',
+            'codigo' => $codigo,
+            'numero2' => '',
+            'fecha' => date('Y-m-d'),
+            'nombre' => 'Test customer',
+            'cifnif' => '12345678Z',
+            'codpago' => null,
+            'codsubcuenta' => null,
+            'ciudad' => null,
+            'provincia' => null,
+            'codpostal' => null,
+            'codpais' => null,
+            'neto' => $neto,
+            'iva' => $iva,
+            'totaliva' => $totalIva,
+            'recargo' => 0.0,
+            'totalrecargo' => 0.0,
+            'irpf' => 0.0,
+            'totalirpf' => 0.0,
+            'suplidos' => 0.0,
+            'total' => $total
+        ];
     }
 
     /**

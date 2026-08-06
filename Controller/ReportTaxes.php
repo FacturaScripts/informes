@@ -136,7 +136,7 @@ class ReportTaxes extends Controller
         $lastCode = '';
         $lines = [];
         foreach ($data as $row) {
-            $hide = $row['codigo'] === $lastCode && $this->format === 'PDF';
+            $hide = $row['codigo'] === $lastCode;
 
             // en ventas usamos la columna numero2, en compras numproveedor
             if ($this->source === 'sales') {
