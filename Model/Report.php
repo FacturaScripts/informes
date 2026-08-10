@@ -25,7 +25,7 @@ use FacturaScripts\Core\Tools;
 use FacturaScripts\Core\Where;
 
 /**
- * Description of Report
+ * Descripcion de un informe o gráfico configurable
  *
  * @author Carlos García Gómez <carlos@facturascripts.com>
  */

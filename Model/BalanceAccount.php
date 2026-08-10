@@ -27,6 +27,8 @@ use FacturaScripts\Dinamic\Model\BalanceCode as DinBalanceCode;
 use FacturaScripts\Dinamic\Model\Cuenta;
 
 /**
+ * Modelo que relaciona una cuenta contable con un código de balance
+ *
  * @author Carlos García Gómez <carlos@facturascripts.com>
  */
 class BalanceAccount extends ModelClass

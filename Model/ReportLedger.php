@@ -24,7 +24,7 @@ use FacturaScripts\Core\Template\ModelTrait;
 use FacturaScripts\Core\Tools;
 
 /**
- * Model for ledger report
+ * Informe de libro mayor
  *
  * @author Jose Antonio Cuello <yopli2000@gmail.com>
  * @author Carlos García Gómez <carlos@facturascripts.com>

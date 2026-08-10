@@ -25,7 +25,7 @@ use FacturaScripts\Core\Template\ModelTrait;
 use FacturaScripts\Core\Tools;
 
 /**
- * Model for balances reports
+ * Modelo de informe de balance
  *
  * @author Carlos García Gómez <carlos@facturascripts.com>
  * @author Jose Antonio Cuello <yopli2000@gmail.com>

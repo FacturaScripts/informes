@@ -25,6 +25,8 @@ use FacturaScripts\Core\Tools;
 use FacturaScripts\Core\Where;
 
 /**
+ * Modelo de un tablero que agrupa varios informes
+ *
  * @author Daniel Fernández Giménez <contacto@danielfg.es>
  */
 class ReportBoard extends ModelClass

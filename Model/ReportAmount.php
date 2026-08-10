@@ -24,7 +24,7 @@ use FacturaScripts\Core\Template\ModelTrait;
 use FacturaScripts\Core\Tools;
 
 /**
- * Model for amounts balance
+ * Descripcion de un informe de un rango de subcuentas
  *
  * @author Carlos García Gómez <carlos@facturascripts.com>
  * @author Jose Antonio Cuello <yopli2000@gmail.com>

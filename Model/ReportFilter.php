@@ -26,6 +26,8 @@ use FacturaScripts\Core\Template\ModelTrait;
 use FacturaScripts\Core\Tools;
 
 /**
+ * Filtro aplicado a un informe
+ *
  * @author Daniel Fernández Giménez <contacto@danielfg.es>
  */
 class ReportFilter extends ModelClass
