@@ -243,6 +243,11 @@ class BalanceSheet
             }
         }
 
+        if (false === $model->matchesRestriction($debe, $haber)) {
+            $this->amounts[$key] = 0.00;
+            return 0.00;
+        }
+
         $total = $balance->calculate($debe, $haber);
         $this->amounts[$key] = $total;
         return $total;

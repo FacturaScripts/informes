@@ -25,6 +25,10 @@
         <type>integer</type>
         <null>NO</null>
     </column>
+    <column>
+        <name>restriccion</name>
+        <type>character varying(10)</type>
+    </column>
     <constraint>
         <name>balancescuentas_pkey</name>
         <type>PRIMARY KEY (id)</type>
