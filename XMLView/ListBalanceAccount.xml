@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2023 Carlos García Gómez <carlos@facturascripts.com>
+ * Copyright (C) 2023-2026 Carlos García Gómez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -33,6 +33,12 @@
         </column>
         <column name="description" order="130">
             <widget type="text" fieldname="desccuenta"/>
+        </column>
+        <column name="restriction" order="140">
+            <widget type="select" fieldname="restriction" translate="true">
+                <values title="debit">debe</values>
+                <values title="credit">haber</values>
+            </widget>
         </column>
     </columns>
 </view>

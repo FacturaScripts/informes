@@ -43,12 +43,6 @@ class ProfitAndLoss
     /** @var array */
     protected $amounts = [];
 
-    /** @var array */
-    protected $subaccounts = [];
-
-    /** @var DataBase */
-    protected $db;
-
     /** @var string */
     protected $dateFrom;
 
@@ -61,6 +55,9 @@ class ProfitAndLoss
     /** @var string */
     protected $dateToPrev;
 
+    /** @var DataBase */
+    protected $db;
+
     /** @var Ejercicio */
     protected $exercise;
 
@@ -69,6 +66,9 @@ class ProfitAndLoss
 
     /** @var string */
     protected $format;
+
+    /** @var array */
+    protected $subaccounts = [];
 
     public function __construct()
     {
@@ -186,6 +186,30 @@ class ProfitAndLoss
         ];
     }
 
+    /**
+     * Filtros comunes (rango de fechas, canal y exclusión de regularización/cierre)
+     * para las consultas de saldos sobre la tabla de asientos.
+     */
+    protected function asientoFilters(string $codejercicio, string $channel): string
+    {
+        $sql = '';
+        if ($codejercicio === $this->exercise->codejercicio) {
+            $sql .= ' AND asientos.fecha BETWEEN ' . $this->db->var2str($this->dateFrom)
+                . ' AND ' . $this->db->var2str($this->dateTo);
+        } elseif ($codejercicio === $this->exercisePrev->codejercicio) {
+            $sql .= ' AND asientos.fecha BETWEEN ' . $this->db->var2str($this->dateFromPrev)
+                . ' AND ' . $this->db->var2str($this->dateToPrev);
+        }
+
+        if (!empty($channel)) {
+            $sql .= ' AND asientos.canal = ' . $this->db->var2str($channel);
+        }
+
+        return $sql . ' AND (asientos.operacion IS NULL OR asientos.operacion NOT IN '
+            . '(' . $this->db->var2str(Asiento::OPERATION_REGULARIZATION)
+            . ',' . $this->db->var2str(Asiento::OPERATION_CLOSING) . '))';
+    }
+
     protected function formatValue($value, string $type = 'money', bool $bold = false): string
     {
         $prefix = $bold ? '<b>' : '';
@@ -232,89 +256,14 @@ class ProfitAndLoss
             }
         }
 
+        // las cuentas de doble saldo solo computan en el lado que corresponde a su signo
+        if (false === $model->matchesRestriction($debe, $haber)) {
+            $this->amounts[$key] = 0.00;
+            return 0.00;
+        }
+
         $total = $balance->calculate($debe, $haber);
         $this->amounts[$key] = $total;
-        return $total;
-    }
-
-    /**
-     * Filtros comunes (rango de fechas, canal y exclusión de regularización/cierre)
-     * para las consultas de saldos sobre la tabla de asientos.
-     */
-    protected function asientoFilters(string $codejercicio, string $channel): string
-    {
-        $sql = '';
-        if ($codejercicio === $this->exercise->codejercicio) {
-            $sql .= ' AND asientos.fecha BETWEEN ' . $this->db->var2str($this->dateFrom)
-                . ' AND ' . $this->db->var2str($this->dateTo);
-        } elseif ($codejercicio === $this->exercisePrev->codejercicio) {
-            $sql .= ' AND asientos.fecha BETWEEN ' . $this->db->var2str($this->dateFromPrev)
-                . ' AND ' . $this->db->var2str($this->dateToPrev);
-        }
-
-        if (!empty($channel)) {
-            $sql .= ' AND asientos.canal = ' . $this->db->var2str($channel);
-        }
-
-        return $sql . ' AND (asientos.operacion IS NULL OR asientos.operacion NOT IN '
-            . '(' . $this->db->var2str(Asiento::OPERATION_REGULARIZATION)
-            . ',' . $this->db->var2str(Asiento::OPERATION_CLOSING) . '))';
-    }
-
-    /**
-     * Devuelve, cacheados por ejercicio y canal, los saldos (debe/haber) agrupados
-     * por subcuenta en una única consulta, evitando una consulta por cuenta.
-     *
-     * @return array<string, array{debe: float, haber: float}>
-     */
-    protected function getSubaccountBalances(string $codejercicio, string $channel): array
-    {
-        $key = $codejercicio . '-' . $channel;
-        if (array_key_exists($key, $this->subaccounts)) {
-            return $this->subaccounts[$key];
-        }
-
-        $sql = "SELECT partidas.codsubcuenta AS codsubcuenta,"
-            . " SUM(partidas.debe) AS debe, SUM(partidas.haber) AS haber"
-            . " FROM partidas"
-            . " LEFT JOIN asientos ON partidas.idasiento = asientos.idasiento"
-            . " WHERE asientos.codejercicio = " . $this->db->var2str($codejercicio)
-            . $this->asientoFilters($codejercicio, $channel)
-            . " GROUP BY partidas.codsubcuenta";
-
-        $balances = [];
-        foreach ($this->db->select($sql) as $row) {
-            $balances[$row['codsubcuenta']] = [
-                'debe' => (float)$row['debe'],
-                'haber' => (float)$row['haber']
-            ];
-        }
-
-        $this->subaccounts[$key] = $balances;
-        return $balances;
-    }
-
-    /**
-     * Cálculo del resultado del ejercicio (cuenta 129) a partir de las cuentas
-     * de gastos (6) e ingresos (7).
-     */
-    protected function getResultAmount(BalanceCode $balance, BalanceAccount $model, string $codejercicio, string $channel): float
-    {
-        $sql = "SELECT SUM(partidas.debe) as debe, SUM(partidas.haber) as haber"
-            . " FROM partidas"
-            . " LEFT JOIN asientos ON partidas.idasiento = asientos.idasiento"
-            . " LEFT JOIN subcuentas ON partidas.idsubcuenta = subcuentas.idsubcuenta"
-            . " LEFT JOIN cuentas ON subcuentas.idcuenta = cuentas.idcuenta"
-            . " WHERE asientos.codejercicio = " . $this->db->var2str($codejercicio)
-            . " AND (partidas.codsubcuenta LIKE " . $this->db->var2str($model->codcuenta . '%')
-            . " OR subcuentas.codcuenta LIKE '6%' OR subcuentas.codcuenta LIKE '7%')"
-            . $this->asientoFilters($codejercicio, $channel);
-
-        $total = 0.00;
-        foreach ($this->db->select($sql) as $row) {
-            $total += $balance->calculate((float)$row['debe'], (float)$row['haber']);
-        }
-
         return $total;
     }
 
@@ -344,26 +293,6 @@ class ProfitAndLoss
         }
 
         return $this->accounts[$balance->id];
-    }
-
-    /**
-     * Ordena los códigos de balance por nivel con comparación natural.
-     * Se hace en PHP porque los niveles mezclan letras y números ('A', '2', '10'...)
-     * y castear a entero en el ORDER BY falla en PostgreSQL.
-     *
-     * @param BalanceCode[] $balances
-     * @return BalanceCode[]
-     */
-    protected function sortBalances(array $balances): array
-    {
-        usort($balances, function (BalanceCode $a, BalanceCode $b) {
-            return strnatcmp((string)$a->level1, (string)$b->level1)
-                ?: strnatcmp((string)$a->level2, (string)$b->level2)
-                ?: strnatcmp((string)$a->level3, (string)$b->level3)
-                ?: strnatcmp((string)$a->level4, (string)$b->level4);
-        });
-
-        return $balances;
     }
 
     protected function getData(string $nature = 'A', array $params = []): array
@@ -450,6 +379,83 @@ class ProfitAndLoss
 
         $this->addTotalsRow($rows, $balances, $code1, $amountsNE1, $code2, $amountsNE2);
         return $rows;
+    }
+
+    /**
+     * Cálculo del resultado del ejercicio (cuenta 129) a partir de las cuentas
+     * de gastos (6) e ingresos (7).
+     */
+    protected function getResultAmount(BalanceCode $balance, BalanceAccount $model, string $codejercicio, string $channel): float
+    {
+        $sql = "SELECT SUM(partidas.debe) as debe, SUM(partidas.haber) as haber"
+            . " FROM partidas"
+            . " LEFT JOIN asientos ON partidas.idasiento = asientos.idasiento"
+            . " LEFT JOIN subcuentas ON partidas.idsubcuenta = subcuentas.idsubcuenta"
+            . " LEFT JOIN cuentas ON subcuentas.idcuenta = cuentas.idcuenta"
+            . " WHERE asientos.codejercicio = " . $this->db->var2str($codejercicio)
+            . " AND (partidas.codsubcuenta LIKE " . $this->db->var2str($model->codcuenta . '%')
+            . " OR subcuentas.codcuenta LIKE '6%' OR subcuentas.codcuenta LIKE '7%')"
+            . $this->asientoFilters($codejercicio, $channel);
+
+        $total = 0.00;
+        foreach ($this->db->select($sql) as $row) {
+            $total += $balance->calculate((float)$row['debe'], (float)$row['haber']);
+        }
+
+        return $total;
+    }
+
+    /**
+     * Devuelve, cacheados por ejercicio y canal, los saldos (debe/haber) agrupados
+     * por subcuenta en una única consulta, evitando una consulta por cuenta.
+     *
+     * @return array<string, array{debe: float, haber: float}>
+     */
+    protected function getSubaccountBalances(string $codejercicio, string $channel): array
+    {
+        $key = $codejercicio . '-' . $channel;
+        if (array_key_exists($key, $this->subaccounts)) {
+            return $this->subaccounts[$key];
+        }
+
+        $sql = "SELECT partidas.codsubcuenta AS codsubcuenta,"
+            . " SUM(partidas.debe) AS debe, SUM(partidas.haber) AS haber"
+            . " FROM partidas"
+            . " LEFT JOIN asientos ON partidas.idasiento = asientos.idasiento"
+            . " WHERE asientos.codejercicio = " . $this->db->var2str($codejercicio)
+            . $this->asientoFilters($codejercicio, $channel)
+            . " GROUP BY partidas.codsubcuenta";
+
+        $balances = [];
+        foreach ($this->db->select($sql) as $row) {
+            $balances[$row['codsubcuenta']] = [
+                'debe' => (float)$row['debe'],
+                'haber' => (float)$row['haber']
+            ];
+        }
+
+        $this->subaccounts[$key] = $balances;
+        return $balances;
+    }
+
+    /**
+     * Ordena los códigos de balance por nivel con comparación natural.
+     * Se hace en PHP porque los niveles mezclan letras y números ('A', '2', '10'...)
+     * y castear a entero en el ORDER BY falla en PostgreSQL.
+     *
+     * @param BalanceCode[] $balances
+     * @return BalanceCode[]
+     */
+    protected function sortBalances(array $balances): array
+    {
+        usort($balances, function (BalanceCode $a, BalanceCode $b) {
+            return strnatcmp((string)$a->level1, (string)$b->level1)
+                ?: strnatcmp((string)$a->level2, (string)$b->level2)
+                ?: strnatcmp((string)$a->level3, (string)$b->level3)
+                ?: strnatcmp((string)$a->level4, (string)$b->level4);
+        });
+
+        return $balances;
     }
 
     protected function sumAmounts(array &$amounts, array &$amountsN, BalanceCode $balance, string $codejercicio, array $params)

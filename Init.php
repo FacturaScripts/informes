@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022-2025 Carlos García Gómez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2026 Carlos García Gómez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -20,6 +20,7 @@
 namespace FacturaScripts\Plugins\Informes;
 
 use FacturaScripts\Core\Base\DataBase;
+use FacturaScripts\Core\Migrations;
 use FacturaScripts\Core\Template\InitClass;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Core\Where;
@@ -32,6 +33,8 @@ use ParseCsv\Csv;
 
 final class Init extends InitClass
 {
+    const ROLE_NAME = 'Informes';
+
     public function init(): void
     {
         $this->loadExtension(new Extension\Controller\EditAgente());
@@ -47,8 +50,6 @@ final class Init extends InitClass
     {
     }
 
-    const ROLE_NAME = 'Informes';
-
     public function update(): void
     {
         // inicializamos el modelo para que aplique los cambios en la tabla
@@ -58,35 +59,52 @@ final class Init extends InitClass
         $this->migrateOldBalances();
         $this->migrateOldReports();
 
-        // rellenamos la restricción en las cuentas duplicadas de pymes de instalaciones ya existentes
-        $this->fillAccountsRestriccion();
+        // rellenamos la restricción en las cuentas de doble saldo de instalaciones existentes
+        Migrations::runPluginMigration(new Migration\BalanceAccountRestriction());
 
         // crea el role y permisos del plugin
         $this->createRoleForPlugin();
     }
 
-    private function fillAccountsRestriccion(): void
+    private function copyBalancePymes(): bool
     {
-        $db = new DataBase();
-        if (false === $db->tableExists('balance_accounts') || false === $db->tableExists('balance_codes')) {
-            return;
+        // abrimos el csv balance_pymes.csv
+        $csv = new Csv();
+        $csv->auto(FS_FOLDER . '/Plugins/Informes/Data/Other/balance_pymes.csv');
+        if (empty($csv->data)) {
+            return false;
         }
 
-        $restrictions = [
-            'A-B-III' => ['debe', ['5523', '5524']],
-            'A-B-IV' => ['debe', ['551', '5525']],
-            'P-C-II-3' => ['haber', ['551', '5525']],
-            'P-C-III' => ['haber', ['5523', '5524']],
-        ];
+        foreach ($csv->data as $row) {
+            $balanceCode = new BalanceCode();
+            $balanceCode->codbalance = $row['codbalance'];
+            $balanceCode->description1 = $row['description1'];
+            $balanceCode->description2 = $row['description2'];
+            $balanceCode->description3 = $row['description3'];
+            $balanceCode->description4 = $row['description4'];
+            $balanceCode->level1 = $row['level1'];
+            $balanceCode->level2 = $row['level2'];
+            $balanceCode->level3 = $row['level3'];
+            $balanceCode->level4 = $row['level4'];
+            $balanceCode->nature = $row['nature'];
+            $balanceCode->subtype = 'pymes';
+            if (false === $balanceCode->save()) {
+                return false;
+            }
 
-        foreach ($restrictions as $codbalance => [$restriccion, $accounts]) {
-            $accountsList = implode(',', array_map([$db, 'var2str'], $accounts));
-            $sql = 'UPDATE balance_accounts SET restriccion = ' . $db->var2str($restriccion)
-                . ' WHERE (restriccion IS NULL OR restriccion = \'\')'
-                . ' AND codcuenta IN (' . $accountsList . ')'
-                . ' AND idbalance IN (SELECT id FROM balance_codes WHERE subtype = \'pymes\' AND codbalance = ' . $db->var2str($codbalance) . ');';
-            $db->exec($sql);
+            // copiamos las cuentas
+            $accounts = explode(',', $row['accounts']);
+            foreach ($accounts as $account) {
+                $balanceAccount = new BalanceAccount();
+                $balanceAccount->idbalance = $balanceCode->id;
+                $balanceAccount->codcuenta = trim($account);
+                if (false === $balanceAccount->save()) {
+                    return false;
+                }
+            }
         }
+
+        return true;
     }
 
     private function createRoleForPlugin(): void
@@ -144,41 +162,19 @@ final class Init extends InitClass
         $dataBase->commit();
     }
 
-    private function copyBalancePymes(): bool
+    private function migrateOldBalanceAccounts(BalanceCode $balanceCode, DataBase $db, string $tableName): bool
     {
-        // abrimos el csv balance_pymes.csv
-        $csv = new Csv();
-        $csv->auto(FS_FOLDER . '/Plugins/Informes/Data/Other/balance_pymes.csv');
-        if (empty($csv->data)) {
-            return false;
+        if (false === $db->tableExists($tableName)) {
+            return true;
         }
 
-        foreach ($csv->data as $row) {
-            $balanceCode = new BalanceCode();
-            $balanceCode->codbalance = $row['codbalance'];
-            $balanceCode->description1 = $row['description1'];
-            $balanceCode->description2 = $row['description2'];
-            $balanceCode->description3 = $row['description3'];
-            $balanceCode->description4 = $row['description4'];
-            $balanceCode->level1 = $row['level1'];
-            $balanceCode->level2 = $row['level2'];
-            $balanceCode->level3 = $row['level3'];
-            $balanceCode->level4 = $row['level4'];
-            $balanceCode->nature = $row['nature'];
-            $balanceCode->subtype = 'pymes';
-            if (false === $balanceCode->save()) {
+        $sql = 'SELECT * FROM ' . $tableName . ' WHERE codbalance = ' . $db->var2str($balanceCode->codbalance) . ';';
+        foreach ($db->select($sql) as $row) {
+            $balanceAccount = new BalanceAccount();
+            $balanceAccount->idbalance = $balanceCode->id;
+            $balanceAccount->codcuenta = $row['codcuenta'];
+            if (false === $balanceAccount->save()) {
                 return false;
-            }
-
-            // copiamos las cuentas
-            $accounts = explode(',', $row['accounts']);
-            foreach ($accounts as $account) {
-                $balanceAccount = new BalanceAccount();
-                $balanceAccount->idbalance = $balanceCode->id;
-                $balanceAccount->codcuenta = trim($account);
-                if (false === $balanceAccount->save()) {
-                    return false;
-                }
             }
         }
 
@@ -257,25 +253,6 @@ final class Init extends InitClass
         $db->exec('DROP TABLE balancescuentas;');
         $db->exec('DROP TABLE balancescuentasabreviadas;');
         $db->exec('DROP TABLE balances;');
-    }
-
-    private function migrateOldBalanceAccounts(BalanceCode $balanceCode, DataBase $db, string $tableName): bool
-    {
-        if (false === $db->tableExists($tableName)) {
-            return true;
-        }
-
-        $sql = 'SELECT * FROM ' . $tableName . ' WHERE codbalance = ' . $db->var2str($balanceCode->codbalance) . ';';
-        foreach ($db->select($sql) as $row) {
-            $balanceAccount = new BalanceAccount();
-            $balanceAccount->idbalance = $balanceCode->id;
-            $balanceAccount->codcuenta = $row['codcuenta'];
-            if (false === $balanceAccount->save()) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     private function migrateOldReports(): void

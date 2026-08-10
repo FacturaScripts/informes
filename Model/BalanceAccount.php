@@ -35,6 +35,10 @@ class BalanceAccount extends ModelClass
 {
     use ModelTrait;
 
+    const RESTRICTION_CREDIT = 'haber';
+
+    const RESTRICTION_DEBIT = 'debe';
+
     /** @var string código de la cuenta contable */
     public $codcuenta;
 
@@ -47,22 +51,8 @@ class BalanceAccount extends ModelClass
     /** @var int id del código de balance al que pertenece esta cuenta */
     public $idbalance;
 
-    /** @var string */
-    public $restriccion;
-
-    public function matchesRestriction(float $debe, float $haber): bool
-    {
-        switch ($this->restriccion) {
-            case 'debe':
-                return $debe > $haber;
-
-            case 'haber':
-                return $haber > $debe;
-
-            default:
-                return true;
-        }
-    }
+    /** @var string restringe la cuenta a saldo deudor (RESTRICTION_DEBIT) o acreedor (RESTRICTION_CREDIT) */
+    public $restriction;
 
     public function getBalanceCode(): BalanceCode
     {
@@ -91,6 +81,25 @@ class BalanceAccount extends ModelClass
         return parent::install();
     }
 
+    /**
+     * Indica si la cuenta debe computar en este código de balance según el signo de su saldo.
+     * Las cuentas de doble saldo (551, 5523, 5524, 5525) están asignadas a la vez a un código
+     * de Activo y a uno de Pasivo, y solo deben sumar en el lado que corresponde a su signo.
+     */
+    public function matchesRestriction(float $debe, float $haber): bool
+    {
+        switch ($this->restriction) {
+            case self::RESTRICTION_DEBIT:
+                return $debe > $haber;
+
+            case self::RESTRICTION_CREDIT:
+                return $haber > $debe;
+
+            default:
+                return true;
+        }
+    }
+
     public static function tableName(): string
     {
         return 'balance_accounts';
@@ -105,7 +114,7 @@ class BalanceAccount extends ModelClass
         // escapamos el html
         $this->codcuenta = Tools::noHtml($this->codcuenta);
         $this->desccuenta = Tools::noHtml($this->desccuenta);
-        $this->restriccion = Tools::noHtml($this->restriccion);
+        $this->restriction = Tools::noHtml($this->restriction);
 
         return parent::test();
     }
