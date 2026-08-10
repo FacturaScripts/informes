@@ -88,6 +88,12 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="col-sm-6 col-lg">
+                            <div class="mb-3">
+                                {{ forms.simpleSelect('codfamilia', 'codfamilia', fsc.family.codfamilia,
+                                    fsc.getSelectValues('familias', 'codfamilia', 'descripcion', true), trans('family')) }}
+                            </div>
+                        </div>
                     </div>
 
                     <ul class="nav nav-pills mt-3 mb-3" role="tablist">
