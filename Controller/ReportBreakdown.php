@@ -20,7 +20,6 @@
 namespace FacturaScripts\Plugins\Informes\Controller;
 
 use FacturaScripts\Core\DataSrc\Empresas;
-use FacturaScripts\Core\Model\Familia;
 use FacturaScripts\Core\Template\Controller;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Core\Where;
@@ -31,6 +30,7 @@ use FacturaScripts\Dinamic\Model\Almacen;
 use FacturaScripts\Dinamic\Model\Cliente;
 use FacturaScripts\Dinamic\Model\CodeModel;
 use FacturaScripts\Dinamic\Model\Contacto;
+use FacturaScripts\Dinamic\Model\Familia;
 use FacturaScripts\Dinamic\Model\FacturaCliente;
 use FacturaScripts\Dinamic\Model\FacturaProveedor;
 use FacturaScripts\Dinamic\Model\FormaPago;
