@@ -53,12 +53,6 @@ class ReportTaxes extends Controller
     /** @var string */
     public $codserie;
 
-    /** @var array */
-    protected $columns = [];
-
-    /** @var array */
-    protected $calculatedByInvoice = [];
-
     /** @var string */
     public $datefrom;
 
@@ -86,6 +80,12 @@ class ReportTaxes extends Controller
     /** @var string */
     public $typeDate;
 
+    /** @var array */
+    protected $calculatedByInvoice = [];
+
+    /** @var array */
+    protected $columns = [];
+
     public function getPageData(): array
     {
         $data = parent::getPageData();
@@ -112,6 +112,113 @@ class ReportTaxes extends Controller
 
         if ('export' === $this->request->input('action')) {
             $this->exportAction();
+        }
+    }
+
+    /**
+     * Acumula un conjunto de importes en $data bajo la clave $code, creando la fila si no existe.
+     */
+    protected function addAmounts(array &$data, string $code, array $row, array $amounts): void
+    {
+        if (isset($data[$code])) {
+            $data[$code]['neto'] += $amounts['neto'];
+            $data[$code]['totaliva'] += $amounts['totaliva'];
+            $data[$code]['totalrecargo'] += $amounts['totalrecargo'];
+            $data[$code]['totalirpf'] += $amounts['totalirpf'];
+            $data[$code]['suplidos'] += $amounts['suplidos'];
+            return;
+        }
+
+        $data[$code] = [
+            'ciudad' => $row['ciudad'] ?? null,
+            'provincia' => $row['provincia'] ?? null,
+            'codpostal' => $row['codpostal'] ?? null,
+            'codpais' => $row['codpais'] ?? null,
+            'codserie' => $row['codserie'],
+            'codigo' => $row['codigo'],
+            'numero2' => $row['numero2'] ?? null,
+            'numproveedor' => $row['numproveedor'] ?? null,
+            'fecha' => $this->typeDate == 'create' ?
+                $row['fecha'] :
+                $row['fechadevengo'] ?? $row['fecha'],
+            'nombre' => $row['nombre'],
+            'codsubcuenta' => $row['codsubcuenta'],
+            'cifnif' => $row['cifnif'],
+            'codpago' => $row['codpago'] ?? null,
+            'neto' => $amounts['neto'],
+            'iva' => $amounts['iva'],
+            'totaliva' => $amounts['totaliva'],
+            'recargo' => $amounts['recargo'],
+            'totalrecargo' => $amounts['totalrecargo'],
+            'irpf' => $amounts['irpf'],
+            'totalirpf' => $amounts['totalirpf'],
+            'suplidos' => $amounts['suplidos']
+        ];
+    }
+
+    /**
+     * Desdobla una línea de venta en régimen de margen (bienes usados o agencia de viajes)
+     * en dos tramos: el coste al 0% y el margen al tipo de IVA de la línea, replicando el
+     * cálculo de la cabecera (CalculatorModSpain::applyUsedGoods / applyTravel).
+     */
+    protected function addMarginRegimeAmounts(array &$data, array $row, float $pvpTotal): void
+    {
+        $totalCoste = (float)$row['cantidad'] * (float)$row['coste'];
+        $margin = $pvpTotal - $totalCoste;
+
+        // solo se repercute IVA si hay margen positivo o es una factura rectificativa
+        $applyIva = $margin > 0 || ($row['serie_tipo'] ?? '') === 'R';
+
+        // tramo del coste al 0%
+        if (abs($totalCoste) > 0.0) {
+            $codeCost = $row['codigo'] . '-0-0-0-' . $row['suplido'];
+            $this->addAmounts($data, $codeCost, $row, [
+                'iva' => 0.0,
+                'recargo' => 0.0,
+                'irpf' => 0.0,
+                'neto' => $totalCoste,
+                'totaliva' => 0.0,
+                'totalrecargo' => 0.0,
+                'totalirpf' => 0.0,
+                'suplidos' => 0.0
+            ]);
+        }
+
+        // tramo del margen al tipo de IVA de la línea (sin recargo, igual que el calculador)
+        $codeMargin = $row['codigo'] . '-' . $row['iva'] . '-' . $row['recargo'] . '-' . $row['irpf'] . '-' . $row['suplido'];
+        $this->addAmounts($data, $codeMargin, $row, [
+            'iva' => (float)$row['iva'],
+            'recargo' => (float)$row['recargo'],
+            'irpf' => (float)$row['irpf'],
+            'neto' => $margin,
+            'totaliva' => $applyIva ? (float)$row['iva'] * $margin / 100 : 0.0,
+            'totalrecargo' => 0.0,
+            'totalirpf' => (float)$row['irpf'] * $margin / 100,
+            'suplidos' => 0.0
+        ]);
+    }
+
+    /**
+     * Construye un mapa de datos calculados agregados por factura desde los datos del reporte
+     *
+     * @param array $reportData Datos del reporte obtenidos de getReportData()
+     * @return void
+     */
+    protected function buildCalculatedByInvoiceMap(array $reportData): void
+    {
+        $this->calculatedByInvoice = [];
+        foreach ($reportData as $row) {
+            $codigo = $row['codigo'];
+            if (!isset($this->calculatedByInvoice[$codigo])) {
+                $this->calculatedByInvoice[$codigo] = [
+                    'neto' => 0.0,
+                    'totaliva' => 0.0,
+                    'totalrecargo' => 0.0
+                ];
+            }
+            $this->calculatedByInvoice[$codigo]['neto'] += $row['neto'];
+            $this->calculatedByInvoice[$codigo]['totaliva'] += $row['totaliva'];
+            $this->calculatedByInvoice[$codigo]['totalrecargo'] += $row['totalrecargo'];
         }
     }
 
@@ -168,7 +275,7 @@ class ReportTaxes extends Controller
                 Tools::trans('pct-irpf') => $this->exportFieldFormat('number', $row['irpf']),
                 Tools::trans('irpf') => $this->exportFieldFormat('number', $row['totalirpf']),
                 Tools::trans('supplied-amount') => $this->exportFieldFormat('number', $row['suplidos']),
-                Tools::trans('total') => $hide ? '' : $this->exportFieldFormat('number', $row['total'])
+                Tools::trans('total') => $this->exportFieldFormat('number', $this->getRowTotal($row))
             ];
 
             $lastCode = $row['codigo'];
@@ -182,7 +289,7 @@ class ReportTaxes extends Controller
         // preparamos los totales
         $totals = [];
         foreach ($totalsData as $row) {
-            $total = $row['neto'] + $row['totaliva'] + $row['totalrecargo'] - $row['totalirpf'] - $row['suplidos'];
+            $total = $this->getRowTotal($row);
             $totals[] = [
                 Tools::trans('net') => $this->exportFieldFormat('number', $row['neto']),
                 Tools::trans('pct-tax') => $this->exportFieldFormat('percentage', $row['iva']),
@@ -207,6 +314,112 @@ class ReportTaxes extends Controller
             'percentage' => $this->format === 'PDF' ? Tools::number($value) . ' %' : $value,
             default => $value,
         };
+    }
+
+    /**
+     * Encuentra las facturas con posibles diferencias y genera los mensajes de error
+     * Hace una sola consulta SQL independientemente de cuántos campos tengan diferencias
+     *
+     * @param array $fieldsWithDifferences Array con los campos que tienen diferencias: ['neto', 'totaliva', 'totalrecargo']
+     * @param array $differences Array con los valores: ['neto' => ['calculated' => X, 'database' => Y], ...]
+     * @return bool Siempre retorna false ya que hay diferencias
+     */
+    protected function findProblematicInvoices(array $fieldsWithDifferences, array $differences): bool
+    {
+        $tableName = $this->source === 'sales' ? 'facturascli' : 'facturasprov';
+        $columnDate = $this->typeDate === 'create' ? 'fecha' : 'COALESCE(fechadevengo, fecha)';
+
+        // Construir la consulta una sola vez para obtener todos los campos necesarios
+        $sql = 'SELECT codigo, neto, totaliva, totalrecargo FROM ' . $tableName
+            . ' WHERE idempresa = ' . $this->dataBase->var2str($this->idempresa)
+            . ' AND ' . $columnDate . ' >= ' . $this->dataBase->var2str($this->datefrom)
+            . ' AND ' . $columnDate . ' <= ' . $this->dataBase->var2str($this->dateto)
+            . ' AND coddivisa = ' . $this->dataBase->var2str($this->coddivisa);
+
+        if ($this->codserie) {
+            $sql .= ' AND codserie = ' . $this->dataBase->var2str($this->codserie);
+        }
+
+        if ($this->codpais && $this->source === 'sales') {
+            $sql .= ' AND codpais = ' . $this->dataBase->var2str($this->codpais);
+        }
+
+        $sql .= ' ORDER BY codigo ASC;';
+
+        // Agrupar facturas problemáticas por campo
+        $invoicesByField = [];
+        foreach ($fieldsWithDifferences as $field) {
+            $invoicesByField[$field] = [];
+        }
+
+        // Comparar datos de base de datos con datos calculados ya preconstruidos
+        foreach ($this->dataBase->select($sql) as $row) {
+            $codigo = $row['codigo'];
+            foreach ($fieldsWithDifferences as $field) {
+                $dbValue = (float)$row[$field];
+                $calculatedValue = $this->calculatedByInvoice[$codigo][$field] ?? 0.0;
+
+                if (abs($calculatedValue - $dbValue) > self::MAX_TOTAL_DIFF) {
+                    $invoicesByField[$field][] = $codigo;
+                }
+            }
+        }
+
+        $printError = false;
+
+        // Generar los mensajes de error para cada campo con diferencias
+        foreach ($fieldsWithDifferences as $field) {
+            $problematicInvoices = array_unique($invoicesByField[$field]);
+            $invoiceList = implode(', ', $problematicInvoices);
+
+            // Mapeo de campos a mensajes de error
+            $errorMessages = [
+                'neto' => [
+                    'key' => 'calculated-net-diff',
+                    'calculated' => '%net%',
+                    'database' => '%net2%'
+                ],
+                'totaliva' => [
+                    'key' => 'calculated-tax-diff',
+                    'calculated' => '%tax%',
+                    'database' => '%tax2%'
+                ],
+                'totalrecargo' => [
+                    'key' => 'calculated-surcharge-diff',
+                    'calculated' => '%surcharge%',
+                    'database' => '%surcharge2%'
+                ]
+            ];
+
+            if (isset($errorMessages[$field])) {
+                $printError = true;
+                $errorMsg = $errorMessages[$field];
+                Tools::log()->warning($errorMsg['key'], [
+                    $errorMsg['calculated'] => $differences[$field]['calculated'],
+                    $errorMsg['database'] => $differences[$field]['database'],
+                    '%invoices%' => $invoiceList
+                ]);
+            }
+        }
+
+        if ($printError) {
+            Tools::log()->info('report-taxes-solutions');
+        }
+
+        return false;
+    }
+
+    /**
+     * Régimen de IVA de la empresa del informe (cadena vacía si no aplica o no es de ventas).
+     */
+    protected function getCompanyRegimen(): string
+    {
+        if ($this->source !== 'sales') {
+            return '';
+        }
+
+        $empresa = new Empresa();
+        return $empresa->loadFromCode($this->idempresa) ? (string)$empresa->regimeniva : '';
     }
 
     protected function getQuarterDate(bool $start): string
@@ -331,116 +544,12 @@ class ReportTaxes extends Controller
     }
 
     /**
-     * Acumula un conjunto de importes en $data bajo la clave $code, creando la fila si no existe.
+     * Calcula el total de una fila del informe (grupo de impuesto de una factura),
+     * a partir de sus propios importes, sin depender del total de cabecera de la factura.
      */
-    protected function addAmounts(array &$data, string $code, array $row, array $amounts): void
+    protected function getRowTotal(array $row): float
     {
-        if (isset($data[$code])) {
-            $data[$code]['neto'] += $amounts['neto'];
-            $data[$code]['totaliva'] += $amounts['totaliva'];
-            $data[$code]['totalrecargo'] += $amounts['totalrecargo'];
-            $data[$code]['totalirpf'] += $amounts['totalirpf'];
-            $data[$code]['suplidos'] += $amounts['suplidos'];
-            return;
-        }
-
-        $data[$code] = [
-            'ciudad' => $row['ciudad'] ?? null,
-            'provincia' => $row['provincia'] ?? null,
-            'codpostal' => $row['codpostal'] ?? null,
-            'codpais' => $row['codpais'] ?? null,
-            'codserie' => $row['codserie'],
-            'codigo' => $row['codigo'],
-            'numero2' => $row['numero2'] ?? null,
-            'numproveedor' => $row['numproveedor'] ?? null,
-            'fecha' => $this->typeDate == 'create' ?
-                $row['fecha'] :
-                $row['fechadevengo'] ?? $row['fecha'],
-            'nombre' => $row['nombre'],
-            'codsubcuenta' => $row['codsubcuenta'],
-            'cifnif' => $row['cifnif'],
-            'codpago' => $row['codpago'] ?? null,
-            'neto' => $amounts['neto'],
-            'iva' => $amounts['iva'],
-            'totaliva' => $amounts['totaliva'],
-            'recargo' => $amounts['recargo'],
-            'totalrecargo' => $amounts['totalrecargo'],
-            'irpf' => $amounts['irpf'],
-            'totalirpf' => $amounts['totalirpf'],
-            'suplidos' => $amounts['suplidos'],
-            'total' => (float)$row['total']
-        ];
-    }
-
-    /**
-     * Desdobla una línea de venta en régimen de margen (bienes usados o agencia de viajes)
-     * en dos tramos: el coste al 0% y el margen al tipo de IVA de la línea, replicando el
-     * cálculo de la cabecera (CalculatorModSpain::applyUsedGoods / applyTravel).
-     */
-    protected function addMarginRegimeAmounts(array &$data, array $row, float $pvpTotal): void
-    {
-        $totalCoste = (float)$row['cantidad'] * (float)$row['coste'];
-        $margin = $pvpTotal - $totalCoste;
-
-        // solo se repercute IVA si hay margen positivo o es una factura rectificativa
-        $applyIva = $margin > 0 || ($row['serie_tipo'] ?? '') === 'R';
-
-        // tramo del coste al 0%
-        if (abs($totalCoste) > 0.0) {
-            $codeCost = $row['codigo'] . '-0-0-0-' . $row['suplido'];
-            $this->addAmounts($data, $codeCost, $row, [
-                'iva' => 0.0,
-                'recargo' => 0.0,
-                'irpf' => 0.0,
-                'neto' => $totalCoste,
-                'totaliva' => 0.0,
-                'totalrecargo' => 0.0,
-                'totalirpf' => 0.0,
-                'suplidos' => 0.0
-            ]);
-        }
-
-        // tramo del margen al tipo de IVA de la línea (sin recargo, igual que el calculador)
-        $codeMargin = $row['codigo'] . '-' . $row['iva'] . '-' . $row['recargo'] . '-' . $row['irpf'] . '-' . $row['suplido'];
-        $this->addAmounts($data, $codeMargin, $row, [
-            'iva' => (float)$row['iva'],
-            'recargo' => (float)$row['recargo'],
-            'irpf' => (float)$row['irpf'],
-            'neto' => $margin,
-            'totaliva' => $applyIva ? (float)$row['iva'] * $margin / 100 : 0.0,
-            'totalrecargo' => 0.0,
-            'totalirpf' => (float)$row['irpf'] * $margin / 100,
-            'suplidos' => 0.0
-        ]);
-    }
-
-    /**
-     * Régimen de IVA de la empresa del informe (cadena vacía si no aplica o no es de ventas).
-     */
-    protected function getCompanyRegimen(): string
-    {
-        if ($this->source !== 'sales') {
-            return '';
-        }
-
-        $empresa = new Empresa();
-        return $empresa->loadFromCode($this->idempresa) ? (string)$empresa->regimeniva : '';
-    }
-
-    protected function isMarginRegimeSale(array $row, string $companyRegimen): bool
-    {
-        if ($this->source !== 'sales' || $row['suplido']) {
-            return false;
-        }
-
-        // agencias de viajes: el IVA sobre el margen aplica a todas las líneas
-        if ($companyRegimen === RegimenIVA::TAX_SYSTEM_TRAVEL) {
-            return true;
-        }
-
-        // bienes usados (REBU): solo a los productos de segunda mano
-        return $companyRegimen === RegimenIVA::TAX_SYSTEM_USED_GOODS
-            && ($row['producto_tipo'] ?? '') === ProductType::SECOND_HAND;
+        return $row['neto'] + $row['totaliva'] + $row['totalrecargo'] - $row['totalirpf'] - $row['suplidos'];
     }
 
     protected function getTotals(array $data): array
@@ -512,6 +621,22 @@ class ReportTaxes extends Controller
         $this->format = $this->request->input('format');
         $this->source = $this->request->input('source');
         $this->typeDate = $this->request->input('type-date');
+    }
+
+    protected function isMarginRegimeSale(array $row, string $companyRegimen): bool
+    {
+        if ($this->source !== 'sales' || $row['suplido']) {
+            return false;
+        }
+
+        // agencias de viajes: el IVA sobre el margen aplica a todas las líneas
+        if ($companyRegimen === RegimenIVA::TAX_SYSTEM_TRAVEL) {
+            return true;
+        }
+
+        // bienes usados (REBU): solo a los productos de segunda mano
+        return $companyRegimen === RegimenIVA::TAX_SYSTEM_USED_GOODS
+            && ($row['producto_tipo'] ?? '') === ProductType::SECOND_HAND;
     }
 
     protected function processLayout(array &$lines, array &$totals): void
@@ -639,122 +764,5 @@ class ReportTaxes extends Controller
         }
 
         return true;
-    }
-
-    /**
-     * Construye un mapa de datos calculados agregados por factura desde los datos del reporte
-     *
-     * @param array $reportData Datos del reporte obtenidos de getReportData()
-     * @return void
-     */
-    protected function buildCalculatedByInvoiceMap(array $reportData): void
-    {
-        $this->calculatedByInvoice = [];
-        foreach ($reportData as $row) {
-            $codigo = $row['codigo'];
-            if (!isset($this->calculatedByInvoice[$codigo])) {
-                $this->calculatedByInvoice[$codigo] = [
-                    'neto' => 0.0,
-                    'totaliva' => 0.0,
-                    'totalrecargo' => 0.0
-                ];
-            }
-            $this->calculatedByInvoice[$codigo]['neto'] += $row['neto'];
-            $this->calculatedByInvoice[$codigo]['totaliva'] += $row['totaliva'];
-            $this->calculatedByInvoice[$codigo]['totalrecargo'] += $row['totalrecargo'];
-        }
-    }
-
-    /**
-     * Encuentra las facturas con posibles diferencias y genera los mensajes de error
-     * Hace una sola consulta SQL independientemente de cuántos campos tengan diferencias
-     *
-     * @param array $fieldsWithDifferences Array con los campos que tienen diferencias: ['neto', 'totaliva', 'totalrecargo']
-     * @param array $differences Array con los valores: ['neto' => ['calculated' => X, 'database' => Y], ...]
-     * @return bool Siempre retorna false ya que hay diferencias
-     */
-    protected function findProblematicInvoices(array $fieldsWithDifferences, array $differences): bool
-    {
-        $tableName = $this->source === 'sales' ? 'facturascli' : 'facturasprov';
-        $columnDate = $this->typeDate === 'create' ? 'fecha' : 'COALESCE(fechadevengo, fecha)';
-
-        // Construir la consulta una sola vez para obtener todos los campos necesarios
-        $sql = 'SELECT codigo, neto, totaliva, totalrecargo FROM ' . $tableName
-            . ' WHERE idempresa = ' . $this->dataBase->var2str($this->idempresa)
-            . ' AND ' . $columnDate . ' >= ' . $this->dataBase->var2str($this->datefrom)
-            . ' AND ' . $columnDate . ' <= ' . $this->dataBase->var2str($this->dateto)
-            . ' AND coddivisa = ' . $this->dataBase->var2str($this->coddivisa);
-
-        if ($this->codserie) {
-            $sql .= ' AND codserie = ' . $this->dataBase->var2str($this->codserie);
-        }
-
-        if ($this->codpais && $this->source === 'sales') {
-            $sql .= ' AND codpais = ' . $this->dataBase->var2str($this->codpais);
-        }
-
-        $sql .= ' ORDER BY codigo ASC;';
-
-        // Agrupar facturas problemáticas por campo
-        $invoicesByField = [];
-        foreach ($fieldsWithDifferences as $field) {
-            $invoicesByField[$field] = [];
-        }
-
-        // Comparar datos de base de datos con datos calculados ya preconstruidos
-        foreach ($this->dataBase->select($sql) as $row) {
-            $codigo = $row['codigo'];
-            foreach ($fieldsWithDifferences as $field) {
-                $dbValue = (float)$row[$field];
-                $calculatedValue = $this->calculatedByInvoice[$codigo][$field] ?? 0.0;
-
-                if (abs($calculatedValue - $dbValue) > self::MAX_TOTAL_DIFF) {
-                    $invoicesByField[$field][] = $codigo;
-                }
-            }
-        }
-
-        $printError = false;
-
-        // Generar los mensajes de error para cada campo con diferencias
-        foreach ($fieldsWithDifferences as $field) {
-            $problematicInvoices = array_unique($invoicesByField[$field]);
-            $invoiceList = implode(', ', $problematicInvoices);
-
-            // Mapeo de campos a mensajes de error
-            $errorMessages = [
-                'neto' => [
-                    'key' => 'calculated-net-diff',
-                    'calculated' => '%net%',
-                    'database' => '%net2%'
-                ],
-                'totaliva' => [
-                    'key' => 'calculated-tax-diff',
-                    'calculated' => '%tax%',
-                    'database' => '%tax2%'
-                ],
-                'totalrecargo' => [
-                    'key' => 'calculated-surcharge-diff',
-                    'calculated' => '%surcharge%',
-                    'database' => '%surcharge2%'
-                ]
-            ];
-
-            if (isset($errorMessages[$field])) {
-                $printError = true;
-                $errorMsg = $errorMessages[$field];
-                Tools::log()->warning($errorMsg['key'], [
-                    $errorMsg['calculated'] => $differences[$field]['calculated'],
-                    $errorMsg['database'] => $differences[$field]['database'],
-                    '%invoices%' => $invoiceList
-                ]);
-            }
-        }
-
-        if ($printError) {
-            Tools::log()->info('report-taxes-solutions');
-        }
-
-        return false;
     }
 }

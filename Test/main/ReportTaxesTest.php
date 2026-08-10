@@ -42,14 +42,6 @@ final class ReportTaxesTest extends TestCase
         self::removeTaxRegularization();
     }
 
-    protected function setUp(): void
-    {
-        // el régimen de bienes usados (REBU) es específico de España
-        if (Tools::config('codpais') !== 'ESP') {
-            $this->markTestSkipped('country-is-not-spain');
-        }
-    }
-
     public function testExportOnlyShowsInvoiceDataOnFirstTaxRow(): void
     {
         $data = [
@@ -102,11 +94,81 @@ final class ReportTaxesTest extends TestCase
                 'invoice-name-repeated-in-' . strtolower($format)
             );
             $this->assertSame(
-                ['176', '', '242'],
+                ['121', '55', '242'],
                 array_column($lines, Tools::trans('total')),
-                'invoice-total-repeated-in-' . strtolower($format)
+                'total-per-tax-row-wrong-in-' . strtolower($format)
             );
         }
+    }
+
+    public function testSalesTravelAgencyMarginVat(): void
+    {
+        $tax = Impuestos::get('IVA21');
+        if (false === $tax->exists()) {
+            $this->markTestSkipped('IVA21-not-found');
+        }
+
+        // producto normal (en agencia de viajes el margen aplica a todas las líneas)
+        $product = $this->getRandomProduct();
+        $product->codimpuesto = $tax->codimpuesto;
+        $product->nostock = true;
+        $this->assertTrue($product->save(), 'cant-save-product');
+
+        // empresa en régimen de agencia de viajes
+        $invoice = new FacturaCliente();
+        $company = $invoice->getCompany();
+        $originalRegimen = $company->regimeniva;
+        $company->regimeniva = RegimenIVA::TAX_SYSTEM_TRAVEL;
+        $this->assertTrue($company->save(), 'cant-save-company');
+
+        // serie propia para aislar la factura en el informe
+        $serie = $this->getRandomSerie();
+        $this->assertTrue($serie->save(), 'cant-save-serie');
+
+        // cliente + factura
+        $customer = $this->getRandomCustomer();
+        $this->assertTrue($customer->save(), 'cant-save-customer');
+        $invoice->setSubject($customer);
+        $invoice->codserie = $serie->codserie;
+        $this->assertTrue($invoice->save(), 'cant-save-invoice');
+
+        // línea: pvp 200, coste 120, margen 80 -> IVA 21% de 80 = 16.8
+        $line = $invoice->getNewProductLine($product->referencia);
+        $line->cantidad = 1;
+        $line->pvpunitario = 200;
+        $line->coste = 120;
+        $this->assertTrue($line->save(), 'cant-save-line');
+        $lines = [$line];
+        $this->assertTrue(Calculator::calculate($invoice, $lines, true), 'cant-calculate');
+
+        // sanity: la cabecera guarda el IVA sobre el margen
+        $this->assertEqualsWithDelta(200.0, $invoice->neto, 0.001, 'bad-invoice-neto');
+        $this->assertEqualsWithDelta(16.8, $invoice->totaliva, 0.001, 'bad-invoice-totaliva');
+
+        $data = $this->fetchSalesReport($company->idempresa, $invoice->coddivisa, $serie->codserie);
+        $this->assertNotEmpty($data, 'report-data-empty');
+
+        // agregados: IVA sobre el margen (16.8), no sobre el total (42)
+        $reportNeto = $reportIva = 0.0;
+        foreach ($data as $row) {
+            $reportNeto += $row['neto'];
+            $reportIva += $row['totaliva'];
+        }
+        $this->assertEqualsWithDelta(200.0, $reportNeto, 0.001, 'bad-report-neto');
+        $this->assertEqualsWithDelta(16.8, $reportIva, 0.001, 'report-iva-should-be-over-margin');
+
+        // desglose fiel: el coste va al 0% y el margen al tipo de IVA
+        $this->assertTrue($this->hasRate($data, 0.0, ['neto' => 120.0]), 'missing-cost-at-zero-rate');
+        $this->assertTrue($this->hasRate($data, 21.0, ['neto' => 80.0, 'totaliva' => 16.8]), 'missing-margin-at-tax-rate');
+
+        // limpieza
+        $company->regimeniva = $originalRegimen;
+        $this->assertTrue($company->save(), 'cant-restore-company');
+        $this->assertTrue($invoice->delete(), 'cant-delete-invoice');
+        $this->assertTrue($serie->delete(), 'cant-delete-serie');
+        $this->assertTrue($product->delete(), 'cant-delete-product');
+        $this->assertTrue($customer->getDefaultAddress()->delete(), 'cant-delete-contact');
+        $this->assertTrue($customer->delete(), 'cant-delete-customer');
     }
 
     public function testSalesUsedGoodsMarginVat(): void
@@ -176,76 +238,6 @@ final class ReportTaxesTest extends TestCase
             $this->hasRate($data, 21.0, ['neto' => 50.0, 'totaliva' => 10.5]),
             'missing-margin-at-tax-rate'
         );
-
-        // limpieza
-        $company->regimeniva = $originalRegimen;
-        $this->assertTrue($company->save(), 'cant-restore-company');
-        $this->assertTrue($invoice->delete(), 'cant-delete-invoice');
-        $this->assertTrue($serie->delete(), 'cant-delete-serie');
-        $this->assertTrue($product->delete(), 'cant-delete-product');
-        $this->assertTrue($customer->getDefaultAddress()->delete(), 'cant-delete-contact');
-        $this->assertTrue($customer->delete(), 'cant-delete-customer');
-    }
-
-    public function testSalesTravelAgencyMarginVat(): void
-    {
-        $tax = Impuestos::get('IVA21');
-        if (false === $tax->exists()) {
-            $this->markTestSkipped('IVA21-not-found');
-        }
-
-        // producto normal (en agencia de viajes el margen aplica a todas las líneas)
-        $product = $this->getRandomProduct();
-        $product->codimpuesto = $tax->codimpuesto;
-        $product->nostock = true;
-        $this->assertTrue($product->save(), 'cant-save-product');
-
-        // empresa en régimen de agencia de viajes
-        $invoice = new FacturaCliente();
-        $company = $invoice->getCompany();
-        $originalRegimen = $company->regimeniva;
-        $company->regimeniva = RegimenIVA::TAX_SYSTEM_TRAVEL;
-        $this->assertTrue($company->save(), 'cant-save-company');
-
-        // serie propia para aislar la factura en el informe
-        $serie = $this->getRandomSerie();
-        $this->assertTrue($serie->save(), 'cant-save-serie');
-
-        // cliente + factura
-        $customer = $this->getRandomCustomer();
-        $this->assertTrue($customer->save(), 'cant-save-customer');
-        $invoice->setSubject($customer);
-        $invoice->codserie = $serie->codserie;
-        $this->assertTrue($invoice->save(), 'cant-save-invoice');
-
-        // línea: pvp 200, coste 120, margen 80 -> IVA 21% de 80 = 16.8
-        $line = $invoice->getNewProductLine($product->referencia);
-        $line->cantidad = 1;
-        $line->pvpunitario = 200;
-        $line->coste = 120;
-        $this->assertTrue($line->save(), 'cant-save-line');
-        $lines = [$line];
-        $this->assertTrue(Calculator::calculate($invoice, $lines, true), 'cant-calculate');
-
-        // sanity: la cabecera guarda el IVA sobre el margen
-        $this->assertEqualsWithDelta(200.0, $invoice->neto, 0.001, 'bad-invoice-neto');
-        $this->assertEqualsWithDelta(16.8, $invoice->totaliva, 0.001, 'bad-invoice-totaliva');
-
-        $data = $this->fetchSalesReport($company->idempresa, $invoice->coddivisa, $serie->codserie);
-        $this->assertNotEmpty($data, 'report-data-empty');
-
-        // agregados: IVA sobre el margen (16.8), no sobre el total (42)
-        $reportNeto = $reportIva = 0.0;
-        foreach ($data as $row) {
-            $reportNeto += $row['neto'];
-            $reportIva += $row['totaliva'];
-        }
-        $this->assertEqualsWithDelta(200.0, $reportNeto, 0.001, 'bad-report-neto');
-        $this->assertEqualsWithDelta(16.8, $reportIva, 0.001, 'report-iva-should-be-over-margin');
-
-        // desglose fiel: el coste va al 0% y el margen al tipo de IVA
-        $this->assertTrue($this->hasRate($data, 0.0, ['neto' => 120.0]), 'missing-cost-at-zero-rate');
-        $this->assertTrue($this->hasRate($data, 21.0, ['neto' => 80.0, 'totaliva' => 16.8]), 'missing-margin-at-tax-rate');
 
         // limpieza
         $company->regimeniva = $originalRegimen;
@@ -333,5 +325,13 @@ final class ReportTaxesTest extends TestCase
         }
 
         return false;
+    }
+
+    protected function setUp(): void
+    {
+        // el régimen de bienes usados (REBU) es específico de España
+        if (Tools::config('codpais') !== 'ESP') {
+            $this->markTestSkipped('country-is-not-spain');
+        }
     }
 }
