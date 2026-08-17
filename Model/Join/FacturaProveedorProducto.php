@@ -63,9 +63,9 @@ class FacturaProveedorProducto extends JoinModel
     protected function getSQLFrom(): string
     {
         return static::MAIN_TABLE
+            . ' JOIN facturasprov ON facturasprov.idfactura = lineasfacturasprov.idfactura'
             . ' LEFT JOIN variantes ON ' . static::MAIN_TABLE . '.referencia = variantes.referencia'
             . ' LEFT JOIN productos ON variantes.idproducto = productos.idproducto'
-            . ' LEFT JOIN facturasprov ON facturasprov.idfactura = lineasfacturasprov.idfactura'
             . ' LEFT JOIN stocks ON stocks.referencia = ' . static::MAIN_TABLE . '.referencia'
             . ' AND stocks.codalmacen = ' . static::DOC_TABLE . '.codalmacen';
     }

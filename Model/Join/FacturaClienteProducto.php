@@ -64,9 +64,9 @@ class FacturaClienteProducto extends JoinModel
     protected function getSQLFrom(): string
     {
         return static::MAIN_TABLE
+            . ' JOIN facturascli ON facturascli.idfactura = lineasfacturascli.idfactura'
             . ' LEFT JOIN variantes ON ' . static::MAIN_TABLE . '.referencia = variantes.referencia'
             . ' LEFT JOIN productos ON variantes.idproducto = productos.idproducto'
-            . ' LEFT JOIN facturascli ON facturascli.idfactura = lineasfacturascli.idfactura'
             . ' LEFT JOIN stocks ON stocks.referencia = ' . static::MAIN_TABLE . '.referencia'
             . ' AND stocks.codalmacen = ' . static::DOC_TABLE . '.codalmacen';
     }
