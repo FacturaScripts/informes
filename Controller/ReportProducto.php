@@ -49,7 +49,7 @@ class ReportProducto extends ListController
     /**
      * Filtros comunes a todos los documentos
      */
-    private function addCommonFilters(string $viewName, string $dateField, string $warehouseField): void
+    private function addCommonFilters(string $viewName, string $dateField, string $warehouseField, bool $showAgent = true): void
     {
         // periodo
         $this->addFilterPeriod($viewName, 'fecha', 'date', $dateField);
@@ -60,10 +60,12 @@ class ReportProducto extends ListController
             $this->addFilterSelect($viewName, 'nick', 'user', 'nick', $users);
         }
 
-        // agente
-        $agents = Agentes::codeModel();
-        if (count($agents) > 1) {
-            $this->addFilterSelect($viewName, 'codagente', 'agent', 'codagente', $agents);
+        // agente (solo aplica a documentos de venta, que son los que tienen codagente)
+        if ($showAgent) {
+            $agents = Agentes::codeModel();
+            if (count($agents) > 1) {
+                $this->addFilterSelect($viewName, 'codagente', 'agent', 'codagente', $agents);
+            }
         }
 
         // empresa
@@ -187,7 +189,7 @@ class ReportProducto extends ListController
             ->addOrderBy(['stockfis'], 'stock');
 
         // filtros
-        $this->addCommonFilters($viewName, 'albaranesprov.fecha', 'albaranesprov.codalmacen');
+        $this->addCommonFilters($viewName, 'albaranesprov.fecha', 'albaranesprov.codalmacen', false);
 
         // proveedor
         $this->addFilterAutocomplete($viewName, 'codproveedor', 'supplier', 'codproveedor', 'Proveedor', 'codproveedor', 'nombre');
@@ -203,7 +205,7 @@ class ReportProducto extends ListController
             ->addOrderBy(['cantidad'], 'quantity', 2);
 
         // filtros
-        $this->addCommonFilters($viewName, 'facturasprov.fecha', 'facturasprov.codalmacen');
+        $this->addCommonFilters($viewName, 'facturasprov.fecha', 'facturasprov.codalmacen', false);
 
         // proveedor
         $this->addFilterAutocomplete($viewName, 'codproveedor', 'supplier', 'codproveedor', 'Proveedor', 'codproveedor', 'nombre');

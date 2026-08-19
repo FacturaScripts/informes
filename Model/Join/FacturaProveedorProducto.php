@@ -20,6 +20,7 @@
 namespace FacturaScripts\Plugins\Informes\Model\Join;
 
 use FacturaScripts\Core\Template\JoinModel;
+use FacturaScripts\Core\Where;
 
 /**
  * Description of FacturaProveedorProducto
@@ -36,6 +37,37 @@ class FacturaProveedorProducto extends JoinModel
         return 'ReportProducto';
     }
 
+    /**
+     * Carga la descripción aparte para que no entre en el GROUP BY (columna TEXT).
+     *
+     * @param Where[] $where
+     */
+    public static function all(array $where = [], array $order = [], int $offset = 0, int $limit = 0): array
+    {
+        $result = parent::all($where, $order, $offset, $limit);
+
+        $productIds = array_unique(array_filter(
+            array_map(fn($item) => $item->idproducto, $result),
+            fn($idproducto) => $idproducto !== null
+        ));
+        if (empty($productIds)) {
+            return $result;
+        }
+
+        $descriptions = [];
+        $sql = 'SELECT idproducto, descripcion FROM productos WHERE idproducto IN ('
+            . implode(',', array_map('intval', $productIds)) . ')';
+        foreach (self::db()->select($sql) as $row) {
+            $descriptions[$row['idproducto']] = $row['descripcion'];
+        }
+
+        foreach ($result as $item) {
+            $item->descripcion = $descriptions[$item->idproducto] ?? null;
+        }
+
+        return $result;
+    }
+
     protected function getFields(): array
     {
         return [
@@ -45,7 +77,6 @@ class FacturaProveedorProducto extends JoinModel
             'codfabricante' => 'productos.codfabricante',
             'codfamilia' => 'productos.codfamilia',
             'coste' => 'variantes.coste',
-            'descripcion' => 'productos.descripcion',
             'idproducto' => static::MAIN_TABLE . '.idproducto',
             'precio' => 'variantes.precio',
             'referencia' => static::MAIN_TABLE . '.referencia',
@@ -57,7 +88,7 @@ class FacturaProveedorProducto extends JoinModel
     {
         return static::DOC_TABLE . '.codalmacen, ' . static::MAIN_TABLE . '.idproducto, '
             . static::MAIN_TABLE . '.referencia, productos.codfabricante, productos.codfamilia, variantes.coste, '
-            . 'productos.descripcion, variantes.precio, stocks.cantidad';
+            . 'variantes.precio, stocks.cantidad';
     }
 
     protected function getSQLFrom(): string
