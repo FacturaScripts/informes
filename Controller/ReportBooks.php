@@ -79,71 +79,62 @@ class ReportBooks extends Controller
         }
     }
 
-    protected function libroIngresos(): void
+    protected static function getExpenseBookBase(array $row): float
     {
-        $sql = "SELECT f.fecha, f.numero, f.codigo, f.cifnif, f.nombrecliente,"
-            . " f.observaciones, f.neto, f.totaliva, f.totalrecargo, f.total"
-            . " FROM facturascli f"
-            . " WHERE f.fecha >= " . $this->dataBase->var2str($this->desde)
-            . " AND f.fecha <= " . $this->dataBase->var2str($this->hasta)
-            . " AND f.idempresa = " . $this->dataBase->var2str($this->idempresa)
-            . " ORDER BY f.fecha ASC, CAST(f.numero AS UNSIGNED) ASC;";
-
-        $data = $this->dataBase->select($sql);
-        if (empty($data)) {
-            Tools::log()->warning('no-data');
-            return;
+        $base = (float)($row['line_baseimponible'] ?? 0);
+        if (self::hasAmount($base)) {
+            return $base;
         }
 
-        $this->setTemplate(false);
-        header("content-type:application/csv;charset=UTF-8");
-        $filename = 'libro_ingresos_' . date('Y-m-d_H-i-s') . '.csv';
-        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        // las rectificativas llevan el gasto al haber: lo tratamos como gasto negativo
+        return (float)($row['debe'] ?? 0) - (float)($row['haber'] ?? 0);
+    }
 
-        // Cabeceras del libro de ingresos
-        echo Tools::trans('date') . ';'
-            . Tools::trans('invoice-number') . ';'
-            . Tools::trans('document') . ';'
-            . 'NIF' . ';'
-            . Tools::trans('customer') . ';'
-            . Tools::trans('concept') . ';'
-            . Tools::trans('tax-base') . ';'
-            . Tools::trans('vat') . ';'
-            . Tools::trans('surcharge') . ';'
-            . Tools::trans('total') . "\n";
+    protected static function getExpenseBookLineAmounts(array $row, float $entryBaseTotal): array
+    {
+        $base = self::getExpenseBookBase($row);
+        $invoiceTotal = (float)($row['invoice_total'] ?? 0);
+        $invoiceVat = (float)($row['invoice_totaliva'] ?? 0);
+        $invoiceSurcharge = (float)($row['invoice_totalrecargo'] ?? 0);
 
-        // Totales acumulados
-        $totalNeto = 0;
-        $totalIva = 0;
-        $totalRecargo = 0;
-        $totalGeneral = 0;
-        $nfo = Tools::decimals();
-
-        // Líneas del libro
-        foreach ($data as $row) {
-            echo $row['fecha'] . ';'
-                . $row['numero'] . ';'
-                . '"' . $row['codigo'] . '";'
-                . '"' . $row['cifnif'] . '";'
-                . '"' . Tools::fixHtml($row['nombrecliente']) . '";'
-                . '"' . Tools::fixHtml($row['observaciones']) . '";'
-                . number_format($row['neto'], $nfo, ',', '') . ';'
-                . number_format($row['totaliva'], $nfo, ',', '') . ';'
-                . number_format($row['totalrecargo'], $nfo, ',', '') . ';'
-                . number_format($row['total'], $nfo, ',', '') . "\n";
-
-            $totalNeto += $row['neto'];
-            $totalIva += $row['totaliva'];
-            $totalRecargo += $row['totalrecargo'];
-            $totalGeneral += $row['total'];
+        if (self::hasAmount($invoiceTotal) || self::hasAmount($invoiceVat) || self::hasAmount($invoiceSurcharge)) {
+            $ratio = self::hasAmount($entryBaseTotal) ? $base / $entryBaseTotal : 0.0;
+            return [
+                'baseimponible' => $base,
+                'iva' => $invoiceVat * $ratio,
+                'recargo' => $invoiceSurcharge * $ratio,
+                'gasto' => $invoiceTotal * $ratio,
+            ];
         }
 
-        // Línea de totales
-        echo "\n" . strtoupper(Tools::trans('totals')) . ';;;;;;'
-            . number_format($totalNeto, $nfo, ',', '') . ';'
-            . number_format($totalIva, $nfo, ',', '') . ';'
-            . number_format($totalRecargo, $nfo, ',', '') . ';'
-            . number_format($totalGeneral, $nfo, ',', '') . "\n";
+        $iva = $base * (float)($row['line_iva'] ?? 0) / 100;
+        $recargo = $base * (float)($row['line_recargo'] ?? 0) / 100;
+        return [
+            'baseimponible' => $base,
+            'iva' => $iva,
+            'recargo' => $recargo,
+            'gasto' => self::hasAmount($iva) || self::hasAmount($recargo) ? $base + $iva + $recargo : 0.0,
+        ];
+    }
+
+    protected static function hasAmount(float $amount): bool
+    {
+        return abs($amount) > 0.00001;
+    }
+
+    protected function iniFilters(): void
+    {
+        $this->desde = $this->request->get('desde', date('Y') . '-01-01');
+        $this->hasta = $this->request->get('hasta', date('Y') . '-12-31');
+        $this->idempresa = $this->request->get('idempresa', $this->user->idempresa);
+
+        // Validar que la fecha desde sea anterior o igual a la fecha hasta
+        if (strtotime($this->desde) > strtotime($this->hasta)) {
+            Tools::log()->warning('start-date-later-end-date');
+            $temp = $this->desde;
+            $this->desde = $this->hasta;
+            $this->hasta = $temp;
+        }
     }
 
     protected function libroGastos(): void
@@ -174,7 +165,7 @@ class ReportBooks extends Controller
             . " AND (a.operacion IS NULL OR a.operacion NOT IN ("
             . $this->dataBase->var2str(Asiento::OPERATION_REGULARIZATION) . ", "
             . $this->dataBase->var2str(Asiento::OPERATION_CLOSING) . "))"
-            . " ORDER BY a.fecha ASC, CAST(a.numero AS UNSIGNED) ASC, p.codsubcuenta ASC;";
+            . " ORDER BY a.fecha ASC, " . $this->dataBase->castInteger('a.numero') . " ASC, p.codsubcuenta ASC;";
 
         $data = $this->dataBase->select($sql);
         if (empty($data)) {
@@ -243,61 +234,70 @@ class ReportBooks extends Controller
             . number_format($totalGasto, $nfo, ',', '') . "\n";
     }
 
-    protected static function getExpenseBookBase(array $row): float
+    protected function libroIngresos(): void
     {
-        $base = (float)($row['line_baseimponible'] ?? 0);
-        if (self::hasAmount($base)) {
-            return $base;
+        $sql = "SELECT f.fecha, f.numero, f.codigo, f.cifnif, f.nombrecliente,"
+            . " f.observaciones, f.neto, f.totaliva, f.totalrecargo, f.total"
+            . " FROM facturascli f"
+            . " WHERE f.fecha >= " . $this->dataBase->var2str($this->desde)
+            . " AND f.fecha <= " . $this->dataBase->var2str($this->hasta)
+            . " AND f.idempresa = " . $this->dataBase->var2str($this->idempresa)
+            . " ORDER BY f.fecha ASC, " . $this->dataBase->castInteger('f.numero') . " ASC;";
+
+        $data = $this->dataBase->select($sql);
+        if (empty($data)) {
+            Tools::log()->warning('no-data');
+            return;
         }
 
-        // las rectificativas llevan el gasto al haber: lo tratamos como gasto negativo
-        return (float)($row['debe'] ?? 0) - (float)($row['haber'] ?? 0);
-    }
+        $this->setTemplate(false);
+        header("content-type:application/csv;charset=UTF-8");
+        $filename = 'libro_ingresos_' . date('Y-m-d_H-i-s') . '.csv';
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
 
-    protected static function getExpenseBookLineAmounts(array $row, float $entryBaseTotal): array
-    {
-        $base = self::getExpenseBookBase($row);
-        $invoiceTotal = (float)($row['invoice_total'] ?? 0);
-        $invoiceVat = (float)($row['invoice_totaliva'] ?? 0);
-        $invoiceSurcharge = (float)($row['invoice_totalrecargo'] ?? 0);
+        // Cabeceras del libro de ingresos
+        echo Tools::trans('date') . ';'
+            . Tools::trans('invoice-number') . ';'
+            . Tools::trans('document') . ';'
+            . 'NIF' . ';'
+            . Tools::trans('customer') . ';'
+            . Tools::trans('concept') . ';'
+            . Tools::trans('tax-base') . ';'
+            . Tools::trans('vat') . ';'
+            . Tools::trans('surcharge') . ';'
+            . Tools::trans('total') . "\n";
 
-        if (self::hasAmount($invoiceTotal) || self::hasAmount($invoiceVat) || self::hasAmount($invoiceSurcharge)) {
-            $ratio = self::hasAmount($entryBaseTotal) ? $base / $entryBaseTotal : 0.0;
-            return [
-                'baseimponible' => $base,
-                'iva' => $invoiceVat * $ratio,
-                'recargo' => $invoiceSurcharge * $ratio,
-                'gasto' => $invoiceTotal * $ratio,
-            ];
+        // Totales acumulados
+        $totalNeto = 0;
+        $totalIva = 0;
+        $totalRecargo = 0;
+        $totalGeneral = 0;
+        $nfo = Tools::decimals();
+
+        // Líneas del libro
+        foreach ($data as $row) {
+            echo $row['fecha'] . ';'
+                . $row['numero'] . ';'
+                . '"' . $row['codigo'] . '";'
+                . '"' . $row['cifnif'] . '";'
+                . '"' . Tools::fixHtml($row['nombrecliente']) . '";'
+                . '"' . Tools::fixHtml($row['observaciones']) . '";'
+                . number_format($row['neto'], $nfo, ',', '') . ';'
+                . number_format($row['totaliva'], $nfo, ',', '') . ';'
+                . number_format($row['totalrecargo'], $nfo, ',', '') . ';'
+                . number_format($row['total'], $nfo, ',', '') . "\n";
+
+            $totalNeto += $row['neto'];
+            $totalIva += $row['totaliva'];
+            $totalRecargo += $row['totalrecargo'];
+            $totalGeneral += $row['total'];
         }
 
-        $iva = $base * (float)($row['line_iva'] ?? 0) / 100;
-        $recargo = $base * (float)($row['line_recargo'] ?? 0) / 100;
-        return [
-            'baseimponible' => $base,
-            'iva' => $iva,
-            'recargo' => $recargo,
-            'gasto' => self::hasAmount($iva) || self::hasAmount($recargo) ? $base + $iva + $recargo : 0.0,
-        ];
-    }
-
-    protected static function hasAmount(float $amount): bool
-    {
-        return abs($amount) > 0.00001;
-    }
-
-    protected function iniFilters(): void
-    {
-        $this->desde = $this->request->get('desde', date('Y') . '-01-01');
-        $this->hasta = $this->request->get('hasta', date('Y') . '-12-31');
-        $this->idempresa = $this->request->get('idempresa', $this->user->idempresa);
-
-        // Validar que la fecha desde sea anterior o igual a la fecha hasta
-        if (strtotime($this->desde) > strtotime($this->hasta)) {
-            Tools::log()->warning('start-date-later-end-date');
-            $temp = $this->desde;
-            $this->desde = $this->hasta;
-            $this->hasta = $temp;
-        }
+        // Línea de totales
+        echo "\n" . strtoupper(Tools::trans('totals')) . ';;;;;;'
+            . number_format($totalNeto, $nfo, ',', '') . ';'
+            . number_format($totalIva, $nfo, ',', '') . ';'
+            . number_format($totalRecargo, $nfo, ',', '') . ';'
+            . number_format($totalGeneral, $nfo, ',', '') . "\n";
     }
 }
