@@ -86,6 +86,9 @@ class ReportTaxes extends Controller
     /** @var array */
     protected $columns = [];
 
+    /** @var Empresa|null */
+    protected $reportCompany;
+
     public function getPageData(): array
     {
         $data = parent::getPageData();
@@ -410,6 +413,19 @@ class ReportTaxes extends Controller
     }
 
     /**
+     * Empresa del informe, cargada una sola vez.
+     */
+    protected function getCompany(): Empresa
+    {
+        if (null === $this->reportCompany) {
+            $this->reportCompany = new Empresa();
+            $this->reportCompany->load($this->idempresa);
+        }
+
+        return $this->reportCompany;
+    }
+
+    /**
      * Régimen de IVA de la empresa del informe (cadena vacía si no aplica o no es de ventas).
      */
     protected function getCompanyRegimen(): string
@@ -418,8 +434,7 @@ class ReportTaxes extends Controller
             return '';
         }
 
-        $empresa = new Empresa();
-        return $empresa->loadFromCode($this->idempresa) ? (string)$empresa->regimeniva : '';
+        return (string)$this->getCompany()->regimeniva;
     }
 
     protected function getQuarterDate(bool $start): string
@@ -515,14 +530,15 @@ class ReportTaxes extends Controller
                 continue;
             }
 
-            $intraCommunity = $row['operacion'] === InvoiceOperation::INTRA_COMMUNITY;
+            // en las compras con autorepercusión la cuota de IVA y el recargo van a cero
+            $reverseCharge = $this->isReverseChargePurchase($row);
             $amounts = [
                 'iva' => $row['suplido'] ? 0.0 : (float)$row['iva'],
                 'recargo' => $row['suplido'] ? 0.0 : (float)$row['recargo'],
                 'irpf' => $row['suplido'] ? 0.0 : (float)$row['irpf'],
                 'neto' => $row['suplido'] ? 0.0 : $pvpTotal,
-                'totaliva' => $row['suplido'] || $intraCommunity ? 0.0 : (float)$row['iva'] * $pvpTotal / 100,
-                'totalrecargo' => $row['suplido'] ? 0.0 : (float)$row['recargo'] * $pvpTotal / 100,
+                'totaliva' => $row['suplido'] || $reverseCharge ? 0.0 : (float)$row['iva'] * $pvpTotal / 100,
+                'totalrecargo' => $row['suplido'] || $reverseCharge ? 0.0 : (float)$row['recargo'] * $pvpTotal / 100,
                 'totalirpf' => $row['suplido'] ? 0.0 : (float)$row['irpf'] * $pvpTotal / 100,
                 'suplidos' => $row['suplido'] ? $pvpTotal : 0.0
             ];
@@ -637,6 +653,28 @@ class ReportTaxes extends Controller
         // bienes usados (REBU): solo a los productos de segunda mano
         return $companyRegimen === RegimenIVA::TAX_SYSTEM_USED_GOODS
             && ($row['producto_tipo'] ?? '') === ProductType::SECOND_HAND;
+    }
+
+    /**
+     * Indica si la fila corresponde a una compra con autorepercusión: adquisición intracomunitaria
+     * de bienes, servicios intracomunitarios o inversión del sujeto pasivo.
+     *
+     * En estos casos CalculatorModSpain::updateSubtotals() deja la cuota de IVA y el recargo de la
+     * cabecera a cero, aunque las líneas conserven su tipo impositivo, porque el IVA devengado y el
+     * deducible se compensan. Replicamos ese criterio para que el informe cuadre con la factura.
+     */
+    protected function isReverseChargePurchase(array $row): bool
+    {
+        // el core solo anula la cuota de la cabecera en empresas españolas
+        if ($this->source !== 'purchases' || $this->getCompany()->codpais !== 'ESP') {
+            return false;
+        }
+
+        return in_array($row['operacion'], [
+            InvoiceOperation::INTRA_COMMUNITY,
+            InvoiceOperation::INTRA_COMMUNITY_SERVICES,
+            InvoiceOperation::REVERSE_CHARGE
+        ], true);
     }
 
     protected function processLayout(array &$lines, array &$totals): void

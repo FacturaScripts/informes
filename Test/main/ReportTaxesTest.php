@@ -21,9 +21,11 @@ namespace FacturaScripts\Test\Plugins;
 
 use FacturaScripts\Core\DataSrc\Impuestos;
 use FacturaScripts\Core\Lib\Calculator;
+use FacturaScripts\Core\Lib\InvoiceOperation;
 use FacturaScripts\Core\Lib\ProductType;
 use FacturaScripts\Core\Lib\RegimenIVA;
 use FacturaScripts\Core\Model\FacturaCliente;
+use FacturaScripts\Core\Model\FacturaProveedor;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Plugins\Informes\Controller\ReportTaxes;
 use FacturaScripts\Test\Traits\DefaultSettingsTrait;
@@ -99,6 +101,21 @@ final class ReportTaxesTest extends TestCase
                 'total-per-tax-row-wrong-in-' . strtolower($format)
             );
         }
+    }
+
+    public function testPurchasesIntraCommunityServicesVat(): void
+    {
+        $this->assertPurchaseReverseCharge(InvoiceOperation::INTRA_COMMUNITY_SERVICES);
+    }
+
+    public function testPurchasesIntraCommunityVat(): void
+    {
+        $this->assertPurchaseReverseCharge(InvoiceOperation::INTRA_COMMUNITY);
+    }
+
+    public function testPurchasesReverseChargeVat(): void
+    {
+        $this->assertPurchaseReverseCharge(InvoiceOperation::REVERSE_CHARGE);
     }
 
     public function testSalesTravelAgencyMarginVat(): void
@@ -250,6 +267,97 @@ final class ReportTaxesTest extends TestCase
     }
 
     /**
+     * Comprueba que una compra con autorepercusión (adquisición intracomunitaria de bienes,
+     * servicios intracomunitarios o inversión del sujeto pasivo) aparece en el informe con su
+     * tipo de IVA pero sin cuota, igual que la cabecera de la factura.
+     */
+    private function assertPurchaseReverseCharge(string $operacion): void
+    {
+        $tax = Impuestos::get('IVA21');
+        if (false === $tax->exists()) {
+            $this->markTestSkipped('IVA21-not-found');
+        }
+
+        // el cálculo especial de estas operaciones solo aplica a empresas españolas
+        $invoice = new FacturaProveedor();
+        $company = $invoice->getCompany();
+        if ($company->codpais !== 'ESP') {
+            $this->markTestSkipped('company-is-not-spanish');
+        }
+
+        // producto sin control de stock para no alterar el inventario
+        $product = $this->getRandomProduct();
+        $product->codimpuesto = $tax->codimpuesto;
+        $product->nostock = true;
+        $this->assertTrue($product->save(), 'cant-save-product');
+
+        // serie propia para aislar la factura en el informe
+        $serie = $this->getRandomSerie();
+        $this->assertTrue($serie->save(), 'cant-save-serie');
+
+        // proveedor + factura con la operación a comprobar
+        $supplier = $this->getRandomSupplier();
+        $this->assertTrue($supplier->save(), 'cant-save-supplier');
+        $invoice->setSubject($supplier);
+        $invoice->codserie = $serie->codserie;
+        $invoice->operacion = $operacion;
+        $this->assertTrue($invoice->save(), 'cant-save-invoice');
+
+        // línea: 1 x 1000 al 21% -> la línea conserva el IVA, la cabecera no
+        $line = $invoice->getNewProductLine($product->referencia);
+        $line->cantidad = 1;
+        $line->pvpunitario = 1000;
+        $this->assertTrue($line->save(), 'cant-save-line');
+        $lines = [$line];
+        $this->assertTrue(Calculator::calculate($invoice, $lines, true), 'cant-calculate');
+
+        // sanity: la línea mantiene el 21% pero la cabecera no tiene cuota de IVA
+        $this->assertEqualsWithDelta(21.0, (float)$line->iva, 0.001, 'bad-line-iva');
+        $this->assertEqualsWithDelta(1000.0, $invoice->neto, 0.001, 'bad-invoice-neto');
+        $this->assertEqualsWithDelta(0.0, $invoice->totaliva, 0.001, 'bad-invoice-totaliva');
+
+        $data = $this->fetchPurchasesReport($company->idempresa, $invoice->coddivisa, $serie->codserie);
+        $this->assertNotEmpty($data, 'report-data-empty');
+
+        // el informe muestra el neto y el tipo de IVA, pero la cuota y el recargo a cero
+        $this->assertTrue(
+            $this->hasRate($data, 21.0, ['neto' => 1000.0, 'totaliva' => 0.0, 'totalrecargo' => 0.0]),
+            'report-tax-should-be-zero-for-' . $operacion
+        );
+
+        // limpieza
+        $this->assertTrue($invoice->delete(), 'cant-delete-invoice');
+        $this->assertTrue($serie->delete(), 'cant-delete-serie');
+        $this->assertTrue($product->delete(), 'cant-delete-product');
+        $this->assertTrue($supplier->getDefaultAddress()->delete(), 'cant-delete-contact');
+        $this->assertTrue($supplier->delete(), 'cant-delete-supplier');
+    }
+
+    /**
+     * Ejecuta getReportData() del controlador de impuestos para compras del año en curso,
+     * filtrando por la serie dada para aislar la factura de prueba.
+     */
+    private function fetchPurchasesReport(int $idempresa, string $coddivisa, string $codserie): array
+    {
+        $report = new class ('ReportTaxes') extends ReportTaxes {
+            public function fetchReportData(): array
+            {
+                return $this->getReportData();
+            }
+        };
+        $report->source = 'purchases';
+        $report->idempresa = $idempresa;
+        $report->coddivisa = $coddivisa;
+        $report->codserie = $codserie;
+        $report->codpais = '';
+        $report->typeDate = 'create';
+        $report->datefrom = date('Y-01-01');
+        $report->dateto = date('Y-12-31');
+
+        return $report->fetchReportData();
+    }
+
+    /**
      * Ejecuta getReportData() del controlador de impuestos para ventas del año en curso,
      * filtrando por la serie dada para aislar la factura de prueba.
      */
@@ -329,7 +437,7 @@ final class ReportTaxesTest extends TestCase
 
     protected function setUp(): void
     {
-        // el régimen de bienes usados (REBU) es específico de España
+        // los regímenes y operaciones que se comprueban aquí son específicos de España
         if (Tools::config('codpais') !== 'ESP') {
             $this->markTestSkipped('country-is-not-spain');
         }
