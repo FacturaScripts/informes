@@ -70,6 +70,11 @@ class EditReportAmount extends EditController
     protected function exportAction(): void
     {
         $model = $this->getModel();
+        if (false === $model->exists()) {
+            Tools::log()->warning('record-not-found');
+            return;
+        }
+
         $format = $this->request->get('option', 'PDF');
         $pages = $this->generateReport($model, $format);
         if (empty($pages)) {
