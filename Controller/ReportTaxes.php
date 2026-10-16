@@ -280,7 +280,7 @@ class ReportTaxes extends Controller
                 Tools::trans('zip-code') => $hide ? '' : $row['codpostal'] ?? '',
                 Tools::trans('country') => $hide ? '' : ($row['codpais'] ? Paises::get($row['codpais'])->nombre : ''),
                 Tools::trans('net') => $this->exportFieldFormat('number', $row['neto']),
-                Tools::trans('vat-exception') => $this->getTaxExceptionName($row['excepcioniva']),
+                Tools::trans('vat-exception') => $this->getTaxExceptionLabel($row['excepcioniva']),
                 Tools::trans('pct-tax') => $this->exportFieldFormat('number', $row['iva']),
                 Tools::trans('tax') => $this->exportFieldFormat('number', $row['totaliva']),
                 Tools::trans('self-assessed-tax') => $this->exportFieldFormat('number', $row['totalivaauto']),
@@ -300,41 +300,10 @@ class ReportTaxes extends Controller
             return;
         }
 
-        // las columnas de operación, excepción y cuota autorepercutida solo se añaden a los totales si hay datos
-        $hasOperations = $hasExceptions = $hasSelfAssessed = false;
-        foreach ($totalsData as $row) {
-            $hasOperations = $hasOperations || !empty($row['operacion']);
-            $hasExceptions = $hasExceptions || !empty($row['excepcioniva']);
-            $hasSelfAssessed = $hasSelfAssessed || abs($row['totalivaauto']) > 0.0;
-        }
-
-        // preparamos los totales
-        $totals = [];
-        foreach ($totalsData as $row) {
-            $item = [];
-            if ($hasOperations) {
-                $item[Tools::trans('operation')] = $this->getOperationName($row['operacion']);
-            }
-
-            if ($hasExceptions) {
-                $item[Tools::trans('vat-exception')] = $this->getTaxExceptionName($row['excepcioniva']);
-            }
-
-            $item[Tools::trans('net')] = $this->exportFieldFormat('number', $row['neto']);
-            $item[Tools::trans('pct-tax')] = $this->exportFieldFormat('percentage', $row['iva']);
-            $item[Tools::trans('tax')] = $this->exportFieldFormat('number', $row['totaliva']);
-            if ($hasSelfAssessed) {
-                $item[Tools::trans('self-assessed-tax')] = $this->exportFieldFormat('number', $row['totalivaauto']);
-            }
-
-            $item[Tools::trans('pct-surcharge')] = $this->exportFieldFormat('percentage', $row['recargo']);
-            $item[Tools::trans('surcharge')] = $this->exportFieldFormat('number', $row['totalrecargo']);
-            $item[Tools::trans('pct-irpf')] = $this->exportFieldFormat('percentage', $row['irpf']);
-            $item[Tools::trans('irpf')] = $this->exportFieldFormat('number', $row['totalirpf']);
-            $item[Tools::trans('supplied-amount')] = $this->exportFieldFormat('number', $row['suplidos']);
-            $item[Tools::trans('total')] = $this->exportFieldFormat('number', $this->getRowTotal($row));
-            $totals[] = $item;
-        }
+        // en PDF separamos los totales en una tabla por impuesto; en CSV y Excel mantenemos la tabla plana
+        $totals = $this->format === 'PDF' ?
+            $this->getPdfTotalTables($totalsData) :
+            [['title' => '', 'rows' => $this->getFlatTotalRows($totalsData)]];
 
         $this->setTemplate(false);
         $this->processLayout($lines, $totals);
@@ -468,6 +437,49 @@ class ReportTaxes extends Controller
     }
 
     /**
+     * Totales en una sola tabla, agrupados por tipos, operación y excepción de IVA (CSV y Excel).
+     */
+    protected function getFlatTotalRows(array $totalsData): array
+    {
+        // las columnas de operación, excepción y cuota autorepercutida solo se añaden a los totales si hay datos
+        $hasOperations = $hasExceptions = $hasSelfAssessed = false;
+        foreach ($totalsData as $row) {
+            $hasOperations = $hasOperations || !empty($row['operacion']);
+            $hasExceptions = $hasExceptions || !empty($row['excepcioniva']);
+            $hasSelfAssessed = $hasSelfAssessed || abs($row['totalivaauto']) > 0.0;
+        }
+
+        $totals = [];
+        foreach ($totalsData as $row) {
+            $item = [];
+            if ($hasOperations) {
+                $item[Tools::trans('operation')] = $this->getOperationName($row['operacion']);
+            }
+
+            if ($hasExceptions) {
+                $item[Tools::trans('vat-exception')] = $this->getTaxExceptionLabel($row['excepcioniva']);
+            }
+
+            $item[Tools::trans('net')] = $this->exportFieldFormat('number', $row['neto']);
+            $item[Tools::trans('pct-tax')] = $this->exportFieldFormat('percentage', $row['iva']);
+            $item[Tools::trans('tax')] = $this->exportFieldFormat('number', $row['totaliva']);
+            if ($hasSelfAssessed) {
+                $item[Tools::trans('self-assessed-tax')] = $this->exportFieldFormat('number', $row['totalivaauto']);
+            }
+
+            $item[Tools::trans('pct-surcharge')] = $this->exportFieldFormat('percentage', $row['recargo']);
+            $item[Tools::trans('surcharge')] = $this->exportFieldFormat('number', $row['totalrecargo']);
+            $item[Tools::trans('pct-irpf')] = $this->exportFieldFormat('percentage', $row['irpf']);
+            $item[Tools::trans('irpf')] = $this->exportFieldFormat('number', $row['totalirpf']);
+            $item[Tools::trans('supplied-amount')] = $this->exportFieldFormat('number', $row['suplidos']);
+            $item[Tools::trans('total')] = $this->exportFieldFormat('number', $this->getRowTotal($row));
+            $totals[] = $item;
+        }
+
+        return $totals;
+    }
+
+    /**
      * Nombre traducido de la operación de la factura (cadena vacía si es una operación normal).
      */
     protected function getOperationName(?string $operacion): string
@@ -480,15 +492,183 @@ class ReportTaxes extends Controller
     }
 
     /**
-     * Nombre traducido de la excepción de IVA de la línea (cadena vacía si no tiene).
+     * Filas de un impuesto con un único porcentaje (recargo o IRPF), agrupadas por ese porcentaje.
      */
-    protected function getTaxExceptionName(?string $excepcion): string
-    {
-        if (empty($excepcion)) {
-            return '';
+    protected function getPdfRateRows(
+        array $totalsData,
+        string $pctField,
+        string $amountField,
+        string $pctTitle,
+        string $amountTitle
+    ): array {
+        $groups = [];
+        foreach ($totalsData as $row) {
+            if (0.0 == $row[$pctField] && 0.0 == $row[$amountField]) {
+                continue;
+            }
+
+            $code = (string)$row[$pctField];
+            if (false === isset($groups[$code])) {
+                $groups[$code] = ['neto' => 0.0, 'pct' => $row[$pctField], 'amount' => 0.0];
+            }
+            $groups[$code]['neto'] += $row['neto'];
+            $groups[$code]['amount'] += $row[$amountField];
         }
 
-        return Tools::trans(TaxExceptions::get($excepcion) ?? $excepcion);
+        $rows = [];
+        foreach ($groups as $group) {
+            $rows[] = [
+                Tools::trans('tax-base') => $this->exportFieldFormat('number', $group['neto']),
+                Tools::trans($pctTitle) => $this->exportFieldFormat('percentage', $group['pct']),
+                Tools::trans($amountTitle) => $this->exportFieldFormat('number', $group['amount'])
+            ];
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Fila única con los importes totales del informe.
+     */
+    protected function getPdfSummaryRows(array $totalsData): array
+    {
+        $sum = ['neto' => 0.0, 'totaliva' => 0.0, 'totalivaauto' => 0.0, 'totalrecargo' => 0.0,
+            'totalirpf' => 0.0, 'suplidos' => 0.0, 'total' => 0.0];
+        foreach ($totalsData as $row) {
+            foreach (array_keys($sum) as $field) {
+                $sum[$field] += $field === 'total' ? $this->getRowTotal($row) : $row[$field];
+            }
+        }
+
+        // las columnas opcionales solo se muestran si tienen importes
+        $item = [
+            Tools::trans('net') => $this->exportFieldFormat('number', $sum['neto']),
+            Tools::trans('tax') => $this->exportFieldFormat('number', $sum['totaliva'])
+        ];
+        $optional = [
+            'totalivaauto' => 'self-assessed-tax',
+            'totalrecargo' => 'surcharge',
+            'totalirpf' => 'irpf',
+            'suplidos' => 'supplied-amount'
+        ];
+        foreach ($optional as $field => $title) {
+            if (abs($sum[$field]) > 0.0) {
+                $item[Tools::trans($title)] = $this->exportFieldFormat('number', $sum[$field]);
+            }
+        }
+        $item[Tools::trans('total')] = $this->exportFieldFormat('number', $sum['total']);
+
+        return [$item];
+    }
+
+    /**
+     * Leyenda con el código y la descripción de las excepciones de IVA que aparecen en el informe.
+     */
+    protected function getPdfTaxExceptionLegendRows(array $totalsData): array
+    {
+        $exceptions = array_unique(array_filter(array_column($totalsData, 'excepcioniva')));
+        sort($exceptions);
+
+        $rows = [];
+        foreach ($exceptions as $exception) {
+            $rows[] = [
+                Tools::trans('code') => $exception,
+                Tools::trans('description') => $this->getTaxExceptionName($exception)
+            ];
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Totales para PDF: una tabla por impuesto (IVA, recargo e IRPF), cada una solo si tiene importes,
+     * un resumen general y la leyenda de las excepciones de IVA usadas.
+     *
+     * @return array lista de tablas con 'title' y 'rows'
+     */
+    protected function getPdfTotalTables(array $totalsData): array
+    {
+        $tables = [];
+
+        $vatRows = $this->getPdfVatRows($totalsData);
+        if (!empty($vatRows)) {
+            $tables[] = ['title' => Tools::trans('vat'), 'rows' => $vatRows];
+        }
+
+        $surchargeRows = $this->getPdfRateRows($totalsData, 'recargo', 'totalrecargo', 'pct-surcharge', 'surcharge');
+        if (!empty($surchargeRows)) {
+            $tables[] = ['title' => Tools::trans('surcharge'), 'rows' => $surchargeRows];
+        }
+
+        $irpfRows = $this->getPdfRateRows($totalsData, 'irpf', 'totalirpf', 'pct-irpf', 'retention');
+        if (!empty($irpfRows)) {
+            $tables[] = ['title' => Tools::trans('irpf'), 'rows' => $irpfRows];
+        }
+
+        $tables[] = ['title' => Tools::trans('summary'), 'rows' => $this->getPdfSummaryRows($totalsData)];
+
+        $legendRows = $this->getPdfTaxExceptionLegendRows($totalsData);
+        if (!empty($legendRows)) {
+            $tables[] = ['title' => Tools::trans('tax-exceptions'), 'rows' => $legendRows];
+        }
+
+        return $tables;
+    }
+
+    /**
+     * Filas de IVA agrupadas por tipo, operación y excepción. Se omiten las filas sin base ni cuotas
+     * (por ejemplo, las de solo suplidos).
+     */
+    protected function getPdfVatRows(array $totalsData): array
+    {
+        $groups = [];
+        $hasOperations = $hasExceptions = $hasSelfAssessed = false;
+        foreach ($totalsData as $row) {
+            if (0.0 == $row['neto'] && 0.0 == $row['totaliva'] && 0.0 == $row['totalivaauto']) {
+                continue;
+            }
+
+            $code = $row['iva'] . '-' . $row['operacion'] . '-' . $row['excepcioniva'];
+            if (false === isset($groups[$code])) {
+                $groups[$code] = [
+                    'operacion' => $row['operacion'],
+                    'excepcioniva' => $row['excepcioniva'],
+                    'iva' => $row['iva'],
+                    'neto' => 0.0,
+                    'totaliva' => 0.0,
+                    'totalivaauto' => 0.0
+                ];
+            }
+            $groups[$code]['neto'] += $row['neto'];
+            $groups[$code]['totaliva'] += $row['totaliva'];
+            $groups[$code]['totalivaauto'] += $row['totalivaauto'];
+
+            $hasOperations = $hasOperations || !empty($row['operacion']);
+            $hasExceptions = $hasExceptions || !empty($row['excepcioniva']);
+            $hasSelfAssessed = $hasSelfAssessed || abs($row['totalivaauto']) > 0.0;
+        }
+
+        $rows = [];
+        foreach ($groups as $group) {
+            $item = [];
+            if ($hasOperations) {
+                $item[Tools::trans('operation')] = $this->getOperationName($group['operacion']);
+            }
+
+            if ($hasExceptions) {
+                $item[Tools::trans('vat-exception')] = $this->getTaxExceptionLabel($group['excepcioniva']);
+            }
+
+            $item[Tools::trans('tax-base')] = $this->exportFieldFormat('number', $group['neto']);
+            $item[Tools::trans('pct-tax')] = $this->exportFieldFormat('percentage', $group['iva']);
+            $item[Tools::trans('tax')] = $this->exportFieldFormat('number', $group['totaliva']);
+            if ($hasSelfAssessed) {
+                $item[Tools::trans('self-assessed-tax')] = $this->exportFieldFormat('number', $group['totalivaauto']);
+            }
+            $rows[] = $item;
+        }
+
+        return $rows;
     }
 
     protected function getQuarterDate(bool $start): string
@@ -624,6 +804,31 @@ class ReportTaxes extends Controller
     protected function getRowTotal(array $row): float
     {
         return $row['neto'] + $row['totaliva'] + $row['totalrecargo'] - $row['totalirpf'] - $row['suplidos'];
+    }
+
+    /**
+     * Texto de la excepción de IVA para el export: en PDF el código corto (la descripción va en la
+     * leyenda), en el resto de formatos el nombre traducido.
+     */
+    protected function getTaxExceptionLabel(?string $excepcion): string
+    {
+        if ($this->format === 'PDF') {
+            return (string)$excepcion;
+        }
+
+        return $this->getTaxExceptionName($excepcion);
+    }
+
+    /**
+     * Nombre traducido de la excepción de IVA de la línea (cadena vacía si no tiene).
+     */
+    protected function getTaxExceptionName(?string $excepcion): string
+    {
+        if (empty($excepcion)) {
+            return '';
+        }
+
+        return Tools::trans(TaxExceptions::get($excepcion) ?? $excepcion);
     }
 
     protected function getTotals(array $data): array
@@ -771,6 +976,7 @@ class ReportTaxes extends Controller
 
         $options = [
             Tools::trans('net') => ['display' => 'right'],
+            Tools::trans('tax-base') => ['display' => 'right'],
             Tools::trans('pct-tax') => ['display' => 'right'],
             Tools::trans('tax') => ['display' => 'right'],
             Tools::trans('self-assessed-tax') => ['display' => 'right'],
@@ -778,6 +984,7 @@ class ReportTaxes extends Controller
             Tools::trans('surcharge') => ['display' => 'right'],
             Tools::trans('pct-irpf') => ['display' => 'right'],
             Tools::trans('irpf') => ['display' => 'right'],
+            Tools::trans('retention') => ['display' => 'right'],
             Tools::trans('supplied-amount') => ['display' => 'right'],
             Tools::trans('total') => ['display' => 'right']
         ];
@@ -787,9 +994,11 @@ class ReportTaxes extends Controller
         $headers = empty($lines) ? [] : array_keys(end($lines));
         $exportManager->addTablePage($headers, $lines, $options);
 
-        // add totals table
-        $headTotals = empty($totals) ? [] : array_keys(end($totals));
-        $exportManager->addTablePage($headTotals, $totals, $options);
+        // add totals tables
+        foreach ($totals as $table) {
+            $headTotals = empty($table['rows']) ? [] : array_keys(end($table['rows']));
+            $exportManager->addTablePage($headTotals, $table['rows'], $options, $table['title']);
+        }
 
         // clear output buffer to avoid errors
         if (ob_get_length()) {

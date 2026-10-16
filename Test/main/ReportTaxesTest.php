@@ -27,6 +27,7 @@ use FacturaScripts\Core\Lib\RegimenIVA;
 use FacturaScripts\Core\Lib\TaxExceptions;
 use FacturaScripts\Core\Model\FacturaCliente;
 use FacturaScripts\Core\Model\FacturaProveedor;
+use FacturaScripts\Core\Response;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Plugins\Informes\Controller\ReportTaxes;
 use FacturaScripts\Test\Traits\DefaultSettingsTrait;
@@ -43,6 +44,58 @@ final class ReportTaxesTest extends TestCase
         self::setDefaultSettings();
         self::installAccountingPlan();
         self::removeTaxRegularization();
+    }
+
+    public function testExportBuildsRealDocuments(): void
+    {
+        $data = [
+            array_merge($this->getExportRow(21.0, 5000.0, 1050.0), ['irpf' => 15.0, 'totalirpf' => 750.0]),
+            $this->getExportRow(
+                21.0, 1000.0, 0.0, 'FAC-002', 1000.0,
+                InvoiceOperation::REVERSE_CHARGE, 210.0, TaxExceptions::ES_TAX_EXCEPTION_84
+            )
+        ];
+
+        // el motor PDF guarda la caché de fuentes en MyFiles/Cache, que el entorno de tests no crea
+        Tools::folderCheckOrCreate(Tools::folder('MyFiles', 'Cache'));
+
+        // usamos el ExportManager real para comprobar que cada formato genera su documento
+        $expected = ['PDF' => '%PDF', 'CSV' => "\xEF\xBB\xBF", 'XLS' => "PK"];
+        foreach ($expected as $format => $prefix) {
+            $report = new class ('ReportTaxes') extends ReportTaxes {
+                public array $reportData = [];
+
+                public function exportReport(array $data, string $format): string
+                {
+                    $this->response = new Response();
+                    $this->reportData = $data;
+                    $this->format = $format;
+                    $this->source = 'purchases';
+                    $this->idempresa = (int)Tools::settings('default', 'idempresa');
+                    $this->coddivisa = Tools::settings('default', 'coddivisa');
+                    $this->typeDate = 'create';
+                    $this->datefrom = date('Y-01-01');
+                    $this->dateto = date('Y-12-31');
+                    $this->columns = [Tools::trans('code'), Tools::trans('vat-exception'), Tools::trans('net')];
+                    $this->exportAction();
+
+                    return $this->response->getContent();
+                }
+
+                protected function getReportData(): array
+                {
+                    return $this->reportData;
+                }
+
+                protected function validateTotals(array $totalsData): bool
+                {
+                    return true;
+                }
+            };
+
+            $content = $report->exportReport($data, $format);
+            $this->assertStringStartsWith($prefix, $content, 'bad-document-for-' . strtolower($format));
+        }
     }
 
     public function testExportOnlyShowsInvoiceDataOnFirstTaxRow(): void
@@ -111,78 +164,41 @@ final class ReportTaxesTest extends TestCase
             $this->getExportRow(21.0, 1000.0, 0.0, 'FAC-002', 1000.0, InvoiceOperation::REVERSE_CHARGE, 210.0),
             $this->getExportRow(21.0, 200.0, 42.0, 'FAC-003', 242.0)
         ];
-
-        $report = new class ('ReportTaxes') extends ReportTaxes {
-            public array $exportedLines = [];
-            public array $exportedTotals = [];
-            public array $reportData = [];
-
-            public function exportReport(array $data): void
-            {
-                $this->reportData = $data;
-                $this->format = 'CSV';
-                $this->source = 'purchases';
-                $this->columns = [
-                    Tools::trans('code'),
-                    Tools::trans('operation'),
-                    Tools::trans('tax'),
-                    Tools::trans('self-assessed-tax')
-                ];
-                $this->exportAction();
-            }
-
-            protected function getReportData(): array
-            {
-                return $this->reportData;
-            }
-
-            protected function processLayout(array &$lines, array &$totals): void
-            {
-                $this->reduceLines($lines);
-                $this->exportedLines = $lines;
-                $this->exportedTotals = $totals;
-            }
-
-            protected function validateTotals(array $totalsData): bool
-            {
-                return true;
-            }
-        };
-        $report->exportReport($data);
+        $columns = [
+            Tools::trans('code'),
+            Tools::trans('operation'),
+            Tools::trans('tax'),
+            Tools::trans('self-assessed-tax')
+        ];
+        [$lines, $tables] = $this->runExport($data, 'CSV', 'purchases', $columns);
 
         // detalle: la operación solo aparece en la factura con inversión del sujeto pasivo
         $reverseChargeName = Tools::trans(InvoiceOperation::get(InvoiceOperation::REVERSE_CHARGE));
         $this->assertSame(
             ['', $reverseChargeName, ''],
-            array_column($report->exportedLines, Tools::trans('operation')),
+            array_column($lines, Tools::trans('operation')),
             'bad-operation-column'
         );
         $this->assertSame(
             ['0', '210', '0'],
-            array_column($report->exportedLines, Tools::trans('self-assessed-tax')),
+            array_column($lines, Tools::trans('self-assessed-tax')),
             'bad-self-assessed-tax-column'
         );
 
-        // totales: el 21% normal y el 21% con inversión del sujeto pasivo van en filas separadas
-        $this->assertCount(2, $report->exportedTotals, 'totals-not-split-by-operation');
+        // totales (tabla plana): el 21% normal y el 21% con inversión del sujeto pasivo van en filas separadas
+        $this->assertCount(1, $tables, 'csv-should-have-one-totals-table');
+        $totals = $tables[0]['rows'];
+        $this->assertCount(2, $totals, 'totals-not-split-by-operation');
         $this->assertSame(
             ['', $reverseChargeName],
-            array_column($report->exportedTotals, Tools::trans('operation')),
+            array_column($totals, Tools::trans('operation')),
             'bad-operation-in-totals'
         );
-        $this->assertSame(
-            ['300', '1000'],
-            array_column($report->exportedTotals, Tools::trans('net')),
-            'bad-net-in-totals'
-        );
-        $this->assertSame(
-            ['63', '0'],
-            array_column($report->exportedTotals, Tools::trans('tax')),
-            'bad-tax-in-totals'
-        );
+        $this->assertSame(['300', '1000'], array_column($totals, Tools::trans('net')), 'bad-net-in-totals');
+        $this->assertSame(['63', '0'], array_column($totals, Tools::trans('tax')), 'bad-tax-in-totals');
         $this->assertSame(
             ['0', '210'],
-            array_column($report->exportedTotals, Tools::trans('self-assessed-tax')),
+            array_column($totals, Tools::trans('self-assessed-tax')),
             'bad-self-assessed-tax-in-totals'
         );
     }
@@ -194,65 +210,27 @@ final class ReportTaxesTest extends TestCase
             $this->getExportRow(0.0, 50.0, 0.0, 'FAC-001', 50.0, null, 0.0, TaxExceptions::ES_TAX_EXCEPTION_7),
             $this->getExportRow(0.0, 30.0, 0.0, 'FAC-002', 30.0, null, 0.0, TaxExceptions::ES_TAX_EXCEPTION_20)
         ];
-
-        $report = new class ('ReportTaxes') extends ReportTaxes {
-            public array $exportedLines = [];
-            public array $exportedTotals = [];
-            public array $reportData = [];
-
-            public function exportReport(array $data): void
-            {
-                $this->reportData = $data;
-                $this->format = 'CSV';
-                $this->source = 'sales';
-                $this->columns = [Tools::trans('code'), Tools::trans('vat-exception'), Tools::trans('net')];
-                $this->exportAction();
-            }
-
-            protected function getReportData(): array
-            {
-                return $this->reportData;
-            }
-
-            protected function processLayout(array &$lines, array &$totals): void
-            {
-                $this->reduceLines($lines);
-                $this->exportedLines = $lines;
-                $this->exportedTotals = $totals;
-            }
-
-            protected function validateTotals(array $totalsData): bool
-            {
-                return true;
-            }
-        };
-        $report->exportReport($data);
+        $columns = [Tools::trans('code'), Tools::trans('vat-exception'), Tools::trans('net')];
+        [$lines, $tables] = $this->runExport($data, 'CSV', 'sales', $columns);
 
         // detalle: la excepción es de la línea, así que se repite aunque la factura sea la misma
         $exempt = Tools::trans(TaxExceptions::get(TaxExceptions::ES_TAX_EXCEPTION_20));
         $notSubject = Tools::trans(TaxExceptions::get(TaxExceptions::ES_TAX_EXCEPTION_7));
-        $this->assertSame(
-            ['FAC-001', '', 'FAC-002'],
-            array_column($report->exportedLines, Tools::trans('code')),
-            'bad-code-column'
-        );
+        $this->assertSame(['FAC-001', '', 'FAC-002'], array_column($lines, Tools::trans('code')), 'bad-code-column');
         $this->assertSame(
             [$exempt, $notSubject, $exempt],
-            array_column($report->exportedLines, Tools::trans('vat-exception')),
+            array_column($lines, Tools::trans('vat-exception')),
             'bad-vat-exception-column'
         );
 
         // totales: las ventas exentas y las no sujetas al 0% van en filas separadas
+        $totals = $tables[0]['rows'];
         $this->assertSame(
             [$exempt, $notSubject],
-            array_column($report->exportedTotals, Tools::trans('vat-exception')),
+            array_column($totals, Tools::trans('vat-exception')),
             'totals-not-split-by-vat-exception'
         );
-        $this->assertSame(
-            ['130', '50'],
-            array_column($report->exportedTotals, Tools::trans('net')),
-            'bad-net-in-totals'
-        );
+        $this->assertSame(['130', '50'], array_column($totals, Tools::trans('net')), 'bad-net-in-totals');
     }
 
     public function testExportTotalsWithoutOperationsKeepColumns(): void
@@ -261,42 +239,144 @@ final class ReportTaxesTest extends TestCase
             $this->getExportRow(21.0, 100.0, 21.0),
             $this->getExportRow(21.0, 200.0, 42.0, 'FAC-002', 242.0)
         ];
-
-        $report = new class ('ReportTaxes') extends ReportTaxes {
-            public array $exportedTotals = [];
-            public array $reportData = [];
-
-            public function exportReport(array $data): void
-            {
-                $this->reportData = $data;
-                $this->format = 'CSV';
-                $this->source = 'sales';
-                $this->columns = [Tools::trans('code')];
-                $this->exportAction();
-            }
-
-            protected function getReportData(): array
-            {
-                return $this->reportData;
-            }
-
-            protected function processLayout(array &$lines, array &$totals): void
-            {
-                $this->exportedTotals = $totals;
-            }
-
-            protected function validateTotals(array $totalsData): bool
-            {
-                return true;
-            }
-        };
-        $report->exportReport($data);
+        [, $tables] = $this->runExport($data, 'CSV', 'sales', [Tools::trans('code')]);
 
         // sin operaciones especiales los totales no añaden columnas vacías
-        $this->assertCount(1, $report->exportedTotals, 'totals-should-group-same-rate');
-        $this->assertArrayNotHasKey(Tools::trans('operation'), $report->exportedTotals[0]);
-        $this->assertArrayNotHasKey(Tools::trans('self-assessed-tax'), $report->exportedTotals[0]);
-        $this->assertArrayNotHasKey(Tools::trans('vat-exception'), $report->exportedTotals[0]);
+        $totals = $tables[0]['rows'];
+        $this->assertCount(1, $totals, 'totals-should-group-same-rate');
+        $this->assertArrayNotHasKey(Tools::trans('operation'), $totals[0]);
+        $this->assertArrayNotHasKey(Tools::trans('self-assessed-tax'), $totals[0]);
+        $this->assertArrayNotHasKey(Tools::trans('vat-exception'), $totals[0]);
+    }
+
+    public function testPdfTotalsSkipEmptyTaxTables(): void
+    {
+        $data = [
+            $this->getExportRow(21.0, 100.0, 21.0),
+            array_merge($this->getExportRow(0.0, 0.0, 0.0, 'FAC-002', 50.0), ['suplidos' => 50.0])
+        ];
+        [, $tables] = $this->runExport($data, 'PDF', 'sales', [Tools::trans('code')]);
+
+        // sin recargo, IRPF ni excepciones solo quedan la tabla de IVA y el resumen
+        $this->assertSame(
+            [Tools::trans('vat'), Tools::trans('summary')],
+            array_column($tables, 'title'),
+            'bad-pdf-totals-tables'
+        );
+
+        // la fila de solo suplidos no aparece en el IVA y la tabla no lleva columnas vacías
+        $vatRows = $tables[0]['rows'];
+        $this->assertCount(1, $vatRows, 'supplied-row-should-not-be-in-vat-table');
+        $this->assertSame(
+            [Tools::trans('tax-base'), Tools::trans('pct-tax'), Tools::trans('tax')],
+            array_keys($vatRows[0]),
+            'bad-vat-table-columns'
+        );
+
+        // el resumen solo añade la columna de suplidos porque es la única opcional con importe
+        $this->assertSame(
+            [
+                Tools::trans('net') => Tools::number(100.0),
+                Tools::trans('tax') => Tools::number(21.0),
+                Tools::trans('supplied-amount') => Tools::number(50.0),
+                Tools::trans('total') => Tools::number(71.0)
+            ],
+            $tables[1]['rows'][0],
+            'bad-pdf-summary'
+        );
+    }
+
+    public function testPdfTotalsSplitByTax(): void
+    {
+        $data = [
+            array_merge($this->getExportRow(21.0, 5000.0, 1050.0), ['irpf' => 15.0, 'totalirpf' => 750.0]),
+            $this->getExportRow(
+                21.0, 1000.0, 0.0, 'FAC-002', 1000.0,
+                InvoiceOperation::REVERSE_CHARGE, 210.0, TaxExceptions::ES_TAX_EXCEPTION_84
+            ),
+            $this->getExportRow(0.0, 100.0, 0.0, 'FAC-003', 100.0, null, 0.0, TaxExceptions::ES_TAX_EXCEPTION_20)
+        ];
+        $columns = [Tools::trans('code'), Tools::trans('vat-exception')];
+        [$lines, $tables] = $this->runExport($data, 'PDF', 'purchases', $columns);
+
+        // en el detalle del PDF la excepción sale con su código corto
+        $this->assertSame(
+            ['', TaxExceptions::ES_TAX_EXCEPTION_84, TaxExceptions::ES_TAX_EXCEPTION_20],
+            array_column($lines, Tools::trans('vat-exception')),
+            'pdf-detail-should-use-exception-code'
+        );
+
+        // una tabla por impuesto con importes (sin recargo), el resumen y la leyenda
+        $this->assertSame(
+            [Tools::trans('vat'), Tools::trans('irpf'), Tools::trans('summary'), Tools::trans('tax-exceptions')],
+            array_column($tables, 'title'),
+            'bad-pdf-totals-tables'
+        );
+        [$vatRows, $irpfRows, $summaryRows, $legendRows] = array_column($tables, 'rows');
+
+        // IVA: una fila por tipo, operación y excepción, con la cuota autorepercutida
+        $reverseChargeName = Tools::trans(InvoiceOperation::get(InvoiceOperation::REVERSE_CHARGE));
+        $this->assertSame(
+            ['', $reverseChargeName, ''],
+            array_column($vatRows, Tools::trans('operation')),
+            'bad-operation-in-vat-table'
+        );
+        $this->assertSame(
+            ['', TaxExceptions::ES_TAX_EXCEPTION_84, TaxExceptions::ES_TAX_EXCEPTION_20],
+            array_column($vatRows, Tools::trans('vat-exception')),
+            'bad-exception-in-vat-table'
+        );
+        $this->assertSame(
+            [Tools::number(5000.0), Tools::number(1000.0), Tools::number(100.0)],
+            array_column($vatRows, Tools::trans('tax-base')),
+            'bad-base-in-vat-table'
+        );
+        $this->assertSame(
+            [Tools::number(0.0), Tools::number(210.0), Tools::number(0.0)],
+            array_column($vatRows, Tools::trans('self-assessed-tax')),
+            'bad-self-assessed-tax-in-vat-table'
+        );
+        $this->assertArrayNotHasKey(Tools::trans('irpf'), $vatRows[0], 'vat-table-should-not-have-irpf');
+
+        // IRPF: solo la base que lleva retención
+        $this->assertSame(
+            [[
+                Tools::trans('tax-base') => Tools::number(5000.0),
+                Tools::trans('pct-irpf') => Tools::number(15.0) . ' %',
+                Tools::trans('retention') => Tools::number(750.0)
+            ]],
+            $irpfRows,
+            'bad-irpf-table'
+        );
+
+        // resumen: 6100 de base + 1050 de IVA - 750 de IRPF; la cuota autorepercutida no suma al total
+        $this->assertSame(
+            [
+                Tools::trans('net') => Tools::number(6100.0),
+                Tools::trans('tax') => Tools::number(1050.0),
+                Tools::trans('self-assessed-tax') => Tools::number(210.0),
+                Tools::trans('irpf') => Tools::number(750.0),
+                Tools::trans('total') => Tools::number(6400.0)
+            ],
+            $summaryRows[0],
+            'bad-pdf-summary'
+        );
+
+        // leyenda: solo las excepciones usadas, ordenadas por código y con su descripción
+        $this->assertSame(
+            [
+                [
+                    Tools::trans('code') => TaxExceptions::ES_TAX_EXCEPTION_20,
+                    Tools::trans('description') => Tools::trans(TaxExceptions::get(TaxExceptions::ES_TAX_EXCEPTION_20))
+                ],
+                [
+                    Tools::trans('code') => TaxExceptions::ES_TAX_EXCEPTION_84,
+                    Tools::trans('description') => Tools::trans(TaxExceptions::get(TaxExceptions::ES_TAX_EXCEPTION_84))
+                ]
+            ],
+            $legendRows,
+            'bad-tax-exceptions-legend'
+        );
     }
 
     public function testPurchasesIntraCommunityServicesVat(): void
@@ -701,6 +781,48 @@ final class ReportTaxesTest extends TestCase
         }
 
         return false;
+    }
+
+    /**
+     * Ejecuta exportAction() con los datos dados, sin consultar la base de datos ni generar el documento.
+     * Devuelve las líneas del detalle (reducidas a las columnas pedidas) y las tablas de totales.
+     */
+    private function runExport(array $data, string $format, string $source, array $columns): array
+    {
+        $report = new class ('ReportTaxes') extends ReportTaxes {
+            public array $exportedLines = [];
+            public array $exportedTotals = [];
+            public array $reportData = [];
+
+            public function exportReport(array $data, string $format, string $source, array $columns): void
+            {
+                $this->reportData = $data;
+                $this->format = $format;
+                $this->source = $source;
+                $this->columns = $columns;
+                $this->exportAction();
+            }
+
+            protected function getReportData(): array
+            {
+                return $this->reportData;
+            }
+
+            protected function processLayout(array &$lines, array &$totals): void
+            {
+                $this->reduceLines($lines);
+                $this->exportedLines = $lines;
+                $this->exportedTotals = $totals;
+            }
+
+            protected function validateTotals(array $totalsData): bool
+            {
+                return true;
+            }
+        };
+        $report->exportReport($data, $format, $source, $columns);
+
+        return [$report->exportedLines, $report->exportedTotals];
     }
 
     protected function setUp(): void
