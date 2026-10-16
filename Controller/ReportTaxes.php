@@ -29,6 +29,7 @@ use FacturaScripts\Core\Lib\ProductType;
 use FacturaScripts\Core\Lib\RegimenIVA;
 use FacturaScripts\Dinamic\Lib\ExportManager;
 use FacturaScripts\Dinamic\Lib\InvoiceOperation;
+use FacturaScripts\Dinamic\Lib\TaxExceptions;
 use FacturaScripts\Dinamic\Model\Divisa;
 use FacturaScripts\Dinamic\Model\Empresa;
 use FacturaScripts\Dinamic\Model\Pais;
@@ -150,6 +151,7 @@ class ReportTaxes extends Controller
             'cifnif' => $row['cifnif'],
             'codpago' => $row['codpago'] ?? null,
             'operacion' => $row['operacion'] ?? null,
+            'excepcioniva' => $row['excepcioniva'] ?? null,
             'neto' => $amounts['neto'],
             'iva' => $amounts['iva'],
             'totaliva' => $amounts['totaliva'],
@@ -177,7 +179,7 @@ class ReportTaxes extends Controller
 
         // tramo del coste al 0%
         if (abs($totalCoste) > 0.0) {
-            $codeCost = $row['codigo'] . '-0-0-0-' . $row['suplido'];
+            $codeCost = $row['codigo'] . '-0-0-0-' . $row['suplido'] . '-' . $row['excepcioniva'];
             $this->addAmounts($data, $codeCost, $row, [
                 'iva' => 0.0,
                 'recargo' => 0.0,
@@ -192,7 +194,8 @@ class ReportTaxes extends Controller
         }
 
         // tramo del margen al tipo de IVA de la línea (sin recargo, igual que el calculador)
-        $codeMargin = $row['codigo'] . '-' . $row['iva'] . '-' . $row['recargo'] . '-' . $row['irpf'] . '-' . $row['suplido'];
+        $codeMargin = $row['codigo'] . '-' . $row['iva'] . '-' . $row['recargo'] . '-' . $row['irpf'] . '-' . $row['suplido']
+            . '-' . $row['excepcioniva'];
         $this->addAmounts($data, $codeMargin, $row, [
             'iva' => (float)$row['iva'],
             'recargo' => (float)$row['recargo'],
@@ -277,6 +280,7 @@ class ReportTaxes extends Controller
                 Tools::trans('zip-code') => $hide ? '' : $row['codpostal'] ?? '',
                 Tools::trans('country') => $hide ? '' : ($row['codpais'] ? Paises::get($row['codpais'])->nombre : ''),
                 Tools::trans('net') => $this->exportFieldFormat('number', $row['neto']),
+                Tools::trans('vat-exception') => $this->getTaxExceptionName($row['excepcioniva']),
                 Tools::trans('pct-tax') => $this->exportFieldFormat('number', $row['iva']),
                 Tools::trans('tax') => $this->exportFieldFormat('number', $row['totaliva']),
                 Tools::trans('self-assessed-tax') => $this->exportFieldFormat('number', $row['totalivaauto']),
@@ -296,10 +300,11 @@ class ReportTaxes extends Controller
             return;
         }
 
-        // las columnas de operación y cuota autorepercutida solo se añaden a los totales si hay datos
-        $hasOperations = $hasSelfAssessed = false;
+        // las columnas de operación, excepción y cuota autorepercutida solo se añaden a los totales si hay datos
+        $hasOperations = $hasExceptions = $hasSelfAssessed = false;
         foreach ($totalsData as $row) {
             $hasOperations = $hasOperations || !empty($row['operacion']);
+            $hasExceptions = $hasExceptions || !empty($row['excepcioniva']);
             $hasSelfAssessed = $hasSelfAssessed || abs($row['totalivaauto']) > 0.0;
         }
 
@@ -309,6 +314,10 @@ class ReportTaxes extends Controller
             $item = [];
             if ($hasOperations) {
                 $item[Tools::trans('operation')] = $this->getOperationName($row['operacion']);
+            }
+
+            if ($hasExceptions) {
+                $item[Tools::trans('vat-exception')] = $this->getTaxExceptionName($row['excepcioniva']);
             }
 
             $item[Tools::trans('net')] = $this->exportFieldFormat('number', $row['neto']);
@@ -470,6 +479,18 @@ class ReportTaxes extends Controller
         return Tools::trans(InvoiceOperation::get($operacion) ?? $operacion);
     }
 
+    /**
+     * Nombre traducido de la excepción de IVA de la línea (cadena vacía si no tiene).
+     */
+    protected function getTaxExceptionName(?string $excepcion): string
+    {
+        if (empty($excepcion)) {
+            return '';
+        }
+
+        return Tools::trans(TaxExceptions::get($excepcion) ?? $excepcion);
+    }
+
     protected function getQuarterDate(bool $start): string
     {
         $month = (int)date('m');
@@ -509,7 +530,7 @@ class ReportTaxes extends Controller
         switch ($this->source) {
             case 'purchases':
                 $sql .= 'SELECT f.codserie, f.codigo, f.numproveedor, f.fecha, f.fechadevengo, f.nombre, f.cifnif, l.pvptotal,'
-                    . ' l.iva, l.recargo, l.irpf, l.suplido, f.dtopor1, f.dtopor2, f.total, f.operacion, f.codpago, pr.codsubcuenta,'
+                    . ' l.iva, l.recargo, l.irpf, l.suplido, l.excepcioniva, f.dtopor1, f.dtopor2, f.total, f.operacion, f.codpago, pr.codsubcuenta,'
                     . ' c.ciudad, c.provincia, c.codpostal, c.codpais'
                     . ' FROM lineasfacturasprov AS l'
                     . ' LEFT JOIN facturasprov AS f ON l.idfactura = f.idfactura '
@@ -524,7 +545,7 @@ class ReportTaxes extends Controller
 
             case 'sales':
                 $sql .= 'SELECT f.codserie, f.codigo, f.numero2, f.fecha, f.fechadevengo, f.nombrecliente AS nombre, f.cifnif, l.pvptotal,'
-                    . ' l.iva, l.recargo, l.irpf, l.suplido, l.cantidad, l.coste, f.dtopor1, f.dtopor2, f.total, f.operacion, f.codpago, f.codpais, cl.codsubcuenta,'
+                    . ' l.iva, l.recargo, l.irpf, l.suplido, l.excepcioniva, l.cantidad, l.coste, f.dtopor1, f.dtopor2, f.total, f.operacion, f.codpago, f.codpais, cl.codsubcuenta,'
                     . ' f.ciudad, f.provincia, f.codpostal, p.tipo AS producto_tipo, se.tipo AS serie_tipo'
                     . ' FROM lineasfacturascli AS l'
                     . ' LEFT JOIN facturascli AS f ON l.idfactura = f.idfactura '
@@ -577,7 +598,8 @@ class ReportTaxes extends Controller
                 'suplidos' => $row['suplido'] ? $pvpTotal : 0.0,
                 'totalivaauto' => !$row['suplido'] && $reverseCharge ? (float)$row['iva'] * $pvpTotal / 100 : 0.0
             ];
-            $code = $row['codigo'] . '-' . $row['iva'] . '-' . $row['recargo'] . '-' . $row['irpf'] . '-' . $row['suplido'];
+            $code = $row['codigo'] . '-' . $row['iva'] . '-' . $row['recargo'] . '-' . $row['irpf'] . '-' . $row['suplido']
+                . '-' . $row['excepcioniva'];
             $this->addAmounts($data, $code, $row, $amounts);
         }
 
@@ -608,8 +630,10 @@ class ReportTaxes extends Controller
     {
         $totals = [];
         foreach ($data as $row) {
-            // separamos por operación para no mezclar, por ejemplo, compras normales con inversión del sujeto pasivo
-            $code = $row['iva'] . '-' . $row['recargo'] . '-' . $row['irpf'] . '-' . $row['operacion'];
+            // separamos por operación y excepción de IVA para no mezclar, por ejemplo, compras normales con
+            // inversión del sujeto pasivo, o ventas exentas con ventas no sujetas
+            $code = $row['iva'] . '-' . $row['recargo'] . '-' . $row['irpf'] . '-' . $row['operacion']
+                . '-' . $row['excepcioniva'];
             if (isset($totals[$code])) {
                 $totals[$code]['neto'] += $row['neto'];
                 $totals[$code]['totaliva'] += $row['totaliva'];
@@ -622,6 +646,7 @@ class ReportTaxes extends Controller
 
             $totals[$code] = [
                 'operacion' => $row['operacion'],
+                'excepcioniva' => $row['excepcioniva'],
                 'neto' => $row['neto'],
                 'iva' => $row['iva'],
                 'totaliva' => $row['totaliva'],

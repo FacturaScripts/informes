@@ -24,6 +24,7 @@ use FacturaScripts\Core\Lib\Calculator;
 use FacturaScripts\Core\Lib\InvoiceOperation;
 use FacturaScripts\Core\Lib\ProductType;
 use FacturaScripts\Core\Lib\RegimenIVA;
+use FacturaScripts\Core\Lib\TaxExceptions;
 use FacturaScripts\Core\Model\FacturaCliente;
 use FacturaScripts\Core\Model\FacturaProveedor;
 use FacturaScripts\Core\Tools;
@@ -186,6 +187,74 @@ final class ReportTaxesTest extends TestCase
         );
     }
 
+    public function testExportSplitsTotalsByTaxException(): void
+    {
+        $data = [
+            $this->getExportRow(0.0, 100.0, 0.0, 'FAC-001', 100.0, null, 0.0, TaxExceptions::ES_TAX_EXCEPTION_20),
+            $this->getExportRow(0.0, 50.0, 0.0, 'FAC-001', 50.0, null, 0.0, TaxExceptions::ES_TAX_EXCEPTION_7),
+            $this->getExportRow(0.0, 30.0, 0.0, 'FAC-002', 30.0, null, 0.0, TaxExceptions::ES_TAX_EXCEPTION_20)
+        ];
+
+        $report = new class ('ReportTaxes') extends ReportTaxes {
+            public array $exportedLines = [];
+            public array $exportedTotals = [];
+            public array $reportData = [];
+
+            public function exportReport(array $data): void
+            {
+                $this->reportData = $data;
+                $this->format = 'CSV';
+                $this->source = 'sales';
+                $this->columns = [Tools::trans('code'), Tools::trans('vat-exception'), Tools::trans('net')];
+                $this->exportAction();
+            }
+
+            protected function getReportData(): array
+            {
+                return $this->reportData;
+            }
+
+            protected function processLayout(array &$lines, array &$totals): void
+            {
+                $this->reduceLines($lines);
+                $this->exportedLines = $lines;
+                $this->exportedTotals = $totals;
+            }
+
+            protected function validateTotals(array $totalsData): bool
+            {
+                return true;
+            }
+        };
+        $report->exportReport($data);
+
+        // detalle: la excepción es de la línea, así que se repite aunque la factura sea la misma
+        $exempt = Tools::trans(TaxExceptions::get(TaxExceptions::ES_TAX_EXCEPTION_20));
+        $notSubject = Tools::trans(TaxExceptions::get(TaxExceptions::ES_TAX_EXCEPTION_7));
+        $this->assertSame(
+            ['FAC-001', '', 'FAC-002'],
+            array_column($report->exportedLines, Tools::trans('code')),
+            'bad-code-column'
+        );
+        $this->assertSame(
+            [$exempt, $notSubject, $exempt],
+            array_column($report->exportedLines, Tools::trans('vat-exception')),
+            'bad-vat-exception-column'
+        );
+
+        // totales: las ventas exentas y las no sujetas al 0% van en filas separadas
+        $this->assertSame(
+            [$exempt, $notSubject],
+            array_column($report->exportedTotals, Tools::trans('vat-exception')),
+            'totals-not-split-by-vat-exception'
+        );
+        $this->assertSame(
+            ['130', '50'],
+            array_column($report->exportedTotals, Tools::trans('net')),
+            'bad-net-in-totals'
+        );
+    }
+
     public function testExportTotalsWithoutOperationsKeepColumns(): void
     {
         $data = [
@@ -227,6 +296,7 @@ final class ReportTaxesTest extends TestCase
         $this->assertCount(1, $report->exportedTotals, 'totals-should-group-same-rate');
         $this->assertArrayNotHasKey(Tools::trans('operation'), $report->exportedTotals[0]);
         $this->assertArrayNotHasKey(Tools::trans('self-assessed-tax'), $report->exportedTotals[0]);
+        $this->assertArrayNotHasKey(Tools::trans('vat-exception'), $report->exportedTotals[0]);
     }
 
     public function testPurchasesIntraCommunityServicesVat(): void
@@ -242,6 +312,59 @@ final class ReportTaxesTest extends TestCase
     public function testPurchasesReverseChargeVat(): void
     {
         $this->assertPurchaseReverseCharge(InvoiceOperation::REVERSE_CHARGE);
+    }
+
+    public function testSalesSplitsLinesByTaxException(): void
+    {
+        $tax = Impuestos::get('IVA0');
+        if (false === $tax->exists()) {
+            $this->markTestSkipped('IVA0-not-found');
+        }
+
+        // producto al 0% sin control de stock
+        $product = $this->getRandomProduct();
+        $product->codimpuesto = $tax->codimpuesto;
+        $product->nostock = true;
+        $this->assertTrue($product->save(), 'cant-save-product');
+
+        // serie propia para aislar la factura en el informe
+        $serie = $this->getRandomSerie();
+        $this->assertTrue($serie->save(), 'cant-save-serie');
+
+        // cliente + factura
+        $customer = $this->getRandomCustomer();
+        $this->assertTrue($customer->save(), 'cant-save-customer');
+        $invoice = new FacturaCliente();
+        $invoice->setSubject($customer);
+        $invoice->codserie = $serie->codserie;
+        $this->assertTrue($invoice->save(), 'cant-save-invoice');
+
+        // dos líneas al 0%: una exenta (art. 20) y otra no sujeta (art. 7)
+        $lines = [];
+        foreach ([[100, TaxExceptions::ES_TAX_EXCEPTION_20], [50, TaxExceptions::ES_TAX_EXCEPTION_7]] as [$price, $exception]) {
+            $line = $invoice->getNewProductLine($product->referencia);
+            $line->cantidad = 1;
+            $line->pvpunitario = $price;
+            $line->excepcioniva = $exception;
+            $this->assertTrue($line->save(), 'cant-save-line');
+            $lines[] = $line;
+        }
+        $this->assertTrue(Calculator::calculate($invoice, $lines, true), 'cant-calculate');
+
+        $data = $this->fetchSalesReport($invoice->idempresa, $invoice->coddivisa, $serie->codserie);
+
+        // cada excepción va en su propia fila, aunque compartan factura y tipo de IVA
+        $this->assertCount(2, $data, 'lines-not-split-by-vat-exception');
+        $netByException = array_column($data, 'neto', 'excepcioniva');
+        $this->assertEqualsWithDelta(100.0, $netByException[TaxExceptions::ES_TAX_EXCEPTION_20] ?? 0.0, 0.001, 'bad-exempt-net');
+        $this->assertEqualsWithDelta(50.0, $netByException[TaxExceptions::ES_TAX_EXCEPTION_7] ?? 0.0, 0.001, 'bad-not-subject-net');
+
+        // limpieza
+        $this->assertTrue($invoice->delete(), 'cant-delete-invoice');
+        $this->assertTrue($serie->delete(), 'cant-delete-serie');
+        $this->assertTrue($product->delete(), 'cant-delete-product');
+        $this->assertTrue($customer->getDefaultAddress()->delete(), 'cant-delete-contact');
+        $this->assertTrue($customer->delete(), 'cant-delete-customer');
     }
 
     public function testSalesTravelAgencyMarginVat(): void
@@ -457,6 +580,11 @@ final class ReportTaxesTest extends TestCase
             'report-self-assessed-tax-wrong-for-' . $operacion
         );
         $this->assertSame([$operacion], array_values(array_unique(array_column($data, 'operacion'))));
+        $this->assertSame(
+            [TaxExceptions::ES_TAX_EXCEPTION_84],
+            array_values(array_unique(array_column($data, 'excepcioniva'))),
+            'report-tax-exception-wrong-for-' . $operacion
+        );
 
         // limpieza
         $this->assertTrue($invoice->delete(), 'cant-delete-invoice');
@@ -521,7 +649,8 @@ final class ReportTaxesTest extends TestCase
         string $codigo = 'FAC-001',
         float $total = 176.0,
         ?string $operacion = null,
-        float $totalIvaAuto = 0.0
+        float $totalIvaAuto = 0.0,
+        ?string $excepcionIva = null
     ): array {
         return [
             'codserie' => 'A',
@@ -538,6 +667,7 @@ final class ReportTaxesTest extends TestCase
             'codpostal' => null,
             'codpais' => null,
             'operacion' => $operacion,
+            'excepcioniva' => $excepcionIva,
             'neto' => $neto,
             'iva' => $iva,
             'totaliva' => $totalIva,
