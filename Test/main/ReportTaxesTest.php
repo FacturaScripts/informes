@@ -103,6 +103,132 @@ final class ReportTaxesTest extends TestCase
         }
     }
 
+    public function testExportSplitsTotalsByOperation(): void
+    {
+        $data = [
+            $this->getExportRow(21.0, 100.0, 21.0, 'FAC-001', 121.0),
+            $this->getExportRow(21.0, 1000.0, 0.0, 'FAC-002', 1000.0, InvoiceOperation::REVERSE_CHARGE, 210.0),
+            $this->getExportRow(21.0, 200.0, 42.0, 'FAC-003', 242.0)
+        ];
+
+        $report = new class ('ReportTaxes') extends ReportTaxes {
+            public array $exportedLines = [];
+            public array $exportedTotals = [];
+            public array $reportData = [];
+
+            public function exportReport(array $data): void
+            {
+                $this->reportData = $data;
+                $this->format = 'CSV';
+                $this->source = 'purchases';
+                $this->columns = [
+                    Tools::trans('code'),
+                    Tools::trans('operation'),
+                    Tools::trans('tax'),
+                    Tools::trans('self-assessed-tax')
+                ];
+                $this->exportAction();
+            }
+
+            protected function getReportData(): array
+            {
+                return $this->reportData;
+            }
+
+            protected function processLayout(array &$lines, array &$totals): void
+            {
+                $this->reduceLines($lines);
+                $this->exportedLines = $lines;
+                $this->exportedTotals = $totals;
+            }
+
+            protected function validateTotals(array $totalsData): bool
+            {
+                return true;
+            }
+        };
+        $report->exportReport($data);
+
+        // detalle: la operación solo aparece en la factura con inversión del sujeto pasivo
+        $reverseChargeName = Tools::trans(InvoiceOperation::get(InvoiceOperation::REVERSE_CHARGE));
+        $this->assertSame(
+            ['', $reverseChargeName, ''],
+            array_column($report->exportedLines, Tools::trans('operation')),
+            'bad-operation-column'
+        );
+        $this->assertSame(
+            ['0', '210', '0'],
+            array_column($report->exportedLines, Tools::trans('self-assessed-tax')),
+            'bad-self-assessed-tax-column'
+        );
+
+        // totales: el 21% normal y el 21% con inversión del sujeto pasivo van en filas separadas
+        $this->assertCount(2, $report->exportedTotals, 'totals-not-split-by-operation');
+        $this->assertSame(
+            ['', $reverseChargeName],
+            array_column($report->exportedTotals, Tools::trans('operation')),
+            'bad-operation-in-totals'
+        );
+        $this->assertSame(
+            ['300', '1000'],
+            array_column($report->exportedTotals, Tools::trans('net')),
+            'bad-net-in-totals'
+        );
+        $this->assertSame(
+            ['63', '0'],
+            array_column($report->exportedTotals, Tools::trans('tax')),
+            'bad-tax-in-totals'
+        );
+        $this->assertSame(
+            ['0', '210'],
+            array_column($report->exportedTotals, Tools::trans('self-assessed-tax')),
+            'bad-self-assessed-tax-in-totals'
+        );
+    }
+
+    public function testExportTotalsWithoutOperationsKeepColumns(): void
+    {
+        $data = [
+            $this->getExportRow(21.0, 100.0, 21.0),
+            $this->getExportRow(21.0, 200.0, 42.0, 'FAC-002', 242.0)
+        ];
+
+        $report = new class ('ReportTaxes') extends ReportTaxes {
+            public array $exportedTotals = [];
+            public array $reportData = [];
+
+            public function exportReport(array $data): void
+            {
+                $this->reportData = $data;
+                $this->format = 'CSV';
+                $this->source = 'sales';
+                $this->columns = [Tools::trans('code')];
+                $this->exportAction();
+            }
+
+            protected function getReportData(): array
+            {
+                return $this->reportData;
+            }
+
+            protected function processLayout(array &$lines, array &$totals): void
+            {
+                $this->exportedTotals = $totals;
+            }
+
+            protected function validateTotals(array $totalsData): bool
+            {
+                return true;
+            }
+        };
+        $report->exportReport($data);
+
+        // sin operaciones especiales los totales no añaden columnas vacías
+        $this->assertCount(1, $report->exportedTotals, 'totals-should-group-same-rate');
+        $this->assertArrayNotHasKey(Tools::trans('operation'), $report->exportedTotals[0]);
+        $this->assertArrayNotHasKey(Tools::trans('self-assessed-tax'), $report->exportedTotals[0]);
+    }
+
     public function testPurchasesIntraCommunityServicesVat(): void
     {
         $this->assertPurchaseReverseCharge(InvoiceOperation::INTRA_COMMUNITY_SERVICES);
@@ -325,6 +451,13 @@ final class ReportTaxesTest extends TestCase
             'report-tax-should-be-zero-for-' . $operacion
         );
 
+        // la fila lleva la operación y la cuota autorepercutida informativa (21% de 1000)
+        $this->assertTrue(
+            $this->hasRate($data, 21.0, ['neto' => 1000.0, 'totalivaauto' => 210.0]),
+            'report-self-assessed-tax-wrong-for-' . $operacion
+        );
+        $this->assertSame([$operacion], array_values(array_unique(array_column($data, 'operacion'))));
+
         // limpieza
         $this->assertTrue($invoice->delete(), 'cant-delete-invoice');
         $this->assertTrue($serie->delete(), 'cant-delete-serie');
@@ -386,12 +519,15 @@ final class ReportTaxesTest extends TestCase
         float $neto,
         float $totalIva,
         string $codigo = 'FAC-001',
-        float $total = 176.0
+        float $total = 176.0,
+        ?string $operacion = null,
+        float $totalIvaAuto = 0.0
     ): array {
         return [
             'codserie' => 'A',
             'codigo' => $codigo,
             'numero2' => '',
+            'numproveedor' => '',
             'fecha' => date('Y-m-d'),
             'nombre' => 'Test customer',
             'cifnif' => '12345678Z',
@@ -401,6 +537,7 @@ final class ReportTaxesTest extends TestCase
             'provincia' => null,
             'codpostal' => null,
             'codpais' => null,
+            'operacion' => $operacion,
             'neto' => $neto,
             'iva' => $iva,
             'totaliva' => $totalIva,
@@ -409,6 +546,7 @@ final class ReportTaxesTest extends TestCase
             'irpf' => 0.0,
             'totalirpf' => 0.0,
             'suplidos' => 0.0,
+            'totalivaauto' => $totalIvaAuto,
             'total' => $total
         ];
     }

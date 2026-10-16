@@ -129,6 +129,7 @@ class ReportTaxes extends Controller
             $data[$code]['totalrecargo'] += $amounts['totalrecargo'];
             $data[$code]['totalirpf'] += $amounts['totalirpf'];
             $data[$code]['suplidos'] += $amounts['suplidos'];
+            $data[$code]['totalivaauto'] += $amounts['totalivaauto'];
             return;
         }
 
@@ -148,6 +149,7 @@ class ReportTaxes extends Controller
             'codsubcuenta' => $row['codsubcuenta'],
             'cifnif' => $row['cifnif'],
             'codpago' => $row['codpago'] ?? null,
+            'operacion' => $row['operacion'] ?? null,
             'neto' => $amounts['neto'],
             'iva' => $amounts['iva'],
             'totaliva' => $amounts['totaliva'],
@@ -155,7 +157,8 @@ class ReportTaxes extends Controller
             'totalrecargo' => $amounts['totalrecargo'],
             'irpf' => $amounts['irpf'],
             'totalirpf' => $amounts['totalirpf'],
-            'suplidos' => $amounts['suplidos']
+            'suplidos' => $amounts['suplidos'],
+            'totalivaauto' => $amounts['totalivaauto']
         ];
     }
 
@@ -183,7 +186,8 @@ class ReportTaxes extends Controller
                 'totaliva' => 0.0,
                 'totalrecargo' => 0.0,
                 'totalirpf' => 0.0,
-                'suplidos' => 0.0
+                'suplidos' => 0.0,
+                'totalivaauto' => 0.0
             ]);
         }
 
@@ -197,7 +201,8 @@ class ReportTaxes extends Controller
             'totaliva' => $applyIva ? (float)$row['iva'] * $margin / 100 : 0.0,
             'totalrecargo' => 0.0,
             'totalirpf' => (float)$row['irpf'] * $margin / 100,
-            'suplidos' => 0.0
+            'suplidos' => 0.0,
+            'totalivaauto' => 0.0
         ]);
     }
 
@@ -265,6 +270,7 @@ class ReportTaxes extends Controller
                 Tools::trans('name') => $hide ? '' : Tools::fixHtml($row['nombre']),
                 Tools::trans('cifnif') => $hide ? '' : $row['cifnif'],
                 Tools::trans('payment-method') => $hide ? '' : $row['codpago'] ?? '',
+                Tools::trans('operation') => $hide ? '' : $this->getOperationName($row['operacion']),
                 Tools::trans('subaccount') => $hide ? '' : $row['codsubcuenta'] ?? '',
                 Tools::trans('city') => $hide ? '' : $row['ciudad'] ?? '',
                 Tools::trans('province') => $hide ? '' : $row['provincia'] ?? '',
@@ -273,6 +279,7 @@ class ReportTaxes extends Controller
                 Tools::trans('net') => $this->exportFieldFormat('number', $row['neto']),
                 Tools::trans('pct-tax') => $this->exportFieldFormat('number', $row['iva']),
                 Tools::trans('tax') => $this->exportFieldFormat('number', $row['totaliva']),
+                Tools::trans('self-assessed-tax') => $this->exportFieldFormat('number', $row['totalivaauto']),
                 Tools::trans('pct-surcharge') => $this->exportFieldFormat('number', $row['recargo']),
                 Tools::trans('surcharge') => $this->exportFieldFormat('number', $row['totalrecargo']),
                 Tools::trans('pct-irpf') => $this->exportFieldFormat('number', $row['irpf']),
@@ -289,21 +296,35 @@ class ReportTaxes extends Controller
             return;
         }
 
+        // las columnas de operación y cuota autorepercutida solo se añaden a los totales si hay datos
+        $hasOperations = $hasSelfAssessed = false;
+        foreach ($totalsData as $row) {
+            $hasOperations = $hasOperations || !empty($row['operacion']);
+            $hasSelfAssessed = $hasSelfAssessed || abs($row['totalivaauto']) > 0.0;
+        }
+
         // preparamos los totales
         $totals = [];
         foreach ($totalsData as $row) {
-            $total = $this->getRowTotal($row);
-            $totals[] = [
-                Tools::trans('net') => $this->exportFieldFormat('number', $row['neto']),
-                Tools::trans('pct-tax') => $this->exportFieldFormat('percentage', $row['iva']),
-                Tools::trans('tax') => $this->exportFieldFormat('number', $row['totaliva']),
-                Tools::trans('pct-surcharge') => $this->exportFieldFormat('percentage', $row['recargo']),
-                Tools::trans('surcharge') => $this->exportFieldFormat('number', $row['totalrecargo']),
-                Tools::trans('pct-irpf') => $this->exportFieldFormat('percentage', $row['irpf']),
-                Tools::trans('irpf') => $this->exportFieldFormat('number', $row['totalirpf']),
-                Tools::trans('supplied-amount') => $this->exportFieldFormat('number', $row['suplidos']),
-                Tools::trans('total') => $this->exportFieldFormat('number', $total)
-            ];
+            $item = [];
+            if ($hasOperations) {
+                $item[Tools::trans('operation')] = $this->getOperationName($row['operacion']);
+            }
+
+            $item[Tools::trans('net')] = $this->exportFieldFormat('number', $row['neto']);
+            $item[Tools::trans('pct-tax')] = $this->exportFieldFormat('percentage', $row['iva']);
+            $item[Tools::trans('tax')] = $this->exportFieldFormat('number', $row['totaliva']);
+            if ($hasSelfAssessed) {
+                $item[Tools::trans('self-assessed-tax')] = $this->exportFieldFormat('number', $row['totalivaauto']);
+            }
+
+            $item[Tools::trans('pct-surcharge')] = $this->exportFieldFormat('percentage', $row['recargo']);
+            $item[Tools::trans('surcharge')] = $this->exportFieldFormat('number', $row['totalrecargo']);
+            $item[Tools::trans('pct-irpf')] = $this->exportFieldFormat('percentage', $row['irpf']);
+            $item[Tools::trans('irpf')] = $this->exportFieldFormat('number', $row['totalirpf']);
+            $item[Tools::trans('supplied-amount')] = $this->exportFieldFormat('number', $row['suplidos']);
+            $item[Tools::trans('total')] = $this->exportFieldFormat('number', $this->getRowTotal($row));
+            $totals[] = $item;
         }
 
         $this->setTemplate(false);
@@ -437,6 +458,18 @@ class ReportTaxes extends Controller
         return (string)$this->getCompany()->regimeniva;
     }
 
+    /**
+     * Nombre traducido de la operación de la factura (cadena vacía si es una operación normal).
+     */
+    protected function getOperationName(?string $operacion): string
+    {
+        if (empty($operacion)) {
+            return '';
+        }
+
+        return Tools::trans(InvoiceOperation::get($operacion) ?? $operacion);
+    }
+
     protected function getQuarterDate(bool $start): string
     {
         $month = (int)date('m');
@@ -530,7 +563,8 @@ class ReportTaxes extends Controller
                 continue;
             }
 
-            // en las compras con autorepercusión la cuota de IVA y el recargo van a cero
+            // en las compras con autorepercusión la cuota de IVA y el recargo van a cero,
+            // pero guardamos la cuota autorepercutida (devengada y deducible) como dato informativo
             $reverseCharge = $this->isReverseChargePurchase($row);
             $amounts = [
                 'iva' => $row['suplido'] ? 0.0 : (float)$row['iva'],
@@ -540,7 +574,8 @@ class ReportTaxes extends Controller
                 'totaliva' => $row['suplido'] || $reverseCharge ? 0.0 : (float)$row['iva'] * $pvpTotal / 100,
                 'totalrecargo' => $row['suplido'] || $reverseCharge ? 0.0 : (float)$row['recargo'] * $pvpTotal / 100,
                 'totalirpf' => $row['suplido'] ? 0.0 : (float)$row['irpf'] * $pvpTotal / 100,
-                'suplidos' => $row['suplido'] ? $pvpTotal : 0.0
+                'suplidos' => $row['suplido'] ? $pvpTotal : 0.0,
+                'totalivaauto' => !$row['suplido'] && $reverseCharge ? (float)$row['iva'] * $pvpTotal / 100 : 0.0
             ];
             $code = $row['codigo'] . '-' . $row['iva'] . '-' . $row['recargo'] . '-' . $row['irpf'] . '-' . $row['suplido'];
             $this->addAmounts($data, $code, $row, $amounts);
@@ -554,6 +589,7 @@ class ReportTaxes extends Controller
             $data[$key]['totalrecargo'] = round($value['totalrecargo'], $nf0);
             $data[$key]['totalirpf'] = round($value['totalirpf'], $nf0);
             $data[$key]['suplidos'] = round($value['suplidos'], $nf0);
+            $data[$key]['totalivaauto'] = round($value['totalivaauto'], $nf0);
         }
 
         return $data;
@@ -572,17 +608,20 @@ class ReportTaxes extends Controller
     {
         $totals = [];
         foreach ($data as $row) {
-            $code = $row['iva'] . '-' . $row['recargo'] . '-' . $row['irpf'];
+            // separamos por operación para no mezclar, por ejemplo, compras normales con inversión del sujeto pasivo
+            $code = $row['iva'] . '-' . $row['recargo'] . '-' . $row['irpf'] . '-' . $row['operacion'];
             if (isset($totals[$code])) {
                 $totals[$code]['neto'] += $row['neto'];
                 $totals[$code]['totaliva'] += $row['totaliva'];
                 $totals[$code]['totalrecargo'] += $row['totalrecargo'];
                 $totals[$code]['totalirpf'] += $row['totalirpf'];
                 $totals[$code]['suplidos'] += $row['suplidos'];
+                $totals[$code]['totalivaauto'] += $row['totalivaauto'];
                 continue;
             }
 
             $totals[$code] = [
+                'operacion' => $row['operacion'],
                 'neto' => $row['neto'],
                 'iva' => $row['iva'],
                 'totaliva' => $row['totaliva'],
@@ -590,7 +629,8 @@ class ReportTaxes extends Controller
                 'totalrecargo' => $row['totalrecargo'],
                 'irpf' => $row['irpf'],
                 'totalirpf' => $row['totalirpf'],
-                'suplidos' => $row['suplidos']
+                'suplidos' => $row['suplidos'],
+                'totalivaauto' => $row['totalivaauto']
             ];
         }
 
@@ -708,6 +748,7 @@ class ReportTaxes extends Controller
             Tools::trans('net') => ['display' => 'right'],
             Tools::trans('pct-tax') => ['display' => 'right'],
             Tools::trans('tax') => ['display' => 'right'],
+            Tools::trans('self-assessed-tax') => ['display' => 'right'],
             Tools::trans('pct-surcharge') => ['display' => 'right'],
             Tools::trans('surcharge') => ['display' => 'right'],
             Tools::trans('pct-irpf') => ['display' => 'right'],
