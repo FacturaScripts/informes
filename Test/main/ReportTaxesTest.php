@@ -33,6 +33,7 @@ use FacturaScripts\Plugins\Informes\Controller\ReportTaxes;
 use FacturaScripts\Test\Traits\DefaultSettingsTrait;
 use FacturaScripts\Test\Traits\RandomDataTrait;
 use PHPUnit\Framework\TestCase;
+use ZipArchive;
 
 final class ReportTaxesTest extends TestCase
 {
@@ -62,40 +63,33 @@ final class ReportTaxesTest extends TestCase
         // usamos el ExportManager real para comprobar que cada formato genera su documento
         $expected = ['PDF' => '%PDF', 'CSV' => "\xEF\xBB\xBF", 'XLS' => "PK"];
         foreach ($expected as $format => $prefix) {
-            $report = new class ('ReportTaxes') extends ReportTaxes {
-                public array $reportData = [];
-
-                public function exportReport(array $data, string $format): string
-                {
-                    $this->response = new Response();
-                    $this->reportData = $data;
-                    $this->format = $format;
-                    $this->source = 'purchases';
-                    $this->idempresa = (int)Tools::settings('default', 'idempresa');
-                    $this->coddivisa = Tools::settings('default', 'coddivisa');
-                    $this->typeDate = 'create';
-                    $this->datefrom = date('Y-01-01');
-                    $this->dateto = date('Y-12-31');
-                    $this->columns = [Tools::trans('code'), Tools::trans('vat-exception'), Tools::trans('net')];
-                    $this->exportAction();
-
-                    return $this->response->getContent();
-                }
-
-                protected function getReportData(): array
-                {
-                    return $this->reportData;
-                }
-
-                protected function validateTotals(array $totalsData): bool
-                {
-                    return true;
-                }
-            };
-
-            $content = $report->exportReport($data, $format);
+            $content = $this->exportDocument($data, $format);
             $this->assertStringStartsWith($prefix, $content, 'bad-document-for-' . strtolower($format));
         }
+    }
+
+    public function testExportNamesExcelSheets(): void
+    {
+        $data = [
+            $this->getExportRow(21.0, 100.0, 21.0),
+            $this->getExportRow(10.0, 50.0, 5.0, 'FAC-002', 55.0)
+        ];
+        $content = $this->exportDocument($data, 'XLS');
+
+        // el xlsx es un zip: los nombres de las hojas están en xl/workbook.xml
+        $file = tempnam(sys_get_temp_dir(), 'xls');
+        file_put_contents($file, $content);
+        $zip = new ZipArchive();
+        $this->assertTrue($zip->open($file), 'xlsx-not-readable');
+        $workbook = $zip->getFromName('xl/workbook.xml');
+        $zip->close();
+        unlink($file);
+
+        preg_match_all('#<sheet [^>]*name="([^"]+)"#', $workbook, $matches);
+        $expected = array_map(function (string $key) {
+            return Tools::slug(Tools::trans($key), '-', 31);
+        }, ['report', 'lines', 'totals']);
+        $this->assertSame($expected, $matches[1], 'bad-sheet-names');
     }
 
     public function testExportOnlyShowsInvoiceDataOnFirstTaxRow(): void
@@ -672,6 +666,45 @@ final class ReportTaxesTest extends TestCase
         $this->assertTrue($product->delete(), 'cant-delete-product');
         $this->assertTrue($supplier->getDefaultAddress()->delete(), 'cant-delete-contact');
         $this->assertTrue($supplier->delete(), 'cant-delete-supplier');
+    }
+
+    /**
+     * Exporta los datos con el ExportManager real y devuelve el documento generado.
+     */
+    private function exportDocument(array $data, string $format): string
+    {
+        $report = new class ('ReportTaxes') extends ReportTaxes {
+            public array $reportData = [];
+
+            public function exportReport(array $data, string $format): string
+            {
+                $this->response = new Response();
+                $this->reportData = $data;
+                $this->format = $format;
+                $this->source = 'purchases';
+                $this->idempresa = (int)Tools::settings('default', 'idempresa');
+                $this->coddivisa = Tools::settings('default', 'coddivisa');
+                $this->typeDate = 'create';
+                $this->datefrom = date('Y-01-01');
+                $this->dateto = date('Y-12-31');
+                $this->columns = [Tools::trans('code'), Tools::trans('vat-exception'), Tools::trans('net')];
+                $this->exportAction();
+
+                return $this->response->getContent();
+            }
+
+            protected function getReportData(): array
+            {
+                return $this->reportData;
+            }
+
+            protected function validateTotals(array $totalsData): bool
+            {
+                return true;
+            }
+        };
+
+        return $report->exportReport($data, $format);
     }
 
     /**

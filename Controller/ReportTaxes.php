@@ -303,7 +303,7 @@ class ReportTaxes extends Controller
         // en PDF separamos los totales en una tabla por impuesto; en CSV y Excel mantenemos la tabla plana
         $totals = $this->format === 'PDF' ?
             $this->getPdfTotalTables($totalsData) :
-            [['title' => '', 'rows' => $this->getFlatTotalRows($totalsData)]];
+            [['title' => Tools::trans('totals'), 'rows' => $this->getFlatTotalRows($totalsData)]];
 
         $this->setTemplate(false);
         $this->processLayout($lines, $totals);
@@ -954,6 +954,9 @@ class ReportTaxes extends Controller
         $exportManager->newDoc($this->format, Tools::trans('taxes'));
         $exportManager->setCompany($this->idempresa);
 
+        // en Excel el título da nombre a la hoja; en PDF se imprimiría como encabezado, así que no lo usamos
+        $isExcel = $this->format === 'XLS';
+
         // add information table
         $exportManager->addTablePage(
             [
@@ -971,7 +974,9 @@ class ReportTaxes extends Controller
                     Tools::trans('from-date') => Tools::date($this->datefrom),
                     Tools::trans('until-date') => Tools::date($this->dateto)
                 ]
-            ]
+            ],
+            [],
+            $isExcel ? Tools::trans('report') : ''
         );
 
         $options = [
@@ -992,7 +997,7 @@ class ReportTaxes extends Controller
         // add lines table
         $this->reduceLines($lines);
         $headers = empty($lines) ? [] : array_keys(end($lines));
-        $exportManager->addTablePage($headers, $lines, $options);
+        $exportManager->addTablePage($headers, $lines, $options, $isExcel ? Tools::trans('lines') : '');
 
         // add totals tables
         foreach ($totals as $table) {
