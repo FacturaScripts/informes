@@ -45,6 +45,9 @@ class ReportTaxes extends Controller
 {
     const MAX_TOTAL_DIFF = 0.05;
 
+    /** Valor del filtro de operación para las facturas sin operación especial */
+    const WITHOUT_OPERATION = 'without-operation';
+
     /** @var string */
     public $coddivisa;
 
@@ -69,6 +72,9 @@ class ReportTaxes extends Controller
     /** @var int */
     public $idempresa;
 
+    /** @var string */
+    public $operacion = '';
+
     /** @var Pais */
     public $pais;
 
@@ -89,6 +95,19 @@ class ReportTaxes extends Controller
 
     /** @var Empresa|null */
     protected $reportCompany;
+
+    /**
+     * Operaciones disponibles para el filtro, con su nombre traducido.
+     */
+    public function getOperations(): array
+    {
+        $operations = [];
+        foreach (InvoiceOperation::all() as $key => $value) {
+            $operations[$key] = Tools::trans($value);
+        }
+
+        return $operations;
+    }
 
     public function getPageData(): array
     {
@@ -346,6 +365,7 @@ class ReportTaxes extends Controller
             $sql .= ' AND codpais = ' . $this->dataBase->var2str($this->codpais);
         }
 
+        $sql .= $this->getOperationFilterSql('operacion');
         $sql .= ' ORDER BY codigo ASC;';
 
         // Agrupar facturas problemáticas por campo
@@ -477,6 +497,22 @@ class ReportTaxes extends Controller
         }
 
         return $totals;
+    }
+
+    /**
+     * Condición SQL del filtro de operación sobre la columna dada (cadena vacía si no se filtra).
+     */
+    protected function getOperationFilterSql(string $column): string
+    {
+        if ($this->operacion === self::WITHOUT_OPERATION) {
+            return ' AND (' . $column . ' IS NULL OR ' . $column . " = '')";
+        }
+
+        if ($this->operacion) {
+            return ' AND ' . $column . ' = ' . $this->dataBase->var2str($this->operacion);
+        }
+
+        return '';
     }
 
     /**
@@ -738,7 +774,7 @@ class ReportTaxes extends Controller
                     . ' AND (l.pvptotal <> 0.00 OR l.iva <> 0.00)'
                     . ' AND f.coddivisa = ' . $this->dataBase->var2str($this->coddivisa);
                 if ($this->codpais) {
-                    $sql .= ' AND codpais = ' . $this->dataBase->var2str($this->codpais);
+                    $sql .= ' AND f.codpais = ' . $this->dataBase->var2str($this->codpais);
                 }
                 break;
 
@@ -749,6 +785,7 @@ class ReportTaxes extends Controller
         if ($this->codserie) {
             $sql .= ' AND f.codserie = ' . $this->dataBase->var2str($this->codserie);
         }
+        $sql .= $this->getOperationFilterSql('f.operacion');
         $sql .= ' ORDER BY ' . $columnDate . ', ' . $numCol . ' ASC;';
 
         $companyRegimen = $this->getCompanyRegimen();
@@ -896,6 +933,7 @@ class ReportTaxes extends Controller
 
         $this->codpais = $this->request->input('codpais', '');
         $this->codserie = $this->request->input('codserie', '');
+        $this->operacion = $this->request->input('operacion', '');
         $this->datefrom = $this->request->input('datefrom', $this->getQuarterDate(true));
         $this->dateto = $this->request->input('dateto', $this->getQuarterDate(false));
 
@@ -958,23 +996,24 @@ class ReportTaxes extends Controller
         $isExcel = $this->format === 'XLS';
 
         // add information table
+        $info = [
+            Tools::trans('report') => Tools::trans('taxes') . ' ' . Tools::trans($this->source),
+            Tools::trans('currency') => Divisas::get($this->coddivisa)->descripcion,
+            Tools::trans('date') => Tools::trans($this->typeDate === 'create' ? 'creation-date' : 'accrual-date'),
+            Tools::trans('from-date') => Tools::date($this->datefrom),
+            Tools::trans('until-date') => Tools::date($this->dateto)
+        ];
+
+        // si se filtra por operación lo indicamos, para no confundir el informe con el completo
+        if ($this->operacion) {
+            $info[Tools::trans('operation')] = $this->operacion === self::WITHOUT_OPERATION ?
+                Tools::trans('without-operation') :
+                $this->getOperationName($this->operacion);
+        }
+
         $exportManager->addTablePage(
-            [
-                Tools::trans('report'),
-                Tools::trans('currency'),
-                Tools::trans('date'),
-                Tools::trans('from-date'),
-                Tools::trans('until-date')
-            ],
-            [
-                [
-                    Tools::trans('report') => Tools::trans('taxes') . ' ' . Tools::trans($this->source),
-                    Tools::trans('currency') => Divisas::get($this->coddivisa)->descripcion,
-                    Tools::trans('date') => Tools::trans($this->typeDate === 'create' ? 'creation-date' : 'accrual-date'),
-                    Tools::trans('from-date') => Tools::date($this->datefrom),
-                    Tools::trans('until-date') => Tools::date($this->dateto)
-                ]
-            ],
+            array_keys($info),
+            [$info],
             [],
             $isExcel ? Tools::trans('report') : ''
         );
@@ -1051,6 +1090,7 @@ class ReportTaxes extends Controller
         if ($this->codpais && $this->source === 'sales') {
             $sql .= ' AND codpais = ' . $this->dataBase->var2str($this->codpais);
         }
+        $sql .= $this->getOperationFilterSql('operacion');
         foreach ($this->dataBase->selectLimit($sql) as $row) {
             $neto2 += (float)$row['neto'];
             $totalIva2 += (float)$row['t1'];

@@ -151,6 +151,22 @@ final class ReportTaxesTest extends TestCase
         }
     }
 
+    public function testExportShowsOperationFilter(): void
+    {
+        $data = [$this->getExportRow(21.0, 100.0, 21.0)];
+
+        // sin filtro, la tabla de información no menciona la operación
+        $content = $this->exportDocument($data, 'CSV');
+        $this->assertStringNotContainsString(Tools::trans('without-operation'), $content, 'operation-shown-without-filter');
+
+        // con filtro, se indica la operación elegida, también la de facturas sin operación
+        $content = $this->exportDocument($data, 'CSV', ReportTaxes::WITHOUT_OPERATION);
+        $this->assertStringContainsString(Tools::trans('without-operation'), $content, 'without-operation-filter-not-shown');
+
+        $content = $this->exportDocument($data, 'CSV', InvoiceOperation::INTRA_COMMUNITY);
+        $this->assertStringContainsString(Tools::trans('intra-community'), $content, 'operation-filter-not-shown');
+    }
+
     public function testExportSplitsTotalsByOperation(): void
     {
         $data = [
@@ -386,6 +402,130 @@ final class ReportTaxesTest extends TestCase
     public function testPurchasesReverseChargeVat(): void
     {
         $this->assertPurchaseReverseCharge(InvoiceOperation::REVERSE_CHARGE);
+    }
+
+    public function testSalesFiltersByCountry(): void
+    {
+        $tax = Impuestos::get('IVA21');
+        if (false === $tax->exists()) {
+            $this->markTestSkipped('IVA21-not-found');
+        }
+
+        // producto sin control de stock para no alterar el inventario
+        $product = $this->getRandomProduct();
+        $product->codimpuesto = $tax->codimpuesto;
+        $product->nostock = true;
+        $this->assertTrue($product->save(), 'cant-save-product');
+
+        // serie propia para aislar las facturas en el informe
+        $serie = $this->getRandomSerie();
+        $this->assertTrue($serie->save(), 'cant-save-serie');
+
+        // una factura a España y otra a Portugal
+        $customer = $this->getRandomCustomer();
+        $this->assertTrue($customer->save(), 'cant-save-customer');
+        $invoices = [];
+        foreach (['ESP', 'PRT'] as $codpais) {
+            $invoice = new FacturaCliente();
+            $invoice->setSubject($customer);
+            $invoice->codserie = $serie->codserie;
+            $invoice->codpais = $codpais;
+            $this->assertTrue($invoice->save(), 'cant-save-invoice');
+
+            $line = $invoice->getNewProductLine($product->referencia);
+            $line->cantidad = 1;
+            $line->pvpunitario = 100;
+            $this->assertTrue($line->save(), 'cant-save-line');
+            $lines = [$line];
+            $this->assertTrue(Calculator::calculate($invoice, $lines, true), 'cant-calculate');
+            $invoices[$codpais] = $invoice;
+        }
+
+        foreach ($invoices as $codpais => $invoice) {
+            $report = $this->createSalesReport($invoice->idempresa, $invoice->coddivisa, $serie->codserie, '', $codpais);
+            $data = $report->fetchReportData();
+            $this->assertSame(
+                [$invoice->codigo],
+                array_values(array_unique(array_column($data, 'codigo'))),
+                'bad-invoices-for-country-' . $codpais
+            );
+            $this->assertTrue($report->totalsAreValid($data), 'totals-mismatch-for-country-' . $codpais);
+        }
+
+        // limpieza
+        foreach ($invoices as $invoice) {
+            $this->assertTrue($invoice->delete(), 'cant-delete-invoice');
+        }
+        $this->assertTrue($serie->delete(), 'cant-delete-serie');
+        $this->assertTrue($product->delete(), 'cant-delete-product');
+        $this->assertTrue($customer->getDefaultAddress()->delete(), 'cant-delete-contact');
+        $this->assertTrue($customer->delete(), 'cant-delete-customer');
+    }
+
+    public function testSalesFiltersByOperation(): void
+    {
+        $tax = Impuestos::get('IVA21');
+        if (false === $tax->exists()) {
+            $this->markTestSkipped('IVA21-not-found');
+        }
+
+        // producto sin control de stock para no alterar el inventario
+        $product = $this->getRandomProduct();
+        $product->codimpuesto = $tax->codimpuesto;
+        $product->nostock = true;
+        $this->assertTrue($product->save(), 'cant-save-product');
+
+        // serie propia para aislar las facturas en el informe
+        $serie = $this->getRandomSerie();
+        $this->assertTrue($serie->save(), 'cant-save-serie');
+
+        // una factura sin operación, otra con operación vacía y dos con operaciones especiales
+        $customer = $this->getRandomCustomer();
+        $this->assertTrue($customer->save(), 'cant-save-customer');
+        $invoices = [];
+        foreach ([null, '', InvoiceOperation::INTRA_COMMUNITY, InvoiceOperation::EXPORT] as $operacion) {
+            $invoice = new FacturaCliente();
+            $invoice->setSubject($customer);
+            $invoice->codserie = $serie->codserie;
+            $invoice->operacion = $operacion;
+            $this->assertTrue($invoice->save(), 'cant-save-invoice');
+
+            $line = $invoice->getNewProductLine($product->referencia);
+            $line->cantidad = 1;
+            $line->pvpunitario = 100;
+            $this->assertTrue($line->save(), 'cant-save-line');
+            $lines = [$line];
+            $this->assertTrue(Calculator::calculate($invoice, $lines, true), 'cant-calculate');
+            $invoices[] = $invoice;
+        }
+
+        $expected = [
+            '' => [$invoices[0]->codigo, $invoices[1]->codigo, $invoices[2]->codigo, $invoices[3]->codigo],
+            ReportTaxes::WITHOUT_OPERATION => [$invoices[0]->codigo, $invoices[1]->codigo],
+            InvoiceOperation::INTRA_COMMUNITY => [$invoices[2]->codigo],
+            InvoiceOperation::EXPORT => [$invoices[3]->codigo],
+            InvoiceOperation::REVERSE_CHARGE => []
+        ];
+        foreach ($expected as $operacion => $codes) {
+            $report = $this->createSalesReport($invoices[0]->idempresa, $invoices[0]->coddivisa, $serie->codserie, $operacion);
+            $data = $report->fetchReportData();
+            $found = array_values(array_unique(array_column($data, 'codigo')));
+            sort($found);
+            sort($codes);
+            $this->assertSame($codes, $found, 'bad-invoices-for-operation-' . ($operacion ?: 'all'));
+
+            // la comprobación con los totales de las facturas aplica el mismo filtro
+            $this->assertTrue($report->totalsAreValid($data), 'totals-mismatch-for-operation-' . ($operacion ?: 'all'));
+        }
+
+        // limpieza
+        foreach ($invoices as $invoice) {
+            $this->assertTrue($invoice->delete(), 'cant-delete-invoice');
+        }
+        $this->assertTrue($serie->delete(), 'cant-delete-serie');
+        $this->assertTrue($product->delete(), 'cant-delete-product');
+        $this->assertTrue($customer->getDefaultAddress()->delete(), 'cant-delete-contact');
+        $this->assertTrue($customer->delete(), 'cant-delete-customer');
     }
 
     public function testSalesSplitsLinesByTaxException(): void
@@ -671,16 +811,17 @@ final class ReportTaxesTest extends TestCase
     /**
      * Exporta los datos con el ExportManager real y devuelve el documento generado.
      */
-    private function exportDocument(array $data, string $format): string
+    private function exportDocument(array $data, string $format, string $operacion = ''): string
     {
         $report = new class ('ReportTaxes') extends ReportTaxes {
             public array $reportData = [];
 
-            public function exportReport(array $data, string $format): string
+            public function exportReport(array $data, string $format, string $operacion): string
             {
                 $this->response = new Response();
                 $this->reportData = $data;
                 $this->format = $format;
+                $this->operacion = $operacion;
                 $this->source = 'purchases';
                 $this->idempresa = (int)Tools::settings('default', 'idempresa');
                 $this->coddivisa = Tools::settings('default', 'coddivisa');
@@ -704,7 +845,7 @@ final class ReportTaxesTest extends TestCase
             }
         };
 
-        return $report->exportReport($data, $format);
+        return $report->exportReport($data, $format, $operacion);
     }
 
     /**
@@ -732,27 +873,47 @@ final class ReportTaxesTest extends TestCase
     }
 
     /**
-     * Ejecuta getReportData() del controlador de impuestos para ventas del año en curso,
-     * filtrando por la serie dada para aislar la factura de prueba.
+     * Crea el controlador de impuestos para ventas del año en curso, filtrando por la serie dada
+     * para aislar las facturas de prueba y, opcionalmente, por operación y país.
      */
-    private function fetchSalesReport(int $idempresa, string $coddivisa, string $codserie): array
-    {
+    private function createSalesReport(
+        int $idempresa,
+        string $coddivisa,
+        string $codserie,
+        string $operacion = '',
+        string $codpais = ''
+    ): ReportTaxes {
         $report = new class ('ReportTaxes') extends ReportTaxes {
             public function fetchReportData(): array
             {
                 return $this->getReportData();
+            }
+
+            public function totalsAreValid(array $data): bool
+            {
+                return $this->validateTotals($this->getTotals($data));
             }
         };
         $report->source = 'sales';
         $report->idempresa = $idempresa;
         $report->coddivisa = $coddivisa;
         $report->codserie = $codserie;
-        $report->codpais = '';
+        $report->operacion = $operacion;
+        $report->codpais = $codpais;
         $report->typeDate = 'create';
         $report->datefrom = date('Y-01-01');
         $report->dateto = date('Y-12-31');
 
-        return $report->fetchReportData();
+        return $report;
+    }
+
+    /**
+     * Ejecuta getReportData() del controlador de impuestos para ventas del año en curso,
+     * filtrando por la serie dada para aislar la factura de prueba.
+     */
+    private function fetchSalesReport(int $idempresa, string $coddivisa, string $codserie): array
+    {
+        return $this->createSalesReport($idempresa, $coddivisa, $codserie)->fetchReportData();
     }
 
     private function getExportRow(

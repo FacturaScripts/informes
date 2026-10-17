@@ -79,6 +79,22 @@
                                     </select>
                                 </div>
                                 <div class="col-sm-6 col-md-4 col-lg-3">
+                                    {{ trans('operation') }}
+                                    <select name="operacion" class="form-select mb-3">
+                                        <option value="">{{ trans('all') }}</option>
+                                        <option value="{{ constant('WITHOUT_OPERATION', fsc) }}"
+                                                {{ fsc.operacion == constant('WITHOUT_OPERATION', fsc) ? 'selected' : '' }}>
+                                            {{ trans('without-operation') }}
+                                        </option>
+                                        <option value="">------</option>
+                                        {% for key, name in fsc.getOperations() %}
+                                            <option value="{{ key }}" {{ key == fsc.operacion ? 'selected' : '' }}>
+                                                {{ name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-sm-6 col-md-4 col-lg-3">
                                     {{ trans('currency') }}
                                     <select name="coddivisa" class="form-select mb-3">
                                         {% for divisa in fsc.divisa.all({}, {'descripcion': 'ASC'}, 0, 0) %}
