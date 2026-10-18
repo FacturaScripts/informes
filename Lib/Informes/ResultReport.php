@@ -816,7 +816,9 @@ class ResultReport
     protected static function invoiceLines(array $ventas, array $date, string $codejercicio, int $mes, float &$ventas_total_fam_meses, int &$countMonth, string $tablename): array
     {
         $db = new DataBase();
-        $sql = "select lfc.referencia, sum(lfc.pvptotal) as pvptotal from lineas{$tablename} as lfc"
+        $sql = "select lfc.referencia,"
+            . " sum(lfc.pvptotal * (100 - fc.dtopor1) / 100 * (100 - fc.dtopor2) / 100) as pvptotal"
+            . " from lineas{$tablename} as lfc"
             . " LEFT JOIN {$tablename} as fc ON lfc.idfactura = fc.idfactura"
             . " where fc.fecha >= " . $db->var2str($date['desde'])
             . " AND fc.fecha <= " . $db->var2str($date['hasta'])
