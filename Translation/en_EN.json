@@ -47,7 +47,7 @@
     "clients": "Clients",
     "corporate-tax": "Corporate tax",
     "corporate-tax-advances": "Corporate tax advances",
-    "credit-not-match-account": "There is a mismatch in the site id of your account %account%",
+    "credit-not-match-account": "There is a mismatch in the entries for account %account%. Credit: %credit% VS %sum%",
     "current-exercise": "Current exercise",
     "current-exercise-results": "Current exercise results",
     "customers-by-country": "Customers by country",
@@ -56,7 +56,7 @@
     "customers-by-province": "Customers by province",
     "customers-pending-collection": "Customers pending collection",
     "customers-without-group": "Customers without a group",
-    "debit-not-match-account": "There is a mismatch in the site ID of your account %account%.",
+    "debit-not-match-account": "There is a mismatch in the entries for account %account%. Debit: %debit% VS %sum%",
     "debt": "Debt",
     "debtors": "Debtors",
     "does-not-have-a-value": "Does not have a value",
@@ -255,7 +255,6 @@
     "sales-per-paymethod": "Sales per payment method",
     "sales-per-serie": "Sales per series",
     "screen": "screen",
-    "self-assessed-tax": "Self-assessed tax",
     "short-situation-results": "Short-term cash position results",
     "show-balance-opening": "Show opening balance",
     "social-security-pending-collection": "Social security pending collection",
@@ -270,6 +269,5 @@
     "voluntary-reserves": "Voluntary reserves",
     "with-debt": "With debt",
     "without-opening": "Without opening",
-    "without-operation": "Without operation",
     "y-operation": "Y operation"
 }
