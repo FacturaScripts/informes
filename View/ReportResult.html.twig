@@ -587,10 +587,20 @@
                 agentesChart.render();
             }
 
-            function handleReportToggle(reportElementId, reportFlag, action, additionalAction) {
-                const reportElement = $(reportElementId);
-                reportElement.find('svg').toggleClass('fa-plus fa-minus');
+            /**
+             * Abre o cierra el panel de un informe, cambia el icono más/menos de su cabecera
+             * y, al abrirlo, pide los datos al servidor.
+             *
+             * @param {string} headerId selector de la cabecera que contiene el icono (p. ej. '#showSales')
+             * @param {string} reportId selector del panel que se despliega (p. ej. '#salesReport')
+             * @param {boolean} reportFlag estado actual del panel (true = abierto)
+             * @param {string} action acción que se envía al servidor al abrir el panel
+             * @param {Object} [additionalAction] dato adicional opcional para el formulario, con las claves key y value
+             * @returns {boolean} el nuevo estado del panel
+             */
+            function handleReportToggle(headerId, reportId, reportFlag, action, additionalAction) {
                 reportFlag = !reportFlag;
+                $(headerId).find('svg, i.fa').toggleClass('fa-plus', !reportFlag).toggleClass('fa-minus', reportFlag);
 
                 if (reportFlag) {
                     let formData = new FormData();
@@ -601,7 +611,7 @@
                     sendForm(formData);
                 }
 
-                $(reportElementId + 'Report').collapse('toggle');
+                $(reportId).collapse('toggle');
                 return reportFlag;
             }
 
@@ -641,7 +651,7 @@
             });
 
             $(document).on('click', '#showSales', function () {
-                salesReport = handleReportToggle('#sales', salesReport, 'load-sales');
+                salesReport = handleReportToggle('#showSales', '#salesReport', salesReport, 'load-sales');
             });
 
             $(document).on('click', '#salesReport tr.ventas', function () {
@@ -649,7 +659,7 @@
             });
 
             $(document).on('click', '#showPurchasesProductReport', function () {
-                purchasesProductReport = handleReportToggle('#purchasesProduct', purchasesProductReport, 'load-purchases-product');
+                purchasesProductReport = handleReportToggle('#showPurchasesProductReport', '#purchasesProductReport', purchasesProductReport, 'load-purchases-product');
             });
 
             $(document).on('click', '#purchasesProductReport tr.ventas', function () {
@@ -657,17 +667,7 @@
             });
 
             $(document).on('click', '#showPurchases', function () {
-                if (purchasesReport === false) {
-                    $('#showPurchases svg').removeClass('fa-plus').addClass('fa-minus');
-                    purchasesReport = true;
-                    let formData = new FormData();
-                    formData.append('action', 'load-purchases');
-                    sendForm(formData);
-                } else {
-                    $('#showPurchases svg').addClass('fa-plus').removeClass('fa-minus');
-                    purchasesReport = false;
-                }
-                $('#purchasesReport').collapse('toggle');
+                purchasesReport = handleReportToggle('#showPurchases', '#purchasesReport', purchasesReport, 'load-purchases');
             });
 
             $(document).on('click', '#purchasesReport tr.gastos', function () {
