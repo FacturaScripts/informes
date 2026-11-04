@@ -813,17 +813,39 @@ class ResultReport
         self::${$key}[$year] = ${$key};
     }
 
+    /**
+     * Suma por referencia el neto de las líneas de las facturas del mes y lo acumula por familia,
+     * por producto y en el total del mes.
+     *
+     * El importe de cada línea incluye los descuentos globales de la factura (dtopor1 y dtopor2)
+     * y se redondea antes de sumarlo, para que el total coincida con el neto de las facturas.
+     *
+     * @param array $ventas datos acumulados del informe (ventas o compras)
+     * @param array $date rango de fechas del mes, con las claves 'desde' y 'hasta'
+     * @param string $codejercicio ejercicio de las facturas
+     * @param int $mes número del mes (1 a 12)
+     * @param float $ventas_total_fam_meses total acumulado de todos los meses
+     * @param int $countMonth número de meses con importe, para calcular la media
+     * @param string $tablename tabla de facturas: facturascli o facturasprov
+     *
+     * @return array
+     */
     protected static function invoiceLines(array $ventas, array $date, string $codejercicio, int $mes, float &$ventas_total_fam_meses, int &$countMonth, string $tablename): array
     {
         $db = new DataBase();
+
+        // neto de cada línea con los descuentos globales de la factura, redondeado como en el documento;
+        // se convierte a DECIMAL porque PostgreSQL no admite ROUND() con decimales sobre double precision
+        $netoLinea = 'lfc.pvptotal * (100 - fc.dtopor1) / 100 * (100 - fc.dtopor2) / 100';
         $sql = "select lfc.referencia,"
-            . " sum(lfc.pvptotal * (100 - fc.dtopor1) / 100 * (100 - fc.dtopor2) / 100) as pvptotal"
+            . " sum(round(cast(" . $netoLinea . " as decimal(20,6)), " . (int)FS_NF0 . ")) as pvptotal"
             . " from lineas{$tablename} as lfc"
             . " LEFT JOIN {$tablename} as fc ON lfc.idfactura = fc.idfactura"
             . " where fc.fecha >= " . $db->var2str($date['desde'])
             . " AND fc.fecha <= " . $db->var2str($date['hasta'])
             . " AND fc.codejercicio = " . $db->var2str($codejercicio)
-            . " AND lfc.suplido = 0"
+            // var2str() para que funcione también en PostgreSQL, donde suplido es booleano
+            . " AND lfc.suplido = " . $db->var2str(false)
             . " group by lfc.referencia";
 
         // VENTAS: Recorremos lineasfacturascli y montamos arrays

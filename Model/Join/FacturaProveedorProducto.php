@@ -70,8 +70,9 @@ class FacturaProveedorProducto extends JoinModel
 
     protected function getFields(): array
     {
+        $neto = static::netoLinea();
         return [
-            'avgcoste' => 'sum(' . static::MAIN_TABLE . '.pvptotal) / sum(' . static::MAIN_TABLE . '.cantidad)',
+            'avgcoste' => 'sum(' . $neto . ') / sum(' . static::MAIN_TABLE . '.cantidad)',
             'cantidad' => 'sum(' . static::MAIN_TABLE . '.cantidad)',
             'codalmacen' => static::DOC_TABLE . '.codalmacen',
             'codfabricante' => 'productos.codfabricante',
@@ -104,5 +105,18 @@ class FacturaProveedorProducto extends JoinModel
     protected function getTables(): array
     {
         return [static::MAIN_TABLE, 'productos', 'variantes', 'stocks'];
+    }
+
+    /**
+     * Expresión SQL con el neto de cada línea: su pvptotal con los descuentos globales
+     * de la factura (dtopor1 y dtopor2), igual que calcula el neto del documento.
+     *
+     * @return string
+     */
+    protected static function netoLinea(): string
+    {
+        return static::MAIN_TABLE . '.pvptotal'
+            . ' * (100 - ' . static::DOC_TABLE . '.dtopor1) / 100'
+            . ' * (100 - ' . static::DOC_TABLE . '.dtopor2) / 100';
     }
 }
