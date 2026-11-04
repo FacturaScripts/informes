@@ -20,13 +20,15 @@
             <table class="table table-striped table-hover mb-0">
                 <thead>
                 <tr>
-                    <th>{{ trans('x-column') }}</th>
-                    <th>{{ trans('y-column') }}</th>
+                    <th>{{ model.xcolumn | capitalize }}</th>
+                    <th>{{ model.ycolumn ? model.ycolumn | capitalize : trans('y-column') }}</th>
+                    <th>{{ trans('balance') }}</th>
                 </tr>
                 </thead>
                 <tbody>
                 {% for item in source %}
                     {% set total = total + item.ycol %}
+                    {% set totalClass = s_name != 'difference' ? '' : (total > 0 ? 'text-success' : (total < 0 ? 'text-danger' : '')) %}
                     <tr>
                         <td>{{ item.xcol }}</td>
                         <td>
@@ -40,18 +42,20 @@
                                 {{ item.ycol }}
                             {% endif %}
                         </td>
+                        <td class="{{ totalClass }}">{{ number(total) }}</td>
                     </tr>
                 {% else %}
                     <tr>
-                        <td colspan="2" class="table-warning">{{ trans('no-data') }}</td>
+                        <td colspan="3" class="table-warning">{{ trans('no-data') }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
-                {% if total > 0 %}
+                {% if source is not empty %}
                     <tfoot class="sticky-bottom bg-light fw-bold">
                     <tr>
                         <td>{{ trans('total') }}</td>
-                        <td>{{ number(total) }}</td>
+                        <td class="{{ totalClass }}">{{ number(total) }}</td>
+                        <td></td>
                     </tr>
                     </tfoot>
                 {% endif %}
