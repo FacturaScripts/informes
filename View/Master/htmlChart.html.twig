@@ -4,6 +4,7 @@
 {% set firstView = fsc.views | first %}
 {% set model = firstView.model %}
 {% set chart = model.getChart() %}
+{% set compared = model.getComparedReport() %}
 
 <div class="card shadow mb-4">
     {{ chart.render() | raw }}
@@ -11,7 +12,23 @@
 
 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
     {% for s_name, source in chart.getDataSources() %}
+        {% if s_name == 'difference' %}
+            {% set sameColumns = compared is not null
+                and compared.getXColumnLabel() == model.getXColumnLabel()
+                and compared.getYColumnLabel() == model.getYColumnLabel() %}
+            {% set xLabel = sameColumns ? model.getXColumnLabel() : trans('x-column') %}
+            {% set yLabel = sameColumns ? model.getYColumnLabel() : trans('y-column') %}
+            {% set decimals = sameColumns ? model.getYDecimals() : null %}
+            {% set showBalance = sameColumns and model.canShowBalance() %}
+        {% else %}
+            {% set report = compared is not null and s_name == compared.name and s_name != model.name ? compared : model %}
+            {% set xLabel = report.getXColumnLabel() %}
+            {% set yLabel = report.getYColumnLabel() %}
+            {% set decimals = report.getYDecimals() %}
+            {% set showBalance = report.canShowBalance() %}
+        {% endif %}
         {% set total = 0 %}
+        {% set totalClass = '' %}
         <div class="col">
             <div class="card shadow mb-4">
             <div class="card-body">
@@ -20,33 +37,28 @@
             <table class="table table-striped table-hover mb-0">
                 <thead>
                 <tr>
-                    <th>{{ model.xcolumn | capitalize }}</th>
-                    <th>{{ model.ycolumn ? model.ycolumn | capitalize : trans('y-column') }}</th>
-                    <th>{{ trans('balance') }}</th>
+                    <th>{{ xLabel }}</th>
+                    <th class="text-end">{{ yLabel }}</th>
+                    {% if showBalance %}
+                        <th class="text-end">{{ trans('balance') }}</th>
+                    {% endif %}
                 </tr>
                 </thead>
                 <tbody>
                 {% for item in source %}
                     {% set total = total + item.ycol %}
                     {% set totalClass = s_name != 'difference' ? '' : (total > 0 ? 'text-success' : (total < 0 ? 'text-danger' : '')) %}
+                    {% set itemClass = s_name != 'difference' ? '' : (item.ycol > 0 ? 'text-success' : (item.ycol < 0 ? 'text-danger' : '')) %}
                     <tr>
                         <td>{{ item.xcol }}</td>
-                        <td>
-                            {% if s_name != 'difference' %}
-                                {{ item.ycol }}
-                            {% elseif item.ycol > 0 %}
-                                <span class="text-success">{{ item.ycol }}</span>
-                            {% elseif item.ycol < 0 %}
-                                <span class="text-danger">{{ item.ycol }}</span>
-                            {% else %}
-                                {{ item.ycol }}
-                            {% endif %}
-                        </td>
-                        <td class="{{ totalClass }}">{{ number(total) }}</td>
+                        <td class="text-end {{ itemClass }}">{{ number(item.ycol, decimals) }}</td>
+                        {% if showBalance %}
+                            <td class="text-end {{ totalClass }}">{{ number(total, decimals) }}</td>
+                        {% endif %}
                     </tr>
                 {% else %}
                     <tr>
-                        <td colspan="3" class="table-warning">{{ trans('no-data') }}</td>
+                        <td colspan="{{ showBalance ? 3 : 2 }}" class="table-warning">{{ trans('no-data') }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
@@ -54,8 +66,10 @@
                     <tfoot class="sticky-bottom bg-light fw-bold">
                     <tr>
                         <td>{{ trans('total') }}</td>
-                        <td class="{{ totalClass }}">{{ number(total) }}</td>
-                        <td></td>
+                        <td class="text-end {{ totalClass }}">{{ number(total, decimals) }}</td>
+                        {% if showBalance %}
+                            <td></td>
+                        {% endif %}
                     </tr>
                     </tfoot>
                 {% endif %}

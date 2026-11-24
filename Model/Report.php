@@ -23,6 +23,7 @@ use FacturaScripts\Core\Template\ModelClass;
 use FacturaScripts\Core\Template\ModelTrait;
 use FacturaScripts\Core\Tools;
 use FacturaScripts\Core\Where;
+use FacturaScripts\Dinamic\Model\Report as DinReport;
 
 /**
  * Descripcion de un informe o gráfico configurable
@@ -159,6 +160,20 @@ class Report extends ModelClass
         return $this->customSql;
     }
 
+    /**
+     * Indica si tiene sentido mostrar el saldo acumulado de los valores del eje Y:
+     * solo cuando se suman o cuentan valores agrupados por periodos consecutivos.
+     */
+    public function canShowBalance(): bool
+    {
+        $additive = in_array($this->yoperation ?? '', ['', 'SUM', 'COUNT', 'COUNT_DISTINCT'], true);
+        $sequential = in_array($this->xoperation ?? '', [
+            'DAY', 'WEEK', 'MONTHS', 'YEAR', 'UNIXTIME_DAY', 'UNIXTIME_WEEK', 'UNIXTIME_MONTH', 'UNIXTIME_YEAR'
+        ], true);
+
+        return $additive && $sequential;
+    }
+
     public function clear(): void
     {
         parent::clear();
@@ -174,6 +189,16 @@ class Report extends ModelClass
         }
 
         return new $className($this);
+    }
+
+    public function getComparedReport(): ?Report
+    {
+        if (empty($this->compared)) {
+            return null;
+        }
+
+        $report = new DinReport();
+        return $report->load($this->compared) ? $report : null;
     }
 
     public function getFiledXName(): string
@@ -239,6 +264,41 @@ class Report extends ModelClass
         return $data[0] ?? '';
     }
 
+    public function getXColumnLabel(): string
+    {
+        return empty($this->xcolumn) ? Tools::trans('x-column') : $this->getColumnLabel($this->xcolumn);
+    }
+
+    public function getYColumnLabel(): string
+    {
+        if (empty($this->ycolumn)) {
+            return Tools::trans('count');
+        }
+
+        $operation = match ($this->yoperation ?? '') {
+            'AVERAGE' => 'average',
+            'COUNT', 'COUNT_DISTINCT' => 'count',
+            'MAXIMUM' => 'maximum',
+            'MINIMUM' => 'minimum',
+            default => 'sum',
+        };
+
+        return $this->getColumnLabel($this->ycolumn) . ' (' . mb_strtolower(Tools::trans($operation)) . ')';
+    }
+
+    /**
+     * Devuelve los decimales con los que mostrar los valores del eje Y,
+     * o null para usar los decimales predeterminados.
+     */
+    public function getYDecimals(): ?int
+    {
+        if (empty($this->ycolumn) || in_array($this->yoperation, ['COUNT', 'COUNT_DISTINCT'], true)) {
+            return 0;
+        }
+
+        return null;
+    }
+
     public function primaryDescriptionColumn(): string
     {
         return 'name';
@@ -260,5 +320,19 @@ class Report extends ModelClass
         $this->ycolumn = Tools::noHtml($this->ycolumn);
         $this->yoperation = Tools::noHtml($this->yoperation);
         return parent::test();
+    }
+
+    /**
+     * Devuelve el nombre traducido de una columna, sin el prefijo de la tabla.
+     * Las expresiones SQL se devuelven tal cual.
+     */
+    private function getColumnLabel(string $column): string
+    {
+        if (false === (bool)preg_match('/^(?:\w+\.)?(\w+)$/', $column, $matches)) {
+            return $column;
+        }
+
+        $translation = Tools::trans($matches[1]);
+        return $translation === $matches[1] ? ucfirst($matches[1]) : $translation;
     }
 }
