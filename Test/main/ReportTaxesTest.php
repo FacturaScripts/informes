@@ -45,6 +45,12 @@ final class ReportTaxesTest extends TestCase
         self::setDefaultSettings();
         self::installAccountingPlan();
         self::removeTaxRegularization();
+
+        // al borrar facturas y productos, el core consulta tablas como pagosprov o productos_imagenes
+        // dentro de la transacción del borrado, pero no crea tablas en transacción. Con una base vacía,
+        // en PostgreSQL la consulta a la tabla inexistente aborta la transacción y el borrado falla.
+        // Cargamos los modelos del core antes para que existan todas sus tablas.
+        self::loadCoreModels();
     }
 
     public function testExportBuildsRealDocuments(): void
