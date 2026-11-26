@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of Informes plugin for FacturaScripts
- * Copyright (C) 2022-2025 Carlos Garcia Gomez <carlos@facturascripts.com>
+ * Copyright (C) 2022-2026 Carlos Garcia Gomez <carlos@facturascripts.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -148,16 +148,15 @@ class ReportTreasury extends Controller
             'total-mod200' => 0,
         ];
 
-        // si el Modelo111 está activado, obtenemos los datos del plugin
+        // si el Modelo111 está activado, obtenemos los datos del plugin. El plugin devuelve el importe
+        // a ingresar en positivo, pero en este informe las deudas van en negativo (como el 303 o el 202)
         if ($this->mod111Enabled) {
-            $mod111 = Modelo111::generate($this->codejercicio, 'ANNUAL');
-            $this->da_impuestos["irpf-mod111"] = $mod111['totalIngresar'] ?? 0;
+            $this->da_impuestos["irpf-mod111"] = -1 * $this->getMod111Total();
         }
 
-        // si el Modelo115 está activado, obtenemos los datos del plugin
+        // si el Modelo115 está activado, obtenemos los datos del plugin (en negativo, por ser una deuda)
         if ($this->mod115Enabled) {
-            $mod115 = Modelo115::generate($this->codejercicio, 'ANNUAL', '', 0);
-            $this->da_impuestos["irpf-mod115"] = $mod115['result'] ?? 0;
+            $this->da_impuestos["irpf-mod115"] = -1 * $this->getMod115Total();
         }
 
         // si el Modelo303 está activado, obtenemos los datos del plugin
@@ -300,6 +299,30 @@ class ReportTreasury extends Controller
         return $total;
     }
 
+    /**
+     * Devuelve el importe a ingresar del modelo 111 del ejercicio seleccionado (periodo anual),
+     * tal y como lo calcula el plugin Modelo111: en positivo.
+     *
+     * @return float
+     */
+    protected function getMod111Total(): float
+    {
+        $mod111 = Modelo111::generate($this->codejercicio, 'ANNUAL');
+        return (float)($mod111['totalIngresar'] ?? 0.0);
+    }
+
+    /**
+     * Devuelve el resultado del modelo 115 del ejercicio seleccionado (periodo anual, todas las
+     * retenciones), tal y como lo calcula el plugin Modelo115: en positivo.
+     *
+     * @return float
+     */
+    protected function getMod115Total(): float
+    {
+        $mod115 = Modelo115::generate($this->codejercicio, 'ANNUAL', '', 0);
+        return (float)($mod115['result'] ?? 0.0);
+    }
+
     protected function getVentasTotales(): float
     {
         $total = 0.0;
@@ -312,6 +335,68 @@ class ReportTreasury extends Controller
         }
 
         return $total;
+    }
+
+    protected function initializeDataArrays(): void
+    {
+        $this->da_tesoreria = [
+            'total_cajas' => 0.0,
+            'total_bancos' => 0.0,
+            'total_tesoreria' => 0.0,
+        ];
+
+        $this->da_gastos_cobros = [
+            'gastospdtepago' => 0.0,
+            'clientespdtecobro' => 0.0,
+            'nominaspdtepago' => 0.0,
+            'segsocialpdtepago' => 0.0,
+            'segsocialpdtecobro' => 0.0,
+            'total_gastoscobros' => 0.0,
+        ];
+
+        $this->da_impuestos = [
+            'irpf-mod111' => 0.0,
+            'irpf-mod115' => 0.0,
+            'iva-repercutido-mod303' => 0.0,
+            'iva-soportado-mod303' => 0.0,
+            'iva-devolver-mod303' => 0.0,
+            'iva-resultado-mod303' => 0.0,
+            'ventas_totales' => 0.0,
+            'gastos_totales' => 0.0,
+            'resultado' => 0.0,
+            'sociedades' => 0.0,
+            'pago-ant' => 0.0,
+            'pagofraccionado-mod202' => 0.0,
+            'resultado_ejanterior' => 0.0,
+            'resultado_negotros' => 0.0,
+            'total' => 0.0,
+            'sociedades_ant' => 0.0,
+            'sociedades_adelantos' => 0.0,
+            'total-mod200' => 0.0,
+        ];
+
+        $this->da_reservas_resultados = [
+            'reservalegal' => 0.0,
+            'reservasvoluntarias' => 0.0,
+            'resultadoejercicioanterior' => 0.0,
+            'total_reservas' => 0.0,
+        ];
+
+        $this->da_resultado_actual = [
+            'total_ventas' => 0.0,
+            'total_gastos' => 0.0,
+            'resultadoexplotacion' => 0.0,
+            'amortizacioninmovintang' => 0.0,
+            'amortizacioninmovmat' => 0.0,
+            'total_amort' => 0.0,
+            'resultado_antes_impuestos' => 0.0,
+            'impuesto_sociedades' => 0.0,
+            'resultado_despues_impuestos' => 0.0,
+        ];
+
+        $this->da_resultado_situacion = [
+            'total' => 0.0,
+        ];
     }
 
     protected function loadBancos(): void
@@ -403,68 +488,6 @@ class ReportTreasury extends Controller
         $this->cuadroResultadoActual();
         $this->cuadroImpuestos();
         $this->cuadroResultadosSituacionCorto();
-    }
-
-    protected function initializeDataArrays(): void
-    {
-        $this->da_tesoreria = [
-            'total_cajas' => 0.0,
-            'total_bancos' => 0.0,
-            'total_tesoreria' => 0.0,
-        ];
-
-        $this->da_gastos_cobros = [
-            'gastospdtepago' => 0.0,
-            'clientespdtecobro' => 0.0,
-            'nominaspdtepago' => 0.0,
-            'segsocialpdtepago' => 0.0,
-            'segsocialpdtecobro' => 0.0,
-            'total_gastoscobros' => 0.0,
-        ];
-
-        $this->da_impuestos = [
-            'irpf-mod111' => 0.0,
-            'irpf-mod115' => 0.0,
-            'iva-repercutido-mod303' => 0.0,
-            'iva-soportado-mod303' => 0.0,
-            'iva-devolver-mod303' => 0.0,
-            'iva-resultado-mod303' => 0.0,
-            'ventas_totales' => 0.0,
-            'gastos_totales' => 0.0,
-            'resultado' => 0.0,
-            'sociedades' => 0.0,
-            'pago-ant' => 0.0,
-            'pagofraccionado-mod202' => 0.0,
-            'resultado_ejanterior' => 0.0,
-            'resultado_negotros' => 0.0,
-            'total' => 0.0,
-            'sociedades_ant' => 0.0,
-            'sociedades_adelantos' => 0.0,
-            'total-mod200' => 0.0,
-        ];
-
-        $this->da_reservas_resultados = [
-            'reservalegal' => 0.0,
-            'reservasvoluntarias' => 0.0,
-            'resultadoejercicioanterior' => 0.0,
-            'total_reservas' => 0.0,
-        ];
-
-        $this->da_resultado_actual = [
-            'total_ventas' => 0.0,
-            'total_gastos' => 0.0,
-            'resultadoexplotacion' => 0.0,
-            'amortizacioninmovintang' => 0.0,
-            'amortizacioninmovmat' => 0.0,
-            'total_amort' => 0.0,
-            'resultado_antes_impuestos' => 0.0,
-            'impuesto_sociedades' => 0.0,
-            'resultado_despues_impuestos' => 0.0,
-        ];
-
-        $this->da_resultado_situacion = [
-            'total' => 0.0,
-        ];
     }
 
     protected function saldoCuenta(string $cuenta, string $desde, string $hasta): float

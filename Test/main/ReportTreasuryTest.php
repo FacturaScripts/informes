@@ -56,4 +56,54 @@ final class ReportTreasuryTest extends TestCase
         $this->assertSame(-250.0, $taxes['sociedades']);
         $this->assertSame(-250.0, $taxes['pagofraccionado-mod202']);
     }
+
+    /**
+     * Las retenciones de los modelos 111 y 115 son deudas: deben aparecer en negativo y
+     * restar en la situación a corto plazo, igual que el IVA a pagar del 303.
+     */
+    public function testRetentionsReduceShortTermSituation(): void
+    {
+        $report = new class ('ReportTreasury') extends ReportTreasury {
+            public function calculateSituation(): array
+            {
+                $this->ejercicio = new Ejercicio();
+                $this->ejercicio_ant = new Ejercicio();
+                $this->desde = '2026-01-01';
+                $this->hasta = '2026-12-31';
+                $this->mod111Enabled = true;
+                $this->mod115Enabled = true;
+                $this->mod303Enabled = false;
+                $this->initializeDataArrays();
+
+                $this->cuadroImpuestos();
+                $this->cuadroResultadosSituacionCorto();
+                return [$this->da_impuestos, $this->da_resultado_situacion];
+            }
+
+            protected function getMod111Total(): float
+            {
+                return 300.0;
+            }
+
+            protected function getMod115Total(): float
+            {
+                return 50.0;
+            }
+
+            protected function getVentasTotales(): float
+            {
+                return 0.0;
+            }
+
+            protected function saldoCuenta(string $cuenta, string $desde, string $hasta): float
+            {
+                return 0.0;
+            }
+        };
+
+        [$taxes, $situation] = $report->calculateSituation();
+        $this->assertSame(-300.0, $taxes['irpf-mod111']);
+        $this->assertSame(-50.0, $taxes['irpf-mod115']);
+        $this->assertSame(-350.0, $situation['total']);
+    }
 }
