@@ -44,6 +44,7 @@ class ReportBooks extends Controller
     {
         $data = parent::getPageData();
         $data['menu'] = 'reports';
+        $data['submenu'] = 'accounting';
         $data['title'] = 'books';
         $data['icon'] = 'fa-solid fa-book';
         return $data;

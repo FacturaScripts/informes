@@ -40,6 +40,7 @@ class ListReportAccounting extends ListController
     {
         $data = parent::getPageData();
         $data['menu'] = 'reports';
+        $data['submenu'] = 'accounting';
         $data['title'] = 'accounting-reports';
         $data['icon'] = 'fa-solid fa-balance-scale';
         return $data;

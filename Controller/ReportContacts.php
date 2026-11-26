@@ -49,6 +49,7 @@ class ReportContacts extends Controller
     {
         $data = parent::getPageData();
         $data['menu'] = 'reports';
+        $data['submenu'] = 'crm';
         $data['title'] = 'contacts';
         $data['icon'] = 'fa-solid fa-address-book';
         return $data;
